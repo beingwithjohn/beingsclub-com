@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Beings Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Be+Vietnam+Pro:ital,wght@0,200;0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #0C0B0A;
+    --paper: #E9E2D2;
+    --paper-dim: #BFB7A5;
+    --paper-soft: #8A8273;
+    --ember: #E4623B;
+    --serif: 'Be Vietnam Pro', system-ui, sans-serif;
+    --sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    --mono: 'Oswald', system-ui, sans-serif;
+    --display: 'Oswald', system-ui, sans-serif;
+    --pad-x: clamp(1.25rem, 4vw, 3rem);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* Vignette */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(228, 98, 59, 0.10), transparent 50%),
+      radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.6), transparent 60%);
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ——— CURSOR ——— */
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: difference;
+  }
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--paper);
+    border-radius: 50%;
+    transition: width 0.2s, height 0.2s;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--paper);
+    border-radius: 50%;
+    opacity: 0.5;
+    transition: width 0.25s ease, height 0.25s ease;
+  }
+  body.cursor-hover .cursor-dot { width: 10px; height: 10px; background: var(--ember); }
+  body.cursor-hover .cursor-ring { width: 60px; height: 60px; opacity: 0.8; }
+
+  @media (pointer: coarse) {
+    body { cursor: auto; }
+    a { cursor: pointer; }
+    .cursor-dot, .cursor-ring { display: none; }
+  }
+
+  /* ——— NAV ——— */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.6rem var(--pad-x);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(12,11,10,0.98), transparent);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+  .nav-logo img {
+    height: 38px;
+    width: auto;
+    display: block;
+    opacity: 0.95;
+  }
+  .mark {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--ember);
+    box-shadow: 0 0 18px var(--ember);
+    animation: breathe 5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.85); }
+  }
+
+  /* ——— MAIN ——— */
+  main {
+    flex: 1;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10rem var(--pad-x) 5rem;
+    max-width: 1240px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .four-oh-four {
+    font-family: var(--mono);
+    font-size: clamp(8rem, 22vw, 18rem);
+    font-weight: 300;
+    line-height: 0.85;
+    color: var(--paper);
+    opacity: 0.06;
+    user-select: none;
+    letter-spacing: -0.04em;
+    position: absolute;
+    top: 50%;
+    left: var(--pad-x);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.97rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ember);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 28px; height: 1px;
+    background: var(--ember);
+  }
+
+  h1 {
+    font-family: var(--mono);
+    font-weight: 300;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-style: italic;
+    color: var(--ember);
+    font-weight: 300;
+  }
+
+  p {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: var(--paper-dim);
+    max-width: 38ch;
+    line-height: 1.5;
+    margin-bottom: 3rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.97rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    transition: color 0.2s, gap 0.3s;
+  }
+  .back-link:hover { color: var(--ember); gap: 1.2rem; }
+  .back-link .arrow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.4rem;
+  }
+
+  /* ——— FOOTER ——— */
+  footer {
+    position: relative;
+    z-index: 2;
+    padding: 2rem var(--pad-x);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    border-top: 1px solid rgba(233, 226, 210, 0.08);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+  }
+  footer .mid { text-align: center; }
+  footer .right { text-align: right; }
+  footer a:hover { color: var(--ember); }
+
+  @media (max-width: 600px) {
+    body { cursor: auto; }
+    a { cursor: pointer; }
+    .cursor-dot, .cursor-ring { display: none; }
+
+    main {
+      padding: 8rem var(--pad-x) 3rem;
+      justify-content: center;
+    }
+
+    .four-oh-four {
+      font-size: clamp(6rem, 40vw, 10rem);
+      opacity: 0.05;
+    }
+
+    h1 { font-size: clamp(2rem, 10vw, 3rem); }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .eyebrow { font-size: 0.78rem; }
+
+    footer {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+    }
+    footer .mid, footer .right { text-align: left; }
+
+    nav { padding: 1.2rem var(--pad-x); }
+    nav img { height: 30px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <nav>
+    <a class="nav-logo" href="/">
+      <span class="mark"></span>
+      <img src="assets/beings-logo-paper.png" alt="Beings Club" />
+    </a>
+  </nav>
+
+  <main>
+    <div class="four-oh-four">404</div>
+    <div class="content">
+      <p class="eyebrow">Lost in the field</p>
+      <h1>This page doesn't <em>exist</em>.</h1>
+      <p>The space you were looking for has moved, or perhaps never was. Let's get you back to somewhere real.</p>
+      <a class="back-link" href="/"><span class="arrow">←</span> Back to entrance</a>
+    </div>
+  </main>
+
+  <footer>
+    <div class="left">For the benefit of all <em style="color:var(--ember); font-style:italic;">beings</em>.</div>
+    <div class="mid">© Beings Club · MMXXVI</div>
+    <div class="right"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
+  </footer>
+
+  <script>
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    document.querySelectorAll('a').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    (function loop() {
+      rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+  </script>
+
+</body>
+</html>

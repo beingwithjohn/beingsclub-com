@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beings Club — a space for genuine meeting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Oswald:wght@300;400;500;600&family=Be+Vietnam+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Palette — obsidian with warm undertone, paper foreground, ember accent */
+    --ground: #0C0B0A;
+    --ground-2: #15120E;
+    --ink: #1F1C17;
+    --paper: #E9E2D2;
+    --paper-dim: #BFB7A5;
+    --paper-soft: #8A8273;
+    --stone: #4E4A42;
+    --ember: #E4623B;
+    --ember-soft: #C4482A;
+    --bloom: oklch(72% 0.13 56);
+
+    /* Type */
+    --serif: 'Instrument Serif', 'Fraunces', Georgia, serif;
+    --sans: 'Be Vietnam Pro', 'Inter Tight', system-ui, sans-serif;
+    --mono: 'Oswald', system-ui, sans-serif;
+    --display: 'Oswald', 'Instrument Serif', serif;
+
+    /* Density */
+    --pad-x: clamp(1.25rem, 4vw, 3rem);
+    --rhythm: 1.8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ground);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: var(--rhythm);
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+    letter-spacing: 0.005em;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* Vignette bloom */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(228, 98, 59, 0.10), transparent 50%),
+      radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.6), transparent 60%);
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: none; }
+
+  /* ——————— CUSTOM CURSOR ——————— */
+  .cursor-dot, .cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: difference;
+  }
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--paper);
+    border-radius: 50%;
+    transition: width 0.2s, height 0.2s, background 0.2s;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--paper);
+    border-radius: 50%;
+    transition: width 0.25s ease, height 0.25s ease, border-color 0.25s;
+    opacity: 0.5;
+  }
+  body.cursor-hover .cursor-dot { width: 10px; height: 10px; background: var(--ember); }
+  body.cursor-hover .cursor-ring { width: 60px; height: 60px; opacity: 0.8; }
+
+  @media (pointer: coarse) {
+    body { cursor: auto; }
+    button { cursor: pointer; }
+    a { cursor: pointer; }
+    .cursor-dot, .cursor-ring { display: none; }
+  }
+
+  /* ——————— NAV ——————— */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.6rem var(--pad-x);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(12,11,10,0.98) 0%, rgba(12,11,10,0.92) 55%, rgba(12,11,10,0.4) 85%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+  .nav-logo .logo-img {
+    height: 38px;
+    width: auto;
+    display: block;
+    opacity: 0.95;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-logo:hover .logo-img { opacity: 1; transform: rotate(-1.5deg); }
+  body[data-palette="light"] .nav-logo .logo-img { filter: invert(1); }
+  .nav-logo .mark {
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--ember);
+    box-shadow: 0 0 18px var(--ember);
+    animation: breathe 5s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.85); }
+  }
+
+  .nav-right {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 0.97rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+  }
+
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    transition: color 0.2s;
+  }
+  .sound-toggle:hover { color: var(--paper); }
+  .sound-bars {
+    display: inline-flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 11px;
+  }
+  .sound-bars span {
+    width: 2px;
+    background: currentColor;
+    height: 3px;
+    transition: height 0.2s;
+  }
+  .sound-toggle.on .sound-bars span {
+    animation: barpulse 1.2s ease-in-out infinite;
+  }
+  .sound-toggle.on .sound-bars span:nth-child(2) { animation-delay: 0.2s; }
+  .sound-toggle.on .sound-bars span:nth-child(3) { animation-delay: 0.4s; }
+  .sound-toggle.on .sound-bars span:nth-child(4) { animation-delay: 0.1s; }
+  @keyframes barpulse {
+    0%, 100% { height: 3px; }
+    50% { height: 10px; }
+  }
+
+  /* Side-dot nav */
+  .side-nav {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .side-nav .dot {
+    width: 22px; height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .side-nav .dot::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--paper-soft);
+    transition: all 0.3s;
+  }
+  .side-nav .dot.active::before {
+    background: var(--ember);
+    width: 10px; height: 10px;
+    box-shadow: 0 0 14px var(--ember);
+  }
+  .side-nav .dot .label {
+    position: absolute;
+    right: 28px;
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    opacity: 0;
+    transform: translateX(8px);
+    transition: all 0.25s;
+    pointer-events: none;
+  }
+  .side-nav .dot:hover .label { opacity: 1; transform: translateX(0); }
+
+  /* Nav style variants (driven by body attribute) */
+  body[data-nav="top"] .side-nav { display: none; }
+  body[data-nav="minimal"] .side-nav { display: none; }
+  body[data-nav="minimal"] nav { background: transparent; backdrop-filter: none; border: none; }
+  body[data-nav="minimal"] .nav-right { display: none; }
+  body[data-nav="side"] nav { background: transparent; backdrop-filter: none; }
+  body[data-nav="side"] .nav-right { display: none; }
+
+  /* ——————— SECTIONS ——————— */
+  main {
+    position: relative;
+    z-index: 2;
+  }
+
+  section {
+    display: none;
+    min-height: 100vh;
+    padding: clamp(7rem, 14vh, 10rem) var(--pad-x) 5rem;
+    animation: sectionIn 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+    position: relative;
+  }
+  section.active { display: block; }
+
+  @keyframes sectionIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  /* ——————— HERO ——————— */
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.97rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ember);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--ember);
+  }
+
+  .display {
+    font-family: var(--display);
+    font-weight: 500;
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    font-size: clamp(5rem, 18vw, 17rem);
+    color: var(--paper);
+    margin-top: 2rem;
+  }
+  .display .italic {
+    font-style: italic;
+    color: var(--ember);
+    font-family: var(--display);
+    font-weight: 400;
+    text-transform: none;
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+    align-items: start;
+  }
+
+  .hero-lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.35rem, 2.3vw, 2rem);
+    line-height: 1.35;
+    color: var(--paper);
+    max-width: 26ch;
+    font-weight: 300;
+  }
+
+  .hero-coords {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.97rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+  }
+  .hero-coords .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px dashed rgba(233, 226, 210, 0.12);
+  }
+  .hero-coords .row .v { color: var(--paper); }
+
+  /* Hero variant — minimal */
+  body[data-hero="minimal"] .hero-meta { grid-template-columns: 1fr; }
+  body[data-hero="minimal"] .hero-coords { display: none; }
+  body[data-hero="minimal"] .display { font-size: clamp(4rem, 10vw, 9rem); }
+
+  /* Hero variant — stacked */
+  body[data-hero="stacked"] .display {
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(5rem, 14vw, 14rem);
+    line-height: 0.9;
+  }
+  body[data-hero="stacked"] .display .line1 { align-self: start; }
+  body[data-hero="stacked"] .display .line2 { align-self: end; margin-top: -0.15em; }
+
+  /* ——————— PATH SELECTOR ——————— */
+  .path-block {
+    margin-top: 7rem;
+    display: grid;
+    grid-template-columns: 0.8fr 2fr;
+    gap: 4rem;
+    padding-top: 4rem;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+  }
+  .path-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(2rem, 3.2vw, 2.8rem);
+    line-height: 1.05;
+    color: var(--paper);
+    font-weight: 300;
+  }
+  .path-title .num {
+    display: block;
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    margin-bottom: 1.5rem;
+  }
+  .paths {
+    display: flex;
+    flex-direction: column;
+  }
+  .path-btn {
+    text-align: left;
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(233, 226, 210, 0.12);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    transition: padding 0.35s ease, color 0.3s ease;
+    position: relative;
+  }
+  .path-btn:first-child { border-top: 1px solid rgba(233, 226, 210, 0.12); }
+  .path-btn .idx {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.15em;
+    color: var(--paper-soft);
+  }
+  .path-btn .label {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    line-height: 1.15;
+    font-weight: 400;
+    color: var(--paper);
+    transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .path-btn .arrow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 2rem;
+    color: var(--paper-soft);
+    transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .path-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(228,98,59,0.06), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  .path-btn:hover::before { opacity: 1; }
+  .path-btn:hover { padding-left: 1.5rem; }
+  .path-btn:hover .label { color: var(--ember); }
+  .path-btn:hover .arrow {
+    color: var(--ember);
+    transform: translateX(10px);
+  }
+
+  /* ——————— STORY ——————— */
+  .story-block {
+    margin-top: 9rem;
+    display: grid;
+    grid-template-columns: 0.8fr 2fr;
+    gap: 4rem;
+    padding-top: 4rem;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+  }
+  .story-label {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    position: sticky;
+    top: 8rem;
+    align-self: start;
+  }
+  .story-body {
+    font-family: var(--serif);
+    font-size: clamp(1.25rem, 1.7vw, 1.5rem);
+    line-height: 1.55;
+    color: var(--paper);
+    font-weight: 300;
+    max-width: 55ch;
+  }
+  .story-body p { margin-bottom: 1.5rem; }
+  .story-body p:first-child::first-letter {
+    font-family: var(--serif);
+    font-size: 4.5em;
+    line-height: 0.85;
+    float: left;
+    padding: 0.1em 0.18em 0 0;
+    margin-right: 0.08em;
+    color: var(--ember);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .story-body .attribution {
+    font-style: italic;
+    color: var(--ember);
+    font-size: 1rem;
+    font-family: var(--mono);
+    font-style: normal;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-top: 1rem;
+  }
+
+  /* ——————— TESTIMONIALS ——————— */
+  .testimonials-block {
+    margin-top: 9rem;
+    padding-top: 4rem;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+  }
+  .testimonials-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  .testimonials-header h3 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .testimonials-header h3 em {
+    color: var(--ember);
+    font-style: italic;
+  }
+  .testimonials-header .label {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+  }
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+    border-left: 1px solid rgba(233, 226, 210, 0.12);
+  }
+  .testimonial {
+    padding: 2.5rem 2rem;
+    border-right: 1px solid rgba(233, 226, 210, 0.12);
+    border-bottom: 1px solid rgba(233, 226, 210, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: space-between;
+    min-height: 220px;
+    transition: background 0.4s;
+  }
+  .testimonial:hover { background: rgba(233, 226, 210, 0.03); }
+  .testimonial blockquote {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.35rem;
+    font-weight: 300;
+    line-height: 1.35;
+    color: var(--paper);
+  }
+  .testimonial blockquote::before {
+    content: "“";
+    color: var(--ember);
+    font-size: 2.2rem;
+    line-height: 0;
+    vertical-align: -0.4em;
+    margin-right: 0.1em;
+  }
+  .testimonial cite {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    font-style: normal;
+  }
+
+  /* ——————— INNER PAGES ——————— */
+  .inner-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.97rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    margin-bottom: 4rem;
+    transition: color 0.2s, gap 0.3s;
+  }
+  .back-btn:hover { color: var(--ember); gap: 1rem; }
+  .back-btn .chev {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  .page-num {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    max-width: 20ch;
+  }
+  .flow-chapter h2 { max-width: none; }
+  h2 em {
+    font-style: italic;
+    color: var(--ember);
+  }
+
+  .page-intro {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.3rem, 2vw, 1.7rem);
+    color: var(--paper);
+    line-height: 1.45;
+    max-width: 48ch;
+    margin-top: 2rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(233, 226, 210, 0.12);
+  }
+  .flow-chapter .page-intro { max-width: 52ch; }
+
+  .page-body {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: 0.5fr 2fr;
+    gap: 3rem;
+  }
+  .page-body .marker {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+  }
+  .page-body .prose p {
+    margin-bottom: 1.5rem;
+    color: var(--paper);
+    font-size: 1.05rem;
+    line-height: 1.75;
+    max-width: 58ch;
+  }
+
+  .paused-notice {
+    margin: 3.5rem 0 0;
+    padding: 2.2rem 2rem 2rem 2.5rem;
+    background: var(--ground-2);
+    border-left: 2px solid var(--ember);
+    color: var(--paper-dim);
+    font-size: 0.95rem;
+    line-height: 1.75;
+    position: relative;
+  }
+  .paused-notice::before {
+    content: "STATUS";
+    position: absolute;
+    top: 0;
+    left: -2px;
+    background: var(--ember);
+    color: var(--ground);
+    padding: 0.35rem 0.7rem 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  /* ——————— CTA / FORM ——————— */
+  .cta-row {
+    margin-top: 3rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 2rem 1.2rem 2.25rem;
+    background: var(--paper);
+    color: var(--ground);
+    font-family: var(--mono);
+    font-size: 1.01rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--ember);
+    transform: translateY(101%);
+    transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+    z-index: 0;
+  }
+  .cta-btn:hover { color: var(--paper); }
+  .cta-btn:hover::after { transform: translateY(0); }
+  .cta-btn > * { position: relative; z-index: 1; }
+  .cta-btn .arrow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.1rem;
+    letter-spacing: 0;
+  }
+
+  .cta-btn.ghost {
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid rgba(233, 226, 210, 0.2);
+  }
+  .cta-btn.ghost::after { background: rgba(233, 226, 210, 0.08); }
+  .cta-btn.ghost:hover { color: var(--paper); border-color: rgba(233, 226, 210, 0.4); }
+
+  /* ——————— MULTI-STEP FORM (modal) ——————— */
+  .form-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(12, 11, 10, 0.85);
+    backdrop-filter: blur(14px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    animation: overlayIn 0.35s ease;
+  }
+  .form-overlay.open { display: flex; }
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .form-shell {
+    width: 100%;
+    max-width: 620px;
+    background: var(--ground-2);
+    border: 1px solid rgba(233, 226, 210, 0.12);
+    padding: 3.5rem 3rem 3rem;
+    position: relative;
+    animation: shellIn 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  @keyframes shellIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  .form-close {
+    position: absolute;
+    top: 1.5rem; right: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.14em;
+    color: var(--paper-soft);
+    padding: 0.5rem;
+    transition: color 0.2s;
+  }
+  .form-close:hover { color: var(--ember); }
+
+  .form-progress {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 2.5rem;
+  }
+  .form-progress .tick {
+    flex: 1;
+    height: 2px;
+    background: rgba(233, 226, 210, 0.12);
+    transition: background 0.4s;
+  }
+  .form-progress .tick.done { background: var(--ember); }
+
+  .form-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    margin-bottom: 1.5rem;
+  }
+  .form-meta .count .ember { color: var(--ember); }
+
+  .form-step { display: none; }
+  .form-step.active {
+    display: block;
+    animation: fieldIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  @keyframes fieldIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .form-step .q {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    line-height: 1.2;
+    font-weight: 300;
+    color: var(--paper);
+    margin-bottom: 2rem;
+    max-width: 24ch;
+  }
+  .form-step .q em { color: var(--ember); font-style: italic; }
+
+  .form-step input[type="text"],
+  .form-step input[type="email"],
+  .form-step textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(233, 226, 210, 0.25);
+    padding: 0.9rem 0;
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    color: var(--paper);
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.25s;
+    resize: none;
+  }
+  .form-step input::placeholder,
+  .form-step textarea::placeholder {
+    color: var(--paper-soft);
+    font-style: italic;
+    opacity: 0.6;
+  }
+  .form-step input:focus,
+  .form-step textarea:focus {
+    border-bottom-color: var(--ember);
+  }
+  .form-step textarea { min-height: 120px; font-size: 1.1rem; line-height: 1.55; font-family: var(--sans); font-weight: 300; }
+
+  .form-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+  }
+  .chip {
+    padding: 0.7rem 1.1rem;
+    border: 1px solid rgba(233, 226, 210, 0.18);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    transition: all 0.2s;
+  }
+  .chip:hover { color: var(--paper); border-color: var(--paper-dim); }
+  .chip.selected {
+    background: var(--ember);
+    border-color: var(--ember);
+    color: var(--ground);
+  }
+
+  .form-nav {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .form-nav .back,
+  .form-nav .next {
+    font-family: var(--mono);
+    font-size: 1.01rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 1rem 1.5rem;
+    transition: all 0.25s;
+  }
+  .form-nav .back {
+    color: var(--paper-soft);
+  }
+  .form-nav .back:hover { color: var(--paper); }
+  .form-nav .back[disabled] { opacity: 0.3; pointer-events: none; }
+  .form-nav .next {
+    background: var(--paper);
+    color: var(--ground);
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    border: 1px solid var(--paper);
+  }
+  .form-nav .next:hover {
+    background: var(--ember);
+    border-color: var(--ember);
+    color: var(--ground);
+  }
+  .form-nav .next[disabled] {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .form-nav .next .arrow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.1rem;
+    letter-spacing: 0;
+  }
+
+  .form-complete {
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .form-complete .seal {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 1px solid var(--ember);
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 2rem;
+    color: var(--ember);
+    animation: sealIn 0.7s ease;
+  }
+  @keyframes sealIn {
+    from { transform: scale(0.5) rotate(-45deg); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .form-complete h4 {
+    font-family: var(--serif);
+    font-size: 2.2rem;
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .form-complete h4 em { font-style: italic; color: var(--ember); }
+  .form-complete p {
+    color: var(--paper-dim);
+    max-width: 34ch;
+    margin: 0 auto;
+  }
+
+  /* ——————— GUIDED FLOW ——————— */
+  .flow {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .flow-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    margin-bottom: 1rem;
+  }
+  .flow-head .flow-now { color: var(--ember); }
+  .flow-progress {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 3rem;
+  }
+  .flow-progress .tick {
+    flex: 1;
+    height: 2px;
+    background: rgba(233, 226, 210, 0.12);
+    transition: background 0.5s ease;
+  }
+  .flow-progress .tick.done { background: var(--ember); }
+
+  .flow-chapter { display: none; flex: 1; }
+  .flow-chapter.active {
+    display: block;
+    opacity: 1;
+    animation: chapIn 0.4s ease-out;
+  }
+  @keyframes chapIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  .flow-kicker {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    margin-bottom: 1.5rem;
+  }
+  .flow-chapter h2.h-small {
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+    max-width: 18ch;
+  }
+  .prose.wide p {
+    color: var(--paper);
+    font-size: 1.1rem;
+    line-height: 1.75;
+    max-width: 52ch;
+    margin-bottom: 1.3rem;
+  }
+  .flow-nav {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .flow-nav button {
+    font-family: var(--mono);
+    font-size: 1.05rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 1.15rem 1.9rem;
+    display: inline-flex;
+    gap: 0.9rem;
+    align-items: center;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .flow-nav .flow-next {
+    background: var(--paper);
+    color: var(--ground);
+    border: 1px solid var(--paper);
+  }
+  .flow-nav .flow-next::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--ember);
+    transform: translateY(101%);
+    transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+    z-index: 0;
+  }
+  .flow-nav .flow-next > * { position: relative; z-index: 1; }
+  .flow-nav .flow-next:hover { color: var(--paper); border-color: var(--ember); }
+  .flow-nav .flow-next:hover::after { transform: translateY(0); }
+  .flow-nav .flow-prev {
+    background: transparent;
+    color: var(--paper-dim);
+    border: 1px solid rgba(233, 226, 210, 0.2);
+  }
+  .flow-nav .flow-prev:hover {
+    color: var(--paper);
+    border-color: rgba(233, 226, 210, 0.5);
+    background: rgba(233, 226, 210, 0.04);
+  }
+  .flow-nav button .arrow {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+    letter-spacing: 0;
+  }
+  .flow-nav .flow-next .arrow { color: inherit; }
+  .flow-nav .flow-prev .arrow { color: var(--ember); }
+  .flow-nav button[disabled] { opacity: 0.3; pointer-events: none; }
+
+  /* ——————— FOOTER ——————— */
+  footer {
+    margin-top: 9rem;
+    padding-top: 3rem;
+    border-top: 1px solid rgba(233, 226, 210, 0.12);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    align-items: end;
+  }
+  footer .left {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--paper);
+  }
+  footer .mid {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    text-align: center;
+  }
+  footer .right {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--paper-soft);
+    text-align: right;
+  }
+  footer a:hover { color: var(--ember); }
+
+  /* ——————— TWEAKS PANEL ——————— */
+  .tweaks {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 300;
+    width: 280px;
+    background: var(--ground-2);
+    border: 1px solid rgba(233, 226, 210, 0.15);
+    padding: 1.25rem;
+    display: none;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: var(--paper-dim);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .tweaks.open { display: block; }
+  .tweaks-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(233, 226, 210, 0.12);
+  }
+  .tweaks-head .title {
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    color: var(--paper);
+    font-size: 0.72rem;
+  }
+  .tweaks-head .title .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--ember);
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  .tweak-row {
+    margin-bottom: 1rem;
+  }
+  .tweak-row:last-child { margin-bottom: 0; }
+  .tweak-row .label {
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.62rem;
+    color: var(--paper-soft);
+    margin-bottom: 0.4rem;
+  }
+  .tweak-opts {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+  .tweak-opts button {
+    flex: 1;
+    padding: 0.55rem 0.4rem;
+    background: transparent;
+    border: 1px solid rgba(233, 226, 210, 0.15);
+    color: var(--paper-dim);
+    font-family: var(--mono);
+    font-size: 0.84rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    min-width: 0;
+  }
+  .tweak-opts button:hover { color: var(--paper); border-color: var(--paper-dim); }
+  .tweak-opts button.active {
+    background: var(--ember);
+    border-color: var(--ember);
+    color: var(--ground);
+  }
+
+  /* Light mode palette via data attribute */
+  body[data-palette="light"] {
+    --ground: #EFEAE0;
+    --ground-2: #E4DECF;
+    --ink: #1F1C17;
+    --paper: #1F1C17;
+    --paper-dim: #4E4A42;
+    --paper-soft: #6B6659;
+    --stone: #C8C0AD;
+    --ember: #9F3A1C;
+  }
+  body[data-palette="light"]::after {
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(159, 58, 28, 0.12), transparent 50%),
+      radial-gradient(ellipse at 50% 120%, rgba(0, 0, 0, 0.08), transparent 60%);
+  }
+  body[data-palette="light"] .form-shell,
+  body[data-palette="light"] .paused-notice { background: rgba(0,0,0,0.04); }
+  body[data-palette="light"] .cta-btn { background: var(--paper); color: var(--ground); }
+  body[data-palette="light"] .form-nav .next { background: var(--paper); color: var(--ground); }
+
+  /* Density: compact */
+  body[data-density="compact"] {
+    --pad-x: clamp(1rem, 3vw, 2rem);
+    --rhythm: 1.55;
+  }
+  body[data-density="compact"] section { padding-top: clamp(5rem, 9vh, 7rem); padding-bottom: 3rem; }
+  body[data-density="compact"] .path-block,
+  body[data-density="compact"] .story-block,
+  body[data-density="compact"] .testimonials-block { margin-top: 4rem; padding-top: 2.5rem; }
+  body[data-density="compact"] footer { margin-top: 5rem; }
+
+  /* Font pairing alt */
+  body[data-fonts="fraunces"] {
+    --serif: 'Fraunces', Georgia, serif;
+  }
+  body[data-fonts="mono"] {
+    --serif: 'Oswald', system-ui, sans-serif;
+  }
+  body[data-fonts="mono"] .display { font-weight: 300; letter-spacing: -0.04em; }
+  body[data-fonts="mono"] .display .italic { font-style: normal; text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 0.1em; }
+  /* Oswald + Be Vietnam Pro pairing */
+  body[data-fonts="oswald"] {
+    --serif: 'Be Vietnam Pro', system-ui, sans-serif;
+    --sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    --display: 'Oswald', 'Instrument Serif', serif;
+  }
+  body[data-fonts="oswald"] .display .italic {
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-style: italic;
+    font-weight: 300;
+    text-transform: none;
+  }
+  body[data-fonts="oswald"] h2 {
+    font-family: var(--display);
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  body[data-fonts="oswald"] h2 em {
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-style: italic;
+    font-weight: 300;
+    text-transform: none;
+  }
+
+  /* ——————— RESPONSIVE ——————— */
+  @media (max-width: 860px) {
+    .hero-meta { grid-template-columns: 1fr; gap: 2rem; }
+    .path-block, .story-block { grid-template-columns: 1fr; gap: 2rem; }
+    .page-body { grid-template-columns: 1fr; gap: 1rem; }
+    .side-nav { display: none !important; }
+    footer { grid-template-columns: 1fr; text-align: left; gap: 1.5rem; }
+    footer .mid, footer .right { text-align: left; }
+    .tweaks { left: 1rem; right: 1rem; width: auto; }
+    .nav-right { gap: 1rem; }
+    .nav-right .nav-tag { display: none; }
+    .form-shell { padding: 3rem 1.5rem 2rem; }
+  }
+
+  @media (max-width: 600px) {
+    body { cursor: auto; }
+    button { cursor: pointer; }
+    a { cursor: pointer; }
+    .cursor-dot, .cursor-ring { display: none; }
+
+    section {
+      padding-top: clamp(5rem, 10vh, 7rem);
+      padding-bottom: 3rem;
+    }
+
+    .display {
+      font-size: clamp(3.8rem, 18vw, 6rem);
+      line-height: 0.9;
+    }
+    .hero-lede { font-size: clamp(1.1rem, 5vw, 1.4rem) !important; }
+    .eyebrow { font-size: 0.8rem; letter-spacing: 0.2em; }
+    .path-block { margin-top: 4rem; padding-top: 2.5rem; }
+    .path-btn { padding: 1.4rem 0; }
+    .path-btn .label { font-size: 1.1rem; }
+    .story-block { margin-top: 4rem; padding-top: 2.5rem; }
+    .story-body { font-size: clamp(1rem, 4vw, 1.25rem); }
+    .testimonials-block { margin-top: 4rem; padding-top: 2.5rem; }
+    .testimonials-header { margin-bottom: 2rem; }
+    .testimonials-header h3 { font-size: clamp(1.8rem, 7vw, 2.5rem); }
+    .testimonial-grid { grid-template-columns: 1fr; }
+    .testimonial { min-height: unset; padding: 2rem 1.5rem; }
+    .testimonial blockquote { font-size: 1.15rem; }
+    .inner-wrap { padding: 0; }
+    .flow-chapter h2 { font-size: clamp(1.8rem, 7vw, 2.8rem); }
+    .prose { font-size: 1rem; }
+    .form-shell {
+      padding: 2rem 1.2rem 1.5rem;
+      margin: 1rem;
+      width: calc(100% - 2rem);
+    }
+    .form-head { margin-bottom: 2rem; }
+    nav { padding: 1.2rem var(--pad-x); }
+    .nav-logo .logo-img { height: 30px; }
+    footer { padding: 2rem var(--pad-x); gap: 0.75rem; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body data-nav="side" data-palette="dark" data-fonts="oswald" data-hero="split" data-density="airy">
+
+  <!-- Custom cursor -->
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#" data-link="home">
+      <span class="mark"></span>
+      <img class="logo-img" src="assets/beings-logo-paper.png" alt="Beings Club">
+      <span class="visually-hidden" style="position:absolute;left:-9999px;">Beings Club</span>
+    </a>
+    <div class="nav-right">
+      <span class="nav-tag">PRACTICE · CONNECT · EXPLORE</span>
+      <button class="sound-toggle" id="soundToggle" aria-label="Toggle ambient sound">
+        <span class="sound-bars">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span class="sound-label">Ambient</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Side-dot nav -->
+  <aside class="side-nav" id="sideNav">
+    <a class="dot active" data-link="home"><span class="label">Home</span></a>
+    <a class="dot" data-link="join"><span class="label">Join</span></a>
+    <a class="dot" data-link="about"><span class="label">About</span></a>
+    <a class="dot" data-link="community"><span class="label">Partner</span></a>
+    <a class="dot" data-link="host"><span class="label">Host</span></a>
+  </aside>
+
+  <main>
+
+    <!-- ================= HOME ================= -->
+    <section id="home" class="active">
+      <div class="wrap">
+        <p class="eyebrow">For the benefit of all beings</p>
+
+        <h1 class="display" id="displayHead">
+          <span class="line1" style='font-family: "Be Vietnam Pro"; font-weight: 700'>Beings</span>
+          <span class="line2"><span class="italic" style='font-family: "Be Vietnam Pro"; font-weight: 700'>Club.</span></span>
+        </h1>
+
+        <div class="hero-meta">
+          <p class="hero-lede" style="font-family: Oswald; font-size: 42px">Space to connect — to oneself, to each other, and to what is possible.</p>
+          <div class="hero-coords">
+            <div class="row"><span>Est.</span><span class="v">2025 · The Internet</span></div>
+            <div class="row"><span>Format</span><span class="v">Online · 90 min</span></div>
+            <div class="row"><span>Status</span><span class="v" style="color: var(--ember)">● Preparing next phase</span></div>
+          </div>
+        </div>
+
+        <!-- PATH SELECTOR -->
+        <div class="path-block">
+          <div class="path-title" style="font-family: Oswald">
+            <span class="num">01 · Start here</span>
+            What <em style="font-style:italic; color: var(--ember);">brings</em> you here?
+          </div>
+          <div class="paths">
+            <button class="path-btn" data-link="join">
+              <span class="idx">I</span>
+              <span class="label" style="font-family: Oswald">I want to join Beings Club</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="path-btn" data-link="about">
+              <span class="idx">II</span>
+              <span class="label" style="font-family: Oswald">I want to learn more about Beings Club</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="path-btn" data-link="community">
+              <span class="idx">III</span>
+              <span class="label">I want to bring the format into another community</span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="path-btn" data-link="host">
+              <span class="idx">IV</span>
+              <span class="label">I want to learn to host spaces like this</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STORY -->
+        <div class="story-block">
+          <div class="story-label">02 · The origin</div>
+          <div class="story-body">
+            <p>In 2019 I went on a meditation retreat for neuroscientists, psychologists and psychiatrists at Plum Village. The scheduled talks and practice sessions were deeply valuable. But I found myself drawn, again and again, to a small tea house at the retreat — to get a cup of tea, to get into conversation, and to get to know the people around me without the need to explore any particular theme or topic.</p>
+            <p>Some of the conversations that happened there have led to friendships I still have today, ideas that have changed my life, and insights I'm still living.</p>
+            <p>Beings Club is an offering in the lineage of that atmosphere. A space where conversation can flow freely between people who share ground and are open to unexpected outcomes. Not everyone is going to go on a Buddhist Neuroscience meditation retreat. But everyone has some curiosity, their own experiences, and a part to play in the unfolding of our world. The opportunity to connect to ourselves, each other, and what is possible in this human life is one of the greatest blessings of our existence.</p>
+            <p>Beings Club exists to create space for all of that.</p>
+            <p>And you're invited to take part.</p>
+            <p class="attribution">— John</p>
+          </div>
+        </div>
+
+        <!-- TESTIMONIALS -->
+        <div class="testimonials-block">
+          <div class="testimonials-header">
+            <h3>What people <em>say</em>.</h3>
+            <span class="label">03 · Field notes</span>
+          </div>
+          <div class="testimonial-grid">
+            <div class="testimonial">
+              <blockquote>A space to slow down, reflect together, and make sense of things out loud.</blockquote>
+              <cite>Ana C · Designer, spectral41</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>90 minutes of nothing in particular could fly by and also be so energizing.</blockquote>
+              <cite>Mark F · Product, Arist</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>Genuine encounters with people whose timelines wouldn't typically intersect with mine.</blockquote>
+              <cite>Zak EF · Engineer-philosopher</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>Beings Club became my Sunday ritual.</blockquote>
+              <cite>Sean P · Founder, tbd.zip</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>I have had several experiences of being seen, heard, and held.</blockquote>
+              <cite>Manansh S · Founder, OpenUX</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>It was amazing. I found genuine connection on each call.</blockquote>
+              <cite>Catra · Contributor, HIGHER</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>It feels like a kind of therapy...it's been really enriching to discover new ways of thinking.</blockquote>
+              <cite>Victor · Brands/Design, floc</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>I'm so so grateful this space exists.</blockquote>
+              <cite>Jordan N · Designer and Creative Director</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>Highly recommend it to anyone who's curious but on the fence.</blockquote>
+              <cite>Esme · Joy Seeker, esmemadethis.com</cite>
+            </div>
+            <div class="testimonial">
+              <blockquote>I leave every week feeling more human, more like a being.</blockquote>
+              <cite>The Dude · hyperub.xyz/s/dude</cite>
+            </div>
+          </div>
+        </div>
+
+        <footer>
+          <div class="left">For the benefit of all <em style="color:var(--ember);">beings</em>.</div>
+          <div class="mid">© Beings Club · MMXXVI</div>
+          <div class="right"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section id="about">
+      <div class="wrap inner-wrap">
+        <button class="back-btn" data-link="home"><span class="chev">←</span> Back to entrance</button>
+
+        <div class="flow" data-flow="about">
+          <div class="flow-head">
+            <span class="flow-path">Path II · About</span>
+            <span class="flow-count"><span class="flow-now">01</span> / <span class="flow-total">04</span></span>
+          </div>
+          <div class="flow-progress"></div>
+
+          <div class="flow-chapter active" data-chapter="0">
+            <p class="flow-kicker">Chapter one · What it is</p>
+            <h2>Beings Club, in <em>short</em>.</h2>
+            <p class="page-intro">Beings Club exists to connect people to themselves, each other, and to what is possible. Fundamentally, our spaces are built around intentional practice and great conversation.</p>
+          </div>
+
+          <div class="flow-chapter" data-chapter="1">
+            <p class="flow-kicker">Chapter two · The shape of a session</p>
+            <h2 class="h-small">Ninety <em>minutes</em>.</h2>
+            <div class="prose wide">
+              <p>Each session follows a simple format: a period of individual practice held in a shared field, time for breakout room conversations, and a closing that brings everyone back together.</p>
+              <p>The format is simple by design. The less the structure prescribes, the more space there is for what wants to emerge between people.</p>
+              <p>What arises — friendships, unexpected ideas, a sense of belonging — comes from genuine meeting, naturally.</p>
+            </div>
+          </div>
+
+          <div class="flow-chapter" data-chapter="2">
+            <p class="flow-kicker">Chapter three · Origin</p>
+            <h2 class="h-small">A <em>tea house</em>.</h2>
+            <div class="prose wide">
+              <p>In 2019 I went on a meditation retreat for neuroscientists, psychologists and psychiatrists at Plum Village. The scheduled talks and practice sessions were deeply valuable. But I found myself drawn, again and again, to a small tea house at the retreat — to get a cup of tea, to get into conversation, and to get to know the people around me without the need to explore any particular theme or topic.</p>
+              <p>Some of the conversations that happened there have led to friendships I still have today, ideas that have changed my life, and insights I'm still living.</p>
+              <p>Beings Club is an offering in the lineage of that atmosphere.</p>
+              <p style="color: var(--ember); font-family: var(--mono); font-size: 0.97rem; letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2rem;">— John</p>
+            </div>
+          </div>
+
+          <div class="flow-chapter" data-chapter="3">
+            <p class="flow-kicker">Chapter four · Ready to take the next step?</p>
+            <h2 class="h-small">Where would you like to <em>go</em>?</h2>
+            <div class="paths" style="margin-top: 2rem;">
+              <button class="path-btn" data-link="join">
+                <span class="idx">I</span>
+                <span class="label">I want to join Beings Club</span>
+                <span class="arrow">→</span>
+              </button>
+              <button class="path-btn" data-link="community">
+                <span class="idx">II</span>
+                <span class="label">I want to bring the format into another community</span>
+                <span class="arrow">→</span>
+              </button>
+              <button class="path-btn" data-link="host">
+                <span class="idx">III</span>
+                <span class="label">I want to learn to host spaces like this</span>
+                <span class="arrow">→</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flow-nav">
+            <button class="flow-prev" disabled><span class="arrow">←</span> <span>Previous</span></button>
+            <button class="flow-next"><span>Continue</span> <span class="arrow">→</span></button>
+          </div>
+        </div>
+
+        <footer>
+          <div class="left">For the benefit of all <em style="color:var(--ember);">beings</em>.</div>
+          <div class="mid">© Beings Club · MMXXVI</div>
+          <div class="right"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ================= JOIN (guided flow) ================= -->
+    <section id="join">
+      <div class="wrap inner-wrap">
+        <button class="back-btn" data-link="home"><span class="chev">←</span> Back to entrance</button>
+
+        <div class="flow" data-flow="join">
+          <div class="flow-head">
+            <span class="flow-path">Path I · Joining</span>
+            <span class="flow-count"><span class="flow-now">01</span> / <span class="flow-total">04</span></span>
+          </div>
+          <div class="flow-progress"></div>
+
+          <!-- Chapter 1 -->
+          <div class="flow-chapter active" data-chapter="0">
+            <p class="flow-kicker">Chapter one</p>
+            <h2>Join <em>Beings</em> Club.</h2>
+            <p class="page-intro">An online meeting place for intentional practice and great conversation. A place to connect — to yourself, to others, and to what is possible.</p>
+          </div>
+
+          <!-- Chapter 2 -->
+          <div class="flow-chapter" data-chapter="1">
+            <p class="flow-kicker">Chapter two · The format</p>
+            <h2 class="h-small">A simple <em>shape</em>.</h2>
+            <div class="prose wide">
+              <p>Each session follows the same rhythm: a period of individual practice held in a shared field, randomly-assigned breakout conversations, and a closing that brings everyone back together.</p>
+              <p>Sessions run approximately 90 minutes.</p>
+            </div>
+          </div>
+
+          <!-- Chapter 3 -->
+          <div class="flow-chapter" data-chapter="2">
+            <p class="flow-kicker">Chapter three · Who it's for</p>
+            <h2 class="h-small">For the <em>curious</em>.</h2>
+            <div class="prose wide">
+              <p>Beings Club is a space for curiosity, for people who value their own inner life, and who are open to what can emerge when people come together without a fixed agenda.</p>
+            </div>
+          </div>
+
+          <!-- Chapter 4 — status + CTA -->
+          <div class="flow-chapter" data-chapter="3">
+            <p class="flow-kicker">Chapter four · Where we are</p>
+            <h2 class="h-small">Beings Club is <em>paused</em>.</h2>
+            <div class="paused-notice" style="margin-top:2rem;">
+              Beings Club is paused while we prepare for the next phase. If you'd like to be among the first to know when it relaunches, please register your interest — we'd love to hear from you.
+            </div>
+            <div class="cta-row">
+              <button class="cta-btn" data-form="join">
+                <span>Register your interest</span>
+                <span class="arrow">→</span>
+              </button>
+              <button class="cta-btn ghost" data-link="community">
+                <span>Partnerships instead</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Flow controls -->
+          <div class="flow-nav">
+            <button class="flow-prev" disabled><span class="arrow">←</span> <span>Previous</span></button>
+            <button class="flow-next"><span>Continue</span> <span class="arrow">→</span></button>
+          </div>
+        </div>
+
+        <footer>
+          <div class="left">For the benefit of all <em style="color:var(--ember);">beings</em>.</div>
+          <div class="mid">© Beings Club · MMXXVI</div>
+          <div class="right"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ================= COMMUNITY ================= -->
+    <section id="community">
+      <div class="wrap inner-wrap">
+        <button class="back-btn" data-link="home"><span class="chev">←</span> Back to entrance</button>
+        <p class="page-num">Path II · Communities</p>
+        <h2>Bring the format to your <em>community</em>.</h2>
+        <p class="page-intro">Online communities can struggle to create the conditions that allow people to actually get to know each other. Relationships stay shallow. People orient to content, not to each other.</p>
+
+        <div class="page-body">
+          <div class="marker">What arises</div>
+          <div class="prose">
+            <p>The Beings Club format addresses this directly. Through time for practice, 1:1 conversations, and small-group conversation, the web of relationship within a community deepens in ways that content, town halls, and shared activities alone cannot.</p>
+            <p>What arises is natural, emerging from genuine meeting — friendships, unexpected collaborations, a greater sense of belonging, clarity about who you are and what you want, and more.</p>
+            <p>If you're curious about what the format might do for your community, the next step is a conversation with John. Every potential partnership is shaped by what your community needs and what is possible in relationship.</p>
+          </div>
+        </div>
+
+        <div class="paused-notice">
+          We are open to new partner communities — a curated group of hosts and organizations carrying the format into new contexts. We're having conversations, slowly, one at a time.
+        </div>
+
+        <div class="cta-row">
+          <button class="cta-btn" data-form="community">
+            <span>Start a conversation</span>
+            <span class="arrow">→</span>
+          </button>
+          <button class="cta-btn ghost" data-link="host">
+            <span>Host training instead</span>
+          </button>
+        </div>
+
+        <footer>
+          <div class="left">For the benefit of all <em style="color:var(--ember);">beings</em>.</div>
+          <div class="mid">© Beings Club · MMXXVI</div>
+          <div class="right"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ================= HOST ================= -->
+    <section id="host">
+      <div class="wrap inner-wrap">
+        <button class="back-btn" data-link="home">← Back to entrance</button>
+        <p class="page-num">Path III · Hosting</p>
+        <h2>Create spaces like <em>this</em>.</h2>
+        <p class="page-intro">Hosting spaces where people can be themselves is a skill. It requires a genuine curiosity about people, trust in human intelligence and goodness, and a willingness to be with what arises without needing to control what emerges.</p>
+
+        <div class="page-body">
+          <div class="marker">The host's role</div>
+          <div class="prose">
+            <p>A good host facilitates the conditions for genuine presence. The format works because of how hosts invite and give permission to participants.</p>
+            <p>Facilitator training is developing in response to those who are coming forward to learn. If you feel drawn to hosting and creating spaces like this, we'd love to hear from you.</p>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="cta-btn" data-form="host">
+            <span>Get in touch</span>
+          </button>
+          <button class="cta-btn ghost" data-link="join">
+            <span>Join as a participant</span>
+          </button>
+        </div>
+
+        <footer>
+          <div class="left">For the benefit of all <em style="color:var(--ember);">beings</em>.</div>
+          <div class="mid">© Beings Club · MMXXVI</div>
+          <div class="right"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
+        </footer>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ——————— MULTI-STEP FORM ——————— -->
+  <div class="form-overlay" id="formOverlay">
+    <div class="form-shell">
+      <button class="form-close" id="formClose">✕ Close</button>
+
+      <div class="form-progress" id="formProgress"></div>
+
+      <div class="form-meta">
+        <span class="path" id="formPath">Path I · Joining</span>
+        <span class="count"><span id="stepNow" class="ember">01</span> / <span id="stepTotal">05</span></span>
+      </div>
+
+      <!-- Steps are populated + navigated dynamically -->
+      <div id="formSteps">
+        <div class="form-step active" data-step="0">
+          <p class="q">First — what shall we call <em>you</em>?</p>
+          <input type="text" data-field="name" placeholder="Your name…" autocomplete="name">
+        </div>
+        <div class="form-step" data-step="1">
+          <p class="q">Where can we <em>reach</em> you?</p>
+          <input type="email" data-field="email" placeholder="you@somewhere…" autocomplete="email">
+        </div>
+        <div class="form-step" data-step="2">
+          <p class="q">What's drawing you <em>toward</em> this?</p>
+          <textarea data-field="drawn" placeholder="A few lines, in your own words…"></textarea>
+        </div>
+        <div class="form-step" data-step="3">
+          <div class="form-complete">
+            <div class="seal">✓</div>
+            <h4>Received, with <em>thanks</em>.</h4>
+            <p>We'll be in touch.</p>
+            <p style="margin-top: 0.75rem; color: var(--paper-soft);">Until then — stay curious.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-nav" id="formNav">
+        <button class="back" id="formBack" disabled>← Back</button>
+        <button class="next" id="formNext">
+          <span id="nextLabel">Continue</span>
+          <span class="arrow"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ——————— TWEAKS PANEL ——————— -->
+  <div class="tweaks" id="tweaks">
+    <div class="tweaks-head">
+      <span class="title"><span class="dot"></span>Tweaks</span>
+      <span style="color:var(--paper-soft); font-size: 0.81rem; letter-spacing: 0.14em;">LIVE</span>
+    </div>
+    <div class="tweak-row">
+      <div class="label">Typography</div>
+      <div class="tweak-opts" data-tweak="fonts">
+        <button data-val="instrument" class="active">Instrument</button>
+        <button data-val="oswald">Oswald</button>
+        <button data-val="fraunces">Fraunces</button>
+        <button data-val="mono">Mono</button>
+      </div>
+    </div>
+    <div class="tweak-row">
+      <div class="label">Palette</div>
+      <div class="tweak-opts" data-tweak="palette">
+        <button data-val="dark" class="active">Dark</button>
+        <button data-val="light">Light</button>
+      </div>
+    </div>
+    <div class="tweak-row">
+      <div class="label">Hero</div>
+      <div class="tweak-opts" data-tweak="hero">
+        <button data-val="split" class="active">Split</button>
+        <button data-val="minimal">Minimal</button>
+        <button data-val="stacked">Stacked</button>
+      </div>
+    </div>
+    <div class="tweak-row">
+      <div class="label">Navigation</div>
+      <div class="tweak-opts" data-tweak="nav">
+        <button data-val="side" class="active">Side</button>
+        <button data-val="top">Top</button>
+        <button data-val="minimal">Minimal</button>
+      </div>
+    </div>
+    <div class="tweak-row">
+      <div class="label">Density</div>
+      <div class="tweak-opts" data-tweak="density">
+        <button data-val="airy" class="active">Airy</button>
+        <button data-val="compact">Compact</button>
+      </div>
+    </div>
+  </div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ——————— NAVIGATION ——————— */
+function showSection(id) {
+  document.querySelectorAll('main > section').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+    target.scrollIntoViewIfNeeded?.();
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  document.querySelectorAll('.side-nav .dot').forEach(d => {
+    d.classList.toggle('active', d.dataset.link === id);
+  });
+  try { localStorage.setItem('bc:section', id); } catch (e) {}
+}
+
+document.querySelectorAll('[data-link]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    showSection(el.dataset.link);
+  });
+});
+
+// Restore last section
+try {
+  const saved = localStorage.getItem('bc:section');
+  if (saved && document.getElementById(saved)) showSection(saved);
+} catch (e) {}
+
+/* ——————— GUIDED FLOW (Join etc.) ——————— */
+document.querySelectorAll('.flow').forEach(flow => {
+  const chapters = flow.querySelectorAll('.flow-chapter');
+  const total = chapters.length;
+  const nowEl = flow.querySelector('.flow-now');
+  const totalEl = flow.querySelector('.flow-total');
+  const progress = flow.querySelector('.flow-progress');
+  const prev = flow.querySelector('.flow-prev');
+  const next = flow.querySelector('.flow-next');
+  let idx = 0;
+
+  // build ticks
+  progress.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const t = document.createElement('div');
+    t.className = 'tick';
+    progress.appendChild(t);
+  }
+  totalEl.textContent = String(total).padStart(2, '0');
+
+  function render() {
+    chapters.forEach((c, i) => c.classList.toggle('active', i === idx));
+    progress.querySelectorAll('.tick').forEach((t, i) => t.classList.toggle('done', i <= idx));
+    nowEl.textContent = String(idx + 1).padStart(2, '0');
+    prev.disabled = idx === 0;
+    next.disabled = idx === total - 1;
+    next.querySelector('span:first-child').textContent = 'Next';
+    if (idx === total - 1) next.style.visibility = 'hidden'; else next.style.visibility = '';
+  }
+
+  prev.addEventListener('click', () => { if (idx > 0) { idx--; render(); } });
+  next.addEventListener('click', () => { if (idx < total - 1) { idx++; render(); } });
+  render();
+});
+
+/* ——————— CUSTOM CURSOR ——————— */
+const dot = document.getElementById('cursorDot');
+const ring = document.getElementById('cursorRing');
+let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+let rx = mx, ry = my;
+
+window.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+});
+(function tick() {
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+  requestAnimationFrame(tick);
+})();
+
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button, a, .chip, .path-btn, .testimonial')) {
+    document.body.classList.add('cursor-hover');
+  }
+});
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('button, a, .chip, .path-btn, .testimonial')) {
+    document.body.classList.remove('cursor-hover');
+  }
+});
+
+/* ——————— AMBIENT SOUND ——————— */
+let audioCtx, masterGain, oscA, oscB, lfo, noiseNode;
+const soundToggle = document.getElementById('soundToggle');
+let soundOn = false;
+
+function startSound() {
+  if (audioCtx) return;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0;
+    masterGain.connect(audioCtx.destination);
+
+    // Two low drones — warm fifth
+    oscA = audioCtx.createOscillator();
+    oscA.type = 'sine';
+    oscA.frequency.value = 110; // A2
+    const gA = audioCtx.createGain(); gA.gain.value = 0.3;
+    oscA.connect(gA).connect(masterGain);
+
+    oscB = audioCtx.createOscillator();
+    oscB.type = 'sine';
+    oscB.frequency.value = 165; // E3
+    const gB = audioCtx.createGain(); gB.gain.value = 0.18;
+    oscB.connect(gB).connect(masterGain);
+
+    // LFO on A for subtle breath
+    lfo = audioCtx.createOscillator();
+    lfo.frequency.value = 0.12;
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = 4;
+    lfo.connect(lfoGain).connect(oscA.frequency);
+
+    // Pink-ish noise
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let b0=0,b1=0,b2=0;
+    for (let i=0;i<bufferSize;i++) {
+      const white = Math.random()*2-1;
+      b0 = 0.99*b0 + 0.03*white;
+      b1 = 0.96*b1 + 0.05*white;
+      b2 = 0.88*b2 + 0.1*white;
+      output[i] = (b0+b1+b2) * 0.08;
+    }
+    noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = noiseBuffer;
+    noiseNode.loop = true;
+    const noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.35;
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.value = 700;
+    noiseNode.connect(noiseFilter).connect(noiseGain).connect(masterGain);
+
+    oscA.start(); oscB.start(); lfo.start(); noiseNode.start();
+  } catch (e) { console.warn('Audio unavailable', e); }
+}
+
+soundToggle.addEventListener('click', () => {
+  soundOn = !soundOn;
+  soundToggle.classList.toggle('on', soundOn);
+  if (soundOn) {
+    startSound();
+    if (audioCtx) {
+      audioCtx.resume();
+      masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + 1.2);
+    }
+  } else if (audioCtx) {
+    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, audioCtx.currentTime);
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+  }
+});
+
+/* ——————— MULTI-STEP FORM ——————— */
+const pathLabels = {
+  join: 'Path I · Joining',
+  community: 'Path II · Communities',
+  host: 'Path III · Hosting'
+};
+
+const overlay = document.getElementById('formOverlay');
+const steps = document.querySelectorAll('.form-step');
+const totalInput = steps.length - 1; // last is success
+const stepTotalEl = document.getElementById('stepTotal');
+const stepNowEl = document.getElementById('stepNow');
+const progress = document.getElementById('formProgress');
+const backBtn = document.getElementById('formBack');
+const nextBtn = document.getElementById('formNext');
+const nextLabel = document.getElementById('nextLabel');
+const formPath = document.getElementById('formPath');
+const formState = { step: 0, data: {} };
+
+function buildProgress() {
+  progress.innerHTML = '';
+  for (let i = 0; i < totalInput; i++) {
+    const t = document.createElement('div');
+    t.className = 'tick' + (i < formState.step ? ' done' : '');
+    progress.appendChild(t);
+  }
+}
+
+function renderStep() {
+  steps.forEach(s => s.classList.remove('active'));
+  steps[formState.step].classList.add('active');
+  stepNowEl.textContent = String(Math.min(formState.step + 1, totalInput)).padStart(2, '0');
+  stepTotalEl.textContent = String(totalInput).padStart(2, '0');
+  backBtn.disabled = formState.step === 0 || formState.step === totalInput;
+  buildProgress();
+
+  if (formState.step === totalInput) {
+    // success screen
+    nextBtn.style.display = 'none';
+    backBtn.style.display = 'none';
+  } else {
+    nextBtn.style.display = '';
+    backBtn.style.display = '';
+    nextLabel.textContent = formState.step === totalInput - 1 ? 'Send' : 'Continue';
+  }
+  // focus first input
+  const input = steps[formState.step].querySelector('input, textarea');
+  if (input) setTimeout(() => input.focus(), 150);
+}
+
+function openForm(path) {
+  formPath.textContent = pathLabels[path] || 'Path';
+  formState.step = 0;
+  formState.data = { path };
+  document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => el.value = '');
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  overlay.classList.add('open');
+  renderStep();
+}
+function closeForm() { overlay.classList.remove('open'); }
+
+document.querySelectorAll('[data-form]').forEach(b => {
+  b.addEventListener('click', () => openForm(b.dataset.form));
+});
+document.getElementById('formClose').addEventListener('click', closeForm);
+overlay.addEventListener('click', e => { if (e.target === overlay) closeForm(); });
+
+// chip selection
+document.querySelectorAll('.form-chips .chip').forEach(chip => {
+  chip.addEventListener('click', () => chip.classList.toggle('selected'));
+});
+
+function validateStep() {
+  const s = steps[formState.step];
+  const input = s.querySelector('input, textarea');
+  if (input && input.type === 'email') {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+  }
+  if (input && input.required !== undefined) {
+    return input.value.trim().length > 0;
+  }
+  const chips = s.querySelectorAll('.chip.selected');
+  if (s.querySelector('.form-chips')) return chips.length > 0;
+  return true;
+}
+
+nextBtn.addEventListener('click', () => {
+  if (formState.step < totalInput - 1) {
+    if (!validateStep()) {
+      const input = steps[formState.step].querySelector('input, textarea');
+      if (input) { input.style.borderColor = 'var(--ember)'; input.focus(); }
+      return;
+    }
+    const input = steps[formState.step].querySelector('input, textarea');
+    if (input) input.style.borderColor = '';
+    // capture
+    if (input) formState.data[input.dataset.field] = input.value;
+    const chips = steps[formState.step].querySelectorAll('.chip.selected');
+    if (chips.length) formState.data.drawn = [...chips].map(c => c.textContent);
+    formState.step++;
+    renderStep();
+  } else {
+    // Final step — capture last field then submit to Formspree
+    const lastInput = steps[formState.step].querySelector('input, textarea');
+    if (lastInput) formState.data[lastInput.dataset.field] = lastInput.value;
+    const lastChips = steps[formState.step].querySelectorAll('.chip.selected');
+    if (lastChips.length) formState.data.drawn = [...lastChips].map(c => c.textContent);
+
+    nextBtn.disabled = true;
+    nextLabel.textContent = 'Sending…';
+
+    fetch('https://formspree.io/f/xpqkbpyv', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(formState.data)
+    })
+    .then(res => {
+      if (res.ok) {
+        formState.step++;
+        renderStep();
+      } else {
+        nextLabel.textContent = 'Try again';
+        nextBtn.disabled = false;
+      }
+    })
+    .catch(() => {
+      nextLabel.textContent = 'Try again';
+      nextBtn.disabled = false;
+    });
+  }
+});
+backBtn.addEventListener('click', () => {
+  if (formState.step > 0) { formState.step--; renderStep(); }
+});
+
+// enter key advances
+overlay.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    const s = steps[formState.step];
+    if (s.querySelector('textarea')) return; // allow newlines
+    e.preventDefault();
+    nextBtn.click();
+  }
+  if (e.key === 'Escape') closeForm();
+});
+
+/* ——————— TWEAKS PANEL ——————— */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "fonts": "mono",
+  "palette": "dark",
+  "hero": "minimal",
+  "nav": "side",
+  "density": "airy"
+}/*EDITMODE-END*/;
+
+function applyTweak(key, val) {
+  document.body.dataset[key] = val;
+  document.querySelectorAll(`.tweak-opts[data-tweak="${key}"] button`).forEach(b => {
+    b.classList.toggle('active', b.dataset.val === val);
+  });
+}
+
+// Apply defaults
+Object.entries(TWEAK_DEFAULTS).forEach(([k, v]) => applyTweak(k, v));
+
+document.querySelectorAll('.tweak-opts').forEach(group => {
+  group.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const key = group.dataset.tweak;
+    const val = btn.dataset.val;
+    applyTweak(key, val);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+  });
+});
+
+// Edit mode wiring
+const tweaksPanel = document.getElementById('tweaks');
+window.addEventListener('message', e => {
+  const d = e.data || {};
+  if (d.type === '__activate_edit_mode') tweaksPanel.classList.add('open');
+  if (d.type === '__deactivate_edit_mode') tweaksPanel.classList.remove('open');
+});
+window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+
+</script>
+</body>
+</html>
