@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Beings Club — a culture of creative realisation</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
 <meta name="ext-resource-dependency" content="assets/meeting-thermal.png" data-resource-id="meetingThermal">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +24,7 @@
     --hairline: rgba(255,178,62,0.15);
     --hair-2:   rgba(255,178,62,0.30);
     --glow:     rgba(255,122,31,0.20);
+    --ok:       oklch(0.74 0.15 150);
 
     --serif:  'IBM Plex Sans', system-ui, sans-serif;
     --display:'Space Grotesk', system-ui, sans-serif;
@@ -184,11 +188,16 @@
   .pr-sign { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase;
     color: var(--amber); margin-top: 1.1rem; }
 
-  .status { margin-top: 3rem; padding: 1.4rem 1.6rem; border: 1px solid var(--hairline);
-    border-left: 2px solid var(--amber); background: color-mix(in srgb, var(--amber) 5%, transparent);
+  .status { margin-top: 3rem; padding: 1.4rem 1.6rem; border: 1px solid rgba(74,200,110,0.18);
+    border-left: 2px solid var(--ok); background: color-mix(in srgb, var(--ok) 7%, transparent);
     font-family: var(--mono); font-size: 0.9rem; line-height: 1.65; color: var(--ink-dim);
     max-width: 64ch; position: relative; }
-  .status b { color: var(--amber); font-weight: 700; }
+  .status b { color: var(--ok); font-weight: 700; }
+  .status p { margin: 0; }
+  .status p + p { margin-top: 0.85rem; }
+  .status .st-meta { color: var(--ink-soft); font-size: 0.78rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding-top: 0.85rem; border-top: 1px solid rgba(74,200,110,0.14); }
+  .status .st-meta span { color: var(--ok); }
 
   /* doors + form */
   .take { display: grid; grid-template-columns: minmax(0,0.85fr) minmax(0,1fr);
@@ -476,30 +485,6 @@
 
   <div class="grain"></div>
 
-  <!-- SETTINGS -->
-  <button class="settings-btn" id="settingsBtn" aria-label="Display settings" aria-expanded="false" aria-haspopup="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.47V21a2 2 0 0 1-4 0v-.09A1.6 1.6 0 0 0 9 19.42a1.6 1.6 0 0 0-1.77.32l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.47-.97H3a2 2 0 0 1 0-4h.09A1.6 1.6 0 0 0 4.58 9a1.6 1.6 0 0 0-.32-1.77l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.6 1.6 0 0 0 1.77.32H9a1.6 1.6 0 0 0 .97-1.47V3a2 2 0 0 1 4 0v.09a1.6 1.6 0 0 0 .97 1.47 1.6 1.6 0 0 0 1.77-.32l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.6 1.6 0 0 0-.32 1.77V9a1.6 1.6 0 0 0 1.47.97H21a2 2 0 0 1 0 4h-.09a1.6 1.6 0 0 0-1.47.97z"></path></svg>
-  </button>
-  <div class="settings" id="settings" role="dialog" aria-label="Display settings">
-    <div class="s-title"><span class="dot"></span>Settings</div>
-    <div class="s-row">
-      <div class="s-lbl">Palette</div>
-      <div class="s-pals">
-        <button class="s-pal" data-pal="amber" aria-label="Amber" aria-pressed="true"></button>
-        <button class="s-pal" data-pal="ember" aria-label="Ember" aria-pressed="false"></button>
-        <button class="s-pal" data-pal="paper" aria-label="Paper" aria-pressed="false"></button>
-        <button class="s-pal" data-pal="night" aria-label="Night" aria-pressed="false"></button>
-      </div>
-    </div>
-    <div class="s-row">
-      <div class="s-lbl">Motion</div>
-      <div class="s-seg" id="motionSeg">
-        <button data-motion-val="on" aria-pressed="true">On</button>
-        <button data-motion-val="off" aria-pressed="false">Calm</button>
-      </div>
-    </div>
-  </div>
-
   <!-- NAV -->
   <nav id="nav">
     <a class="nav-logo" href="#top" aria-label="Beings Club"><img src="assets/beings-logo-paper.png" alt="Beings Club"></a>
@@ -564,7 +549,7 @@
     <section class="movement practice" id="practice" data-screen-label="In practice">
       <div class="inner">
         <div class="label reveal">// In practice</div>
-        <h2 class="reveal" style="max-width:18ch;">What this looks like, once-a-month.</h2>
+        <h2 class="reveal" style="max-width:18ch;">What this looks like, <em>in practice</em>.</h2>
 
         <div class="pr-grid reveal" style="margin-top:2.4rem;">
           <div class="pr-block">
@@ -579,7 +564,9 @@ The host tends the conditions for genuine meeting and then trusts what comes. No
         </div>
 
         <div class="status reveal">
-          <b>● Status —</b> Beings Club is currently paused while we prepare for the next phase. Leave a note at the invitation below and we'll be in touch when it returns.
+          <p><b>● Status —</b> Beings Club is hosting Salons. There are currently <b>48</b> beings on the invite list.</p>
+          <p class="st-meta">Most recent Salon · <span>April 19, 2026</span></p>
+          <p>Leave us a note via the invitation at the bottom of the page to join us next time.</p>
         </div>
       </div>
     </section>
@@ -1038,51 +1025,15 @@ One thing doesn't.</p>
   }
 })();
 
-/* ——————— SETTINGS ——————— */
+/* ——————— MOTION DEFAULT ——————— */
 (function () {
-  const DEFAULTS = { palette: 'amber', motion: 'on' };
   const body = document.body;
-  const btn = document.getElementById('settingsBtn');
-  const panel = document.getElementById('settings');
-  if (!btn || !panel) return;
-  const read = k => { try { return localStorage.getItem('bc:' + k); } catch (e) { return null; } };
-  const write = (k, v) => { try { localStorage.setItem('bc:' + k, v); } catch (e) {} };
-
-  let state = {
-    palette: read('palette') || DEFAULTS.palette,
-    motion: read('motion') || DEFAULTS.motion
-  };
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches && read('motion') == null) state.motion = 'off';
-
-  function applyPalette(v) {
-    state.palette = v; body.dataset.palette = v; write('palette', v);
-    panel.querySelectorAll('[data-pal]').forEach(b => b.setAttribute('aria-pressed', b.dataset.pal === v));
+  // Respect reduced-motion preference; otherwise keep the default amber palette + motion on.
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    body.dataset.motion = 'off';
+    body.dataset.stars = 'off';
+    if (window.__thermalMotion) window.__thermalMotion(false);
   }
-  function applyMotion(v) {
-    state.motion = v; body.dataset.motion = v; body.dataset.stars = (v === 'on' ? 'on' : 'off'); write('motion', v);
-    panel.querySelectorAll('[data-motion-val]').forEach(b => b.setAttribute('aria-pressed', b.dataset.motionVal === v));
-    if (window.__thermalMotion) window.__thermalMotion(v === 'on');
-  }
-  applyPalette(state.palette); applyMotion(state.motion);
-
-  panel.querySelectorAll('[data-pal]').forEach(b => b.addEventListener('click', () => applyPalette(b.dataset.pal)));
-  panel.querySelectorAll('[data-motion-val]').forEach(b => b.addEventListener('click', () => applyMotion(b.dataset.motionVal)));
-
-  function toggle(open) {
-    const o = open == null ? !panel.classList.contains('open') : open;
-    panel.classList.toggle('open', o); btn.setAttribute('aria-expanded', o);
-  }
-  btn.addEventListener('click', e => { e.stopPropagation(); toggle(); });
-  document.addEventListener('click', e => { if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== btn) toggle(false); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') toggle(false); });
-
-  // bridge: platform "Tweaks" toggle opens the same settings
-  window.addEventListener('message', e => {
-    const d = e.data || {};
-    if (d.type === '__activate_edit_mode') toggle(true);
-    if (d.type === '__deactivate_edit_mode') toggle(false);
-  });
-  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
 })();
 </script>
 </body>
