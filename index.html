@@ -424,6 +424,11 @@
     body { font-size: 17px; }
     .hero-foot .nav-tag { display: none; }
     .hero .kicker { white-space: nowrap; letter-spacing: 0.2em; font-size: 0.62rem; }
+    /* centre the kicker text; send the blinking cursor off to the right edge */
+    .hero-centered .kicker { position: relative; display: flex; width: 100%;
+      justify-content: center; gap: 0; }
+    .hero-centered .kicker .cur { position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%); margin-left: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1 !important; transform: none !important; transition: none; }
