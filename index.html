@@ -309,9 +309,6 @@
   body[data-stars="off"] .embers, body[data-palette="paper"] .embers { display: none; }
   body[data-motion="on"] .starfield i { animation: twinkle var(--td,4s) ease-in-out infinite; }
   @keyframes twinkle { 0%,100% { opacity: var(--o,.3); } 50% { opacity: calc(var(--o,.3) * 2.3); } }
-  .hero .kicker .cur { color: var(--amber); margin-left: 0.1rem; }
-  body[data-motion="on"] .hero .kicker .cur { animation: caretBlink 1.1s steps(1) infinite; }
-  @keyframes caretBlink { 0%,55% { opacity: 1; } 56%,100% { opacity: 0; } }
   body[data-motion="on"] .lead-stmt .big em { animation: glowPulse 5s ease-in-out infinite; }
   @keyframes glowPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.8; } }
 
@@ -369,7 +366,7 @@
   .hero-centered { display: flex; flex-direction: column; align-items: center; text-align: center; }
   .hero-centered .kicker { justify-content: center; }
   .hero-logo-wrap { position: relative; display: flex; justify-content: center; width: 100%;
-    margin: 1.6rem 0 0; }
+    margin: 2.2rem 0 0; }
   .hero-logo { width: clamp(225px, 57vw, 705px); height: auto; display: block;
     animation: heroFloat 6.5s ease-in-out infinite; }
   @keyframes holoSpin { to { transform: rotate(360deg); } }
@@ -424,11 +421,6 @@
     body { font-size: 17px; }
     .hero-foot .nav-tag { display: none; }
     .hero .kicker { white-space: nowrap; letter-spacing: 0.2em; font-size: 0.62rem; }
-    /* centre the kicker text; send the blinking cursor off to the right edge */
-    .hero-centered .kicker { position: relative; display: flex; width: 100%;
-      justify-content: center; gap: 0; }
-    .hero-centered .kicker .cur { position: absolute; right: 0; top: 50%;
-      transform: translateY(-50%); margin-left: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1 !important; transform: none !important; transition: none; }
@@ -559,7 +551,7 @@
       <div class="starfield" id="stars"></div>
       <div class="embers" id="embers"></div>
       <div class="hero-inner hero-centered">
-        <span class="kicker">For the benefit of all beings <span class="cur">█</span></span>
+        <span class="kicker">For the benefit of all beings</span>
         <div class="hero-logo-wrap"><span class="resolve-wrap"><img class="hero-logo" src="assets/beings-logo.png" alt="Beings Club"></span></div>
         <p class="hero-tag">Where curious people meet to realise <em>what's possible</em>.</p>
         <p class="sub" style="font-style:italic; margin-bottom:3rem;">Curiosity connects.</p>
