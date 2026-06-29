@@ -210,13 +210,17 @@
   .status { margin-top: 3rem; padding: 1.4rem 1.6rem; border: 1px solid rgba(74,200,110,0.18);
     border-left: 2px solid var(--ok); background: color-mix(in srgb, var(--ok) 7%, transparent);
     font-family: var(--mono); font-size: 0.9rem; line-height: 1.65; color: var(--ink-dim);
-    max-width: 64ch; position: relative; }
+    width: 100%; position: relative; }
   .status b { color: var(--ok); font-weight: 700; }
   .status p { margin: 0; }
   .status p + p { margin-top: 0.85rem; }
   .status .st-meta { color: var(--ink-soft); font-size: 0.78rem; letter-spacing: 0.12em;
     text-transform: uppercase; padding-top: 0.85rem; border-top: 1px solid rgba(74,200,110,0.14); }
   .status .st-meta span { color: var(--ok); white-space: nowrap; }
+  .status a { color: var(--ok); border-bottom: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
+    transition: border-color .2s; }
+  .status a:hover { border-color: var(--ok); }
+  .status .st-note { padding-top: 0.85rem; border-top: 1px solid rgba(74,200,110,0.14); }
 
   /* doors + form */
   .take { display: grid; grid-template-columns: minmax(0,0.85fr) minmax(0,1fr);
@@ -317,6 +321,7 @@
     text-transform: uppercase; text-shadow: 3px 3px 0 #000; }
   .pix-bar { position: relative; width: clamp(260px, 60vw, 520px); height: clamp(20px, 5vw, 30px);
     background: #000; border: 3px solid #fff; padding: 4px; box-shadow: 4px 4px 0 rgba(0,0,0,.6); }
+  @media (min-width: 720px) { .pix-bar { width: min(78vw, 880px); } }
   .pix-fill { position: relative; height: 100%; width: 0%; background: var(--amber);
     transition: width .25s steps(1); }
   /* chunky segment gaps over the fill */
@@ -597,9 +602,9 @@ The host tends the conditions for genuine meeting and then trusts what comes. No
         <div class="status reveal">
           <p><b>● Status —</b> Beings Club is hosting Salons.</p>
           <p>No longer weekly, but regularly.</p>
-          <p>There are currently <b>13 Beings</b> on the invite list.</p>
+          <p>Leave us a note via the <a href="#take-part">invitation</a> at the bottom of the page to join us next time.</p>
           <p class="st-meta">Most recent Salon · <span>April 19, 2026</span></p>
-          <p>Leave us a note via the invitation at the bottom of the page to join us next time.</p>
+          <p class="st-meta">Invite list size · <span>13 Beings</span></p>
         </div>
       </div>
     </section>
@@ -774,10 +779,10 @@ window.addEventListener('load', () => window.scrollTo(0, 0));
   };
   // step the bar forward in chunky increments
   if (fill) {
-    const steps = [9, 20, 32, 45, 58, 70, 82, 92];
-    steps.forEach((w, i) => setTimeout(() => { if (!done) fill.style.width = w + '%'; }, 250 + i * 420));
+    const steps = [12, 28, 41, 57, 70, 84, 96];
+    steps.forEach((w, i) => setTimeout(() => { if (!done) fill.style.width = w + '%'; }, 180 + i * 270));
   }
-  setTimeout(hide, 3800);
+  setTimeout(hide, 2200);
   l.addEventListener('click', hide);
 })();
 
