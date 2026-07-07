@@ -798,6 +798,18 @@ window.addEventListener('load', () => window.scrollTo(0, 0));
   l.addEventListener('click', hide);
 })();
 
+/* ——————— SMOOTH SCROLL · Read cue ——————— */
+(function () {
+  const cue = document.querySelector('.scroll-cue');
+  const target = document.getElementById('origin');
+  if (!cue || !target) return;
+  cue.addEventListener('click', (e) => {
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (history.replaceState) history.replaceState(null, '', '#origin');
+  });
+})();
+
 /* ——————— STARFIELD + EMBERS ——————— */
 (function () {
   const sky = document.getElementById('stars');
