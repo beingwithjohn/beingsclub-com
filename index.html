@@ -761,9 +761,12 @@ The host tends the conditions for genuine meeting and then trusts what comes. No
       <div class="inner" style="display:flex; flex-direction:column; align-items:center; gap:1.1rem;">
         <div class="label">// Words, occasionally</div>
         <p class="prose" style="color:var(--ink-dim); max-width:44ch;">Occasional words and conversation from John — the <em>Wonderfool</em> letter, in your inbox.</p>
-        <iframe src="https://wonderfool.substack.com/embed" title="Subscribe to Wonderfool"
-          style="width:min(480px,100%); height:150px; border:1px solid var(--hairline); background:transparent;"
-          frameborder="0" scrolling="no" loading="lazy"></iframe>
+        <form id="letterForm" style="display:flex; align-items:flex-end; gap:1.1rem; width:min(440px,100%); text-align:left;">
+          <div class="field" style="flex:1;">
+            <input type="email" required placeholder="you@somewhere" aria-label="Email address" autocomplete="email">
+          </div>
+          <button class="submit" type="submit" style="margin-top:0;">SUBSCRIBE <span>→</span></button>
+        </form>
       </div>
     </section>
 
@@ -898,6 +901,18 @@ window.addEventListener('load', () => window.scrollTo(0, 0));
         msg.textContent = 'Received, with thanks. We\u2019ll be in touch — until then, stay curious.';
       } else { label.textContent = 'Try again'; btn.disabled = false; }
     } catch (err) { label.textContent = 'Try again'; btn.disabled = false; }
+  });
+})();
+
+/* ——————— WONDERFOOL LETTER · hand the email to Substack ——————— */
+(function () {
+  const f = document.getElementById('letterForm');
+  if (!f) return;
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = f.querySelector('input[type=email]').value.trim();
+    if (!email) return;
+    window.open('https://wonderfool.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank', 'noopener');
   });
 })();
 
