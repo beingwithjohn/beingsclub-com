@@ -85,6 +85,14 @@
     transition:box-shadow .15s;resize:vertical;}
   .bc-in::placeholder{color:var(--soft);}
   .bc-in:focus{box-shadow:0 0 0 3px rgba(255,173,84,.45);}
+  .bc-sel{appearance:none;-webkit-appearance:none;padding-right:2.75rem;cursor:pointer;
+    border-radius:0;color:var(--ink);}
+  /* grey the placeholder option without lying to a screen reader about
+     the field being required (the form is novalidate, so :invalid would) */
+  .bc-sel:has(option[value=""]:checked){color:var(--soft);}
+  .bc-selwrap{position:relative;}
+  .bc-selwrap svg{position:absolute;right:1rem;top:50%;transform:translateY(-50%);
+    pointer-events:none;color:var(--dim);}
 
   /* —— responsive ——
      The handoff hard-codes every grid to 3 or 2 columns, which overflows on a
@@ -386,9 +394,29 @@
       <label class="bc-lab" for="bc-email">Where to reach you</label>
       <input class="bc-in" id="bc-email" name="email" type="email" placeholder="you@somewhere" autocomplete="email">
     </div>
-    <div class="bc-part" style="margin-bottom:1.6rem;">
+    <div class="bc-part" style="margin-bottom:1.1rem;">
       <label class="bc-lab" for="bc-drawn">What's drawing you toward this?</label>
       <textarea class="bc-in" id="bc-drawn" name="drawn" rows="3" placeholder="A few lines, in your own words…"></textarea>
+    </div>
+    <div class="bc-part" style="margin-bottom:1.6rem;">
+      <label class="bc-lab" for="bc-found">How did you find us?</label>
+      <div class="bc-selwrap">
+        <select class="bc-in bc-sel" id="bc-found" name="found">
+          <option value="" selected>Choose one…</option>
+          <option>Someone I know</option>
+          <option>Instagram</option>
+          <option>X</option>
+          <option>Wonderfool</option>
+          <option>Space to Be</option>
+          <option>A search</option>
+          <option>Somewhere else</option>
+        </select>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      </div>
+    </div>
+    <div class="bc-part" id="bc-who-wrap" hidden style="margin-bottom:1.6rem;">
+      <label class="bc-lab" for="bc-who">Who can we thank?</label>
+      <input class="bc-in" id="bc-who" name="referrer" type="text" placeholder="Their name, so we can say thanks">
     </div>
 
     <div class="bc-part" style="text-align:center;">
@@ -456,6 +484,16 @@
   var btn = document.getElementById('bc-submit');
   var label = document.getElementById('bc-submit-label');
   var msg = document.getElementById('bc-msg');
+  var found = document.getElementById('bc-found');
+  var whoWrap = document.getElementById('bc-who-wrap');
+  var who = document.getElementById('bc-who');
+
+  // only ask who referred them when the answer is a person
+  found.addEventListener('change', function () {
+    var personal = found.value === 'Someone I know';
+    whoWrap.hidden = !personal;
+    if (!personal) who.value = '';
+  });
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -479,7 +517,9 @@
           interest: interest.join(', '),
           name: name,
           email: email,
-          drawn: fd.get('drawn') || ''
+          drawn: fd.get('drawn') || '',
+          found: fd.get('found') || 'Not said',
+          referrer: (fd.get('referrer') || '').trim()
         })
       });
       if (res.ok) {
