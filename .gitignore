@@ -1,1 +1,6 @@
 .DS_Store
+
+# Local archive of the pre-2026 design. Kept next to assets/ so it renders,
+# ignored so GitHub Pages never publishes it as a live page.
+# The canonical copy is in git history: git show f3f4497:index.html
+archive1.html
