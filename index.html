@@ -23,1117 +23,477 @@
 <meta name="twitter:title" content="Beings Club – Where curious people meet to realise what's possible.">
 <meta name="twitter:description" content="Space to connect — to oneself, to each other, and to what is possible. Beings Club has a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.">
 <meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
-<meta name="ext-resource-dependency" content="assets/meeting-thermal.png" data-resource-id="meetingThermal">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    /* —— AMBER (default): warm signal in the dark —— */
-    --void:     #0a0805;
-    --bg2:      #120c05;
-    --ink:      #f3e3c4;
-    --ink-dim:  #bda884;
-    --ink-soft: #82714f;
-    --amber:    #ffb23e;
-    --ember:    #ff7a1f;
-    --hairline: rgba(255,178,62,0.15);
-    --hair-2:   rgba(255,178,62,0.30);
-    --glow:     rgba(255,122,31,0.20);
-    --ok:       oklch(0.74 0.15 150);
+  :root{
+    --paper:#ffffff; --ink:#171916; --dim:#5a5c58; --soft:#9a9c97;
+    --hair:rgba(23,25,22,0.14);
 
-    --serif:  'IBM Plex Sans', system-ui, sans-serif;
-    --display:'Space Grotesk', system-ui, sans-serif;
-    --mono:   'IBM Plex Mono', ui-monospace, monospace;
+    /* —— the three knobs that were design-tool props ——
+       accent: #FFAD54 · #7693A7 · #C98A7A · #8FA98C
+       column: 44–74rem
+       washes: set the three --*W / --lav values to #ffffff to switch them off */
+    --amber:#FFAD54; --slate:#7693A7;
+    --lav:#F2ECFF; --slateW:#eef1f4; --amberW:#fff7ee;
+    --shell:62rem;
 
-    --pad-x: clamp(1.5rem, 6vw, 6rem);
-    --measure: 68ch;
+    --pad:clamp(1.5rem,5cqi,3.75rem);
+    --sy:clamp(3rem,7vh,4.75rem); --cell:clamp(1.75rem,3.5cqi,2.75rem);
+    --font:'Host Grotesk',system-ui,-apple-system,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--amber);color:var(--ink);}
+  @keyframes bc-pulse{0%{box-shadow:0 0 0 0 rgba(23,25,22,.28);}70%{box-shadow:0 0 0 6px rgba(23,25,22,0);}100%{box-shadow:0 0 0 0 rgba(23,25,22,0);}}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .bc-dot{animation:none!important;}
+    .bc-panel,.bc-chev{transition:none!important;}
   }
 
-  /* —— EMBER: warmer, redder —— */
-  body[data-palette="ember"] {
-    --void:#0b0603; --bg2:#150a05; --ink:#f6ddbf; --ink-dim:#c79e74; --ink-soft:#8a6f4a;
-    --amber:#ff8f3a; --ember:#ff5a26; --hairline:rgba(255,143,58,0.16); --hair-2:rgba(255,143,58,0.32);
-    --glow:rgba(255,90,38,0.22);
+  /* —— hover states (were style-hover attributes) —— */
+  .nav-link{transition:color .15s;}
+  .nav-link:hover{color:var(--ink);}
+  .nav-cta{transition:background .15s,color .15s;}
+  .nav-cta:hover{background:var(--ink);color:var(--paper);}
+  .btn-ink{transition:background .18s,color .18s;}
+  .btn-ink:hover{background:var(--amber);color:var(--ink);}
+  .social{transition:color .15s;}
+  .social:hover{color:var(--ink);}
+  .bc-toggle:hover{background:rgba(23,25,22,.03);}
+
+  /* —— interest form (state selectors can't be inline) —— */
+  .bc-check{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
+  .bc-chip{display:inline-flex;align-items:center;gap:.55rem;border:1px solid var(--ink);
+    padding:.7rem 1.2rem;cursor:pointer;font-size:.72rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;transition:background .15s,color .15s;user-select:none;}
+  .bc-chip::before{content:"";width:9px;height:9px;border:1px solid currentColor;flex:none;}
+  .bc-chip:hover{background:rgba(23,25,22,.06);}
+  .bc-check:checked + .bc-chip{background:var(--ink);color:var(--paper);}
+  .bc-check:checked + .bc-chip::before{background:var(--amber);border-color:var(--amber);}
+  .bc-check:focus-visible + .bc-chip{outline:2px solid var(--amber);outline-offset:2px;}
+  .bc-lab{display:block;font-size:.6rem;font-weight:700;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--soft);margin-bottom:.5rem;}
+  .bc-in{width:100%;border:1px solid var(--ink);background:var(--paper);padding:.85rem 1rem;
+    font-family:var(--font);font-size:.95rem;color:var(--ink);outline:none;
+    transition:box-shadow .15s;resize:vertical;}
+  .bc-in::placeholder{color:var(--soft);}
+  .bc-in:focus{box-shadow:0 0 0 3px rgba(255,173,84,.45);}
+
+  /* —— responsive ——
+     The handoff hard-codes every grid to 3 or 2 columns, which overflows on a
+     phone. These measure the column (not the window) so the layout is identical
+     at any window size, and !important is needed to beat the inline styles. */
+  @container (max-width:720px){
+    .trio{grid-template-columns:1fr!important;}
+    .trio>*{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
+    .trio>*:last-child{border-bottom:none!important;}
   }
-  /* —— PAPER: warm reading light —— */
-  body[data-palette="paper"] {
-    --void:#f4ecdb; --bg2:#ece0c9; --ink:#2c2316; --ink-dim:#6a5a3e; --ink-soft:#9a8662;
-    --amber:#b06414; --ember:#bf440d; --hairline:rgba(90,68,26,0.18); --hair-2:rgba(90,68,26,0.34);
-    --glow:rgba(176,100,20,0.10);
+  @container (max-width:640px){
+    .split{grid-template-columns:1fr!important;}
+    .split>*:first-child{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
+    .sechead{grid-template-columns:1fr!important;align-items:start!important;}
+    .quotes{grid-template-columns:1fr!important;}
+    .duo{grid-template-columns:1fr!important;}
+    .duo>*:first-child{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
+    /* status text keeps its place beside the dot and just wraps internally */
+    .bc-toggle{flex-wrap:wrap;gap:.75rem;}
+    /* nav links drop to their own row rather than ragging across three */
+    .nav-links{order:3;flex:1 0 100%;gap:1.25rem;}
   }
-  /* —— NIGHT: deeper still, muted starfield —— */
-  body[data-palette="night"] {
-    --void:#07070f; --bg2:#0d0d1a; --ink:#e9ddc4; --ink-dim:#a89c84; --ink-soft:#6c6450;
-    --amber:#ffbf63; --ember:#ff8f4d; --hairline:rgba(255,191,99,0.12); --hair-2:rgba(255,191,99,0.26);
-    --glow:rgba(255,143,77,0.16);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--void);
-    color: var(--ink);
-    font-family: var(--serif);
-    font-weight: 400;
-    line-height: 1.68;
-    font-size: 19px;
-    min-height: 100vh;
-    overflow-x: hidden;
-    letter-spacing: 0;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  /* warm ground texture */
-  .grain { position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: 0.045;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
-  body[data-palette="paper"] .grain { display: none; }
-
-  a { color: inherit; text-decoration: none; }
-  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
-  ::selection { background: var(--amber); color: var(--void); }
-
-  /* ——————— NAV ——————— */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1.15rem var(--pad-x);
-    font-family: var(--mono);
-    opacity: 0; transform: translateY(-8px); pointer-events: none;
-    transition: opacity .5s ease, transform .5s ease, background .5s ease;
-  }
-  nav.show { opacity: 1; transform: none; pointer-events: auto;
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--void) 90%, transparent), transparent); }
-  .nav-logo { display: flex; align-items: center; gap: 0.7rem; }
-  .nav-logo img { height: 22px; width: auto; display: block; }
-  body[data-palette="paper"] .nav-logo img { filter: invert(1) brightness(0.4); }
-  .nav-links { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2.4rem);
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-dim); }
-  .nav-links a { transition: color .2s; }
-  .nav-links a:hover { color: var(--amber); }
-  .nav-cta { color: var(--amber) !important; display: inline-flex; align-items: center; gap: 0.5rem; }
-  .nav-cta::before { content: ""; width: 6px; height: 6px; background: var(--amber); border-radius: 50%; }
-
-  /* ——————— SHARED SECTION SCAFFOLD ——————— */
-  .movement { padding: clamp(5.5rem, 13vh, 10.5rem) var(--pad-x); position: relative; z-index: 2; }
-  .inner { max-width: 1280px; margin: 0 auto; }
-  .lede-col { max-width: var(--measure); }
-
-  .label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.22em;
-    text-transform: uppercase; color: var(--amber); display: flex; align-items: baseline; gap: 0.7rem;
-    margin-bottom: 1.6rem; }
-  .label .n { color: var(--amber); font-family: var(--display); font-style: italic; font-weight: 500;
-    font-size: 1.45rem; letter-spacing: 0; line-height: 0.8; }
-
-  h2 { font-family: var(--display); font-weight: 400; line-height: 1.04;
-    font-size: clamp(2.1rem, 5.2vw, 3.9rem); letter-spacing: -0.012em; color: var(--ink);
-    margin-bottom: 1.6rem; max-width: 18ch; text-shadow: none; }
-  h2 em, .em { font-style: italic; color: var(--amber); }
-
-  .prose p { font-size: clamp(1.05rem, 1.45vw, 1.27rem); line-height: 1.74; color: var(--ink);
-    max-width: var(--measure); margin-bottom: 1.3rem; text-wrap: pretty; }
-  .prose p:last-child { margin-bottom: 0; }
-  .prose p.dim { color: var(--ink-dim); }
-  .prose .accent { font-style: italic; color: var(--amber); }
-
-  /* two-column note: label rail + prose */
-  .note { display: grid; grid-template-columns: minmax(0,0.42fr) minmax(0,1fr); gap: clamp(1.6rem,4vw,4rem); }
-  .note .rail { align-self: start; position: sticky; top: 6rem; }
-  .note .rail h2 { font-size: clamp(1.9rem, 3.4vw, 2.9rem); margin-bottom: 0; }
-
-  /* big centered statements (the "spine") */
-  .lead-stmt { text-align: center; padding: clamp(5rem, 14vh, 11rem) var(--pad-x); }
-  .lead-stmt .big { font-family: var(--display); font-weight: 400;
-    font-size: clamp(2.2rem, 6vw, 5rem); line-height: 1.12; letter-spacing: 0.004em;
-    max-width: none; margin: 0 auto; color: var(--ink); }
-  .lead-stmt .big em { font-style: italic; color: var(--amber); }
-  .lead-stmt .benefit { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.3em;
-    text-transform: uppercase; color: var(--amber); margin-top: 2.4rem; }
-
-  .pull { font-family: var(--display); font-weight: 400; font-size: clamp(1.5rem, 3vw, 2.3rem);
-    line-height: 1.22; color: var(--ink); border-left: 1px solid var(--hair-2); padding-left: 1.6rem;
-    margin: 2.2rem 0 0; max-width: 26ch; }
-  .pull em { font-style: italic; color: var(--amber); }
-  .aside { font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--ink-soft); margin-top: 1.8rem; }
-
-  .divider { height: 1px; background: var(--hairline); max-width: 1280px; margin: 0 auto; }
-
-  /* ═══════════ HERO ═══════════ */
-  .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
-    padding: 7rem var(--pad-x) 4rem; position: relative; overflow: hidden; }
-  .starfield { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-  .starfield i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: var(--ink);
-    opacity: var(--o, 0.4); }
-  .starfield { display: none; }
-  body[data-palette="night"][data-stars="on"] .starfield { display: block; }
-  body[data-palette="night"] .starfield i { opacity: calc(var(--o, 0.4) * 0.55); }
-  .hero-inner { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; width: 100%; }
-  .hero .kicker { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.34em;
-    text-transform: uppercase; color: var(--amber); display: inline-flex; align-items: center; gap: 0.8rem; }
-  .hero h1 { font-family: var(--display); font-weight: 400; letter-spacing: 0.004em;
-    font-size: clamp(2.5rem, 6.6vw, 6rem); line-height: 1.04; margin: 1.8rem 0 0; max-width: 17ch;
-    color: var(--ink); }
-  .hero h1 em { font-style: italic; color: var(--amber);
-    background: linear-gradient(100deg, var(--amber), #ffe9bf 40%, var(--ember) 60%, var(--amber));
-    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  body[data-motion="on"] .hero h1 em { animation: shimmer 7.5s linear infinite; }
-  @keyframes shimmer { to { background-position: 220% 0; } }
-  .hero .sub { font-size: clamp(1.1rem, 1.8vw, 1.45rem); line-height: 1.55; color: var(--ink-dim);
-    max-width: 46ch; margin-top: 2rem; text-wrap: pretty; }
-  .hero-foot { position: absolute; left: var(--pad-x); right: var(--pad-x); bottom: 2.2rem; z-index: 2;
-    display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem;
-    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.24em; text-transform: uppercase;
-    color: var(--ink-soft); }
-  .scroll-cue { display: inline-flex; flex-direction: column; align-items: center; gap: 0.5rem; }
-  .scroll-cue .ch { color: var(--amber); animation: bob 2.2s ease-in-out infinite; }
-  @keyframes bob { 0%,100%{transform:translateY(0);opacity:.55;} 50%{transform:translateY(5px);opacity:1;} }
-
-  /* ═══════════ IN PRACTICE (downstream) ═══════════ */
-  .practice { background: color-mix(in srgb, var(--bg2) 32%, transparent); border-top: 1px solid var(--hairline); }
-  .practice .label { color: var(--ember); }
-  .pr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
-    gap: clamp(1.6rem, 4vw, 3rem); margin-top: 1rem; }
-  .pr-block h3 { font-family: var(--display); font-weight: 400; font-size: 1.5rem; color: var(--ink);
-    margin-bottom: 0.7rem; }
-  .pr-block p { color: var(--ink-dim); font-size: 1rem; line-height: 1.62; max-width: 38ch; }
-  .pr-block p .accent { color: var(--amber); font-style: italic; }
-  .pr-block p a, .pr-sign a { color: var(--amber); text-decoration: none;
-    border-bottom: 1px solid var(--hair-2); transition: border-color .2s, opacity .2s; }
-  .pr-block p a:hover, .pr-sign a:hover { border-color: var(--amber); }
-  .pr-sign { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--amber); margin-top: 1.1rem; }
-
-  .status { margin-top: 3rem; padding: 1.4rem 1.6rem; border: 1px solid rgba(74,200,110,0.18);
-    border-left: 2px solid var(--ok); background: color-mix(in srgb, var(--ok) 7%, transparent);
-    font-family: var(--mono); font-size: 0.9rem; line-height: 1.65; color: var(--ink-dim);
-    width: 100%; position: relative; }
-  .status b { color: var(--ok); font-weight: 700; }
-  .status p { margin: 0; }
-  .status p + p { margin-top: 0.85rem; }
-  .status .st-meta { color: var(--ink-soft); font-size: 0.78rem; letter-spacing: 0.12em;
-    text-transform: uppercase; padding-top: 0.85rem; border-top: 1px solid rgba(74,200,110,0.14); }
-  .status .st-meta span { color: var(--ok); white-space: nowrap; }
-  .status a { color: var(--ok); border-bottom: 1px solid color-mix(in srgb, var(--ok) 40%, transparent);
-    transition: border-color .2s; }
-  .status a:hover { border-color: var(--ok); }
-  .status .st-note { padding-top: 0.85rem; border-top: 1px solid rgba(74,200,110,0.14); }
-
-  /* doors + form */
-  .take { display: grid; grid-template-columns: minmax(0,0.85fr) minmax(0,1fr);
-    gap: clamp(2rem,5vw,4rem); align-items: start; margin-top: 2.6rem; }
-
-  /* doorway panel treatment */
-  #take-part.take { position: relative; padding: clamp(2.2rem, 4.5vw, 4rem);
-    background:
-      radial-gradient(130% 90% at 6% 4%, color-mix(in srgb, var(--amber) 11%, transparent), transparent 58%),
-      linear-gradient(180deg, color-mix(in srgb, var(--amber) 6%, transparent), color-mix(in srgb, var(--ember) 3%, transparent));
-    border: 1px solid var(--hairline); border-top-color: var(--hair-2);
-    box-shadow: inset 0 1px 0 rgba(255,178,62,0.12), 0 24px 60px -40px var(--glow); }
-  /* inset doorframe lines */
-  #take-part.take::before { content: ""; position: absolute; inset: 12px;
-    border: 1px solid var(--hairline); pointer-events: none; }
-  /* door handle */
-  #take-part.take::after { content: ""; position: absolute; left: clamp(20px, 2.2vw, 28px);
-    top: 50%; width: 5px; height: 34px; transform: translateY(-50%); border-radius: 3px;
-    background: var(--amber); box-shadow: 0 0 14px var(--glow), inset 0 0 0 1px rgba(0,0,0,0.15);
-    pointer-events: none; }
-  #take-part.take > * { position: relative; z-index: 1; }
-  @media (max-width: 760px) { #take-part.take::after { display: none; } }
-  .doors { display: flex; flex-direction: column; gap: 0.6rem; }
-  .door { display: flex; align-items: center; gap: 0.9rem; text-align: left; padding: 1rem 1.1rem;
-    border: 1px solid var(--hairline); transition: border-color .2s, background .2s, color .2s;
-    font-family: var(--serif); font-size: 1.05rem; color: var(--ink-dim); }
-  .door .di { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft); letter-spacing: 0.1em; }
-  .door .da { margin-left: auto; color: var(--amber); opacity: 0; transform: translateX(-6px);
-    transition: opacity .2s, transform .2s; }
-  .door:hover, .door.sel { color: var(--ink); border-color: var(--hair-2);
-    background: color-mix(in srgb, var(--amber) 7%, transparent); }
-  .door.sel .di { color: var(--amber); }
-  .door:hover .da, .door.sel .da { opacity: 1; transform: none; }
-
-  .form { display: flex; flex-direction: column; gap: 1.3rem; }
-  .field label { display: block; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
-  .field input, .field textarea { width: 100%; background: transparent; border: none;
-    border-bottom: 1px solid var(--hairline); padding: 0.55rem 0; color: var(--ink);
-    font-family: var(--serif); font-size: 1.12rem; font-weight: 300; outline: none; resize: none;
-    transition: border-color .2s; }
-  .field input::placeholder, .field textarea::placeholder { color: var(--ink-soft); }
-  .field input:focus, .field textarea:focus { border-bottom-color: var(--amber); }
-  .field textarea { min-height: 3rem; line-height: 1.5; }
-  .submit { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.7rem;
-    font-family: var(--mono); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.16em;
-    text-transform: uppercase; padding: 0.85rem 1.5rem; background: var(--amber); color: var(--void);
-    border: 1px solid var(--amber); transition: background .2s, border-color .2s; }
-  .submit:hover { background: var(--ember); border-color: var(--ember); }
-  .submit:disabled { opacity: 0.55; }
-  .form-msg { font-family: var(--mono); font-size: 0.82rem; letter-spacing: 0.08em; color: var(--amber);
-    min-height: 1rem; }
-
-  /* field notes */
-  .notes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-    gap: 0; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline);
-    margin-top: 1.4rem; }
-  .fnote { padding: 1.5rem 1.5rem; border-right: 1px solid var(--hairline);
-    border-bottom: 1px solid var(--hairline); display: flex; flex-direction: column; gap: 1rem; }
-  .fnote blockquote { font-family: var(--serif); font-size: 1.08rem; line-height: 1.5; color: var(--ink);
-    font-style: italic; }
-  .fnote cite { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--ink-soft); font-style: normal; }
-
-  /* ——————— FOOTER ——————— */
-  footer { padding: 3rem var(--pad-x); border-top: 1px solid var(--hairline);
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; align-items: center;
-    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--ink-soft); max-width: 1280px; margin: 0 auto; }
-  footer .l { color: var(--ink-dim); } footer .l em { font-style: normal; color: var(--amber); }
-  footer .m { text-align: center; } footer .r { text-align: right; }
-  footer a:hover { color: var(--amber); }
-
-  /* ——————— REVEALS ——————— */
-  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
-  .reveal.in { opacity: 1; transform: none; }
-  body[data-motion="off"] .reveal { opacity: 1 !important; transform: none !important; transition: none; }
-
-  /* ——————— MAGICAL MOTION ——————— */
-  .embers { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
-  .embers i { position: absolute; bottom: -12px; width: 3px; height: 3px; border-radius: 50%;
-    background: var(--ember); opacity: 0; }
-  body[data-motion="on"] .embers i { animation: rise linear infinite; }
-  @keyframes rise { 0% { transform: translateY(0) translateX(0); opacity: 0; } 12% { opacity: 0.85; }
-    85% { opacity: 0.4; } 100% { transform: translateY(-90vh) translateX(var(--dx,0)); opacity: 0; } }
-  body[data-stars="off"] .embers, body[data-palette="paper"] .embers { display: none; }
-  body[data-motion="on"] .starfield i { animation: twinkle var(--td,4s) ease-in-out infinite; }
-  @keyframes twinkle { 0%,100% { opacity: var(--o,.3); } 50% { opacity: calc(var(--o,.3) * 2.3); } }
-  body[data-motion="on"] .lead-stmt .big em { animation: glowPulse 5s ease-in-out infinite; }
-  @keyframes glowPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.8; } }
-
-  /* ——————— EDITORIAL VARIETY (human, not uniform) ——————— */
-  .note.flip { grid-template-columns: minmax(0,1fr) minmax(0,0.42fr); }
-  .note.flip .rail { order: 2; }
-  .note.flip .prose { order: 1; }
-  .pr-sign { font-family: var(--display) !important; font-style: italic; font-weight: 500;
-    font-size: 1.5rem !important; letter-spacing: 0 !important; text-transform: none !important;
-    color: var(--amber); margin-top: 0.9rem; transform: rotate(-1.5deg); transform-origin: left; }
-  .marginal { font-family: var(--display); font-style: italic; font-size: 1.05rem; color: var(--ink-dim);
-    line-height: 1.4; transform: rotate(-1deg); opacity: 0.92; }
-  @media (max-width: 880px) { .note.flip { grid-template-columns: 1fr; } .note.flip .rail { order: 0; } }
-
-  /* ——————— LOADING SCREEN · 8-BIT ——————— */
-  .loader { position: fixed; inset: 0; z-index: 9999; background: #000;
-    display: flex; align-items: center; justify-content: center; padding: 2rem;
-    transition: opacity .6s ease, visibility .6s ease; }
-  .loader.hide { opacity: 0; visibility: hidden; }
-  .loader-inner { position: relative; display: flex; flex-direction: column; align-items: center;
-    gap: clamp(1.1rem, 3vw, 1.8rem); animation: loaderPop .35s ease both;
-    image-rendering: pixelated; }
-  .pix-title { font-family: 'Press Start 2P', monospace; color: #fff;
-    font-size: clamp(1.1rem, 4.6vw, 2.3rem); letter-spacing: 0.04em; line-height: 1;
-    text-transform: uppercase; text-shadow: 3px 3px 0 #000; }
-  .pix-bar { position: relative; width: clamp(260px, 60vw, 520px); height: clamp(20px, 5vw, 30px);
-    background: #000; border: 3px solid #fff; padding: 4px; box-shadow: 4px 4px 0 rgba(0,0,0,.6); }
-  @media (min-width: 720px) { .pix-bar { width: min(78vw, 880px); } }
-  .pix-fill { position: relative; height: 100%; width: 0%; background: var(--amber);
-    transition: width .25s steps(1); }
-  /* chunky segment gaps over the fill */
-  .pix-fill::after { content: ""; position: absolute; inset: 0;
-    background-image: repeating-linear-gradient(90deg, transparent 0, transparent 14px, #000 14px, #000 18px); }
-  .pix-wait { font-family: 'Press Start 2P', monospace; color: var(--amber);
-    font-size: clamp(0.62rem, 2.3vw, 1rem); letter-spacing: 0.12em; text-transform: uppercase;
-    text-shadow: 2px 2px 0 #000; }
-  body[data-motion="on"] .pix-wait { animation: pixBlink 1s steps(1) infinite; }
-  @keyframes pixBlink { 0%,55% { opacity: 1; } 56%,100% { opacity: 0.25; } }
-  @keyframes loaderPop { from { opacity:0; } to { opacity:1; } }
-  @media (prefers-reduced-motion: reduce) { .pix-fill { transition: none; } }
-
-  /* ——————— TYPE MATCHED TO LOGO (technical / grotesk) ——————— */
-  h1, .hero h1 { font-weight: 700; letter-spacing: -0.02em; }
-  h2 { font-weight: 600; letter-spacing: -0.018em; }
-  .big { font-weight: 600; letter-spacing: -0.015em; }
-  .pull { font-weight: 500; }
-  h1 em, h2 em, .big em, .pull em, .hero h1 em { font-style: normal; }
-  .label .n { font-family: var(--display); font-style: normal; font-weight: 700; font-size: 1.1rem;
-    letter-spacing: 0; line-height: 1; }
-  .loop-legend .stage { font-style: normal; font-weight: 700; }
-  .pr-sign { font-style: normal !important; font-weight: 600 !important; }
-  .marginal { font-style: normal; font-weight: 500; }
-
-  /* ——————— HERO LOGO CENTERPIECE · GRAFFITI-2100 ——————— */
-  .hero-centered { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .hero-centered .kicker { justify-content: center; }
-  .hero-logo-wrap { position: relative; display: flex; justify-content: center; width: 100%;
-    margin: 2.2rem 0 0; }
-  .hero-logo { width: clamp(225px, 57vw, 705px); height: auto; display: block;
-    animation: heroFloat 6.5s ease-in-out infinite; }
-  @keyframes holoSpin { to { transform: rotate(360deg); } }
-  @keyframes heroFloat { 0%,100% { transform: translateY(0) rotate(-0.7deg); } 50% { transform: translateY(-12px) rotate(0.7deg); } }
-  body[data-motion="off"] .hero-logo { animation: none; }
-  .hero-tag { font-family: var(--display); font-weight: 600; font-size: clamp(1.35rem, 3.1vw, 2.5rem);
-    line-height: 1.14; letter-spacing: -0.01em; color: var(--ink); max-width: 22ch; margin: 2.2rem auto 0; }
-  .hero-tag em { font-style: normal; color: var(--amber); }
-  .hero-centered .sub { margin-left: auto; margin-right: auto; }
-
-  /* (settings affordance styles are defined further below) */
-
-  /* ——————— THE ARC ——————— */
-  .arc { display: flex; flex-direction: column; gap: clamp(2.6rem, 6vh, 5rem); }
-  .arc-part { display: grid; grid-template-columns: minmax(0,0.18fr) minmax(0,1fr);
-    gap: clamp(1.2rem, 4vw, 3.5rem); align-items: baseline; }
-  .arc-part .pt-label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.24em;
-    text-transform: uppercase; color: var(--amber); padding-top: 0.6rem; }
-  .arc-part .pt-text { font-family: var(--display); font-weight: 500; letter-spacing: -0.018em;
-    font-size: clamp(1.7rem, 3.7vw, 3.1rem); line-height: 1.16; color: var(--ink); text-wrap: pretty; }
-  .arc-part .pt-text em { font-style: italic; color: var(--amber); }
-  .arc-coda { font-family: var(--mono); font-size: 0.84rem; letter-spacing: 0.02em; line-height: 1.75;
-    color: var(--ink-soft); margin-top: clamp(2.4rem,5vh,4rem); max-width: 64ch; }
-
-  /* ——————— REFRAINS ——————— */
-  .refrains { display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: clamp(2rem,4vh,3.4rem) clamp(2.5rem,5vw,5rem); margin-top: clamp(1.6rem,4vh,2.6rem); }
-  .refrain .ph { font-family: var(--display); font-weight: 500; letter-spacing: -0.018em;
-    font-size: clamp(1.45rem, 2.5vw, 2.15rem); line-height: 1.16; color: var(--ink); text-wrap: balance; }
-  .refrain .ph em { font-style: italic; color: var(--amber); }
-  .refrain .gl { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em;
-    text-transform: uppercase; color: var(--ink-soft); margin-top: 0.8rem; }
-
-  /* wide prose + lead-in */
-  .prose.wide p { max-width: 80ch; }
-  .lead-in { font-family: var(--display); font-weight: 400; font-size: clamp(1.35rem,2.3vw,1.95rem);
-    line-height: 1.32; letter-spacing: -0.01em; color: var(--ink-dim); max-width: 42ch; }
-  .lead-in em { color: var(--amber); font-style: italic; }
-
-  /* ——————— RESPONSIVE ——————— */
-  @media (max-width: 880px) {
-    .note { grid-template-columns: 1fr; gap: 1.2rem; }
-    .note .rail { position: static; }
-    .arc-part { grid-template-columns: 1fr; gap: 0.6rem; }
-    .refrains { grid-template-columns: 1fr; }
-    .take { grid-template-columns: 1fr; }
-    footer { grid-template-columns: 1fr; gap: 0.8rem; text-align: left; }
-    footer .m, footer .r { text-align: left; }
-    .tweaks { left: 1rem; right: 1rem; width: auto; }
-  }
-  @media (max-width: 560px) {
-    body { font-size: 17px; }
-    .hero-foot .nav-tag { display: none; }
-    .hero .kicker { white-space: nowrap; letter-spacing: 0.2em; font-size: 0.62rem; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1 !important; transform: none !important; transition: none; }
-    .scroll-cue .ch { animation: none; }
-    html { scroll-behavior: auto; }
-  }
-
-  .lead-stmt, .hero, footer, .divider { position: relative; z-index: 2; }
-
-  /* ——————— RESOLVE · latent becoming clear ——————— */
-  .resolve-wrap { position: relative; display: inline-block; line-height: 0; }
-  .hero-logo-wrap[data-resolving] .hero-logo { animation: none !important; }
-
-  /* ——————— SETTINGS AFFORDANCE ——————— */
-  .settings-btn { position: fixed; top: 1.05rem; right: clamp(1rem, 4vw, 2.2rem); z-index: 320;
-    width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 50%; border: 1px solid var(--hair-2);
-    background: color-mix(in srgb, var(--void) 72%, transparent);
-    -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); color: var(--ink-dim);
-    transition: color .25s, border-color .25s, transform .4s cubic-bezier(.2,.7,.2,1); }
-  .settings-btn:hover { color: var(--amber); border-color: var(--amber); transform: rotate(40deg); }
-  .settings-btn svg { width: 19px; height: 19px; display: block; }
-  .settings { position: fixed; top: 3.55rem; right: clamp(1rem, 4vw, 2.2rem); z-index: 320; width: 246px;
-    background: color-mix(in srgb, var(--bg2) 90%, transparent); border: 1px solid var(--hair-2);
-    border-radius: 15px; padding: 1.15rem 1.15rem 1.3rem; box-shadow: 0 26px 70px rgba(0,0,0,0.45);
-    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-    font-family: var(--mono); color: var(--ink-dim);
-    opacity: 0; transform: translateY(-8px) scale(.97); transform-origin: top right; pointer-events: none;
-    transition: opacity .25s ease, transform .25s ease; }
-  .settings.open { opacity: 1; transform: none; pointer-events: auto; }
-  .settings .s-title { font-size: 0.62rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ink);
-    margin-bottom: 1.1rem; display: flex; align-items: center; gap: 0.55rem; }
-  .settings .s-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
-  .s-row { margin-bottom: 1.1rem; } .s-row:last-child { margin-bottom: 0; }
-  .s-lbl { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft);
-    margin-bottom: 0.55rem; display: flex; justify-content: space-between; align-items: baseline; }
-  .s-lbl .val { color: var(--amber); letter-spacing: 0.12em; }
-  .s-pals { display: flex; gap: 0.45rem; }
-  .s-pal { flex: 1; height: 30px; border-radius: 8px; border: 1px solid var(--hairline); cursor: pointer;
-    transition: transform .15s, box-shadow .2s, border-color .2s; }
-  .s-pal:hover { transform: translateY(-2px); }
-  .s-pal[aria-pressed="true"] { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
-  .s-pal[data-pal="amber"] { background: linear-gradient(135deg,#1a1206,#ffb23e); }
-  .s-pal[data-pal="ember"] { background: linear-gradient(135deg,#180c04,#ff5a26); }
-  .s-pal[data-pal="paper"] { background: linear-gradient(135deg,#cbb78e,#f4ecdb); }
-  .s-pal[data-pal="night"] { background: linear-gradient(135deg,#0c0e1a,#41527e); }
-  .s-seg { display: flex; gap: 0.3rem; }
-  .s-seg button { flex: 1; padding: 0.52rem 0.3rem; border-radius: 8px; background: transparent;
-    border: 1px solid var(--hairline); color: var(--ink-dim); font-family: var(--mono); font-size: 0.62rem;
-    letter-spacing: 0.1em; text-transform: uppercase; transition: all .2s; }
-  .s-seg button:hover { color: var(--ink); border-color: var(--ink-soft); }
-  .s-seg button[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: var(--void); }
-  .s-range { width: 100%; -webkit-appearance: none; appearance: none; height: 3px; border-radius: 2px;
-    background: var(--hair-2); outline: none; margin: 0.4rem 0 0.1rem; }
-  .s-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px;
-    border-radius: 50%; background: var(--amber); cursor: pointer; border: 2px solid var(--void); }
-  .s-range::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: var(--amber);
-    cursor: pointer; border: 2px solid var(--void); }
-
-  @media (max-width: 560px) { .settings { right: 1rem; left: 1rem; width: auto; } }
-
-  footer { position: relative; z-index: 2; }
-
-  /* hero text legibility over the thermal backdrop */
-  .hero .kicker, .hero-tag, .hero .sub { text-shadow: 0 1px 24px var(--void), 0 1px 5px var(--void); }
-  .hero-foot { text-shadow: 0 1px 12px var(--void); }
-
-  /* ——————— HERO THERMAL BACKDROP ——————— */
-  .hero-thermal { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-  .hero-thermal canvas { width: 100%; height: 100%; display: block; }
-  .hero-thermal-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background:
-      radial-gradient(ellipse 64% 56% at 50% 44%, rgba(6,5,9,0.28) 0%, rgba(6,5,9,0.72) 58%, rgba(6,5,9,0.97) 100%),
-      linear-gradient(to bottom, rgba(6,5,9,0.55) 0%, rgba(6,5,9,0) 28%, rgba(6,5,9,0) 68%, rgba(6,5,9,0.9) 100%); }
-
-  /* ——————— THERMAL BAND · the meeting, resolving from latent ——————— */
-  .thermal-band { position: relative; overflow: hidden; min-height: 88vh;
-    display: flex; align-items: center; justify-content: center; text-align: center;
-    padding: clamp(5rem, 14vh, 11rem) var(--pad-x); z-index: 2; }
-  .thermal-cv { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
-  .thermal-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: radial-gradient(ellipse at 50% 52%, rgba(6,5,9,0.26) 0%, rgba(6,5,9,0.60) 52%, rgba(6,5,9,0.92) 100%); }
-  .thermal-content { position: relative; z-index: 2; max-width: min(92vw, 40rem); margin: 0 auto; }
-  .thermal-band .eyebrow { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.34em;
-    text-transform: uppercase; color: var(--amber); margin-bottom: 1.1rem;
-    text-shadow: 0 1px 16px rgba(0,0,0,0.7); }
-  .thermal-band.compact { min-height: 72vh; }
-  .thermal-band .big { font-family: var(--serif); font-weight: 400; font-size: clamp(1.9rem, 4.4vw, 3.4rem); line-height: 1.16;
-    color: #f6ead0; text-shadow: 0 2px 34px rgba(0,0,0,0.72); text-wrap: balance; }
-  .thermal-band .big em { color: #ffb23e; font-style: italic; }
-  .thermal-band .benefit { color: #ffb23e; font-family: var(--mono); font-size: 0.7rem;
-    letter-spacing: 0.28em; text-transform: uppercase; margin-top: 1.6rem; }
 </style>
 </head>
-<body data-palette="amber" data-stars="on" data-motion="on">
+<body>
+<div class="shell" style="max-width:var(--shell);margin:0 auto;container-type:inline-size;min-height:100vh;">
 
-  <template id="__bundler_thumbnail" data-bg-color="#0a0805">
-    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
-      <rect width="1200" height="800" fill="#0a0805"/>
-      <circle cx="600" cy="400" r="120" fill="none" stroke="#ffb23e" stroke-width="10"/>
-      <circle cx="600" cy="400" r="34" fill="#ff7a1f"/>
-      <text x="600" y="640" font-family="'Space Grotesk', system-ui, sans-serif" font-size="74" font-weight="700" fill="#f3e3c4" text-anchor="middle" letter-spacing="-2">Beings Club</text>
-    </svg>
-  </template>
+<nav style="display:flex;align-items:center;gap:1.7rem;flex-wrap:wrap;padding:1.15rem var(--pad);border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:20;">
+  <span style="font-weight:800;font-size:.82rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span>
+  <div class="nav-links" style="display:flex;gap:1.7rem;align-items:center;flex-wrap:wrap;">
+    <a class="nav-link" href="#origin" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Origin</a>
+    <a class="nav-link" href="#ground" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Ground</a>
+    <a class="nav-link" href="#salons" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Salons</a>
+    <a class="nav-link" href="#sits" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Sits</a>
+  </div>
+  <a class="nav-cta" href="#door" style="margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ink);padding:.55rem .95rem;">Take part</a>
+</nav>
 
-  <div class="loader" id="loader">
-    <div class="loader-inner">
-      <div class="pix-title">Now Loading</div>
-      <div class="pix-bar"><div class="pix-fill" id="pixFill"></div></div>
-      <div class="pix-wait">Stay Curious</div>
+<header style="padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);overflow:hidden;">
+  <div style="max-width:64rem;margin:0 auto;">
+    <img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;">
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;max-width:64rem;margin:clamp(1.75rem,4.5vh,3rem) auto 0;">
+    <h1 style="font-weight:500;font-size:clamp(1.1rem,2.6cqi,1.6rem);letter-spacing:-.02em;line-height:1.28;max-width:24ch;">Where curious people meet to realise <em style="font-style:italic;font-weight:600;">what's possible</em>.</h1>
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);white-space:nowrap;">FOR THE BENEFIT OF ALL BEINGS</div>
+  </div>
+</header>
+
+<div style="border-bottom:1px solid var(--ink);background:var(--lav);">
+  <button type="button" class="bc-toggle" aria-expanded="false" aria-controls="bc-panel" style="width:100%;display:flex;align-items:center;gap:1rem;padding:1.15rem var(--pad);background:transparent;border:none;font-family:var(--font);text-align:left;cursor:pointer;color:var(--ink);transition:background .15s;">
+    <span style="position:relative;display:inline-flex;flex:none;"><span class="bc-dot" style="width:9px;height:9px;border-radius:50%;background:var(--ink);animation:bc-pulse 2.6s ease-out infinite;"></span></span>
+    <span class="bc-toggle-text" style="flex:1;font-weight:500;font-size:clamp(.95rem,1.6cqi,1.08rem);letter-spacing:-.01em;">Next Salon — <strong style="font-weight:700;">September 27, 2026</strong> &nbsp;·&nbsp; Next Sit — <strong style="font-weight:700;">To be announced</strong></span>
+    <span class="bc-toggle-label" style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap;">Details</span>
+    <svg class="bc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:var(--dim);transform:rotate(0deg);transition:transform .4s cubic-bezier(.4,0,.2,1);"><path d="M6 9l6 6 6-6"></path></svg>
+  </button>
+  <div id="bc-panel" class="bc-panel" style="overflow:hidden;max-height:0;opacity:0;transition:max-height .45s cubic-bezier(.4,0,.2,1),opacity .35s ease;">
+    <div style="padding:.5rem var(--pad) 1.5rem;">
+      <div style="display:grid;grid-template-columns:5rem 1fr;gap:.4rem 1rem;padding:1.1rem 0;border-top:1px solid var(--hair);">
+        <div style="grid-column:1 / -1;font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:.15rem;">Salons</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">September 27, 2026 · last Sunday monthly, pausing over summer</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Format</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Online — join from anywhere</div>
+      </div>
+      <div style="display:grid;grid-template-columns:5rem 1fr;gap:.4rem 1rem;padding:1.1rem 0 0;border-top:1px solid var(--hair);">
+        <div style="grid-column:1 / -1;font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:.15rem;">Sits</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">To be announced · first series being planned</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Format</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Online — join from anywhere</div>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="grain"></div>
+<section id="origin" style="scroll-margin-top:5.5rem;padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);">
+  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.1rem;">ORIGIN</div>
+  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;">An offering, in the<br><span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">lineage of</span> a tea house.</h2>
+  <p style="margin-top:1.8rem;max-width:52ch;font-size:1.05rem;color:var(--ink);line-height:1.6;">Beings Club is a room where curious people find each other.</p>
+  <p style="margin-top:.9rem;max-width:52ch;font-size:1.05rem;color:var(--dim);line-height:1.6;">At a tea house at Plum Village in 2019, I found myself in conversations over tea that expanded my sense of what is possible. <br><br>Whilst the retreat schedule was truly valuable, I was drawn again and again to that little tea house and the conversations that could happen there – free from a prescribed topic or theme. <br><br>Beings Club is an offering in the lineage of that atmosphere.</p>
+  <p style="margin-top:1.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p>
+</section>
 
-  <!-- NAV -->
-  <nav id="nav">
-    <a class="nav-logo" href="#top" aria-label="Beings Club"><img src="assets/beings-logo-paper.png" alt="Beings Club"></a>
-    <div class="nav-links">
-      <a href="#take-part" class="nav-cta">Take part</a>
+<div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Ground</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What we grow from.</p>
+</div>
+
+<div class="trio" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;color:var(--amber);">01</div>
+    <h3 style="margin:1.3rem 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">We hold each other as precious</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Each life in the room, including the ones nothing like yours, are treated as real and valuable and worth our care.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;color:var(--amber);">02</div>
+    <h3 style="margin:1.3rem 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">A regular shape makes space for free contents</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Our forms stay constant so that what happens inside them can be free. The shapes held create room for flexibility.</p>
+  </div>
+  <div style="padding:var(--cell);">
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;color:var(--amber);">03</div>
+    <h3 style="margin:1.3rem 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">Curiosity connects //<br>Stay curious</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">We define curiosity as <b>an orientation to experience that is open to discovery</b>. It's a form of play.</p>
+  </div>
+</div>
+
+<div id="salons" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Salons</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">Space for conversations that want to happen.</p>
+</div>
+
+<section class="split" style="display:grid;grid-template-columns:1fr 1.6fr;border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);background:var(--slateW);">
+    <div style="display:flex;flex-direction:column;gap:1.2rem;">
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a donation basis</div></div>
     </div>
-  </nav>
+  </div>
+  <div style="padding:var(--cell);">
+    <p style="color:var(--dim);margin-bottom:.9rem;max-width:52ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A Salon is a gathering, not a webinar.</strong> <br>There's no panel, no slides, and no content or prescribed theme. We open with time for intentional practice, we talk in duos and trios, and the space closes as a whole.</p>
+    <p style="color:var(--dim);margin-bottom:.9rem;max-width:52ch;line-height:1.65;">People arrive from different places — different geographies, different decades of life, different ways of seeing. The range is the point: it's what makes salon conversations something curiosity can expand into.</p>
+    <p style="color:var(--dim);max-width:52ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. Come as you are, and see what happens.</p>
+  </div>
+</section>
 
-  <main id="top">
+<div class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Why salon</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What a room of curious people gives back.</p>
+</div>
 
-    <!-- ═══════════ HERO ═══════════ -->
-    <header class="hero" data-screen-label="Hero">
-      <div class="starfield" id="stars"></div>
-      <div class="embers" id="embers"></div>
-      <div class="hero-inner hero-centered">
-        <span class="kicker">For the benefit of all beings</span>
-        <div class="hero-logo-wrap"><span class="resolve-wrap"><img class="hero-logo" src="assets/beings-logo.png" alt="Beings Club"></span></div>
-        <p class="hero-tag">Where curious people meet to realise <em>what's possible</em>.</p>
-        <p class="sub" style="font-style:italic; margin-bottom:3rem;">Curiosity connects.</p>
+<div class="trio" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Connection</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The moment a conversation stops being polite and starts being real. It usually arrives in the first half hour.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Perspective</span></h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Your own life handed back to you by someone standing decades, or continents, from where you're standing.</p>
+  </div>
+  <div style="padding:var(--cell);border-bottom:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Inspiration</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Someone describes how they're actually living, and something in you sits up. Not envy — a possibility, recognised.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Play</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Ideas turned over for the pleasure of it, with no obligation to conclude, defend, or be right.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Friendship</span></h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">What's still there weeks later — people who know something true about you, and you about them.</p>
+  </div>
+  <div style="padding:var(--cell);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Surprise</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The turn nobody planned — the thought, or the person, that stays with you long after the call ends.</p>
+  </div>
+</div>
+
+<div id="sits" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Sits</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">Meditation classes for the curious.</p>
+</div>
+
+<section class="split" style="display:grid;grid-template-columns:1fr 1.6fr;border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);background:var(--slateW);">
+    <div style="display:flex;flex-direction:column;gap:1.2rem;">
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About one hour</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or multi-week series</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a sliding scale basis</div></div>
+    </div>
+  </div>
+  <div style="padding:var(--cell);">
+    <p style="color:var(--dim);margin-bottom:.9rem;max-width:52ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A Sit is a meditation class that explores the fundamentals, simply.</strong>&nbsp;<br>The techniques are simple, there is no ladder of attainment, and no vocabulary you need to learn before you join. Fundamentals, practised properly — with time for questions.</p>
+    <p style="color:var(--dim);max-width:52ch;line-height:1.65;">Beings Club takes a contemporary approach to mindfulness, available to exploring tradition without relying on it for reassurance. What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.</p>
+  </div>
+</section>
+
+<div class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Why sit</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What a regular practice cultivates.</p>
+</div>
+
+<div class="trio" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Ease</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Life gets easier when we're friends with ourselves and can bring the spirit of play to the realm of effort.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Resilience</span></h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The capacity to meet what is happening without being knocked over by it, built slowly and on purpose.</p>
+  </div>
+  <div style="padding:var(--cell);border-bottom:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Clarity</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Seeing what's actually happening, in ourselves first and then opening naturally into everything else.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Courage</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The inner resource of knowing that you can meet what's happening and respond, without turning away.</p>
+  </div>
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Openness</span></h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Spaciousness that does not need to know and is not afraid to either, relaxed into as what makes life; life.</p>
+  </div>
+  <div style="padding:var(--cell);">
+    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Kindness</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The simple way of gentleness that recognises one's own happiness as equal to that of others, and acts on it.</p>
+  </div>
+</div>
+
+<div class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Field notes</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What the people are saying.</p>
+</div>
+
+<div class="quotes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hair);border-bottom:1px solid var(--ink);">
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"A space to slow down, reflect together, and make sense of things out loud."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Ana C · Designer</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"90 minutes of nothing in particular could fly by and also be so energizing."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Mark F · Product</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Genuine encounters with people whose timelines wouldn't typically intersect with mine."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Zak EF · Engineer-philosopher</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Beings Club became my Sunday ritual."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Sean P · Founder, tbd.zip</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I have had several experiences of being seen, heard, and held."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Manansh S · Founder</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"It was amazing. I found genuine connection on each call."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Catra · Contributor, HIGHER</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"It feels like a kind of therapy — really enriching to discover new ways of thinking."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Victor · Brands &amp; Design</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I'm so so grateful this space exists."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Jordan N · Designer &amp; Creative Director</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Highly recommend it to anyone who's curious but on the fence."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Esme · Joy Seeker, esmemadethis.com</figcaption>
+  </figure>
+  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I leave every week feeling more human, more like a being."</blockquote>
+    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">The Dude</figcaption>
+  </figure>
+</div>
+
+<div id="door" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+  <div>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Take part</h2>
+  </div>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">Why else did you scroll this far down?</p>
+</div>
+
+<section style="padding:var(--sy) var(--pad);text-align:center;border-bottom:1px solid var(--ink);background:var(--amberW);">
+  <h2 style="margin:0 0 1rem;font-weight:800;letter-spacing:-.035em;line-height:1;font-size:clamp(2rem,6.5cqi,3.8rem);text-transform:uppercase;">This is our front door</h2>
+  <p style="max-width:44ch;margin:0 auto 2.4rem;color:var(--dim);line-height:1.6;">Register your interest in Salons, Sits, or both.</p>
+
+  <form id="bc-note" novalidate style="max-width:34rem;margin:0 auto;text-align:left;">
+    <div class="bc-part" style="margin-bottom:1.6rem;text-align:center;">
+      <span class="bc-lab">I'm interested in</span>
+      <div style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;">
+        <label style="position:relative;display:inline-flex;">
+          <input class="bc-check" type="checkbox" name="interest" value="Salons">
+          <span class="bc-chip">Salons</span>
+        </label>
+        <label style="position:relative;display:inline-flex;">
+          <input class="bc-check" type="checkbox" name="interest" value="Sits">
+          <span class="bc-chip">Sits</span>
+        </label>
       </div>
-      <div class="hero-foot">
-        <span class="nav-tag"></span>
-        <a class="scroll-cue" href="#origin" aria-label="Read on"><span>Read</span><span class="ch">↓</span></a>
-      </div>
-    </header>
+    </div>
 
-    <!-- ═══════════ THERMAL · the tea house (feel-first) ═══════════ -->
-    <section class="thermal-band compact reveal" id="origin" data-screen-label="The tea house">
-      <canvas class="thermal-cv" id="thermalTea" data-src="assets/thermal-seated3.png" aria-hidden="true"></canvas>
-      <div class="thermal-scrim"></div>
-      <div class="thermal-content">
-        <p class="eyebrow">Where it comes from</p>
-        <p class="big" style="color: rgb(255, 179, 63)"><span style="color:#f1e0c3">In the lineage of <em>a tea house</em>.</span></p>
-      </div>
-    </section>
+    <div class="bc-part" style="margin-bottom:1.1rem;">
+      <label class="bc-lab" for="bc-name">Your name</label>
+      <input class="bc-in" id="bc-name" name="name" type="text" placeholder="What shall we call you?" autocomplete="name">
+    </div>
+    <div class="bc-part" style="margin-bottom:1.1rem;">
+      <label class="bc-lab" for="bc-email">Where to reach you</label>
+      <input class="bc-in" id="bc-email" name="email" type="email" placeholder="you@somewhere" autocomplete="email">
+    </div>
+    <div class="bc-part" style="margin-bottom:1.6rem;">
+      <label class="bc-lab" for="bc-drawn">What's drawing you toward this?</label>
+      <textarea class="bc-in" id="bc-drawn" name="drawn" rows="3" placeholder="A few lines, in your own words…"></textarea>
+    </div>
 
-    <!-- ═══════════ LINEAGE ═══════════ -->
-    <section class="movement reveal" data-screen-label="Lineage">
-      <div class="inner note flip">
-        <div class="rail">
-          <div class="label">Where it comes from</div>
-          <h2>An offering, in the <em>lineage of</em>.</h2>
-        </div>
-        <div class="prose">
-          <p>The seed that grew into Beings Club was planted at a tea house.  At a 2019 retreat at Plum Village — Thich Nhat Hanh's monastery in the south of France — conversations between people about things beyond the retreat schedule, over tea, became the most powerful thing: with the discovered friendships, ideas, and insights still being lived.</p>
-          <p class="dim">It was an atmosphere more than a method — a quality of attention and openness people carried into and out of the tea house. When I left that retreat, I longed to find such an atmosphere again. Beings Club is an offering in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine, a space for conversations of all kinds.</p>
-          <p class="pr-sign">— John</p>
-        </div>
-      </div>
-    </section>
+    <div class="bc-part" style="text-align:center;">
+      <button class="btn-ink" id="bc-submit" type="submit" style="display:inline-flex;align-items:center;gap:.8rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;padding:1rem 2rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;"><span id="bc-submit-label">Leave us a note</span><span>→</span></button>
+    </div>
+    <p id="bc-msg" role="status" aria-live="polite" style="margin-top:1.2rem;text-align:center;font-size:.95rem;color:var(--dim);line-height:1.6;"></p>
+  </form>
+</section>
 
-    <!-- ═══════════ REFRAIN · the rhythm ═══════════ -->
-    <section class="thermal-band compact reveal" data-screen-label="Refrain · rhythm">
-      <canvas class="thermal-cv" id="thermalR1" data-src="assets/thermal-portal4.png" aria-hidden="true"></canvas>
-      <div class="thermal-scrim"></div>
-      <div class="thermal-content">
-        <p class="big">Stay <em>curious</em>.</p>
-      </div>
-    </section>
+<section class="duo" style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <h3 style="font-weight:700;font-size:1.3rem;letter-spacing:-.02em;margin-bottom:.6rem;">Wonderfool</h3>
+    <p style="color:var(--dim);font-size:.95rem;line-height:1.6;">Letters on being, every 1st and 3rd Tuesday. Written by John — the same voice that hosts the room.</p>
+  </div>
+  <div style="padding:var(--cell);display:flex;align-items:center;">
+    <form action="https://wonderfool.substack.com/subscribe" method="get" target="_blank" style="display:flex;width:100%;border:1px solid var(--ink);">
+      <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required style="flex:1;border:none;outline:none;padding:.9rem 1rem;font-family:var(--font);font-size:.9rem;background:transparent;color:var(--ink);min-width:0;">
+      <button class="btn-ink" type="submit" style="border:none;border-left:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:.9rem 1.4rem;font-family:var(--font);font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;">Subscribe</button>
+    </form>
+  </div>
+</section>
 
-    <!-- ═══════════ IN PRACTICE ═══════════ -->
-    <section class="movement practice" id="practice" data-screen-label="In practice">
-      <div class="inner">
-        <div class="label reveal">// In practice</div>
-        <h2 class="reveal" style="max-width:18ch;">What this looks like, <em>in practice</em>.</h2>
+<footer style="padding:clamp(2.25rem,5vh,3.25rem) var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+  <span style="font-weight:800;font-size:.8rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span>
+  <span style="font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);">For the benefit of all beings</span>
+  <div style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
+    <a class="social" href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:var(--dim);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+    </a>
+    <a class="social" href="https://x.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on X" style="display:inline-flex;color:var(--dim);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg>
+    </a>
+  </div>
+</footer>
 
-        <div class="pr-grid reveal" style="margin-top:2.4rem;">
-          <div class="pr-block">
-            <h3>The shape of a salon</h3>
-            <p>We meet on a Sunday for about two hours. We settle into a shared field of individual practice, meet in small group conversations, and close as a whole group. Fixed vessel, free contents — the form stays reliable so that what happens inside it can be free.</p>
-          </div>
-          <div class="pr-block">
-            <h3>Who holds it</h3>
-            <p>A host, often <a href="https://j-hn.info/#about" target="_blank" rel="noopener">John</a>. 
-The host tends the conditions for genuine meeting and then trusts what comes. No gurus here — the host holds the space; the meeting does the work.</p>
-          </div>
-        </div>
-
-        <div class="status reveal">
-          <p><b>● Status —</b> Beings Club is hosting Salons.</p>
-          <p>We gather on the last Sunday of the month — pausing over summer.</p>
-          <p>Leave us a note via the <a href="#take-part">door</a> at the bottom of the page to join us next time.</p>
-          <p class="st-meta">Next Salon · <span>September 27, 2026</span></p>
-          <p class="st-meta">Format · <span>Online — join from anywhere</span></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════ REFRAIN · becoming ═══════════ -->
-    <section class="thermal-band compact reveal" data-screen-label="Refrain · becoming">
-      <canvas class="thermal-cv" id="thermalR2" data-src="assets/thermal-standing.png" aria-hidden="true"></canvas>
-      <div class="thermal-scrim"></div>
-      <div class="thermal-content">
-        <p class="big">What unfolds is unplanned, ordinary, and <em>sometimes magic</em>.</p>
-      </div>
-    </section>
-
-    <!-- ═══════════ WHAT WE ARE BUILDING ═══════════ -->
-    <section class="movement reveal" id="view" data-screen-label="What we're building">
-      <div class="inner">
-        <div class="label">What we are building</div>
-        <h2 style="max-width:22ch;">A culture of <em>creative realisation</em> in support of <em>life's flourishing</em>.</h2>
-        <div class="prose wide" style="margin-top:1.6rem;">
-          <p>Creativity is only ever limited by our sense of what's possible.</p>
-          <p>Beings Club is a place where that sense of what's possible is invited to expand.</p>
-          <p class="dim">Each meeting is situated in a field of intentional curiosity, mutual care, and responsibility; creating the conditions for our individual and collective sense of what is possible to grow, and to find more ways to reach towards it.</p>
-          <p>These things make up the conditions for creative realisation. Possibility, met with curiosity, in our own lives and in what is shared with others, landing in bodies that care, unfolds into action. Through this process, new worlds can be born.</p>
-          <p>The world where we meet across everything that makes us different, and make something beautiful of it, is not ahead of us. It exists in groups of people who recognise it as possible. In the spaces where it is allowed to happen. Beings Club is one such space, <span style="color:#ffb341">making the future a place you can be part of.</span></p>
-          <p class="dim">So come along. Bring curiosity, care, and responsibility.</p>
-          <p>Recognise yourself as one of the beings who make the world more beautiful.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════ REFRAIN · the edge of the possible ═══════════ -->
-    <section class="thermal-band compact reveal" data-screen-label="Refrain · the possible">
-      <canvas class="thermal-cv" id="thermalR3" data-src="assets/figures-thermal.png" aria-hidden="true"></canvas>
-      <div class="thermal-scrim"></div>
-      <div class="thermal-content">
-        <p class="big">The <em>moment</em> you stop treating the edge of the possible as fixed — in yourself, and in everyone you meet — reality reveals its <em>true nature</em>.</p>
-      </div>
-    </section>
-
-    <!-- ═══════════ WHAT WE HOLD SACRED ═══════════ -->
-    <section class="movement reveal" data-screen-label="What we hold sacred">
-      <div class="inner">
-        <div class="label">What we hold sacred</div>
-        <div class="prose wide" style="margin-top:1.6rem;">
-          <p>Almost everything here can change. The questions, the answers, what we make, who we become. One thing doesn't.</p>
-          <p class="dim"><span class="accent">We hold each other as precious.</span> Each life in the room, including the ones nothing like yours, are treated as real and valuable and worth our care.</p>
-          <p class="dim">This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms, held by you and others by the same care you extend.</p>
-          <p>This is held sacred, and it is why everything else is free to change.</p>
-        </div>
-        <p class="pull" style="margin-top:2.2rem;">We are beings together here. That is <em>the whole of&nbsp;it</em>.</p>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ═══════════ A NOTE FROM JOHN ═══════════ -->
-    <section class="movement reveal" data-screen-label="A note from John">
-      <div class="inner note">
-        <div class="rail">
-          <div class="label">A note from John</div>
-          <h2>We do this <em>together</em>.</h2>
-        </div>
-        <div class="prose">
-          <p>I'll be honest about why this exists.</p>
-          <p class="dim">The more beautiful world our hearts know is possible isn't a thing one person builds and others visit. It only happens if we live in it together, which means it only happens if you're part of it.</p>
-          <p class="dim">So this isn't an invitation in the usual sense. I'm not offering you something finished. I'm telling you it doesn't exist without you, and asking you to be part of making it real.</p>
-          <p class="pull" style="margin-top:1.6rem;">We do this together, <em>or it doesn't happen</em>.</p>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ═══════════ FIELD NOTES ═══════════ -->
-    <section class="movement reveal" data-screen-label="Field notes">
-      <div class="inner">
-        <div class="label">// Field notes</div>
-        <div class="notes-grid" style="margin-top:1.4rem;">
-          <div class="fnote"><blockquote>A space to slow down, reflect together, and make sense of things out loud.</blockquote><cite>Ana C · Designer</cite></div>
-          <div class="fnote"><blockquote>90 minutes of nothing in particular could fly by and also be so energizing.</blockquote><cite>Mark F · Product</cite></div>
-          <div class="fnote"><blockquote>Genuine encounters with people whose timelines wouldn't typically intersect with mine.</blockquote><cite>Zak EF · Engineer-philosopher</cite></div>
-          <div class="fnote"><blockquote>Beings Club became my Sunday ritual.</blockquote><cite>Sean P · Founder, tbd.zip</cite></div>
-          <div class="fnote"><blockquote>I have had several experiences of being seen, heard, and held.</blockquote><cite>Manansh S · Founder</cite></div>
-          <div class="fnote"><blockquote>It was amazing. I found genuine connection on each call.</blockquote><cite>Catra · Contributor, HIGHER</cite></div>
-          <div class="fnote"><blockquote>It feels like a kind of therapy — really enriching to discover new ways of thinking.</blockquote><cite>Victor · Brands &amp; Design</cite></div>
-          <div class="fnote"><blockquote>I'm so so grateful this space exists.</blockquote><cite>Jordan N · Designer &amp; Creative Director</cite></div>
-          <div class="fnote"><blockquote>Highly recommend it to anyone who's curious but on the fence.</blockquote><cite>Esme · Joy Seeker, esmemadethis.com</cite></div>
-          <div class="fnote"><blockquote>I leave every week feeling more human, more like a being.</blockquote><cite>The Dude</cite></div>
-        </div>
-      </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <!-- ═══════════ TAKE PART ═══════════ -->
-    <section class="movement reveal" data-screen-label="Take part">
-      <div class="inner">
-        <div id="take-part" class="take" style="scroll-margin-top:5rem;">
-          <div>
-            <div class="label" style="color:var(--amber);">THE DOOR</div>
-            <p class="prose" style="font-size:1.12rem; color:var(--ink-dim); max-width:38ch;">Register your interest.</p>
-            <p class="prose" style="font-size:1.12rem; color:var(--ink-dim); max-width:38ch; margin-top:1em;">After mutual discernment, you'll be added to our Guest List and be able to join upcoming Salons.</p>
-            <p class="prose" style="font-size:1.12rem; color:var(--ink-dim); max-width:38ch; margin-top:1em;">Seats are offered on a donation basis.</p>
-            <p class="prose" style="font-size:1.12rem; color:var(--ink-dim); max-width:38ch; margin-top:1em;">Beings will be uninvited if required.</p>
-          </div>
-          <form class="form" id="interestForm">
-            <input type="hidden" name="intent" id="intentField" value="take part as a participant">
-            <div class="field">
-              <label for="f-name">Your name</label>
-              <input id="f-name" name="name" type="text" placeholder="What shall we call you?" autocomplete="name" required>
-            </div>
-            <div class="field">
-              <label for="f-email">Where to reach you</label>
-              <input id="f-email" name="email" type="email" placeholder="you@somewhere" autocomplete="email" required>
-            </div>
-            <div class="field">
-              <label for="f-drawn">What's drawing you toward this?</label>
-              <textarea id="f-drawn" name="drawn" rows="2" placeholder="A few lines, in your own words…"></textarea>
-            </div>
-            <button class="submit" type="submit" id="submitBtn"><span id="submitLabel">JOIN THE CLUB</span> <span>→</span></button>
-            <div class="form-msg" id="formMsg"></div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════ CLOSING SPINE · thermal meeting ═══════════ -->
-    <section class="lead-stmt thermal-band reveal" data-screen-label="The more beautiful world">
-      <canvas class="thermal-cv" id="thermalClose" data-src="assets/meeting-thermal.png" data-rid="meetingThermal" aria-hidden="true"></canvas>
-      <div class="thermal-scrim"></div>
-      <div class="thermal-content">
-        <p class="big">A single true meeting is already the more beautiful world — emerging <em>through</em> us.</p>
-        <p class="benefit">For the benefit of all beings</p>
-      </div>
-    </section>
-
-    <!-- ═══════════ WONDERFOOL LETTER ═══════════ -->
-    <section class="movement reveal" data-screen-label="The letter" style="text-align:center;">
-      <div class="inner" style="display:flex; flex-direction:column; align-items:center; gap:1.1rem;">
-        <div class="label">// Words, occasionally</div>
-        <p class="prose" style="color:var(--ink-dim); text-wrap:balance;"><em>Wonderfool</em> — letters on being, every 1st and 3rd Tuesday.</p>
-        <form id="letterForm" style="display:flex; align-items:flex-end; gap:1.1rem; width:min(440px,100%); text-align:left;">
-          <div class="field" style="flex:1;">
-            <input type="email" required placeholder="you@somewhere" aria-label="Email address" autocomplete="email">
-          </div>
-          <button class="submit" type="submit" style="margin-top:0;">SUBSCRIBE <span>→</span></button>
-        </form>
-      </div>
-    </section>
-
-    <footer>
-      <div class="l">For the benefit of all <em>beings</em>.</div>
-      <div class="m">© Beings Club · MMXXVI<br><span style="opacity:0.7; font-size:0.66rem; letter-spacing:0.2em;">Established January 2025</span></div>
-      <div class="r"><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></div>
-    </footer>
-
-  </main>
-
-  <!-- settings affordance is rendered near the top of <body> -->
+</div>
 
 <script>
-/* ——————— ALWAYS START AT TOP ——————— */
-if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-window.addEventListener('beforeunload', () => window.scrollTo(0, 0));
-window.addEventListener('load', () => window.scrollTo(0, 0));
-
-/* ——————— LOADING SCREEN ——————— */
+/* Status panel. The handoff animated to a fixed 340px, which clips once the
+   panel stacks on a narrow column — measure the content instead. */
 (function () {
-  const l = document.getElementById('loader');
-  if (!l) return;
-  const fill = document.getElementById('pixFill');
-  // lock scroll while loading
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  let done = false;
-  const hide = () => {
-    if (done) return; done = true;
-    if (fill) fill.style.width = '100%';
-    l.classList.add('hide');
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-    const hero = document.querySelector('.hero-logo');
-    if (hero && window.__resolve) window.__resolve(hero);
-  };
-  // step the bar forward in chunky increments
-  if (fill) {
-    const steps = [12, 28, 41, 57, 70, 84, 96];
-    steps.forEach((w, i) => setTimeout(() => { if (!done) fill.style.width = w + '%'; }, 180 + i * 270));
+  var btn = document.querySelector('.bc-toggle');
+  var panel = document.getElementById('bc-panel');
+  var chev = document.querySelector('.bc-chev');
+  var label = document.querySelector('.bc-toggle-label');
+  if (!btn || !panel) return;
+  var open = false;
+
+  function apply() {
+    panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
+    panel.style.opacity = open ? '1' : '0';
+    chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
+    label.textContent = open ? 'Close' : 'Details';
+    btn.setAttribute('aria-expanded', String(open));
   }
-  setTimeout(hide, 2200);
-  l.addEventListener('click', hide);
+  btn.addEventListener('click', function () { open = !open; apply(); });
+  window.addEventListener('resize', function () { if (open) panel.style.maxHeight = panel.scrollHeight + 'px'; });
 })();
 
-/* ——————— SMOOTH SCROLL · Read cue ——————— */
+/* Interest form — posts to the same Formspree endpoint the live site uses,
+   with the checked interests folded into one field. */
 (function () {
-  const cue = document.querySelector('.scroll-cue');
-  const target = document.getElementById('origin');
-  if (!cue || !target) return;
-  cue.addEventListener('click', (e) => {
-    e.preventDefault();
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    if (history.replaceState) history.replaceState(null, '', '#origin');
-  });
-})();
-
-/* ——————— STARFIELD + EMBERS ——————— */
-(function () {
-  const sky = document.getElementById('stars');
-  if (sky) {
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < 70; i++) {
-      const s = document.createElement('i');
-      s.style.left = (Math.random() * 100) + '%';
-      s.style.top = (Math.random() * 88) + '%';
-      s.style.setProperty('--o', (0.16 + Math.random() * 0.42).toFixed(2));
-      s.style.setProperty('--td', (3 + Math.random() * 5).toFixed(1) + 's');
-      s.style.animationDelay = (-Math.random() * 6).toFixed(1) + 's';
-      if (Math.random() > 0.86) { s.style.width = '3px'; s.style.height = '3px'; }
-      frag.appendChild(s);
-    }
-    sky.appendChild(frag);
-  }
-  const em = document.getElementById('embers');
-  if (em) {
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < 16; i++) {
-      const e = document.createElement('i');
-      e.style.left = (Math.random() * 100) + '%';
-      e.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px');
-      e.style.animationDuration = (9 + Math.random() * 10).toFixed(1) + 's';
-      e.style.animationDelay = (-Math.random() * 16).toFixed(1) + 's';
-      const sc = (0.7 + Math.random() * 1.5);
-      e.style.width = (3 * sc).toFixed(1) + 'px'; e.style.height = e.style.width;
-      frag.appendChild(e);
-    }
-    em.appendChild(frag);
-  }
-})();
-
-/* ——————— NAV ON SCROLL ——————— */
-(function () {
-  const nav = document.getElementById('nav');
-  const onScroll = () => nav.classList.toggle('show', window.scrollY > window.innerHeight * 0.7);
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
-})();
-
-/* ——————— SCROLL REVEALS ——————— */
-(function () {
-  const items = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('in')); return; }
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-  items.forEach(i => io.observe(i));
-})();
-
-/* ——————— INTEREST FORM ——————— */
-(function () {
-  const form = document.getElementById('interestForm');
+  var form = document.getElementById('bc-note');
   if (!form) return;
-  const btn = document.getElementById('submitBtn');
-  const label = document.getElementById('submitLabel');
-  const msg = document.getElementById('formMsg');
-  form.addEventListener('submit', async (e) => {
+  var btn = document.getElementById('bc-submit');
+  var label = document.getElementById('bc-submit-label');
+  var msg = document.getElementById('bc-msg');
+
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(form).entries());
-    if (!data.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email || '')) {
+    var fd = new FormData(form);
+    var interest = fd.getAll('interest');
+    var name = (fd.get('name') || '').trim();
+    var email = (fd.get('email') || '').trim();
+
+    if (!interest.length) { msg.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
+    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       msg.textContent = 'A name and a valid email, please.'; return;
     }
+
     btn.disabled = true; label.textContent = 'Sending…'; msg.textContent = '';
     try {
-      const res = await fetch('https://formspree.io/f/xpqkbpyv', {
-        method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+      var res = await fetch('https://formspree.io/f/xpqkbpyv', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          intent: 'take part as a participant',
+          interest: interest.join(', '),
+          name: name,
+          email: email,
+          drawn: fd.get('drawn') || ''
+        })
       });
       if (res.ok) {
-        form.querySelectorAll('.field, .submit').forEach(el => el.style.display = 'none');
-        msg.textContent = 'Received, with thanks. We\u2019ll be in touch — until then, stay curious.';
-      } else { label.textContent = 'Try again'; btn.disabled = false; }
-    } catch (err) { label.textContent = 'Try again'; btn.disabled = false; }
+        form.querySelectorAll('.bc-part').forEach(function (el) { el.style.display = 'none'; });
+        msg.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.';
+      } else {
+        label.textContent = 'Try again'; btn.disabled = false;
+        msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
+      }
+    } catch (err) {
+      label.textContent = 'Try again'; btn.disabled = false;
+      msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
+    }
   });
-})();
-
-/* ——————— WONDERFOOL LETTER · hand the email to Substack ——————— */
-(function () {
-  const f = document.getElementById('letterForm');
-  if (!f) return;
-  f.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = f.querySelector('input[type=email]').value.trim();
-    if (!email) return;
-    window.open('https://wonderfool.substack.com/subscribe?email=' + encodeURIComponent(email), '_blank', 'noopener');
-  });
-})();
-
-/* ——————— WORD FIELD · the community's words, recurring ——————— */
-(function () {
-  const canvas = document.getElementById('wordfield');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const POOL = ['curiosity','resonance','the real','realisation','creativity','meeting','flourishing',
-    'becoming','presence','wonder','the room','the field','stay curious','for the benefit of all beings',
-    'the view','the rhythm','toward, not about','ninety minutes','tend the field','seen','held',
-    'aliveness','play','truth','one direction','mutual'];
-  const PAL = {
-    amber: { fills:['#e0892e','#f2c14e','#caa64a','#c5571f','#f4e7c9','#3a6f93','#2f6f66','#a8431c','#dcc79a','#b9762e','#e8d3a0','#6a8fb0'] },
-    ember: { fills:['#d65a22','#f0a23a','#b83c16','#e8c15a','#f3ddb6','#3a6f93','#7a4bb0','#c24e1e','#e6b878','#9a3312','#2f6f66','#e0cfa6'] },
-    paper: { fills:['#d7a24a','#e3c87a','#c98a3e','#bf5a2c','#e9ddc0','#7fa3bd','#6f9e8f','#caa24a','#d9c39a','#c47a3a','#a8c0d0','#e0cda0'] },
-    night: { fills:['#2e5f8f','#3b7e7a','#4a6fb0','#1f4a6e','#d98a3d','#c75b2a','#5a6fb8','#2f8a86','#caa64a','#3a4a78','#e0b070','#1a3550'] }
-  };
-  function lum(h){ const r=parseInt(h.slice(1,3),16)/255,g=parseInt(h.slice(3,5),16)/255,b=parseInt(h.slice(5,7),16)/255; return 0.2126*r+0.7152*g+0.0722*b; }
-  let cells = [];
-  function hash(x, y) { let h = (x * 374761393 + y * 668265263) ^ 0x9e3779b9;
-    h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
-  function pick(cx, cy) {
-    const f = Math.sin(cx * 0.17 + 1.1) + Math.sin(cy * 0.26 - 0.6) + Math.sin((cx + cy) * 0.10) + Math.sin((cx * 0.6 - cy * 0.5) * 0.19);
-    let t = (f + 4) / 8; t = Math.min(0.999, Math.max(0, t));
-    return Math.floor(t * POOL.length);
-  }
-  function build() {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-    cells = [];
-    const baseH = 26;
-    let y = 0, row = 0;
-    while (y < h + baseH) {
-      const rh = baseH + Math.round((hash(row, 7) - 0.5) * 8);
-      let x = -Math.round(hash(row, 3) * 70), col = 0;
-      while (x < w + 130) {
-        const bw = 80 + Math.round((hash(col, row) - 0.5) * 46);
-        cells.push({ x, y, w: bw - 3, h: rh - 3, idx: pick(col, row), blank: hash(col * 2 + 1, row * 2 + 1) < 0.17 });
-        x += bw; col++;
-      }
-      y += rh; row++;
-    }
-  }
-  function draw() {
-    const pal = PAL[document.body.dataset.palette] || PAL.amber;
-    if (!pal._fgs) pal._fgs = pal.fills.map(f => lum(f) > 0.58 ? 'rgba(26,18,7,0.92)' : 'rgba(255,246,228,0.94)');
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.textBaseline = 'middle';
-    ctx.font = '10px "IBM Plex Mono", ui-monospace, monospace';
-    for (const c of cells) {
-      if (c.blank) continue;
-      const ci = c.idx % pal.fills.length;
-      ctx.fillStyle = pal.fills[ci];
-      ctx.fillRect(c.x, c.y, c.w, c.h);
-      ctx.save();
-      ctx.beginPath(); ctx.rect(c.x, c.y, c.w, c.h); ctx.clip();
-      ctx.fillStyle = pal._fgs[ci];
-      ctx.fillText(POOL[c.idx], c.x + 6, c.y + c.h / 2 + 0.5);
-      ctx.restore();
-    }
-  }
-  window.__drawField = function () { draw(); };
-  function full() { build(); draw(); }
-  full();
-  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(full, 180); }, { passive: true });
-})();
-
-/* ——————— RESOLVE · latent becoming clear ——————— */
-(function () {
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function resolveImg(img) {
-    if (!img || reduce) return;            // reduced motion → already-clean state
-    function run() {
-      const w = img.clientWidth, h = img.clientHeight;
-      if (!w || !h) return;
-      const wrap = img.closest('.resolve-wrap') || img.parentNode;
-      wrap.style.position = 'relative';
-      const heroWrap = img.closest('.hero-logo-wrap');
-      if (heroWrap) heroWrap.setAttribute('data-resolving', '');
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const cv = document.createElement('canvas');
-      cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
-      cv.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;';
-      wrap.appendChild(cv);
-      const c = cv.getContext('2d');
-      const tmp = document.createElement('canvas'), tc = tmp.getContext('2d');
-      img.style.opacity = '0';
-      const steps = [28, 18, 11, 7, 4, 2, 1];
-      let i = 0;
-      function frame() {
-        const block = steps[i];
-        const sw = Math.max(1, Math.round(w / block)), sh = Math.max(1, Math.round(h / block));
-        tmp.width = sw; tmp.height = sh; tc.imageSmoothingEnabled = false;
-        tc.clearRect(0, 0, sw, sh); tc.drawImage(img, 0, 0, sw, sh);
-        c.setTransform(dpr, 0, 0, dpr, 0, 0); c.imageSmoothingEnabled = false;
-        c.clearRect(0, 0, w, h); c.drawImage(tmp, 0, 0, sw, sh, 0, 0, w, h);
-        i++;
-        if (i < steps.length) { setTimeout(() => requestAnimationFrame(frame), 120); }
-        else {
-          img.style.transition = 'opacity .5s ease'; img.style.opacity = '1';
-          cv.style.transition = 'opacity .6s ease'; cv.style.opacity = '0';
-          setTimeout(() => { cv.remove(); if (heroWrap) heroWrap.removeAttribute('data-resolving'); }, 700);
-        }
-      }
-      requestAnimationFrame(frame);
-    }
-    if (img.complete && img.naturalWidth) run();
-    else img.addEventListener('load', run, { once: true });
-  }
-  window.__resolve = resolveImg;
-  document.addEventListener('DOMContentLoaded', () => {
-    const ll = document.querySelector('.loader-logo'); if (ll) resolveImg(ll);
-  });
-})();
-
-/* ——————— THERMAL IMAGERY · living heatmaps: resolve, breathe, drift ——————— */
-(function () {
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let motionOn = !reduce;
-  const insts = [];
-  document.querySelectorAll('.thermal-cv').forEach(cv => insts.push(setup(cv)));
-  window.__thermalMotion = function (on) { motionOn = on && !reduce; insts.forEach(i => i.kick()); };
-
-  function setup(cv) {
-    const ctx = cv.getContext('2d');
-    const tmp = document.createElement('canvas'), tc = tmp.getContext('2d');
-    const img = new Image();
-    const ambient = cv.dataset.ambient === '1';
-    const COARSE = ambient ? 42 : 32;
-    const REST = reduce ? 1 : (ambient ? 3.2 : 1.5);
-    const STATIC_ALPHA = ambient ? 0.13 : 0.10; // tv-static grain intensity
-    let loaded = false, inView = false, reveal = reduce ? 1 : 0, raf = 0, revealStart = 0, revealing = false;
-    let noiseCv = null, nctx = null, noiseImg = null;
-
-    function dims() {
-      const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return null;
-      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
-      if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
-      return { w, h, dpr };
-    }
-    function drawStatic(w, h, dpr) {
-      const target = Math.min(240, Math.max(48, Math.round(w / REST)));
-      const nh = Math.max(24, Math.round(target * h / w));
-      if (!noiseCv) { noiseCv = document.createElement('canvas'); nctx = noiseCv.getContext('2d'); }
-      if (noiseCv.width !== target || noiseCv.height !== nh) {
-        noiseCv.width = target; noiseCv.height = nh; noiseImg = nctx.createImageData(target, nh);
-      }
-      const data = noiseImg.data;
-      for (let i = 0; i < data.length; i += 4) {
-        const v = (Math.random() * 255) | 0;
-        data[i] = data[i + 1] = data[i + 2] = v; data[i + 3] = 255;
-      }
-      nctx.putImageData(noiseImg, 0, 0);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.imageSmoothingEnabled = false;
-      ctx.globalAlpha = STATIC_ALPHA;
-      ctx.globalCompositeOperation = 'overlay';
-      ctx.drawImage(noiseCv, 0, 0, target, nh, 0, 0, w, h);
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = 'source-over';
-    }
-    function paint(now) {
-      const d = dims(); if (!d || !img.naturalWidth) return;
-      const { w, h, dpr } = d;
-      const block = Math.max(1, revealing ? COARSE - (COARSE - REST) * reveal : REST);
-      const iw = img.naturalWidth, ih = img.naturalHeight;
-      const scale = Math.max(w / iw, h / ih), sw = w / scale, sh = h / scale, sx = (iw - sw) / 2, sy = (ih - sh) / 2;
-      const smW = Math.max(1, Math.round(w / block)), smH = Math.max(1, Math.round(h / block));
-      if (tmp.width !== smW || tmp.height !== smH) { tmp.width = smW; tmp.height = smH; }
-      tc.imageSmoothingEnabled = false;
-      tc.clearRect(0, 0, smW, smH); tc.drawImage(img, sx, sy, sw, sh, 0, 0, smW, smH);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.imageSmoothingEnabled = block <= 1.8;
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(tmp, 0, 0, smW, smH, 0, 0, w, h);
-      if (motionOn && !revealing) drawStatic(w, h, dpr); // constant grid, flickering grain
-    }
-    let lastPaint = 0; const FRAME = 1000 / 24; // tv-static flicker, light
-    function loop() {
-      raf = 0; const now = performance.now();
-      if (revealing) { reveal = Math.min(1, (now - revealStart) / 1100); if (reveal >= 1) revealing = false; }
-      if (now - lastPaint >= FRAME || revealing) { lastPaint = now; paint(now); }
-      if (inView && (motionOn || revealing)) raf = requestAnimationFrame(loop);
-    }
-    function schedule() { if (!raf) raf = requestAnimationFrame(loop); }
-    function startReveal() {
-      if (reduce) { reveal = 1; paint(performance.now()); return; }
-      if (revealing) { schedule(); return; }
-      if (reveal < 1) { revealing = true; revealStart = performance.now(); }
-      schedule();
-    }
-    function kick() { if (inView) schedule(); }
-
-    img.onload = () => { loaded = true; paint(performance.now()); if (inView) startReveal(); };
-    img.src = (window.__resources && window.__resources[cv.dataset.rid]) || cv.dataset.src;
-
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      inView = e.isIntersecting;
-      if (inView) { if (loaded) startReveal(); else schedule(); }
-      else if (raf) { cancelAnimationFrame(raf); raf = 0; }
-    }), { threshold: 0.06 });
-    io.observe(cv);
-
-    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => paint(performance.now()), 160); }, { passive: true });
-    return { kick };
-  }
-})();
-
-/* ——————— MOTION DEFAULT ——————— */
-(function () {
-  const body = document.body;
-  // Respect reduced-motion preference; otherwise keep the default amber palette + motion on.
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    body.dataset.motion = 'off';
-    body.dataset.stars = 'off';
-    if (window.__thermalMotion) window.__thermalMotion(false);
-  }
 })();
 </script>
 </body>
