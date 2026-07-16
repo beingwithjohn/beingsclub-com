@@ -121,9 +121,65 @@
     .bc-toggle{flex-wrap:wrap;gap:.75rem;}
     .nav-links{order:3;flex:1 0 100%;gap:1.25rem;}
   }
+
+  /* ---- offerings swipe ---- */
+  .off-head{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:end;
+    gap:1.4rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);}
+  .off-seg{display:inline-flex;border:1px solid var(--ink);align-self:center;}
+  .off-seg button{font-family:var(--font);font-size:.72rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;padding:.65rem 1.15rem;background:transparent;color:var(--dim);
+    border:none;cursor:pointer;transition:background .18s,color .18s;}
+  .off-seg button + button{border-left:1px solid var(--ink);}
+  .off-seg button[aria-selected="true"]{background:var(--ink);color:var(--paper);}
+  .off-viewport{overflow:hidden;touch-action:pan-y;transition:height .45s cubic-bezier(.4,0,.2,1);}
+  .off-track{display:flex;align-items:flex-start;transition:transform .45s cubic-bezier(.4,0,.2,1);will-change:transform;}
+  .off-track.dragging{transition:none;}
+  .off-panel{flex:0 0 100%;min-width:0;}
+  .off-intro{padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);
+    font-size:1.05rem;color:var(--dim);line-height:1.6;}
+  .off-panel .split>div:last-child{border-bottom:none;}
+
+  /* ---- testimonials scroller ---- */
+  .tscroll{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+    -ms-overflow-style:none;border-bottom:1px solid var(--ink);cursor:grab;}
+  .tscroll::-webkit-scrollbar{display:none;}
+  .tscroll.dragging{cursor:grabbing;scroll-snap-type:none;}
+  .tcard{flex:0 0 min(82%,24rem);scroll-snap-align:start;background:var(--paper);
+    border-right:1px solid var(--hair);padding:var(--cell);display:flex;flex-direction:column;
+    gap:1rem;margin:0;user-select:none;}
+  .tprev,.tnext{display:inline-flex;align-items:center;justify-content:center;width:2.2rem;height:2.2rem;
+    border:1px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;
+    transition:background .18s,color .18s;}
+  .tprev:hover,.tnext:hover{background:var(--ink);color:var(--paper);}
+
+  /* ---- read-more expanders ---- */
+  .xp{overflow:hidden;max-height:0;opacity:0;transition:max-height .5s cubic-bezier(.4,0,.2,1),opacity .4s ease;}
+  .xp.open{opacity:1;}
+  .xp-grid{display:grid;gap:.9rem;}
+  .xp-btn{margin-top:1.2rem;display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font);
+    font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
+    background:transparent;border:none;border-bottom:1px solid var(--ink);padding:.35rem 0;cursor:pointer;}
+  .xp-btn::after{content:"↓";font-size:.85rem;line-height:1;transition:transform .3s;}
+  .xp-btn.open::after{transform:rotate(180deg);}
+
+  /* ---- scroll-progress rail ---- */
+  .rail{position:fixed;top:0;right:0;bottom:0;width:3px;z-index:40;background:var(--hair);}
+  .rail-fill{position:absolute;top:0;left:0;width:100%;height:0;background:var(--amber);}
+  .rail-dot{position:absolute;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--paper);
+    border:1px solid var(--ink);transform:translateY(-50%);cursor:pointer;
+    transition:background .2s,transform .2s;}
+  .rail-dot::after{content:attr(data-label);position:absolute;right:16px;top:50%;transform:translateY(-50%);
+    white-space:nowrap;font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink);background:var(--paper);padding:.2rem .5rem;border:1px solid var(--hair);
+    opacity:0;pointer-events:none;transition:opacity .18s;}
+  .rail-dot:hover::after{opacity:1;}
+  .rail-dot.is-active{background:var(--amber);border-color:var(--amber);transform:translateY(-50%) scale(1.3);}
+  @media (max-width:820px){ .rail{display:none;} }
+  @container (max-width:640px){ .off-head{grid-template-columns:1fr;align-items:start;} .off-seg{justify-self:start;} }
 </style>
 </head>
 <body>
+<nav class="rail" aria-label="Section progress"><div class="rail-fill"></div></nav>
 <div class="shell" style="max-width:var(--shell);margin:0 auto;container-type:inline-size;min-height:100vh;">
 
 <nav style="display:flex;align-items:center;gap:1.7rem;flex-wrap:wrap;padding:1.15rem var(--pad);border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:20;">
@@ -131,8 +187,8 @@
   <div class="nav-links" style="display:flex;gap:1.7rem;align-items:center;flex-wrap:wrap;">
     <a class="nav-link" href="#origin" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Origin</a>
     <a class="nav-link" href="#ground" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Ground</a>
-    <a class="nav-link" href="#salons" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Salons</a>
-    <a class="nav-link" href="#sits" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Sits</a>
+    <a class="nav-link" href="#offerings" data-offering="salons" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Salons</a>
+    <a class="nav-link" href="#offerings" data-offering="sits" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Sits</a>
   </div>
   <a class="nav-cta" href="#door" style="margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ink);padding:.55rem .95rem;">Take part</a>
 </nav>
@@ -150,7 +206,7 @@
       <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">SALONS &amp; SITS</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
     </span>
     <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;">
-      <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Salons &amp; Sits, online</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
+      <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Salons &amp; Sits</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
     </span>
   </div>
 </div>
@@ -182,8 +238,8 @@
   <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.1rem;">ORIGIN</div>
   <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;">An offering, in the<br><span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">lineage of</span> a tea house.</h2>
   <p style="margin-top:1.8rem;max-width:68ch;font-size:1.05rem;color:var(--ink);line-height:1.6;"><b>Beings Club is where curious people meet to realise what's possible.</b></p>
-  <p style="margin-top:.9rem;max-width:68ch;font-size:1.05rem;color:var(--dim);line-height:1.6;">It exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible. <br><br>Whilst the retreat schedule was truly valuable, I was drawn again and again to a little tea house and the conversations that could happen there – free from a prescribed topic or theme. <br><br>Beings Club is an offering in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine, a space for conversations of all kinds.</p>
-  <p style="margin-top:1.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p>
+  <div class="xp"><p style="margin-top:.9rem;max-width:68ch;font-size:1.05rem;color:var(--dim);line-height:1.6;">Beings Club exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible. <br><br>Whilst the retreat schedule was truly valuable, I was drawn again and again to a little tea house and the conversations that could happen there – free from a prescribed topic or theme. <br><br>Beings Club is an offering in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine, a space for conversations of all kinds.</p>
+  <p style="margin-top:1.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p></div><button type="button" class="xp-btn" aria-expanded="false"><span class="xp-lbl">Read more</span></button>
 </section>
 
 <div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
@@ -213,8 +269,8 @@
   <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">A culture of <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">creative realisation</span> in support of life's flourishing.</h2>
   <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:.9rem;max-width:68ch;">
     <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Creativity is only ever limited by our sense of what's possible. Beings Club is a place where that sense is invited to expand.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">Each meeting is situated in a field of intentional curiosity, mutual care, and responsibility — creating the conditions for our individual and collective sense of what is possible to grow, and to find more ways to reach toward it.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">The world where we meet across everything that makes us different, and make something beautiful of it, is not ahead of us. It exists in groups of people who recognise it as possible — in the spaces where it is allowed to happen.<br><br>Beings Club is one such space, <span style="color: var(--ink); font-weight: 600;">making the future a place you can be part of.</span></p>
+    <div class="xp xp-grid"><p style="font-size:1rem;color:var(--dim);line-height:1.65;">Each meeting is situated in a field of intentional curiosity, mutual care, and responsibility — creating the conditions for our individual and collective sense of what is possible to grow, and to find more ways to reach toward it.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">The world where we meet across everything that makes us different, and make something beautiful of it, is not ahead of us. It exists in groups of people who recognise it as possible — in the spaces where it is allowed to happen.<br><br>Beings Club is one such space, <span style="color: var(--ink); font-weight: 600;">making the future a place you can be part of.</span></p></div><button type="button" class="xp-btn" aria-expanded="false"><span class="xp-lbl">Read more</span></button>
   </div>
 </section>
 
@@ -222,67 +278,67 @@
   <p style="font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(1.6rem,4.5cqi,3rem);text-transform:uppercase;max-width:20ch;margin:0 auto;">The moment you stop treating the edge of the possible as fixed, reality reveals its <span style="-webkit-text-stroke:1.4px var(--ink);color:transparent;">true nature</span>.</p>
 </section>
 
-<div id="salons" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">Salons</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Practice. Connect. Explore.</p>
-</div>
-
-<div>
-<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;"><span data-metadata="&lt;!--(figmeta)eyJmaWxlS2V5IjoiYjFKWkwxQUZ6a2IxVnVLNmpneGVnSiIsInBhc3RlSUQiOjk1Njk5OTM5MSwiZGF0YVR5cGUiOiJzY2VuZSIsImVudmlyb25tZW50Ijoid3d3LmZpZ21hLmNvbSIsInNlbGVjdGVkTm9kZURhdGEiOiIwOjM1fDMxfDAifQo=(/figmeta)--&gt;"></span><span></span><span style="white-space: pre-wrap;"><b><span style="font-weight: normal;">Salons are Beings Club's classic format – where curiosity connects.</span></b></span></p>
-<section class="split" style="display:grid;grid-template-columns:1.6fr 1fr;border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">Space to connect — to oneself, to each other, and to what is possible.</strong><br>Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
-    <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;">The form stays reliable so that what happens inside it can be free.</p>
-    <p style="color:var(--dim);max-width:68ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. <br><br><b>Come as you are, and see what happens.</b></p>
+<section id="offerings" style="scroll-margin-top:5.5rem;border-bottom:1px solid var(--ink);">
+  <div class="off-head">
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Offerings</h2>
+    <div class="off-seg" role="tablist" aria-label="Choose an offering">
+      <button type="button" role="tab" aria-selected="true" data-off="salons">Salons</button>
+      <button type="button" role="tab" aria-selected="false" data-off="sits">Sits</button>
+    </div>
   </div>
 
-  <div style="padding:var(--cell);background:var(--slateW);">
-    <div style="display:flex;flex-direction:column;gap:1.2rem;">
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a donation basis</div></div>
+  <div class="off-viewport">
+    <div class="off-track">
+
+      <div class="off-panel" data-panel="salons">
+        <p class="off-intro">Salons are Beings Club's classic format — where curiosity connects.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">Space to connect — to oneself, to each other, and to what is possible.</strong><br>Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;">The form stays reliable so that what happens inside it can be free.</p>
+            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. <br><br><b>Come as you are, and see what happens.</b></p>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a donation basis</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="off-panel" data-panel="sits">
+        <p class="off-intro">Sits are meditation classes that offer the fundamentals for cultivating clarity, resilience, and ease.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A contemporary approach to meditation</strong> — available to exploring tradition without relying on it for reassurance.<br><br>The techniques are simple and explained simply — with time for questions.</p>
+            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.<br><br>Offered by John. Accessible to all backgrounds, experience-levels, and dispositions.</p>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About one hour</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or in multi-week series</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a sliding scale basis</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
-</div>
-
-<div id="sits" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">Sits</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Meditation classes for the curious.</p>
-</div>
-
-<div>
-<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Sits are meditation classes that offer the fundamentals for cultivating clarity, resilience, and ease.</p>
-<section class="split" style="display:grid;grid-template-columns:1.6fr 1fr;border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color: var(--ink); font-weight: 600;"><span style="color: rgb(90, 92, 88); font-weight: 400;">A contemporary approach to meditation, available to exploring tradition without relying on it for reassurance.<br></span></strong><br>The techniques are simple and explained simply — with time for questions.</p><p style="color:var(--dim);max-width:68ch;line-height:1.65;">What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.<br><br>Offered by John. Accessible to all backgrounds, experience-levels, and dispositions.</p>
-    
-  </div>
-
-  <div style="padding:var(--cell);background:var(--slateW);">
-    <div style="display:flex;flex-direction:column;gap:1.2rem;">
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About one hour</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or in multi-week series</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a sliding scale basis</div></div>
-    </div>
-  </div>
-</section>
-</div>
 
 <section style="padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
   <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">Why we sit</div>
   <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">Beings Club <br><span style="-webkit-text-stroke: 1.5px var(--ink); color: transparent;">practices meditation</span>.</h2>
   <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:.9rem;max-width:68ch;">
-    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Every Salon begins with meditation. Sits are offered for those who want to go deeper.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">A room full of open, generous attention doesn't appear on its own. It's made by people who have practised meeting their own experience without flinching from it — who can stay present when a conversation gets real, and stay kind when it gets difficult.</p>
+    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Meditation supports curious minds stay open to discovery, possibility, and change.</p>
+    <div class="xp xp-grid"><p style="font-size:1rem;color:var(--dim);line-height:1.65;">A room full of open, generous attention doesn't appear on its own. It's made by people who have practised meeting their own experience without flinching from it — who can stay present when a conversation gets real, and stay kind when it gets difficult.</p>
     <p style="font-size:1rem;color:var(--dim);line-height:1.65;">So we sit. Not to escape our lives or to reach some special state, but to become more available — to ourselves, to each other, and to what a moment is actually offering. The practice is simple and the aim is ordinary: to be here, on purpose, with care.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">That capacity is what the Salons are built on, and what the Sits cultivate directly. <br><span style="color: var(--ink); font-weight: 600;"><br>Meditation supports curious minds stay open to discovery, possibility, and change.</span></p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">That capacity is what the Salons are built on, and what the Sits cultivate directly. <br><span style="color: var(--ink); font-weight: 600;"><br>Every Salon begins with meditation. Sits are offered for those who want to go deeper.</span></p></div><button type="button" class="xp-btn" aria-expanded="false"><span class="xp-lbl">Read more</span></button>
   </div>
 </section>
 
@@ -306,49 +362,49 @@
 </div>
 
 <div>
-<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Words from the people who’ve spent time at Beings Club.</p>
-<div class="quotes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hair);border-bottom:1px solid var(--ink);">
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+<div style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);"><p style="font-size:1.05rem;color:var(--dim);line-height:1.6;max-width:60ch;">Words from the people who’ve spent time at Beings Club.</p><div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:1.1rem;"><button type="button" class="tprev" aria-label="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></button><button type="button" class="tnext" aria-label="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></button></div></div>
+<div class="tscroll">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"A space to slow down, reflect together, and make sense of things out loud."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Ana C · Designer</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"90 minutes of nothing in particular could fly by and also be so energizing."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Mark F · Product</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Genuine encounters with people whose timelines wouldn't typically intersect with mine."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Zak EF · Engineer-philosopher</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Beings Club became my Sunday ritual."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Sean P · Founder, tbd.zip</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I have had several experiences of being seen, heard, and held."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Manansh S · Founder</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"It was amazing. I found genuine connection on each call."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Catra · Contributor, HIGHER</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"It feels like a kind of therapy — really enriching to discover new ways of thinking."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Victor · Brands &amp; Design</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I'm so so grateful this space exists."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Jordan N · Designer &amp; Creative Director</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Highly recommend it to anyone who's curious but on the fence."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Esme · Joy Seeker, esmemadethis.com</figcaption>
   </figure>
-  <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
+    <figure class="tcard">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I leave every week feeling more human, more like a being."</blockquote>
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">The Dude</figcaption>
   </figure>
-</div>
+  </div>
 </div>
 
 <section style="padding:clamp(3rem,9vh,5.5rem) var(--pad);border-bottom:1px solid var(--ink);text-align:center;background:var(--lav);">
@@ -660,6 +716,126 @@ const root = document;
         }
       });
     })();
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  /* ---- offerings swipe ---- */
+  (function () {
+    var track = document.querySelector('.off-track');
+    var vp = document.querySelector('.off-viewport');
+    if (!track || !vp) return;
+    var seg = [].slice.call(document.querySelectorAll('.off-seg button'));
+    var panels = [].slice.call(document.querySelectorAll('.off-panel'));
+    var idx = 0;
+    function setHeight() { vp.style.height = panels[idx].offsetHeight + 'px'; }
+    function go(i) {
+      idx = Math.max(0, Math.min(panels.length - 1, i));
+      track.style.transform = 'translateX(' + (-idx * 100) + '%)';
+      seg.forEach(function (b, k) { b.setAttribute('aria-selected', String(k === idx)); });
+      setHeight();
+    }
+    seg.forEach(function (b, k) { b.addEventListener('click', function () { go(k); }); });
+    document.querySelectorAll('[data-offering]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        var t = a.getAttribute('data-offering') === 'sits' ? 1 : 0;
+        setTimeout(function () { go(t); }, 60);
+      });
+    });
+    // pointer swipe with horizontal-intent threshold (so taps/clicks/selection pass through)
+    var startX = 0, startY = 0, dx = 0, active = false, decided = false, w = 0;
+    vp.addEventListener('pointerdown', function (e) {
+      active = true; decided = false; dx = 0; startX = e.clientX; startY = e.clientY; w = vp.offsetWidth;
+    });
+    vp.addEventListener('pointermove', function (e) {
+      if (!active) return;
+      var mx = e.clientX - startX, my = e.clientY - startY;
+      if (!decided) {
+        if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+        if (Math.abs(mx) <= Math.abs(my)) { active = false; return; } // vertical -> let page scroll
+        decided = true; track.classList.add('dragging');
+        try { vp.setPointerCapture(e.pointerId); } catch (x) {}
+      }
+      dx = mx;
+      track.style.transform = 'translateX(calc(' + (-idx * 100) + '% + ' + dx + 'px))';
+    });
+    function end() {
+      if (!active) return; active = false;
+      if (decided) { track.classList.remove('dragging'); go(idx + (dx < -w * 0.18 ? 1 : (dx > w * 0.18 ? -1 : 0))); }
+    }
+    vp.addEventListener('pointerup', end);
+    vp.addEventListener('pointercancel', end);
+    window.addEventListener('resize', setHeight);
+    requestAnimationFrame(function () { requestAnimationFrame(setHeight); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setHeight);
+  })();
+
+  /* ---- testimonials drag / arrows ---- */
+  (function () {
+    var row = document.querySelector('.tscroll');
+    if (!row) return;
+    var down = false, sx = 0, sl = 0, moved = 0;
+    row.addEventListener('pointerdown', function (e) { down = true; sx = e.clientX; sl = row.scrollLeft; moved = 0; row.classList.add('dragging'); });
+    row.addEventListener('pointermove', function (e) { if (!down) return; var d = e.clientX - sx; moved = Math.max(moved, Math.abs(d)); row.scrollLeft = sl - d; });
+    function up() { down = false; row.classList.remove('dragging'); }
+    row.addEventListener('pointerup', up);
+    row.addEventListener('pointerleave', up);
+    row.addEventListener('pointercancel', up);
+    row.addEventListener('click', function (e) { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+    function cardW() { var f = row.querySelector('.tcard'); return f ? f.offsetWidth + 1 : 320; }
+    var p = document.querySelector('.tprev'), n = document.querySelector('.tnext');
+    if (p) p.addEventListener('click', function () { row.scrollBy({ left: -cardW(), behavior: 'smooth' }); });
+    if (n) n.addEventListener('click', function () { row.scrollBy({ left: cardW(), behavior: 'smooth' }); });
+  })();
+
+  /* ---- scroll-progress rail ---- */
+  (function () {
+    var rail = document.querySelector('.rail');
+    if (!rail) return;
+    var fill = rail.querySelector('.rail-fill');
+    var targets = [['#origin', 'Origin'], ['#ground', 'Ground'], ['#offerings', 'Offerings'], ['#testimonials', 'Field notes'], ['#door', 'The door']];
+    var dots = targets.map(function (t) {
+      var el = document.querySelector(t[0]); if (!el) return null;
+      var a = document.createElement('a'); a.className = 'rail-dot'; a.href = t[0]; a.setAttribute('data-label', t[1]);
+      a.addEventListener('click', function (e) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); });
+      rail.appendChild(a); return { a: a, el: el };
+    }).filter(Boolean);
+    function place() {
+      var H = document.documentElement.scrollHeight;
+      dots.forEach(function (d) { var top = d.el.getBoundingClientRect().top + window.scrollY; d.a.style.top = (top / H * 100) + '%'; });
+    }
+    function update() {
+      var max = document.documentElement.scrollHeight - innerHeight;
+      fill.style.height = Math.min(100, Math.max(0, (window.scrollY / (max || 1)) * 100)) + '%';
+      var act = dots[0];
+      dots.forEach(function (d) { if (d.el.getBoundingClientRect().top <= innerHeight * 0.35) act = d; });
+      dots.forEach(function (d) { d.a.classList.toggle('is-active', d === act); });
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', function () { place(); update(); });
+    requestAnimationFrame(function () { place(); update(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { place(); update(); });
+  })();
+
+  /* ---- read-more expanders ---- */
+  (function () {
+    document.querySelectorAll('.xp-btn').forEach(function (btn) {
+      var xp = btn.previousElementSibling;
+      if (!xp || xp.className.indexOf('xp') === -1) return;
+      var lbl = btn.querySelector('.xp-lbl');
+      btn.addEventListener('click', function () {
+        var open = !xp.classList.contains('open');
+        xp.classList.toggle('open', open);
+        btn.classList.toggle('open', open);
+        xp.style.maxHeight = open ? xp.scrollHeight + 'px' : '0px';
+        if (lbl) lbl.textContent = open ? 'Read less' : 'Read more';
+        btn.setAttribute('aria-expanded', String(open));
+      });
+    });
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.xp.open').forEach(function (xp) { xp.style.maxHeight = xp.scrollHeight + 'px'; });
+    });
+  })();
 });
 </script>
 </body>
