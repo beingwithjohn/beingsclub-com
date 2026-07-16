@@ -28,18 +28,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <style>
-  :root{
+:root{
     --paper:#ffffff; --ink:#171916; --dim:#5a5c58; --soft:#9a9c97;
     --hair:rgba(23,25,22,0.14);
-
-    /* —— the three knobs that were design-tool props ——
-       accent: #FFAD54 · #7693A7 · #C98A7A · #8FA98C
-       column: 44–74rem
-       washes: set the three --*W / --lav values to #ffffff to switch them off */
     --amber:#FFAD54; --slate:#7693A7;
     --lav:#F2ECFF; --slateW:#eef1f4; --amberW:#fff7ee;
-    --shell:62rem;
-
+    --shell:72rem;
     --pad:clamp(1.5rem,5cqi,3.75rem);
     --sy:clamp(3rem,7vh,4.75rem); --cell:clamp(1.75rem,3.5cqi,2.75rem);
     --font:'Host Grotesk',system-ui,-apple-system,sans-serif;
@@ -51,13 +45,19 @@
   a{color:inherit;text-decoration:none;}
   ::selection{background:var(--amber);color:var(--ink);}
   @keyframes bc-pulse{0%{box-shadow:0 0 0 0 rgba(23,25,22,.28);}70%{box-shadow:0 0 0 6px rgba(23,25,22,0);}100%{box-shadow:0 0 0 0 rgba(23,25,22,0);}}
+  @keyframes bc-marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  #bc-logo{line-height:0;position:relative;}
+  #bc-logo svg{width:100%;height:auto;display:block;}
+  #bc-logo [data-ring]{transition:stroke-width .25s ease;}
+  #bc-logo.is-bold [data-ring]{stroke-width:6.5;}
+  .bc-marquee-track{display:inline-flex;flex:none;align-items:center;animation:bc-marquee 32s linear infinite;}
+  .bc-marquee:hover .bc-marquee-track{animation-play-state:paused;}
+  @media (prefers-reduced-motion:reduce){ .bc-marquee-track{animation:none!important;} }
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto;}
     .bc-dot{animation:none!important;}
     .bc-panel,.bc-chev{transition:none!important;}
   }
-
-  /* —— hover states (were style-hover attributes) —— */
   .nav-link{transition:color .15s;}
   .nav-link:hover{color:var(--ink);}
   .nav-cta{transition:background .15s,color .15s;}
@@ -67,8 +67,6 @@
   .social{transition:color .15s;}
   .social:hover{color:var(--ink);}
   .bc-toggle:hover{background:rgba(23,25,22,.03);}
-
-  /* —— interest form (state selectors can't be inline) —— */
   .bc-check{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
   .bc-chip{display:inline-flex;align-items:center;gap:.55rem;border:1px solid var(--ink);
     padding:.7rem 1.2rem;cursor:pointer;font-size:.72rem;font-weight:700;letter-spacing:.14em;
@@ -87,16 +85,10 @@
   .bc-in:focus{box-shadow:0 0 0 3px rgba(255,173,84,.45);}
   .bc-sel{appearance:none;-webkit-appearance:none;padding-right:2.75rem;cursor:pointer;
     border-radius:0;color:var(--ink);}
-  /* grey the placeholder option without lying to a screen reader about
-     the field being required (the form is novalidate, so :invalid would) */
   .bc-sel:has(option[value=""]:checked){color:var(--soft);}
   .bc-selwrap{position:relative;}
   .bc-selwrap svg{position:absolute;right:1rem;top:50%;transform:translateY(-50%);
     pointer-events:none;color:var(--dim);}
-
-  /* —— full-screen note overlay ——
-     Lives outside .shell on purpose: container-type makes .shell a containing
-     block, which would pin a position:fixed child inside the 62rem column. */
   .bc-overlay{position:fixed;inset:0;z-index:100;background:var(--amberW);
     overflow-y:auto;overscroll-behavior:contain;
     padding:clamp(1.25rem,4vw,2.5rem);
@@ -113,14 +105,7 @@
     padding:.6rem .9rem;background:var(--paper);color:var(--ink);border:1px solid var(--ink);
     cursor:pointer;transition:background .15s,color .15s;}
   .bc-close:hover{background:var(--ink);color:var(--paper);}
-  @media (prefers-reduced-motion:reduce){
-    .bc-overlay{transition:none!important;}
-  }
-
-  /* —— responsive ——
-     The handoff hard-codes every grid to 3 or 2 columns, which overflows on a
-     phone. These measure the column (not the window) so the layout is identical
-     at any window size, and !important is needed to beat the inline styles. */
+  @media (prefers-reduced-motion:reduce){ .bc-overlay{transition:none!important;} }
   @container (max-width:720px){
     .trio{grid-template-columns:1fr!important;}
     .trio>*{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
@@ -133,9 +118,7 @@
     .quotes{grid-template-columns:1fr!important;}
     .duo{grid-template-columns:1fr!important;}
     .duo>*:first-child{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
-    /* status text keeps its place beside the dot and just wraps internally */
     .bc-toggle{flex-wrap:wrap;gap:.75rem;}
-    /* nav links drop to their own row rather than ragging across three */
     .nav-links{order:3;flex:1 0 100%;gap:1.25rem;}
   }
 </style>
@@ -156,31 +139,39 @@
 
 <header style="padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);overflow:hidden;">
   <div style="max-width:64rem;margin:0 auto;">
-    <img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;">
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;max-width:64rem;margin:clamp(1.75rem,4.5vh,3rem) auto 0;">
-    <h1 style="font-weight:500;font-size:clamp(1.1rem,2.6cqi,1.6rem);letter-spacing:-.02em;line-height:1.28;max-width:24ch;">Where curious people meet to realise <em style="font-style:italic;font-weight:600;">what's possible</em>.</h1>
-    <div style="font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);white-space:nowrap;">FOR THE BENEFIT OF ALL BEINGS</div>
+    <div id="bc-logo" role="img" aria-label="Beings Club" style="width:100%;"><img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;"></div>
   </div>
 </header>
+
+
+<div class="bc-marquee" aria-hidden="true" style="overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--ink);background:var(--paper);color:var(--ink);">
+  <div class="bc-marquee-track">
+    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;">
+      <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">SALONS &amp; SITS</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
+    </span>
+    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;">
+      <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Salons &amp; Sits, online</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
+    </span>
+  </div>
+</div>
 
 <div style="border-bottom:1px solid var(--ink);background:var(--lav);">
   <button type="button" class="bc-toggle" aria-expanded="false" aria-controls="bc-panel" style="width:100%;display:flex;align-items:center;gap:1rem;padding:1.15rem var(--pad);background:transparent;border:none;font-family:var(--font);text-align:left;cursor:pointer;color:var(--ink);transition:background .15s;">
     <span style="position:relative;display:inline-flex;flex:none;"><span class="bc-dot" style="width:9px;height:9px;border-radius:50%;background:var(--ink);animation:bc-pulse 2.6s ease-out infinite;"></span></span>
     <span class="bc-toggle-text" style="flex:1;font-weight:500;font-size:clamp(.95rem,1.6cqi,1.08rem);letter-spacing:-.01em;">Next Salon — <strong style="font-weight:700;">September 27, 2026</strong> &nbsp;·&nbsp; Next Sit — <strong style="font-weight:700;">To be announced</strong></span>
     <span class="bc-toggle-label" style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap;">Details</span>
-    <svg class="bc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:var(--dim);transform:rotate(0deg);transition:transform .4s cubic-bezier(.4,0,.2,1);"><path d="M6 9l6 6 6-6"></path></svg>
+    <svg class="bc-chev" width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:var(--dim);transform:rotate(0deg);transition:transform .4s cubic-bezier(.4,0,.2,1);"><path d="M6 9l6 6 6-6"></path></svg>
   </button>
   <div id="bc-panel" class="bc-panel" style="overflow:hidden;max-height:0;opacity:0;transition:max-height .45s cubic-bezier(.4,0,.2,1),opacity .35s ease;">
     <div style="padding:.5rem var(--pad) 1.5rem;">
       <div style="display:grid;grid-template-columns:5rem 1fr;gap:.4rem 1rem;padding:1.1rem 0;border-top:1px solid var(--hair);">
         <div style="grid-column:1 / -1;font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:.15rem;">Salons</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">September 27, 2026 · last Sunday monthly, pausing over summer</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">September 27, 2026&nbsp;</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Format</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Online — join from anywhere</div>
       </div>
       <div style="display:grid;grid-template-columns:5rem 1fr;gap:.4rem 1rem;padding:1.1rem 0 0;border-top:1px solid var(--hair);">
         <div style="grid-column:1 / -1;font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:.15rem;">Sits</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">To be announced · first series being planned</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">To be announced</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Format</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Online — join from anywhere</div>
       </div>
     </div>
@@ -190,45 +181,64 @@
 <section id="origin" style="scroll-margin-top:5.5rem;padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);">
   <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.1rem;">ORIGIN</div>
   <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;">An offering, in the<br><span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">lineage of</span> a tea house.</h2>
-  <p style="margin-top:1.8rem;max-width:52ch;font-size:1.05rem;color:var(--ink);line-height:1.6;">Beings Club is a room where curious people find each other.</p>
-  <p style="margin-top:.9rem;max-width:52ch;font-size:1.05rem;color:var(--dim);line-height:1.6;">At a tea house at Plum Village in 2019, I found myself in conversations over tea that expanded my sense of what is possible. <br><br>Whilst the retreat schedule was truly valuable, I was drawn again and again to that little tea house and the conversations that could happen there – free from a prescribed topic or theme. <br><br>Beings Club is an offering in the lineage of that atmosphere.</p>
+  <p style="margin-top:1.8rem;max-width:68ch;font-size:1.05rem;color:var(--ink);line-height:1.6;"><b>Beings Club is where curious people meet to realise what's possible.</b></p>
+  <p style="margin-top:.9rem;max-width:68ch;font-size:1.05rem;color:var(--dim);line-height:1.6;">It exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible. <br><br>Whilst the retreat schedule was truly valuable, I was drawn again and again to a little tea house and the conversations that could happen there – free from a prescribed topic or theme. <br><br>Beings Club is an offering in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine, a space for conversations of all kinds.</p>
   <p style="margin-top:1.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p>
 </section>
 
 <div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
   <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Ground</h2>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">SHARED GROUND</h2>
   </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What we grow from.</p>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">What makes Beings Club possible.</p>
 </div>
 
-<div class="trio" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink);">
+<div>
+<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Beings Club is built on minimal scaffolding that ensures that everyone who arrives can find shared ground.</p>
+
+<div class="trio" style="display:grid;grid-template-columns:repeat(2,1fr);border-bottom:1px solid var(--ink);">
   <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;color:var(--amber);">01</div>
-    <h3 style="margin:1.3rem 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">We hold each other as precious</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Each life in the room, including the ones nothing like yours, are treated as real and valuable and worth our care.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;color:var(--amber);">02</div>
-    <h3 style="margin:1.3rem 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">A regular shape makes space for free contents</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Our forms stay constant so that what happens inside them can be free. The shapes held create room for flexibility.</p>
+    <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">We hold each other as precious</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Each life in the room, including the ones nothing like yours, are treated as real and valuable and worth our care.</b><br><br>This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms.<br><br>This is held sacred, and it is why everything else is free to change. It frames how we meet each other <i>and</i> how we meet ourselves.<br><br>We are beings, together.</p>
   </div>
   <div style="padding:var(--cell);">
-    <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;color:var(--amber);">03</div>
-    <h3 style="margin:1.3rem 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">Curiosity connects //<br>Stay curious</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">We define curiosity as <b>an orientation to experience that is open to discovery</b>. It's a form of play.</p>
+    <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">Curiosity connects</h3>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Beings Club defines curiosity as "an orientation to experience that is open to discovery". <br></b><br>Practiced in this way, we create the conditions for the discovery of connection – to ourselves, to each other, and to what is possible.<br><br>We can meet whatever arises with curiosity, inclusive of any conflict or tension. We can even be curious about if we should be curious at all.<br><br>Stay curious.</p>
   </div>
 </div>
+</div>
+
+<section style="padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
+  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">What we're building</div>
+  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">A culture of <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">creative realisation</span> in support of life's flourishing.</h2>
+  <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:.9rem;max-width:68ch;">
+    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Creativity is only ever limited by our sense of what's possible. Beings Club is a place where that sense is invited to expand.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">Each meeting is situated in a field of intentional curiosity, mutual care, and responsibility — creating the conditions for our individual and collective sense of what is possible to grow, and to find more ways to reach toward it.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">The world where we meet across everything that makes us different, and make something beautiful of it, is not ahead of us. It exists in groups of people who recognise it as possible — in the spaces where it is allowed to happen.<br><br>Beings Club is one such space, <span style="color: var(--ink); font-weight: 600;">making the future a place you can be part of.</span></p>
+  </div>
+</section>
+
+<section style="padding:clamp(3rem,9vh,5.5rem) var(--pad);border-bottom:1px solid var(--ink);text-align:center;background:var(--lav);">
+  <p style="font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(1.6rem,4.5cqi,3rem);text-transform:uppercase;max-width:20ch;margin:0 auto;">The moment you stop treating the edge of the possible as fixed, reality reveals its <span style="-webkit-text-stroke:1.4px var(--ink);color:transparent;">true nature</span>.</p>
+</section>
 
 <div id="salons" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
   <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Salons</h2>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">Salons</h2>
   </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">Space for conversations that want to happen.</p>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Practice. Connect. Explore.</p>
 </div>
 
-<section class="split" style="display:grid;grid-template-columns:1fr 1.6fr;border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);background:var(--slateW);">
+<div>
+<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;"><span data-metadata="&lt;!--(figmeta)eyJmaWxlS2V5IjoiYjFKWkwxQUZ6a2IxVnVLNmpneGVnSiIsInBhc3RlSUQiOjk1Njk5OTM5MSwiZGF0YVR5cGUiOiJzY2VuZSIsImVudmlyb25tZW50Ijoid3d3LmZpZ21hLmNvbSIsInNlbGVjdGVkTm9kZURhdGEiOiIwOjM1fDMxfDAifQo=(/figmeta)--&gt;"></span><span data-buffer="&lt;!--(figma)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(/figma)--&gt;"></span><span style="white-space: pre-wrap;"><b><span style="font-weight: normal;">Salons are Beings Club's classic format – where curiosity connects.</span></b></span></p>
+<section class="split" style="display:grid;grid-template-columns:1.6fr 1fr;border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;">Salons begin with a shared field of individual practice, followed by meeting in small group conversations, and then close as a whole group.</p>
+    <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;">The form stays reliable so that what happens inside it can be free.</p>
+    <p style="color:var(--dim);max-width:68ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. <br><br><b>Come as you are, and see what happens.</b></p>
+  </div>
+
+  <div style="padding:var(--cell);background:var(--slateW);">
     <div style="display:flex;flex-direction:column;gap:1.2rem;">
       <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
       <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
@@ -236,110 +246,67 @@
       <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a donation basis</div></div>
     </div>
   </div>
-  <div style="padding:var(--cell);">
-    <p style="color:var(--dim);margin-bottom:.9rem;max-width:52ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A Salon is a gathering, not a webinar.</strong> <br>There's no panel, no slides, and no content or prescribed theme. We open with time for intentional practice, we talk in duos and trios, and the space closes as a whole.</p>
-    <p style="color:var(--dim);margin-bottom:.9rem;max-width:52ch;line-height:1.65;">People arrive from different places — different geographies, different decades of life, different ways of seeing. The range is the point: it's what makes salon conversations something curiosity can expand into.</p>
-    <p style="color:var(--dim);max-width:52ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. Come as you are, and see what happens.</p>
-  </div>
 </section>
-
-<div class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Why salon</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What a room of curious people gives back.</p>
-</div>
-
-<div class="trio" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Connection</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The moment a conversation stops being polite and starts being real. It usually arrives in the first half hour.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Perspective</span></h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Your own life handed back to you by someone standing decades, or continents, from where you're standing.</p>
-  </div>
-  <div style="padding:var(--cell);border-bottom:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Inspiration</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Someone describes how they're actually living, and something in you sits up. Not envy — a possibility, recognised.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Play</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Ideas turned over for the pleasure of it, with no obligation to conclude, defend, or be right.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Friendship</span></h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">What's still there weeks later — people who know something true about you, and you about them.</p>
-  </div>
-  <div style="padding:var(--cell);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Surprise</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The turn nobody planned — the thought, or the person, that stays with you long after the call ends.</p>
-  </div>
 </div>
 
 <div id="sits" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
   <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Sits</h2>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">Sits</h2>
   </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">Meditation classes for the curious.</p>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Meditation classes for the curious.</p>
 </div>
 
-<section class="split" style="display:grid;grid-template-columns:1fr 1.6fr;border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);background:var(--slateW);">
+<div>
+<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Sits are meditation classes that offer the fundamentals for cultivating clarity, resilience, and ease.</p>
+<section class="split" style="display:grid;grid-template-columns:1.6fr 1fr;border-bottom:1px solid var(--ink);">
+  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+    <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color: var(--ink); font-weight: 600;"><span style="color: rgb(90, 92, 88); font-weight: 400;">A contemporary approach to meditation, available to exploring tradition without relying on it for reassurance.<br></span></strong><br>The techniques are simple and explained simply — with time for questions.</p><p style="color:var(--dim);max-width:68ch;line-height:1.65;">What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.<br><br>Offered by John. Accessible to all backgrounds, experience-levels, and dispositions.</p>
+    
+  </div>
+
+  <div style="padding:var(--cell);background:var(--slateW);">
     <div style="display:flex;flex-direction:column;gap:1.2rem;">
       <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About one hour</div></div>
-      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or multi-week series</div></div>
+      <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or in multi-week series</div></div>
       <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
       <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a sliding scale basis</div></div>
     </div>
   </div>
-  <div style="padding:var(--cell);">
-    <p style="color:var(--dim);margin-bottom:.9rem;max-width:52ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A Sit is a meditation class that explores the fundamentals, simply.</strong>&nbsp;<br>The techniques are simple, there is no ladder of attainment, and no vocabulary you need to learn before you join. Fundamentals, practised properly — with time for questions.</p>
-    <p style="color:var(--dim);max-width:52ch;line-height:1.65;">Beings Club takes a contemporary approach to mindfulness, available to exploring tradition without relying on it for reassurance. What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.</p>
+</section>
+</div>
+
+<section style="padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
+  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">Why we sit</div>
+  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">Beings Club <br><span style="-webkit-text-stroke: 1.5px var(--ink); color: transparent;">practices meditation</span>.</h2>
+  <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:.9rem;max-width:68ch;">
+    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Every Salon begins with meditation. Sits are offered for those who want to go deeper.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">A room full of open, generous attention doesn't appear on its own. It's made by people who have practised meeting their own experience without flinching from it — who can stay present when a conversation gets real, and stay kind when it gets difficult.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">So we sit. Not to escape our lives or to reach some special state, but to become more available — to ourselves, to each other, and to what a moment is actually offering. The practice is simple and the aim is ordinary: to be here, on purpose, with care.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">That capacity is what the Salons are built on, and what the Sits cultivate directly. <br><span style="color: var(--ink); font-weight: 600;"><br>Meditation supports curious minds stay open to discovery, possibility, and change.</span></p>
   </div>
 </section>
 
-<div class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+<section style="padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
+  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">A note from John</div>
+  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">We do this <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">together</span>.</h2>
+  <div style="margin-top:2rem;display:grid;gap:.9rem;max-width:68ch;">
+    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">I'll be honest about why this exists.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">The more beautiful world our hearts know is possible isn't a thing one person builds and others visit. It only happens if we live in it together — which means it only happens if you're part of it.</p>
+    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">So this isn't an invitation in the usual sense. I'm not offering you something finished. I'm telling you it doesn't exist without you, and asking you to help make it real.</p>
+    <p style="font-size:1.05rem;color:var(--ink);font-weight:600;line-height:1.6;">We do this together, or it doesn't happen.</p>
+    <p style="margin-top:.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John (Host of Beings Club)</p>
+  </div>
+</section>
+
+<div id="testimonials" class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
   <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Why sit</h2>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">Testimonials</h2>
   </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What a regular practice cultivates.</p>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Curious people love Beings Club.</p>
 </div>
 
-<div class="trio" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Ease</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Life gets easier when we're friends with ourselves and can bring the spirit of play to the realm of effort.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Resilience</span></h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The capacity to meet what is happening without being knocked over by it, built slowly and on purpose.</p>
-  </div>
-  <div style="padding:var(--cell);border-bottom:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Clarity</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Seeing what's actually happening, in ourselves first and then opening naturally into everything else.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Courage</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The inner resource of knowing that you can meet what's happening and respond, without turning away.</p>
-  </div>
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;"><span style="-webkit-text-stroke:1.2px var(--ink);color:transparent;">Openness</span></h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">Spaciousness that does not need to know and is not afraid to either, relaxed into as what makes life; life.</p>
-  </div>
-  <div style="padding:var(--cell);">
-    <h3 style="font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(1.6rem,3.6cqi,2.4rem);text-transform:uppercase;margin-bottom:.9rem;">Kindness</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;">The simple way of gentleness that recognises one's own happiness as equal to that of others, and acts on it.</p>
-  </div>
-</div>
-
-<div class="sechead" style="display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Field notes</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">What the people are saying.</p>
-</div>
-
+<div>
+<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Words from the people who’ve spent time at Beings Club.</p>
 <div class="quotes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hair);border-bottom:1px solid var(--ink);">
   <figure style="background:var(--paper);padding:var(--cell);display:flex;flex-direction:column;gap:1rem;margin:0;">
     <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"A space to slow down, reflect together, and make sense of things out loud."</blockquote>
@@ -382,28 +349,36 @@
     <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">The Dude</figcaption>
   </figure>
 </div>
+</div>
+
+<section style="padding:clamp(3rem,9vh,5.5rem) var(--pad);border-bottom:1px solid var(--ink);text-align:center;background:#FBE9EE;">
+  <p style="font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(1.5rem,4.2cqi,2.8rem);text-transform:uppercase;max-width:22ch;margin:0 auto;">What unfolds is unplanned, ordinary, and <span style="-webkit-text-stroke:1.4px var(--ink);color:transparent;white-space:nowrap;">sometimes&nbsp;magic</span>.</p>
+</section>
 
 <div id="door" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
   <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Take part</h2>
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">THE DOOR</h2>
   </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;">Why else did you scroll this far down?</p>
+  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Enter here.</p>
 </div>
 
-<section style="padding:var(--sy) var(--pad);text-align:center;border-bottom:1px solid var(--ink);background:var(--amberW);">
-  <h2 style="margin:0 0 1rem;font-weight:800;letter-spacing:-.035em;line-height:1;font-size:clamp(2rem,6.5cqi,3.8rem);text-transform:uppercase;">This is our front door</h2>
-  <p style="max-width:44ch;margin:0 auto 2.2rem;color:var(--dim);line-height:1.6;">Register your interest in Salons, Sits, or both.</p>
-  <button class="btn-ink" id="bc-open" type="button" style="display:inline-flex;align-items:center;gap:.8rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;padding:1rem 2rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Leave us a note<span>&rarr;</span></button>
+<div>
+<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Why else would you scroll this far down?</p>
+<section style="padding:clamp(4rem,10vh,7rem) var(--pad);text-align:center;border-bottom:1px solid var(--ink);background:var(--amberW);">
+  <h2 style="margin:0 0 1.3rem;font-weight:800;letter-spacing:-.035em;line-height:1;font-size:clamp(2.6rem,8.5cqi,5rem);text-transform:uppercase;">THIS IS THE DOOR</h2>
+  <p style="max-width:46ch;margin:0 auto 2.8rem;color:var(--dim);font-size:1.1rem;line-height:1.6;">Register your interest in Salons, Sits, or both.</p>
+  <button class="btn-ink" id="bc-open" type="button" style="display:inline-flex;align-items:center;gap:.9rem;font-family:var(--font);font-weight:700;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;padding:1.25rem 2.6rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Leave us a note<span>→</span></button>
 </section>
+</div>
 
 <section class="duo" style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+  <div style="padding:var(--cell) var(--cell) var(--cell) var(--pad);border-right:1px solid var(--ink);">
     <h3 style="font-weight:700;font-size:1.3rem;letter-spacing:-.02em;margin-bottom:.6rem;">Wonderfool</h3>
     <p style="color:var(--dim);font-size:.95rem;line-height:1.6;">Letters on being, every 1st and 3rd Tuesday. Written by John — the same voice that hosts the room.</p>
   </div>
   <div style="padding:var(--cell);display:flex;align-items:center;">
     <form action="https://wonderfool.substack.com/subscribe" method="get" target="_blank" style="display:flex;width:100%;border:1px solid var(--ink);">
-      <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required style="flex:1;border:none;outline:none;padding:.9rem 1rem;font-family:var(--font);font-size:.9rem;background:transparent;color:var(--ink);min-width:0;">
+      <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required="" style="flex:1;border:none;outline:none;padding:.9rem 1rem;font-family:var(--font);font-size:.9rem;background:transparent;color:var(--ink);min-width:0;">
       <button class="btn-ink" type="submit" style="border:none;border-left:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:.9rem 1.4rem;font-family:var(--font);font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;">Subscribe</button>
     </form>
   </div>
@@ -414,10 +389,10 @@
   <span style="font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);">For the benefit of all beings</span>
   <div style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
     <a class="social" href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:var(--dim);">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
     </a>
     <a class="social" href="https://x.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on X" style="display:inline-flex;color:var(--dim);">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg>
+      <svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg>
     </a>
   </div>
 </footer>
@@ -425,13 +400,13 @@
 </div>
 
 <div class="bc-overlay" id="bc-overlay" role="dialog" aria-modal="true" aria-labelledby="bc-ov-title">
-  <button class="bc-close" id="bc-close" type="button" aria-label="Close">Close <span aria-hidden="true">&#10005;</span></button>
+  <button class="bc-close" id="bc-close" type="button" aria-label="Close">Close <span aria-hidden="true">✕</span></button>
   <div class="bc-ov-inner">
     <div class="bc-ov-head">
       <h2 id="bc-ov-title">Leave us a note</h2>
       <p>Tell us what you're drawn to and we'll be in touch. There's no obligation, and nothing is automated.</p>
     </div>
-  <form id="bc-note" novalidate style="max-width:34rem;margin:0 auto;text-align:left;">
+  <form id="bc-note" novalidate="" style="max-width:34rem;margin:0 auto;text-align:left;">
     <div class="bc-part" style="margin-bottom:1.6rem;text-align:center;">
       <span class="bc-lab">I'm interested in</span>
       <div style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;">
@@ -445,7 +420,6 @@
         </label>
       </div>
     </div>
-
     <div class="bc-part" style="margin-bottom:1.1rem;">
       <label class="bc-lab" for="bc-name">Your name</label>
       <input class="bc-in" id="bc-name" name="name" type="text" placeholder="What shall we call you?" autocomplete="name">
@@ -461,8 +435,8 @@
     <div class="bc-part" style="margin-bottom:1.6rem;">
       <label class="bc-lab" for="bc-found">How did you find us?</label>
       <div class="bc-selwrap">
-        <select class="bc-in bc-sel" id="bc-found" name="found">
-          <option value="" selected>Choose one…</option>
+        <sc-raw-select class="bc-in bc-sel" id="bc-found" name="found">
+          <option value="" selected="">Choose one…</option>
           <option>Someone I know</option>
           <option>Instagram</option>
           <option>X</option>
@@ -470,15 +444,14 @@
           <option>Space to Be</option>
           <option>A search</option>
           <option>Somewhere else</option>
-        </select>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+        </sc-raw-select>
+        <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
       </div>
     </div>
-    <div class="bc-part" id="bc-who-wrap" hidden style="margin-bottom:1.6rem;">
+    <div class="bc-part" id="bc-who-wrap" hidden="" style="margin-bottom:1.6rem;">
       <label class="bc-lab" for="bc-who">Who can we thank?</label>
       <input class="bc-in" id="bc-who" name="referrer" type="text" placeholder="Their name, so we can say thanks">
     </div>
-
     <div class="bc-part" style="text-align:center;">
       <button class="btn-ink" id="bc-submit" type="submit" style="display:inline-flex;align-items:center;gap:.8rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;padding:1rem 2rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;"><span id="bc-submit-label">Leave us a note</span><span>→</span></button>
     </div>
@@ -486,131 +459,208 @@
   </form>
   </div>
 </div>
-
 <script>
-/* Status panel. The handoff animated to a fixed 340px, which clips once the
-   panel stacks on a narrow column — measure the content instead. */
-(function () {
-  var btn = document.querySelector('.bc-toggle');
-  var panel = document.getElementById('bc-panel');
-  var chev = document.querySelector('.bc-chev');
-  var label = document.querySelector('.bc-toggle-label');
-  if (!btn || !panel) return;
-  var open = false;
+document.addEventListener('DOMContentLoaded', function () {
+const root = document;
 
-  function apply() {
-    panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
-    panel.style.opacity = open ? '1' : '0';
-    chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
-    label.textContent = open ? 'Close' : 'Details';
-    btn.setAttribute('aria-expanded', String(open));
-  }
-  btn.addEventListener('click', function () { open = !open; apply(); });
-  window.addEventListener('resize', function () { if (open) panel.style.maxHeight = panel.scrollHeight + 'px'; });
-})();
-
-/* Full-screen note overlay. Body is pinned rather than just overflow:hidden —
-   that's the only reliable way to stop iOS scrolling the page behind it, and it
-   lets us put the reader back exactly where they were on close. */
-(function () {
-  var openBtn = document.getElementById('bc-open');
-  var closeBtn = document.getElementById('bc-close');
-  var overlay = document.getElementById('bc-overlay');
-  var shell = document.querySelector('.shell');
-  if (!openBtn || !overlay) return;
-  var scrollY = 0;
-
-  function open() {
-    scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = -scrollY + 'px';
-    document.body.style.width = '100%';
-    overlay.classList.add('is-open');
-    shell.inert = true;                       // keep focus out of the page behind
-    var first = document.querySelector('.bc-check');
-    if (first) first.focus({ preventScroll: true });
-    document.addEventListener('keydown', onKey);
-  }
-  function close() {
-    overlay.classList.remove('is-open');
-    shell.inert = false;
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    // While the body was pinned the document had no height, so a scroll issued
-    // now would be clamped to 0 and dump the reader at the top. Force layout
-    // back first, and go instantly — the page sets scroll-behavior:smooth,
-    // which would otherwise animate the restore.
-    void document.body.offsetHeight;
-    window.scrollTo({ top: scrollY, behavior: 'instant' });
-    openBtn.focus({ preventScroll: true });
-    document.removeEventListener('keydown', onKey);
-  }
-  function onKey(e) { if (e.key === 'Escape') close(); }
-
-  openBtn.addEventListener('click', open);
-  closeBtn.addEventListener('click', close);
-})();
-
-/* Interest form — posts to the same Formspree endpoint the live site uses,
-   with the checked interests folded into one field. */
-(function () {
-  var form = document.getElementById('bc-note');
-  if (!form) return;
-  var btn = document.getElementById('bc-submit');
-  var label = document.getElementById('bc-submit-label');
-  var msg = document.getElementById('bc-msg');
-  var found = document.getElementById('bc-found');
-  var whoWrap = document.getElementById('bc-who-wrap');
-  var who = document.getElementById('bc-who');
-
-  // only ask who referred them when the answer is a person
-  found.addEventListener('change', function () {
-    var personal = found.value === 'Someone I know';
-    whoWrap.hidden = !personal;
-    if (!personal) who.value = '';
-  });
-
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    var fd = new FormData(form);
-    var interest = fd.getAll('interest');
-    var name = (fd.get('name') || '').trim();
-    var email = (fd.get('email') || '').trim();
-
-    if (!interest.length) { msg.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
-    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      msg.textContent = 'A name and a valid email, please.'; return;
-    }
-
-    btn.disabled = true; label.textContent = 'Sending…'; msg.textContent = '';
-    try {
-      var res = await fetch('https://formspree.io/f/xpqkbpyv', {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          intent: 'take part as a participant',
-          interest: interest.join(', '),
-          name: name,
-          email: email,
-          drawn: fd.get('drawn') || '',
-          found: fd.get('found') || 'Not said',
-          referrer: (fd.get('referrer') || '').trim()
+    // Inline the logo SVG so its concentric outline rings can pulse outward
+    (function () {
+      var host = root.getElementById('bc-logo');
+      if (!host) return;
+      fetch('assets/beings-logo-outline.svg')
+        .then(function (r) { return r.text(); })
+        .then(function (txt) {
+          host.innerHTML = txt;
+          var svg = host.querySelector('svg');
+          if (!svg) return;
+          svg.removeAttribute('width');
+          svg.removeAttribute('height');
+          // Use the logo's own outermost outline as the exact hover hit-region.
+          var rings = Array.prototype.slice.call(host.querySelectorAll('[data-ring]'));
+          rings.forEach(function (p) { p.style.pointerEvents = 'none'; });
+          var outer = rings.reduce(function (a, b) {
+            return (+b.getAttribute('data-ring')) > (+a.getAttribute('data-ring')) ? b : a;
+          });
+          if (outer) {
+            outer.style.pointerEvents = 'fill'; // interior counts even though fill:none
+            outer.addEventListener('mouseenter', function () { host.classList.add('is-bold'); });
+            outer.addEventListener('mouseleave', function () { host.classList.remove('is-bold'); });
+          }
         })
+        .catch(function () {});
+    })();
+
+    // Expandable / minimizable sections
+    root.querySelectorAll('.sechead').forEach(function (head) {
+      if (head.id === 'door' || head.id === 'ground' || head.id === 'testimonials' || head.id === 'salons' || head.id === 'sits') return; // stay permanently expanded
+      var body = head.nextElementSibling;
+      if (!body) return;
+      var col = head.firstElementChild;
+      col.style.display = 'flex';
+      col.style.alignItems = 'center';
+      col.style.gap = '.7rem';
+      var chev = document.createElement('span');
+      chev.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
+      chev.style.display = 'inline-flex';
+      chev.style.flex = 'none';
+      chev.style.color = 'var(--dim)';
+      chev.style.transition = 'transform .4s cubic-bezier(.4,0,.2,1)';
+      chev.style.transform = 'rotate(0deg)';
+      col.appendChild(chev);
+      head.style.cursor = 'pointer';
+      head.style.userSelect = 'none';
+      head.setAttribute('role', 'button');
+      head.setAttribute('aria-expanded', 'false');
+      body.style.overflow = 'hidden';
+      var cs = getComputedStyle(body);
+      var padT = cs.paddingTop, padB = cs.paddingBottom;
+      var ease = 'cubic-bezier(.22,1,.36,1)'; // gentle deceleration, not snappy
+      var trans = 'max-height .42s ' + ease + ',padding .42s ' + ease;
+      body.style.transition = trans;
+      body.style.maxHeight = '0px';
+      body.style.opacity = '1';
+      body.style.paddingTop = '0px';
+      body.style.paddingBottom = '0px';
+      var open = false;
+      var openToken = 0;
+      head.addEventListener('click', function () {
+        open = !open;
+        chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
+        head.setAttribute('aria-expanded', String(open));
+        if (open) {
+          // smooth height reveal; content is already opaque so nothing fades in late
+          var token = ++openToken;
+          body.style.transition = trans;
+          body.style.paddingTop = padT;
+          body.style.paddingBottom = padB;
+          body.style.maxHeight = body.scrollHeight + 'px';
+          var settle = function () {
+            if (open && token === openToken) body.style.maxHeight = 'none';
+          };
+          body.addEventListener('transitionend', function te(e) {
+            if (e.propertyName !== 'max-height') return;
+            settle();
+            body.removeEventListener('transitionend', te);
+          });
+          setTimeout(settle, 550);
+        } else {
+          ++openToken;
+          body.style.transition = trans;
+          body.style.maxHeight = body.scrollHeight + 'px';
+          void body.offsetHeight;
+          body.style.maxHeight = '0px';
+          body.style.paddingTop = '0px';
+          body.style.paddingBottom = '0px';
+        }
       });
-      if (res.ok) {
-        form.querySelectorAll('.bc-part').forEach(function (el) { el.style.display = 'none'; });
-        msg.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.';
-      } else {
-        label.textContent = 'Try again'; btn.disabled = false;
-        msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
+    });
+    // Status panel toggle
+    (function () {
+      var btn = root.querySelector('.bc-toggle');
+      var panel = root.getElementById('bc-panel');
+      var chev = root.querySelector('.bc-chev');
+      var label = root.querySelector('.bc-toggle-label');
+      if (!btn || !panel) return;
+      var open = false;
+      function apply() {
+        panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
+        panel.style.opacity = open ? '1' : '0';
+        chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
+        label.textContent = open ? 'Close' : 'Details';
+        btn.setAttribute('aria-expanded', String(open));
       }
-    } catch (err) {
-      label.textContent = 'Try again'; btn.disabled = false;
-      msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
-    }
-  });
-})();
+      btn.addEventListener('click', function () { open = !open; apply(); });
+      window.addEventListener('resize', function () { if (open) panel.style.maxHeight = panel.scrollHeight + 'px'; });
+    })();
+
+    // Full-screen note overlay
+    (function () {
+      var openBtn = root.getElementById('bc-open');
+      var closeBtn = root.getElementById('bc-close');
+      var overlay = root.getElementById('bc-overlay');
+      var shell = root.querySelector('.shell');
+      if (!openBtn || !overlay) return;
+      var scrollY = 0;
+      function open() {
+        scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = -scrollY + 'px';
+        document.body.style.width = '100%';
+        overlay.classList.add('is-open');
+        if (shell) shell.inert = true;
+        var first = root.querySelector('.bc-check');
+        if (first) first.focus({ preventScroll: true });
+        document.addEventListener('keydown', onKey);
+      }
+      function close() {
+        overlay.classList.remove('is-open');
+        if (shell) shell.inert = false;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        void document.body.offsetHeight;
+        window.scrollTo({ top: scrollY, behavior: 'instant' });
+        openBtn.focus({ preventScroll: true });
+        document.removeEventListener('keydown', onKey);
+      }
+      function onKey(e) { if (e.key === 'Escape') close(); }
+      openBtn.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+    })();
+
+    // Interest form
+    (function () {
+      var form = root.getElementById('bc-note');
+      if (!form) return;
+      var btn = root.getElementById('bc-submit');
+      var label = root.getElementById('bc-submit-label');
+      var msg = root.getElementById('bc-msg');
+      var found = root.getElementById('bc-found');
+      var whoWrap = root.getElementById('bc-who-wrap');
+      var who = root.getElementById('bc-who');
+      found.addEventListener('change', function () {
+        var personal = found.value === 'Someone I know';
+        whoWrap.hidden = !personal;
+        if (!personal) who.value = '';
+      });
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var fd = new FormData(form);
+        var interest = fd.getAll('interest');
+        var name = (fd.get('name') || '').trim();
+        var email = (fd.get('email') || '').trim();
+        if (!interest.length) { msg.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
+        if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          msg.textContent = 'A name and a valid email, please.'; return;
+        }
+        btn.disabled = true; label.textContent = 'Sending…'; msg.textContent = '';
+        try {
+          var res = await fetch('https://formspree.io/f/xpqkbpyv', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              intent: 'take part as a participant',
+              interest: interest.join(', '),
+              name: name, email: email,
+              drawn: fd.get('drawn') || '',
+              found: fd.get('found') || 'Not said',
+              referrer: (fd.get('referrer') || '').trim()
+            })
+          });
+          if (res.ok) {
+            form.querySelectorAll('.bc-part').forEach(function (el) { el.style.display = 'none'; });
+            msg.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.';
+          } else {
+            label.textContent = 'Try again'; btn.disabled = false;
+            msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
+          }
+        } catch (err) {
+          label.textContent = 'Try again'; btn.disabled = false;
+          msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
+        }
+      });
+    })();
+});
 </script>
 </body>
 </html>
