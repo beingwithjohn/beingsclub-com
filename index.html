@@ -192,6 +192,12 @@
   .rh-pos{font-style:italic;font-weight:600;color:var(--amber);margin-left:.4rem;}
   .rh-ipa{color:var(--soft);font-weight:400;margin-left:.45rem;font-size:.85rem;}
   .rh-def{display:block;margin-top:.4rem;color:var(--dim);}
+
+  @container (max-width:640px){
+    .off-seg{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--ink);width:100%;}
+    .off-seg button{border-left:none;background:var(--paper);}
+    .off-seg button[aria-selected="true"]{background:var(--ink);}
+  }
 </style>
 </head>
 <body>
@@ -199,7 +205,7 @@
 <div class="shell" style="max-width:var(--shell);margin:0 auto;container-type:inline-size;min-height:100vh;">
 
 <nav style="display:flex;align-items:center;gap:1.7rem;flex-wrap:wrap;padding:1.15rem var(--pad);border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:20;">
-  <span style="font-weight:800;font-size:.82rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span><span style="font-size:.62rem;font-weight:500;letter-spacing:.04em;color:var(--ink);margin-left:.7rem;">a realisationhouse for curious people</span>
+  <div style="display:flex;align-items:baseline;column-gap:.8rem;row-gap:.15rem;flex-wrap:wrap;min-width:0;flex:1;"><span style="font-weight:800;font-size:.82rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span><span style="font-size:.62rem;font-weight:500;letter-spacing:.04em;color:var(--ink);">a realisationhouse for curious people</span></div>
   <div class="nav-links" style="display:flex;gap:1.7rem;align-items:center;flex-wrap:wrap;">
     <a class="nav-link" href="#origin" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">About</a>
     <a class="nav-link" href="#ground" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Ground</a>
