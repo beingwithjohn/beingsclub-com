@@ -125,7 +125,7 @@
   /* ---- offerings swipe ---- */
   .off-head{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:end;
     gap:1.4rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);}
-  .off-seg{display:inline-flex;border:1px solid var(--ink);align-self:center;}
+  .off-seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink);align-self:center;}
   .off-seg button{font-family:var(--font);font-size:.72rem;font-weight:700;letter-spacing:.14em;
     text-transform:uppercase;padding:.65rem 1.15rem;background:transparent;color:var(--dim);
     border:none;cursor:pointer;transition:background .18s,color .18s;}
@@ -199,7 +199,7 @@
 <div class="shell" style="max-width:var(--shell);margin:0 auto;container-type:inline-size;min-height:100vh;">
 
 <nav style="display:flex;align-items:center;gap:1.7rem;flex-wrap:wrap;padding:1.15rem var(--pad);border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:20;">
-  <span style="font-weight:800;font-size:.82rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span>
+  <span style="font-weight:800;font-size:.82rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span><span style="font-size:.62rem;font-weight:500;letter-spacing:.04em;color:var(--ink);margin-left:.7rem;">a realisationhouse for curious people</span>
   <div class="nav-links" style="display:flex;gap:1.7rem;align-items:center;flex-wrap:wrap;">
     <a class="nav-link" href="#origin" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">About</a>
     <a class="nav-link" href="#ground" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Ground</a>
@@ -218,12 +218,8 @@
 
 <div class="bc-marquee" aria-hidden="true" style="overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--ink);background:var(--paper);color:var(--ink);">
   <div class="bc-marquee-track">
-    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;">
-      <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">SALONS &amp; SITS</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
-    </span>
-    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;">
-      <span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Salons &amp; Sits</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span>
-    </span>
+    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;"><span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Curiosity social club</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">New social experiences</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Meditation classes</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Field trips</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span></span>
+    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;"><span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Curiosity social club</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">New social experiences</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Meditation classes</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Field trips</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳</span></span>
   </div>
 </div>
 
@@ -258,6 +254,85 @@
   <p style="margin-top:1.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p></div><button type="button" class="xp-btn" aria-expanded="false"><span class="xp-lbl">Read more</span></button>
 </section>
 
+<section id="offerings" style="scroll-margin-top:5.5rem;border-bottom:1px solid var(--ink);">
+  <div class="off-head">
+    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Offerings</h2>
+    <div class="off-seg" role="tablist" aria-label="Choose an offering">
+      <button type="button" role="tab" aria-selected="true" data-off="salons">Salons</button>
+      <button type="button" role="tab" aria-selected="false" data-off="sits">Sits</button>
+      <button type="button" role="tab" aria-selected="false" data-off="happenings">Happenings</button>
+      <button type="button" role="tab" aria-selected="false" data-off="fieldtrips">Field Trips</button>
+    </div>
+  </div>
+
+  <div class="off-viewport">
+    <div class="off-track">
+
+      <div class="off-panel" data-panel="salons">
+        <p class="off-intro">Salons are Beings Club's classic format — where curiosity connects.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">Space to connect — to oneself, to each other, and to what is possible.</strong><br>Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;">The form stays reliable so that what happens inside it can be free.</p>
+            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. <br><br><b>Come as you are, and see what happens.</b></p>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a donation basis</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="off-panel" data-panel="sits">
+        <p class="off-intro">Sits are meditation classes that offer the fundamentals for cultivating clarity, resilience, and ease.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A contemporary approach to meditation</strong> — available to exploring tradition without relying on it for reassurance.<br><br>The techniques are simple and explained simply — with time for questions.</p>
+            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.<br><br>Offered by John. Accessible to all backgrounds, experience-levels, and dispositions.</p>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About one hour</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or in multi-week series</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a sliding scale basis</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="off-panel" data-panel="happenings">
+        <p class="off-intro">Happenings are in-person social experiences for the curious.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">The first was The O Field, in November 2024.</strong> A new kind of social experience, its guests gathered from the street. Tea was served alongside beer; vinyl played, with intentional gaps left between the records.</p>
+            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">More are taking shape — occasions to meet in person, made with the same care as everything else.<br><br><b>Come as you are, and see who you meet.</b></p>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Format</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">In person</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Occasional</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">First held</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">November 2024</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Free</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="off-panel" data-panel="fieldtrips">
+        <p class="off-intro">Field Trips are in-person, small-group journeys to places around the world.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A handful of curious people, somewhere worth going, for a few days of shared attention.</strong></p>
+            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">The first is being planned. If travelling together sounds like your kind of thing, say so when you leave us a note.</p>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Format</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">In person</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Group</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Small</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Around the world</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Status</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">The first is being planned</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
   <div>
     <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">SHARED GROUND</h2>
@@ -272,7 +347,7 @@
   <div style="padding:var(--cell);border-right:1px solid var(--ink);">
     <div style="font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--amber);margin-bottom:.6rem;">1.</div>
     <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">We hold each other as precious</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Each life in the room, including the ones nothing like yours, are treated as real and valuable and worth our care.</b><br><br>This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms.<br><br>This is held sacred, and it is why everything else is free to change. It frames how we meet each other <i>and</i> how we meet ourselves.<br><br>We are beings, together.</p>
+    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care.</b><br><br>This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms.<br><br>This is held sacred, and it is why everything else is free to change. It frames how we meet each other <i>and</i> how we meet ourselves.<br><br>We are beings, together.</p>
   </div>
   <div style="padding:var(--cell);">
     <div style="font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--amber);margin-bottom:.6rem;">2.</div>
@@ -296,64 +371,12 @@
   <p style="font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(1.6rem,4.5cqi,3rem);text-transform:uppercase;max-width:20ch;margin:0 auto;">The moment you stop treating the edge of the possible as fixed, reality reveals its <span style="-webkit-text-stroke:1.4px var(--ink);color:transparent;">true nature</span>.</p>
 </section>
 
-<section id="offerings" style="scroll-margin-top:5.5rem;border-bottom:1px solid var(--ink);">
-  <div class="off-head">
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Offerings</h2>
-    <div class="off-seg" role="tablist" aria-label="Choose an offering">
-      <button type="button" role="tab" aria-selected="true" data-off="salons">Salons</button>
-      <button type="button" role="tab" aria-selected="false" data-off="sits">Sits</button>
-    </div>
-  </div>
-
-  <div class="off-viewport">
-    <div class="off-track">
-
-      <div class="off-panel" data-panel="salons">
-        <p class="off-intro">Salons are Beings Club's classic format — where curiosity connects.</p>
-        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
-          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">Space to connect — to oneself, to each other, and to what is possible.</strong><br>Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
-            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;">The form stays reliable so that what happens inside it can be free.</p>
-            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. <br><br><b>Come as you are, and see what happens.</b></p>
-          </div>
-          <div style="padding:var(--cell);background:var(--slateW);">
-            <div style="display:flex;flex-direction:column;gap:1.2rem;">
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a donation basis</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="off-panel" data-panel="sits">
-        <p class="off-intro">Sits are meditation classes that offer the fundamentals for cultivating clarity, resilience, and ease.</p>
-        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
-          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-            <p style="color:var(--dim);margin-bottom:.9rem;max-width:68ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">A contemporary approach to meditation</strong> — available to exploring tradition without relying on it for reassurance.<br><br>The techniques are simple and explained simply — with time for questions.</p>
-            <p style="color:var(--dim);max-width:68ch;line-height:1.65;">What you learn here is portable: it works on a Tuesday morning, in a difficult conversation, and in the foothills of the Himalayas.<br><br>Offered by John. Accessible to all backgrounds, experience-levels, and dispositions.</p>
-          </div>
-          <div style="padding:var(--cell);background:var(--slateW);">
-            <div style="display:flex;flex-direction:column;gap:1.2rem;">
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About one hour</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">One-offs or in multi-week series</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a sliding scale basis</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
 
 <section style="padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
   <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">On meditation</div>
   <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">Why Beings Club <br><span style="-webkit-text-stroke: 1.5px var(--ink); color: transparent;">practices meditation</span>.</h2>
   <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:.9rem;max-width:68ch;">
-    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Meditation supports curious minds stay open to discovery, possibility, and change.</p>
+    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Meditation supports curious minds to stay open to discovery, possibility, and change.</p>
     <div class="xp xp-grid"><p style="font-size:1rem;color:var(--dim);line-height:1.65;">A room full of open, generous attention doesn't appear on its own. It's made by people who have practised meeting their own experience without flinching from it — who can stay present when a conversation gets real, and stay kind when it gets difficult.</p>
     <p style="font-size:1rem;color:var(--dim);line-height:1.65;">So we sit. Not to escape our lives or to reach some special state, but to become more available — to ourselves, to each other, and to what a moment is actually offering. The practice is simple and the aim is ordinary: to be here, on purpose, with care.</p>
     <p style="font-size:1rem;color:var(--dim);line-height:1.65;">That capacity is what the Salons are built on, and what the Sits cultivate directly. <br><span style="color: var(--ink); font-weight: 600;"><br>Every Salon begins with meditation. Sits are offered for those who want to go deeper.</span></p></div><button type="button" class="xp-btn" aria-expanded="false"><span class="xp-lbl">Read more</span></button>
@@ -442,7 +465,7 @@
 <p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Why else would you scroll this far down?</p>
 <section style="padding:clamp(4rem,10vh,7rem) var(--pad);text-align:center;border-bottom:1px solid var(--ink);background:var(--amberW);">
   <h2 style="margin:0 0 1.3rem;font-weight:800;letter-spacing:-.035em;line-height:1;font-size:clamp(2.6rem,8.5cqi,5rem);text-transform:uppercase;">THIS IS THE DOOR</h2>
-  <p style="max-width:46ch;margin:0 auto 2.8rem;color:var(--dim);font-size:1.1rem;line-height:1.6;">Register your interest in Salons, Sits, or both.</p>
+  <p style="max-width:46ch;margin:0 auto 2.8rem;color:var(--dim);font-size:1.1rem;line-height:1.6;">Register your interest in any of our offerings.</p>
   <button class="btn-ink" id="bc-open" type="button" style="display:inline-flex;align-items:center;gap:.9rem;font-family:var(--font);font-weight:700;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;padding:1.25rem 2.6rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Leave us a note<span>→</span></button>
 </section>
 </div>
@@ -493,6 +516,14 @@
         <label style="position:relative;display:inline-flex;">
           <input class="bc-check" type="checkbox" name="interest" value="Sits">
           <span class="bc-chip">Sits</span>
+        </label>
+        <label style="position:relative;display:inline-flex;">
+          <input class="bc-check" type="checkbox" name="interest" value="Happenings">
+          <span class="bc-chip">Happenings</span>
+        </label>
+        <label style="position:relative;display:inline-flex;">
+          <input class="bc-check" type="checkbox" name="interest" value="Field Trips">
+          <span class="bc-chip">Field Trips</span>
         </label>
       </div>
     </div>
