@@ -229,25 +229,29 @@
 </div>
 
 <div style="border-bottom:1px solid var(--ink);background:var(--lav);">
-  <style>.st-time{white-space:nowrap;}@media (max-width:640px){.st-time{white-space:normal;}}</style>
+  <style>
+    .ann{display:flex;gap:1.1rem;align-items:baseline;padding:1rem 0;border-top:1px solid var(--hair);}
+    .ann-tag{flex:none;min-width:4.25rem;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
+    .ann-txt{font-size:.95rem;line-height:1.55;color:var(--dim);letter-spacing:-.005em;}
+    .ann-txt strong{font-weight:700;color:var(--ink);}
+    @media (max-width:640px){.ann{flex-direction:column;gap:.3rem;}}
+  </style>
   <button type="button" class="bc-toggle" aria-expanded="false" aria-controls="bc-panel" style="width:100%;display:flex;align-items:center;gap:1rem;padding:1.15rem var(--pad);background:transparent;border:none;font-family:var(--font);text-align:left;cursor:pointer;color:var(--ink);transition:background .15s;">
     <span style="position:relative;display:inline-flex;flex:none;"><span class="bc-dot" style="width:9px;height:9px;border-radius:50%;background:var(--ink);animation:bc-pulse 2.6s ease-out infinite;"></span></span>
-    <span class="bc-toggle-text" style="flex:1;font-weight:500;font-size:clamp(.95rem,1.6cqi,1.08rem);letter-spacing:-.01em;">Next Salon — <strong style="font-weight:700;">September 27, 2026</strong> &nbsp;·&nbsp; Next Sit — <strong style="font-weight:700;">Autumn 2026 · dates to come</strong></span>
-    <span class="bc-toggle-label" style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap;">Details</span>
+    <span class="bc-toggle-text" style="flex:1;font-weight:600;font-size:clamp(.95rem,1.6cqi,1.08rem);letter-spacing:.02em;text-transform:uppercase;">Announcements</span>
+    <span class="bc-toggle-label" style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap;">View</span>
     <svg class="bc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:var(--dim);transform:rotate(0deg);transition:transform .4s cubic-bezier(.4,0,.2,1);"><path d="M6 9l6 6 6-6"></path></svg>
   </button>
   <div id="bc-panel" class="bc-panel" style="overflow:hidden;max-height:0;opacity:0;transition:max-height .45s cubic-bezier(.4,0,.2,1),opacity .35s ease;">
-    <div style="padding:.5rem var(--pad) 1.5rem;">
-      <div style="display:grid;grid-template-columns:5rem 1fr;gap:.4rem 1rem;padding:1.1rem 0;border-top:1px solid var(--hair);">
-        <div style="grid-column:1 / -1;font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:.15rem;">Salons</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">September 27, 2026&nbsp;</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Time</div><div class="st-time" style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">???pm Lisbon · ???pm New York · ???pm Los Angeles</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Format</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Online — join from anywhere</div>
+    <div style="padding:.35rem var(--pad) 1.4rem;">
+      <!-- Each .ann is one announcement bar. Duplicate a block to add another. -->
+      <div class="ann">
+        <span class="ann-tag">Salon</span>
+        <span class="ann-txt"><strong>Next Salon — September 27, 2026.</strong> Online, join from anywhere. Offered pay-what-you-can.</span>
       </div>
-      <div style="display:grid;grid-template-columns:5rem 1fr;gap:.4rem 1rem;padding:1.1rem 0 0;border-top:1px solid var(--hair);">
-        <div style="grid-column:1 / -1;font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);margin-bottom:.15rem;">Sits</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Next</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Autumn 2026 · dates to come</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);align-self:start;">Format</div><div style="font-size:.9rem;font-weight:600;letter-spacing:-.01em;">Online — join from anywhere</div>
+      <div class="ann">
+        <span class="ann-tag">Sit</span>
+        <span class="ann-txt"><strong>Next Sit — Autumn 2026.</strong> Dates to come. Online, pay-what-you-can.</span>
       </div>
     </div>
   </div>
@@ -644,7 +648,7 @@ const root = document;
         panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
         panel.style.opacity = open ? '1' : '0';
         chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
-        label.textContent = open ? 'Close' : 'Details';
+        label.textContent = open ? 'Close' : 'View';
         btn.setAttribute('aria-expanded', String(open));
       }
       btn.addEventListener('click', function () { open = !open; apply(); });
