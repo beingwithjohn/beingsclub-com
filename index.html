@@ -198,6 +198,22 @@
     .off-seg button{border-left:none;background:var(--paper);}
     .off-seg button[aria-selected="true"]{background:var(--ink);}
   }
+
+  /* ---- progressive focus blur (desktop): sharp centre, blur toward the edges ---- */
+  .focusblur{position:fixed;left:0;right:0;pointer-events:none;z-index:15;display:none;}
+  .focusblur > span{position:absolute;left:0;right:0;display:block;}
+  .fb-bot{bottom:0;height:clamp(130px,26vh,320px);}
+  .fb-bot > span{bottom:0;-webkit-mask-image:linear-gradient(to top,#000,transparent);mask-image:linear-gradient(to top,#000,transparent);}
+  .fl1{height:100%;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
+  .fl2{height:74%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+  .fl3{height:50%;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);}
+  .fl4{height:28%;-webkit-backdrop-filter:blur(44px);backdrop-filter:blur(44px);}
+  @media (min-width:821px){.focusblur{display:block;}}
+  @media (prefers-reduced-motion:reduce){.focusblur{display:none!important;}}
+
+  /* ---- op-art motifs: subtle monochrome accents; multiply melts the white into the page ---- */
+  .opart-motif{display:block;width:clamp(80px,12cqi,120px);height:auto;margin:0 0 1.1rem;mix-blend-mode:multiply;}
+  .opart-motif.mr{margin-left:auto;margin-right:0;}
 </style>
 </head>
 <body>
@@ -340,7 +356,8 @@
   <p class="off-intro" style="border-top:1px solid var(--ink);border-bottom:none;"><strong style="color:var(--ink);font-weight:600;">Every Salon begins with meditation.</strong> Sits are offered for those who want to go deeper.</p>
 </section>
 
-<div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
+<img class="opart-motif mr" src="assets/opart/ground.png" alt="" aria-hidden="true" style="margin:var(--sy) var(--pad) 1.3rem auto;">
+<div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:0 var(--pad) clamp(1.4rem,3.5vh,2rem);">
   <div>
     <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">SHARED GROUND</h2>
   </div>
@@ -348,15 +365,16 @@
 </div>
 
 <div>
-<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Beings Club is built on minimal scaffolding that ensures that everyone who arrives can find shared ground.</p>
 
 <div class="trio" style="display:grid;grid-template-columns:repeat(2,1fr);border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);border-right:1px solid var(--ink);">
+  <div style="padding:var(--cell);">
+    <img class="opart-motif" src="assets/opart/interdependence.png" alt="" aria-hidden="true">
     <div style="font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--amber);margin-bottom:.6rem;">1.</div>
     <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">We hold each other as precious</h3>
     <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care.</b><br><br>This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms.<br><br>This is held sacred, and it is why everything else is free to change. It frames how we meet each other <i>and</i> how we meet ourselves.<br><br>We are beings, together.</p>
   </div>
   <div style="padding:var(--cell);">
+    <img class="opart-motif" src="assets/opart/stillness.png" alt="" aria-hidden="true">
     <div style="font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--amber);margin-bottom:.6rem;">2.</div>
     <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">Curiosity connects</h3>
     <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Beings Club defines curiosity as "an orientation to experience that is open to discovery". <br></b><br>Practiced in this way, we create the conditions for the discovery of connection – to ourselves, to each other, and to what is possible.<br><br>We can meet whatever arises with curiosity, inclusive of any conflict or tension. We can even be curious about if we should be curious at all.<br><br>Stay curious.</p>
@@ -422,6 +440,7 @@
 </section>
 
 <section id="vision" style="scroll-margin-top:5.5rem;padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
+  <img class="opart-motif mr" src="assets/opart/spacious.png" alt="" aria-hidden="true" style="margin-top:-.5rem;">
   <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">Vision</div>
   <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:22ch;">A micro-culture of <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">creative realisation</span>, in service of life's flourishing.</h2>
   <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:1.05rem;max-width:82ch;">
@@ -494,6 +513,8 @@
 </footer>
 
 </div>
+
+<div class="focusblur fb-bot" aria-hidden="true"><span class="fl1"></span><span class="fl2"></span><span class="fl3"></span><span class="fl4"></span></div>
 
 <div class="bc-overlay" id="bc-overlay" role="dialog" aria-modal="true" aria-labelledby="bc-ov-title">
   <button class="bc-close" id="bc-close" type="button" aria-label="Close">Close <span aria-hidden="true">✕</span></button>
@@ -986,6 +1007,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   timeEls.forEach(function (el) { el.textContent = out; });
+})();
+</script>
+<script>
+(function () {
+  // Fade the bottom focus-blur away as the footer arrives, so it reads sharp.
+  var band = document.querySelector('.fb-bot');
+  var footer = document.querySelector('footer');
+  if (!band || !footer) return;
+  function update() {
+    var h = band.offsetHeight;
+    if (!h) { band.style.opacity = ''; return; } // hidden (mobile) → let CSS decide
+    var ft = footer.getBoundingClientRect().top;
+    band.style.opacity = Math.max(0, Math.min(1, (ft - window.innerHeight) / h));
+  }
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
 })();
 </script>
 </body>
