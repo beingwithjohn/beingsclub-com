@@ -214,6 +214,7 @@
   /* ---- op-art motifs: subtle monochrome accents; multiply melts the white into the page ---- */
   .opart-motif{display:block;width:clamp(80px,12cqi,120px);height:auto;margin:0 0 1.1rem;mix-blend-mode:multiply;}
   .opart-motif.mr{margin-left:auto;margin-right:0;}
+  @media (min-width:1024px){.ob-lead{white-space:nowrap;}}
 </style>
 </head>
 <body>
@@ -284,8 +285,8 @@
     </div>
     <p style="font-size:1.15rem;font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.45;">A social gathering place where contemplative practice is recognised as a means of realising new possibilities.</p>
   </div>
-  <div style="margin-top:2rem;max-width:82ch;display:grid;gap:1rem;">
-    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">At Beings Club we gather as the curious to realise what is possible — in ourselves, between us, and in the world.</p>
+  <p class="ob-lead" style="margin-top:2rem;font-size:1.05rem;color:var(--ink);line-height:1.6;">At Beings Club we gather as the curious to realise what is possible — in ourselves, between us, and in the world.</p>
+  <div style="margin-top:1rem;max-width:82ch;display:grid;gap:1rem;">
     <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">Together we share two orienting principles.</p>
     <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">First: we hold each other as precious.<br>Second: we stay curious.</p>
     <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">As a result, we approach contemplative practice with both curiosity and care.</p>
