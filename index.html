@@ -247,7 +247,7 @@
       <!-- Each .ann is one announcement bar. Duplicate a block to add another. -->
       <div class="ann">
         <span class="ann-tag">Salon</span>
-        <span class="ann-txt"><strong>Next Salon — September 27, 2026.</strong> <span class="salon-time" data-salon-start="2026-09-27T16:30:00Z" data-salon-end="2026-09-27T18:30:00Z">5:30–7:30pm UK time</span>. Online, join from anywhere. Offered pay-what-you-can.</span>
+        <span class="ann-txt"><strong>Next Salon — <span class="salon-date">September 27, 2026</span>.</strong> <span class="salon-time">5:30–7:30pm UK time</span>. Online, join from anywhere. Offered pay-what-you-can.</span>
       </div>
       <div class="ann">
         <span class="ann-tag">Sit</span>
@@ -311,7 +311,7 @@
           <div style="padding:var(--cell);background:var(--slateW);">
             <div style="display:flex;flex-direction:column;gap:1.2rem;">
               <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" data-salon-start="2026-09-27T16:30:00Z" data-salon-end="2026-09-27T18:30:00Z" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30–7:30pm UK time</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a pay-what-you-can basis</div></div>
+              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30–7:30pm UK time</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a pay-what-you-can basis</div></div>
             </div>
           </div>
         </div>
@@ -911,44 +911,81 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script>
 (function () {
-  // Salon time: stored as an absolute UTC instant equal to 5:30pm London for
-  // that date. Render into the visitor's own zone, always anchored to UK time.
-  var els = document.querySelectorAll('.salon-time');
-  if (!els.length) return;
-  function fmt(d, tz) {
-    var s = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz });
+  // Salons recur on the LAST SUNDAY of each month at 5:30–7:30pm UK time,
+  // starting September 2026. Compute the next occurrence on load and render the
+  // date (.salon-date) and the visitor-localised time (.salon-time). DST is
+  // automatic: 5:30pm London resolves to 16:30 UTC in BST, 17:30 UTC in GMT.
+  var timeEls = document.querySelectorAll('.salon-time');
+  var dateEls = document.querySelectorAll('.salon-date');
+  if (!timeEls.length && !dateEls.length) return;
+
+  function fmt(ms, tz) {
+    var s = new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz });
     return s.replace(/\s/g, '').toLowerCase(); // -> "5:30pm"
   }
-  function zoneName(d, tz) {
+  function zoneName(ms, tz) {
     try {
-      var parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short', hour: 'numeric' }).formatToParts(d);
+      var parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short', hour: 'numeric' }).formatToParts(new Date(ms));
       for (var i = 0; i < parts.length; i++) if (parts[i].type === 'timeZoneName') return parts[i].value;
     } catch (e) {}
     return '';
   }
+  // day-of-month of the last Sunday of month m (0-indexed) in year y
+  function lastSunday(y, m) {
+    var d = new Date(Date.UTC(y, m + 1, 0)); // last day of the month
+    return d.getUTCDate() - d.getUTCDay();
+  }
+  // instant (ms) when the wall clock reads hh:mm in zone tz on y-m-d
+  function zonedToUTC(y, m, d, hh, mm, tz) {
+    var guess = Date.UTC(y, m, d, hh, mm);
+    var dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    function asUTC(ms) {
+      var p = {};
+      dtf.formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = x.value; });
+      var h = p.hour === '24' ? 0 : +p.hour;
+      return Date.UTC(+p.year, +p.month - 1, +p.day, h, +p.minute, +p.second);
+    }
+    return guess - (asUTC(guess) - guess);
+  }
+  // next Salon at or after now, never earlier than September 2026
+  function nextSalon(nowMs) {
+    var d0 = new Date(nowMs), y = 2026, m = 8; // September 2026 is the first
+    if (d0.getUTCFullYear() > 2026 || (d0.getUTCFullYear() === 2026 && d0.getUTCMonth() > 8)) {
+      y = d0.getUTCFullYear(); m = d0.getUTCMonth();
+    }
+    for (var i = 0; i < 36; i++) {
+      var day = lastSunday(y, m);
+      var startUTC = zonedToUTC(y, m, day, 17, 30, 'Europe/London');
+      if (startUTC >= nowMs) return { y: y, m: m, d: day, startUTC: startUTC };
+      m++; if (m > 11) { m = 0; y++; }
+    }
+    return null;
+  }
+
+  var salon = nextSalon(Date.now());
+  if (!salon) return;
+  var startUTC = salon.startUTC, endUTC = startUTC + 2 * 3600 * 1000;
+
+  var dateStr = new Date(Date.UTC(salon.y, salon.m, salon.d, 12, 0))
+    .toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' });
+  dateEls.forEach(function (el) { el.textContent = dateStr; });
+
   var localTz;
   try { localTz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { localTz = null; }
-  els.forEach(function (el) {
-    var startISO = el.getAttribute('data-salon-start');
-    if (!startISO) return;
-    var start = new Date(startISO);
-    if (isNaN(start.getTime())) return;
-    var endISO = el.getAttribute('data-salon-end');
-    var end = endISO ? new Date(endISO) : null;
-    var ukStart = fmt(start, 'Europe/London');
-    var ukEnd = end ? fmt(end, 'Europe/London') : null;
-    var ukRange = ukEnd ? ukStart + '–' + ukEnd : ukStart;
-    if (!localTz) { el.textContent = ukRange + ' UK time'; return; }
-    var locStart = fmt(start, localTz);
-    var locEnd = end ? fmt(end, localTz) : null;
-    var locRange = locEnd ? locStart + '–' + locEnd : locStart;
+  var ukRange = fmt(startUTC, 'Europe/London') + '–' + fmt(endUTC, 'Europe/London');
+  var out;
+  if (!localTz) {
+    out = ukRange + ' UK time';
+  } else {
+    var locRange = fmt(startUTC, localTz) + '–' + fmt(endUTC, localTz);
     if (locRange === ukRange) {
-      el.textContent = ukRange + ' UK time (your time)';
+      out = ukRange + ' UK time (your time)';
     } else {
-      var z = zoneName(start, localTz);
-      el.textContent = locRange + (z ? ' ' + z : '') + ' (your time) · ' + ukRange + ' UK time';
+      var z = zoneName(startUTC, localTz);
+      out = locRange + (z ? ' ' + z : '') + ' (your time) · ' + ukRange + ' UK time';
     }
-  });
+  }
+  timeEls.forEach(function (el) { el.textContent = out; });
 })();
 </script>
 </body>
