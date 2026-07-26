@@ -221,11 +221,6 @@
   .opart-motif{display:block;width:clamp(80px,12cqi,120px);height:auto;margin:0 0 1.1rem;mix-blend-mode:multiply;}
   .opart-motif.mr{margin-left:auto;margin-right:0;}
   @media (min-width:1024px){.ob-lead{white-space:nowrap;}}
-  /* collapsible offering details */
-  .spec > summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);user-select:none;padding:.15rem 0;}
-  .spec > summary::-webkit-details-marker{display:none;}
-  .spec > summary::after{content:"";flex:none;width:7px;height:7px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .3s;}
-  .spec[open] > summary::after{transform:translateY(1px) rotate(-135deg);}
 </style>
 </head>
 <body>
@@ -277,11 +272,11 @@
       <!-- Each .ann is one announcement bar. Duplicate a block to add another. -->
       <div class="ann">
         <span class="ann-tag">Sit</span>
-        <span class="ann-txt"><strong>Next Sit — Beyond Belief.</strong> Five Mondays from 14 September, 6:30–7:30pm UK. Ten places · £222.</span>
+        <span class="ann-txt"><strong>Beyond Belief</strong> · from 14 Sept · £222</span>
       </div>
       <div class="ann">
         <span class="ann-tag">Salon</span>
-        <span class="ann-txt"><strong>Next Salon — <span class="salon-date">September 27, 2026</span>.</strong> <span class="salon-time">5:30–7:30pm UK time</span>. Online, pay what you can.</span>
+        <span class="ann-txt"><strong><span class="salon-date">Sept 27</span></strong> · <span class="salon-time">5:30pm UK</span></span>
       </div>
     </div>
   </div>
@@ -341,16 +336,13 @@
             <p style="color:var(--ink);font-weight:600;line-height:1.65;max-width:82ch;">Come as you are, and see what happens.</p>
           </div>
           <div style="padding:var(--cell);background:var(--slateW);">
-            <details class="spec">
-              <summary class="spec-summary">Details</summary>
-              <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.3rem;">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30–7:30pm UK time</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30pm UK</div></div>
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a pay-what-you-can basis</div></div>
               </div>
-            </details>
           </div>
         </div>
       </div>
@@ -368,9 +360,7 @@
             <div><a class="btn-ink" href="https://luma.com/0tosnxn0" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.7rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;padding:.9rem 1.7rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Join here <span aria-hidden="true">↗</span></a></div>
           </div>
           <div style="padding:var(--cell);background:var(--slateW);">
-            <details class="spec">
-              <summary class="spec-summary">Details</summary>
-              <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.3rem;">
+            <div style="display:flex;flex-direction:column;gap:1.2rem;">
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Format</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Five weekly 60-minute classes</div></div>
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Dates</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Five Mondays, 14 Sep – 12 Oct 2026</div></div>
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">6:30–7:30pm UK</div></div>
@@ -378,7 +368,6 @@
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Places</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Ten</div></div>
                 <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">£222</div></div>
               </div>
-            </details>
           </div>
         </div>
       </div>
@@ -1019,23 +1008,23 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!salon) return;
   var startUTC = salon.startUTC, endUTC = startUTC + 2 * 3600 * 1000;
 
-  var dateStr = new Date(Date.UTC(salon.y, salon.m, salon.d, 12, 0))
-    .toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' });
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+  var dateStr = MON[salon.m] + ' ' + salon.d;   // brief, e.g. "Sept 27"
   dateEls.forEach(function (el) { el.textContent = dateStr; });
 
   var localTz;
   try { localTz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { localTz = null; }
-  var ukRange = fmt(startUTC, 'Europe/London') + '–' + fmt(endUTC, 'Europe/London');
+  var ukStart = fmt(startUTC, 'Europe/London');
   var out;
   if (!localTz) {
-    out = ukRange + ' UK time';
+    out = ukStart + ' UK';
   } else {
-    var locRange = fmt(startUTC, localTz) + '–' + fmt(endUTC, localTz);
-    if (locRange === ukRange) {
-      out = ukRange + ' UK time';
+    var locStart = fmt(startUTC, localTz);
+    if (locStart === ukStart) {
+      out = ukStart + ' UK';
     } else {
       var z = zoneName(startUTC, localTz);
-      out = locRange + (z ? ' ' + z : '') + ' · ' + ukRange + ' UK time';
+      out = locStart + (z ? ' ' + z : '') + ' · ' + ukStart + ' UK';
     }
   }
   timeEls.forEach(function (el) { el.textContent = out; });
@@ -1059,17 +1048,6 @@ document.addEventListener('DOMContentLoaded', function () {
   update();
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
-})();
-</script>
-<script>
-(function () {
-  // Resize the offerings swipe viewport when any offering's details collapse/open.
-  var vp = document.querySelector('.off-viewport');
-  if (!vp) return;
-  document.querySelectorAll('.off-panel .spec').forEach(function (det) {
-    var panel = det.closest('.off-panel');
-    det.addEventListener('toggle', function () { vp.style.height = panel.offsetHeight + 'px'; });
-  });
 })();
 </script>
 </body>
