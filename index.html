@@ -352,14 +352,31 @@
       </div>
 
       <div class="off-panel" data-panel="sits">
-        <div style="height:16px;background:repeating-linear-gradient(45deg,var(--ink) 0 16px,var(--amber) 16px 32px);"></div>
-        <div style="text-align:center;padding:clamp(2.5rem,7vh,4.5rem) var(--pad);">
-          <div style="font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.2rem;">Arriving 2027</div>
-          <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.95;font-size:clamp(2.2rem,8cqi,5rem);text-transform:uppercase;"><span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">Being</span> realised</h2>
-          <p style="margin:1.7rem auto 0;max-width:50ch;font-size:1.05rem;color:var(--dim);line-height:1.65;">Meditation classes for ease, resilience, and clarity.</p>
-          <p style="margin:1.1rem auto 0;max-width:50ch;font-size:1.05rem;color:var(--ink);line-height:1.65;">Want in early? <a href="#door" style="border-bottom:1px solid var(--ink);">Leave us a note</a>.</p>
+        <p class="off-intro">Sits are Beings Club's meditation classes — and the first series is open.</p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;align-items:start;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);display:grid;gap:1.2rem;align-content:start;">
+            <div style="font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">A five-week series</div>
+            <p style="color:var(--ink);font-weight:700;letter-spacing:-.02em;font-size:clamp(1.4rem,3.4cqi,2.1rem);line-height:1.1;max-width:82ch;">Beyond Belief: <span style="color:var(--dim);font-weight:600;">The Art of Trusting Yourself</span></p>
+            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">A way into a meditation practice, a deeper sense of trust, and a more embodied life — built on five principles: <strong style="color:var(--ink);font-weight:600;">curiosity, care, responsibility, play, and rest.</strong></p>
+            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">Five weekly 60-minute classes. In week one you'll be paired with a practice partner to sit and share with across the whole series.</p>
+            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">By the end, you'll walk away with a meditation practice and a lighter, more open way of meeting whatever life throws at you.</p>
+            <p style="color:var(--ink);font-weight:600;line-height:1.55;max-width:82ch;">Five Mondays, 14 September – 12 October 2026 · 6:30–7:30pm UK · ten places · £222.</p>
+            <div><a class="btn-ink" href="https://luma.com/0tosnxn0" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.7rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;padding:.9rem 1.7rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Join here <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div style="padding:var(--cell);background:var(--slateW);">
+            <details class="spec">
+              <summary class="spec-summary">Details</summary>
+              <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.3rem;">
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Format</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Five weekly 60-minute classes</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Dates</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Five Mondays, 14 Sep – 12 Oct 2026</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">6:30–7:30pm UK</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Places</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Ten</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">£222</div></div>
+              </div>
+            </details>
+          </div>
         </div>
-        <div style="height:16px;background:repeating-linear-gradient(45deg,var(--ink) 0 16px,var(--amber) 16px 32px);"></div>
       </div>
 
     </div>
@@ -1042,12 +1059,13 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script>
 (function () {
-  // Resize the offerings swipe viewport when the Salons details collapse/open.
+  // Resize the offerings swipe viewport when any offering's details collapse/open.
   var vp = document.querySelector('.off-viewport');
-  var panel = document.querySelector('.off-panel[data-panel="salons"]');
-  var det = panel && panel.querySelector('.spec');
-  if (!vp || !panel || !det) return;
-  det.addEventListener('toggle', function () { vp.style.height = panel.offsetHeight + 'px'; });
+  if (!vp) return;
+  document.querySelectorAll('.off-panel .spec').forEach(function (det) {
+    var panel = det.closest('.off-panel');
+    det.addEventListener('toggle', function () { vp.style.height = panel.offsetHeight + 'px'; });
+  });
 })();
 </script>
 </body>
