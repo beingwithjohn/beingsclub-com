@@ -221,6 +221,11 @@
   .opart-motif{display:block;width:clamp(80px,12cqi,120px);height:auto;margin:0 0 1.1rem;mix-blend-mode:multiply;}
   .opart-motif.mr{margin-left:auto;margin-right:0;}
   @media (min-width:1024px){.ob-lead{white-space:nowrap;}}
+  /* collapsible offering details */
+  .spec > summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);user-select:none;padding:.15rem 0;}
+  .spec > summary::-webkit-details-marker{display:none;}
+  .spec > summary::after{content:"";flex:none;width:7px;height:7px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .3s;}
+  .spec[open] > summary::after{transform:translateY(1px) rotate(-135deg);}
 </style>
 </head>
 <body>
@@ -323,17 +328,25 @@
 
       <div class="off-panel" data-panel="salons">
         <p class="off-intro">Salons are Beings Club's classic format — where curiosity connects.</p>
-        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;">
-          <div style="padding:var(--cell);border-right:1px solid var(--ink);">
-            <p style="color:var(--dim);margin-bottom:.9rem;max-width:82ch;line-height:1.65;"><strong style="color:var(--ink);font-weight:600;">Space to connect — to oneself, to each other, and to what is possible.</strong><br>Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
-            <p style="color:var(--dim);margin-bottom:.9rem;max-width:82ch;line-height:1.65;">The form stays reliable so that what happens inside it can be free.</p>
-            <p style="color:var(--dim);max-width:82ch;line-height:1.65;">You don't need to prepare anything. You don't need to have it figured out. <br><br><b>Come as you are, and see what happens.</b></p>
+        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;align-items:start;">
+          <div style="padding:var(--cell);border-right:1px solid var(--ink);display:grid;gap:1.2rem;align-content:start;">
+            <p style="color:var(--ink);font-weight:600;letter-spacing:-.01em;line-height:1.5;max-width:82ch;">Space to connect — to oneself, to each other, and to what is possible.</p>
+            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
+            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">The form stays reliable so that what happens inside it can be free.</p>
+            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">You don't need to prepare anything. You don't need to have it figured out.</p>
+            <p style="color:var(--ink);font-weight:600;line-height:1.65;max-width:82ch;">Come as you are, and see what happens.</p>
           </div>
           <div style="padding:var(--cell);background:var(--slateW);">
-            <div style="display:flex;flex-direction:column;gap:1.2rem;">
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
-              <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30–7:30pm UK time</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div><div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a pay-what-you-can basis</div></div>
-            </div>
+            <details class="spec">
+              <summary class="spec-summary">Details</summary>
+              <div style="display:flex;flex-direction:column;gap:1.2rem;margin-top:1.3rem;">
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30–7:30pm UK time</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
+                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a pay-what-you-can basis</div></div>
+              </div>
+            </details>
           </div>
         </div>
       </div>
@@ -1025,6 +1038,16 @@ document.addEventListener('DOMContentLoaded', function () {
   update();
   window.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
+})();
+</script>
+<script>
+(function () {
+  // Resize the offerings swipe viewport when the Salons details collapse/open.
+  var vp = document.querySelector('.off-viewport');
+  var panel = document.querySelector('.off-panel[data-panel="salons"]');
+  var det = panel && panel.querySelector('.spec');
+  if (!vp || !panel || !det) return;
+  det.addEventListener('toggle', function () { vp.style.height = panel.offsetHeight + 'px'; });
 })();
 </script>
 </body>
