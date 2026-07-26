@@ -270,11 +270,11 @@
       <!-- Each .ann is one announcement bar. Duplicate a block to add another. -->
       <div class="ann">
         <span class="ann-tag">Salon</span>
-        <span class="ann-txt"><strong>Next Salon — <span class="salon-date">September 27, 2026</span>.</strong> <span class="salon-time">5:30–7:30pm UK time</span>. Online, join from anywhere. Offered pay-what-you-can.</span>
+        <span class="ann-txt"><strong>Next Salon — <span class="salon-date">September 27, 2026</span>.</strong> <span class="salon-time">5:30–7:30pm UK time</span>. Online, pay what you can.</span>
       </div>
       <div class="ann">
         <span class="ann-tag">Sit</span>
-        <span class="ann-txt"><strong>Next Sit — 2027.</strong> Dates to come. Online, pay-what-you-can.</span>
+        <span class="ann-txt"><strong>Next Sit — 2027.</strong> Dates to come. Online, pay what you can.</span>
       </div>
     </div>
   </div>
@@ -1007,10 +1007,10 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     var locRange = fmt(startUTC, localTz) + '–' + fmt(endUTC, localTz);
     if (locRange === ukRange) {
-      out = ukRange + ' UK time (your time)';
+      out = ukRange + ' UK time';
     } else {
       var z = zoneName(startUTC, localTz);
-      out = locRange + (z ? ' ' + z : '') + ' (your time) · ' + ukRange + ' UK time';
+      out = locRange + (z ? ' ' + z : '') + ' · ' + ukRange + ' UK time';
     }
   }
   timeEls.forEach(function (el) { el.textContent = out; });
