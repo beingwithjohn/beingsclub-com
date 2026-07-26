@@ -209,6 +209,12 @@
   .fl3{height:50%;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);}
   .fl4{height:28%;-webkit-backdrop-filter:blur(44px);backdrop-filter:blur(44px);}
   @media (min-width:821px){.focusblur{display:block;}}
+  /* mobile: one lightweight blur layer instead of four (perf) */
+  @media (max-width:820px){
+    .focusblur{display:block;}
+    .fb-bot > .fl1, .fb-bot > .fl3, .fb-bot > .fl4{display:none;}
+    .fb-bot > .fl2{height:100%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+  }
   @media (prefers-reduced-motion:reduce){.focusblur{display:none!important;}}
 
   /* ---- op-art motifs: subtle monochrome accents; multiply melts the white into the page ---- */
@@ -1018,9 +1024,12 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!band || !footer) return;
   function update() {
     var h = band.offsetHeight;
-    if (!h) { band.style.opacity = ''; return; } // hidden (mobile) → let CSS decide
+    if (!h) { band.style.transform = ''; return; } // hidden → let CSS decide
     var ft = footer.getBoundingClientRect().top;
-    band.style.opacity = Math.max(0, Math.min(1, (ft - window.innerHeight) / h));
+    var op = Math.max(0, Math.min(1, (ft - window.innerHeight) / h));
+    // Slide the band out of view (not opacity) — opacity:0 on a backdrop-filter
+    // element freezes its compositing and it won't repaint when it returns.
+    band.style.transform = 'translateY(' + ((1 - op) * 100) + '%)';
   }
   update();
   window.addEventListener('scroll', update, { passive: true });
