@@ -1,580 +1,360 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+  <meta name="description" content="Beings Club is a realisationhouse for the curious — monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Beings Club">
+  <meta property="og:title" content="Beings Club — a realisationhouse for the curious">
+  <meta property="og:description" content="Monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.">
+  <meta property="og:url" content="https://beingsclub.com">
+  <meta property="og:image" content="https://beingsclub.com/assets/social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Beings Club — a realisationhouse for the curious">
+  <meta name="twitter:description" content="Monthly Salons where curious people meet, and Sits for meditation.">
+  <meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
 <title>Beings Club — a culture of creative realisation</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-<link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
-
-<!-- ——— SOCIAL PREVIEW ——— -->
-<meta name="description" content="Beings Club is a room where curious people meet to realise what's possible. Salons for conversation, Sits for meditation — online, for the benefit of all beings.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Beings Club">
-<meta property="og:title" content="Beings Club – Salons and Sits for the curious.">
-<meta property="og:description" content="Beings Club is a room where curious people meet to realise what's possible. Salons for conversation, Sits for meditation — online, for the benefit of all beings.">
-<meta property="og:url" content="https://beingsclub.com">
-<meta property="og:image" content="https://beingsclub.com/assets/social-preview.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Beings Club">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Beings Club – Salons and Sits for the curious.">
-<meta name="twitter:description" content="Beings Club is a room where curious people meet to realise what's possible. Salons for conversation, Sits for meditation — online, for the benefit of all beings.">
-<meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <style>
-:root{
-    --paper:#ffffff; --ink:#171916; --dim:#5a5c58; --soft:#9a9c97;
-    --hair:rgba(23,25,22,0.14);
-    --amber:#FFAD54; --slate:#7693A7;
-    --lav:#F2ECFF; --slateW:#eef1f4; --amberW:#fff7ee;
-    --shell:72rem;
-    --pad:clamp(1.5rem,5cqi,3.75rem);
-    --sy:clamp(3rem,7vh,4.75rem); --cell:clamp(1.75rem,3.5cqi,2.75rem);
-    --font:'Host Grotesk',system-ui,-apple-system,sans-serif;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased;}
-  img{display:block;max-width:100%;}
-  a{color:inherit;text-decoration:none;}
-  ::selection{background:var(--amber);color:var(--ink);}
-  @keyframes bc-pulse{0%{box-shadow:0 0 0 0 rgba(23,25,22,.28);}70%{box-shadow:0 0 0 6px rgba(23,25,22,0);}100%{box-shadow:0 0 0 0 rgba(23,25,22,0);}}
-  @keyframes bc-marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-  #bc-logo{line-height:0;position:relative;}
-  #bc-logo svg{width:100%;height:auto;display:block;}
-  #bc-logo [data-ring]{transition:stroke-width .25s ease;}
-  #bc-logo.is-bold [data-ring]{stroke-width:6.5;}
-  .bc-marquee-track{display:inline-flex;flex:none;align-items:center;animation:bc-marquee 32s linear infinite;}
-  .bc-marquee:hover .bc-marquee-track{animation-play-state:paused;}
-  @media (prefers-reduced-motion:reduce){ .bc-marquee-track{animation:none!important;} }
-  @media (prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto;}
-    .bc-dot{animation:none!important;}
-    .bc-panel,.bc-chev{transition:none!important;}
-  }
-  .nav-link{transition:color .15s;}
-  .nav-link:hover{color:var(--ink);}
-  .nav-cta{transition:background .15s,color .15s;}
-  .nav-cta:hover{background:var(--ink);color:var(--paper);}
-  .btn-ink{transition:background .18s,color .18s;}
-  .btn-ink:hover{background:var(--amber);color:var(--ink);}
-  .social{transition:color .15s;}
-  .social:hover{color:var(--ink);}
-  .bc-toggle:hover{background:rgba(23,25,22,.03);}
-  .bc-check{position:absolute;opacity:0;width:0;height:0;pointer-events:none;}
-  .bc-chip{display:inline-flex;align-items:center;gap:.55rem;border:1px solid var(--ink);
-    padding:.7rem 1.2rem;cursor:pointer;font-size:.72rem;font-weight:700;letter-spacing:.14em;
-    text-transform:uppercase;transition:background .15s,color .15s;user-select:none;}
-  .bc-chip::before{content:"";width:9px;height:9px;border:1px solid currentColor;flex:none;}
-  .bc-chip:hover{background:rgba(23,25,22,.06);}
-  .bc-check:checked + .bc-chip{background:var(--ink);color:var(--paper);}
-  .bc-check:checked + .bc-chip::before{background:var(--amber);border-color:var(--amber);}
-  .bc-check:focus-visible + .bc-chip{outline:2px solid var(--amber);outline-offset:2px;}
-  .bc-lab{display:block;font-size:.6rem;font-weight:700;letter-spacing:.16em;
-    text-transform:uppercase;color:var(--soft);margin-bottom:.5rem;}
-  .bc-in{width:100%;border:1px solid var(--ink);background:var(--paper);padding:.85rem 1rem;
-    font-family:var(--font);font-size:.95rem;color:var(--ink);outline:none;
-    transition:box-shadow .15s;resize:vertical;}
-  .bc-in::placeholder{color:var(--soft);}
-  .bc-in:focus{box-shadow:0 0 0 3px rgba(255,173,84,.45);}
-  .bc-sel{appearance:none;-webkit-appearance:none;padding-right:2.75rem;cursor:pointer;
-    border-radius:0;color:var(--ink);}
-  .bc-sel:has(option[value=""]:checked){color:var(--soft);}
-  .bc-selwrap{position:relative;}
-  .bc-selwrap svg{position:absolute;right:1rem;top:50%;transform:translateY(-50%);
-    pointer-events:none;color:var(--dim);}
-  .bc-overlay{position:fixed;inset:0;z-index:100;background:var(--amberW);
-    overflow-y:auto;overscroll-behavior:contain;
-    padding:clamp(1.25rem,4vw,2.5rem);
-    opacity:0;visibility:hidden;transition:opacity .3s ease,visibility 0s .3s;}
-  .bc-overlay.is-open{opacity:1;visibility:visible;transition:opacity .3s ease;}
-  .bc-ov-inner{max-width:34rem;margin:0 auto;padding:clamp(3rem,9vh,5rem) 0 4rem;}
-  .bc-ov-head{text-align:center;margin-bottom:2.4rem;}
-  .bc-ov-head h2{font-weight:800;letter-spacing:-.035em;line-height:1;
-    font-size:clamp(1.9rem,5.5vw,2.9rem);text-transform:uppercase;margin-bottom:.9rem;}
-  .bc-ov-head p{color:var(--dim);line-height:1.6;max-width:40ch;margin:0 auto;}
-  .bc-close{position:fixed;top:clamp(1.25rem,4vw,2.5rem);right:clamp(1.25rem,4vw,2.5rem);
-    z-index:101;display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font);
-    font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-    padding:.6rem .9rem;background:var(--paper);color:var(--ink);border:1px solid var(--ink);
-    cursor:pointer;transition:background .15s,color .15s;}
-  .bc-close:hover{background:var(--ink);color:var(--paper);}
-  @media (prefers-reduced-motion:reduce){ .bc-overlay{transition:none!important;} }
-  @container (max-width:720px){
-    .trio{grid-template-columns:1fr!important;}
-    .trio>*{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
-    .trio>*:last-child{border-bottom:none!important;}
-  }
-  @container (max-width:640px){
-    .split{grid-template-columns:1fr!important;}
-    .split>*:first-child{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
-    .sechead{grid-template-columns:1fr!important;align-items:start!important;}
-    .quotes{grid-template-columns:1fr!important;}
-    .duo{grid-template-columns:1fr!important;}
-    .duo>*:first-child{border-right:none!important;border-bottom:1px solid var(--ink)!important;}
-    .bc-toggle{flex-wrap:wrap;gap:.75rem;}
-    .nav-links{order:3;flex:1 0 100%;gap:1.25rem;}
-  }
-
-  /* ---- offerings swipe ---- */
-  .off-head{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:end;
-    gap:1.4rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);}
-  .off-seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--ink);align-self:center;}
-  .off-seg button{font-family:var(--font);font-size:.72rem;font-weight:700;letter-spacing:.14em;
-    text-transform:uppercase;padding:.65rem 1.15rem;background:transparent;color:var(--dim);
-    border:none;cursor:pointer;transition:background .18s,color .18s;}
-  .off-seg button + button{border-left:1px solid var(--ink);}
-  .off-seg button[aria-selected="true"]{background:var(--ink);color:var(--paper);}
-  .off-viewport{overflow:hidden;touch-action:pan-y;transition:height .45s cubic-bezier(.4,0,.2,1);}
-  .off-track{display:flex;align-items:flex-start;transition:transform .45s cubic-bezier(.4,0,.2,1);will-change:transform;}
-  .off-track.dragging{transition:none;}
-  .off-panel{flex:0 0 100%;min-width:0;}
-  .off-intro{padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);
-    font-size:1.05rem;color:var(--dim);line-height:1.6;}
-  .off-panel .split>div:last-child{border-bottom:none;}
-
-  /* ---- testimonials scroller ---- */
-  .tscroll{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
-    -ms-overflow-style:none;border-bottom:1px solid var(--ink);cursor:grab;}
-  .tscroll::-webkit-scrollbar{display:none;}
-  .tscroll.dragging{cursor:grabbing;scroll-snap-type:none;}
-  .tcard{flex:0 0 min(82%,24rem);scroll-snap-align:start;background:var(--paper);
-    border-right:1px solid var(--hair);padding:var(--cell);display:flex;flex-direction:column;
-    gap:1rem;margin:0;user-select:none;}
-  .tprev,.tnext{display:inline-flex;align-items:center;justify-content:center;width:2.2rem;height:2.2rem;
-    border:1px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;
-    transition:background .18s,color .18s;}
-  .tprev:hover,.tnext:hover{background:var(--ink);color:var(--paper);}
-
-  /* ---- read-more expanders ---- */
-  .xp{overflow:hidden;max-height:0;opacity:0;transition:max-height .5s cubic-bezier(.4,0,.2,1),opacity .4s ease;}
-  .xp.open{opacity:1;}
-  .xp-grid{display:grid;gap:.9rem;}
-  .xp-btn{margin-top:1.2rem;display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font);
-    font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);
-    background:transparent;border:none;border-bottom:1px solid var(--ink);padding:.35rem 0;cursor:pointer;}
-  .xp-btn::after{content:"↓";font-size:.85rem;line-height:1;transition:transform .3s;}
-  .xp-btn.open::after{transform:rotate(180deg);}
-
-  /* ---- scroll-progress rail ---- */
-  .rail{position:fixed;top:0;right:0;bottom:0;width:3px;z-index:40;background:var(--hair);}
-  .rail-fill{position:absolute;top:0;left:0;width:100%;height:0;background:var(--amber);}
-  .rail-dot{position:absolute;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--paper);
-    border:1px solid var(--ink);transform:translateY(-50%);cursor:pointer;
-    transition:background .2s,transform .2s;}
-  .rail-dot::after{content:attr(data-label);position:absolute;right:16px;top:50%;transform:translateY(-50%);
-    white-space:nowrap;font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--ink);background:var(--paper);padding:.2rem .5rem;border:1px solid var(--hair);
-    opacity:0;pointer-events:none;transition:opacity .18s;}
-  .rail-dot:hover::after{opacity:1;}
-  .rail-dot.is-active{background:var(--amber);border-color:var(--amber);transform:translateY(-50%) scale(1.3);}
-  @media (max-width:820px){ .rail{display:none;} }
-  @container (max-width:640px){ .off-head{grid-template-columns:1fr;align-items:start;} .off-seg{justify-self:start;} }
-
-  /* ---- realisationhouse tooltip ---- */
-  .rh{position:relative;border-bottom:1px dotted currentColor;cursor:help;white-space:nowrap;transition:color .15s;}
-  .rh:hover,.rh:focus-visible,.rh.is-open{color:var(--ink);outline:none;}
-  .rh-tip{position:absolute;left:0;bottom:calc(100% + .65rem);z-index:30;width:min(21rem,82vw);
-    white-space:normal;background:var(--paper);color:var(--ink);border:1px solid var(--ink);
-    padding:.95rem 1.05rem;box-shadow:0 14px 34px -20px rgba(23,25,22,.55);
-    opacity:0;visibility:hidden;transform:translateY(5px);
-    transition:opacity .18s ease,transform .18s ease,visibility 0s .18s;
-    text-align:left;font-weight:400;font-size:.9rem;line-height:1.5;}
-  .rh:hover .rh-tip,.rh:focus-within .rh-tip,.rh.is-open .rh-tip{opacity:1;visibility:visible;transform:translateY(0);
-    transition:opacity .18s ease,transform .18s ease;}
-  .rh-hw{font-weight:700;color:var(--ink);}
-  .rh-pos{font-style:italic;font-weight:600;color:var(--amber);margin-left:.4rem;}
-  .rh-ipa{color:var(--soft);font-weight:400;margin-left:.45rem;font-size:.85rem;}
-  .rh-def{display:block;margin-top:.4rem;color:var(--dim);}
-
-  @container (max-width:640px){
-    .off-seg{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--ink);width:100%;}
-    .off-seg button{border-left:none;background:var(--paper);}
-    .off-seg button[aria-selected="true"]{background:var(--ink);}
-  }
-
-  /* ---- progressive focus blur (desktop): sharp centre, blur toward the edges ---- */
-  .focusblur{position:fixed;left:0;right:0;pointer-events:none;z-index:15;display:none;}
-  .focusblur > span{position:absolute;left:0;right:0;display:block;}
-  .fb-bot{bottom:0;height:clamp(130px,26vh,320px);}
-  .fb-bot > span{bottom:0;-webkit-mask-image:linear-gradient(to top,#000,transparent);mask-image:linear-gradient(to top,#000,transparent);}
-  .fl1{height:100%;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);}
-  .fl2{height:74%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
-  .fl3{height:50%;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);}
-  .fl4{height:28%;-webkit-backdrop-filter:blur(44px);backdrop-filter:blur(44px);}
-  @media (min-width:821px){.focusblur{display:block;}}
-  /* mobile: one lightweight blur layer instead of four (perf) */
-  @media (max-width:820px){
-    .focusblur{display:block;}
-    .fb-bot > .fl1, .fb-bot > .fl3, .fb-bot > .fl4{display:none;}
-    .fb-bot > .fl2{height:100%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
-  }
-  @media (prefers-reduced-motion:reduce){.focusblur{display:none!important;}}
-
-  /* ---- op-art motifs: subtle monochrome accents; multiply melts the white into the page ---- */
-  .opart-motif{display:block;width:clamp(80px,12cqi,120px);height:auto;margin:0 0 1.1rem;mix-blend-mode:multiply;}
-  .opart-motif.mr{margin-left:auto;margin-right:0;}
-  @media (min-width:1024px){.ob-lead{white-space:nowrap;}}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{background:#EFF1F4;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;}
+img{display:block;max-width:100%;}
+a{color:#171916;text-decoration:none;}
+a:hover{color:#5A4B7C;}
+::selection{background:#F2ECFF;color:#171916;}
+@keyframes bc-slide{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.bc-track{display:inline-flex;align-items:center;animation:bc-slide 46s linear infinite;}
+.bc-mq:hover .bc-track{animation-play-state:paused;}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}.bc-track{animation:none!important;}}
+  [data-vh]{transition:background .18s,color .18s,border-color .18s;}
+  [data-vh="ink"]:hover{background:#171916 !important;color:#FFFFFF !important;}
+  [data-vh="lav"]:hover{background:#F2ECFF !important;color:#171916 !important;}
 </style>
 </head>
 <body>
-<nav class="rail" aria-label="Section progress"><div class="rail-fill"></div></nav>
-<div class="shell" style="max-width:var(--shell);margin:0 auto;container-type:inline-size;min-height:100vh;">
+<div style="max-width:70rem;margin:0 auto;background:#FFFFFF;border-left:1px solid rgba(23,25,22,0.13);border-right:1px solid rgba(23,25,22,0.13);container-type:inline-size;min-height:100vh;">
 
-<nav style="display:flex;align-items:center;gap:1.7rem;flex-wrap:wrap;padding:1.15rem var(--pad);border-bottom:1px solid var(--ink);position:sticky;top:0;background:var(--paper);z-index:20;">
-  <div style="display:flex;align-items:baseline;column-gap:.8rem;row-gap:.15rem;flex-wrap:wrap;min-width:0;flex:1;"><span style="font-weight:800;font-size:.82rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span><span style="font-size:.62rem;font-weight:500;letter-spacing:.04em;color:var(--ink);">a realisationhouse for the curious</span></div>
-  <div class="nav-links" style="display:flex;gap:1.7rem;align-items:center;flex-wrap:wrap;">
-    <a class="nav-link" href="#orienting" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">About</a>
-    <a class="nav-link" href="#origin" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Story</a>
-    <a class="nav-link" href="#offerings" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Offerings</a>
-    <a class="nav-link" href="#ground" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Ground</a>
-    <a class="nav-link" href="#testimonials" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Testimonials</a>
-    <a class="nav-link" href="#vision" style="font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);">Vision</a>
+<nav style="position:sticky;top:0;background:rgba(255,255,255,0.93);backdrop-filter:blur(10px);z-index:20;border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div style="height:2px;background:rgba(23,25,22,0.07);"><div id="v4-progress" style="height:100%;width:0%;background:#5A4B7C;"></div></div>
+  <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;padding:1.05rem clamp(1.5rem,4.5cqi,3.5rem);">
+    <a href="#top" style="display:flex;flex-direction:column;gap:0.1rem;min-width:0;">
+      <span style="font-weight:800;font-size:0.82rem;letter-spacing:0.01em;text-transform:uppercase;">Beings Club</span>
+      <span id="v4-chapter" style="font-size:0.66rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#5A4B7C;">A realisationhouse</span>
+    </a>
+    <div style="display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap;margin-left:auto;">
+      <a href="#about" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">About</a>
+      <a href="#offerings" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Offerings</a>
+      <a href="#ground" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Ground</a>
+      <a href="#vision" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Vision</a>
+      <a href="#door" style="font-size:0.68rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid #171916;padding:0.55rem 1rem;" data-vh="ink">Join</a>
+    </div>
   </div>
-  <a class="nav-cta" href="#door" style="margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ink);padding:.55rem .95rem;">Take part</a>
 </nav>
 
-<header style="padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);overflow:hidden;">
-  <div style="max-width:64rem;margin:0 auto;">
-    <div id="bc-logo" role="img" aria-label="Beings Club" style="width:100%;"><img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;"></div>
+<header id="top" style="padding:clamp(3rem,7vh,4.5rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(3.5rem,9vh,5.5rem);border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div id="v4-logo" role="img" aria-label="Beings Club" style="max-width:58rem;margin:0 auto;line-height:0;">
+    <img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;" />
+  </div>
+  <div style="max-width:58rem;margin:clamp(1.6rem,4vh,2.4rem) auto 0;display:flex;justify-content:space-between;align-items:baseline;gap:1rem 2rem;flex-wrap:wrap;">
+    <span style="font-size:0.78rem;font-weight:500;color:#3F413D;letter-spacing:0.01em;">A realisationhouse for the curious</span>
+    <span id="v4-readtime" style="font-size:0.66rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Best read unhurried</span>
   </div>
 </header>
 
-<div class="bc-marquee" aria-hidden="true" style="overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--ink);background:var(--paper);color:var(--ink);">
-  <div class="bc-marquee-track">
-    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;"><span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">Curiosity social club</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">Meditation classes</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳︎</span></span>
-    <span style="display:inline-flex;align-items:center;padding:.6rem 0;font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;"><span style="padding:0 1.5rem;">Space to be</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">Curiosity social club</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">Meditation classes</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">For the benefit of all beings</span><span style="opacity:.4;">✳︎</span><span style="padding:0 1.5rem;">Where curious people meet</span><span style="opacity:.4;">✳︎</span></span>
+<div class="bc-mq" aria-hidden="true" style="overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(23,25,22,0.13);background:#FFFFFF;">
+  <div class="bc-track">
+    <span style="display:inline-flex;align-items:center;padding:0.7rem 0;font-size:0.66rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6E706B;"><span style="padding:0 1.6rem;">Space to be</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">Curiosity social club</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">Meditation classes</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">For the benefit of all beings</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">Where curious people meet</span><span style="color:#5A4B7C;">✳︎</span></span>
+    <span style="display:inline-flex;align-items:center;padding:0.7rem 0;font-size:0.66rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:#6E706B;"><span style="padding:0 1.6rem;">Space to be</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">Curiosity social club</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">Meditation classes</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">For the benefit of all beings</span><span style="color:#5A4B7C;">✳︎</span><span style="padding:0 1.6rem;">Where curious people meet</span><span style="color:#5A4B7C;">✳︎</span></span>
   </div>
 </div>
 
-<div style="border-bottom:1px solid var(--ink);background:var(--lav);">
-  <style>
-    .ann{display:flex;gap:1.1rem;align-items:baseline;padding:1rem 0;border-top:1px solid var(--hair);}
-    .ann-tag{flex:none;min-width:5.6rem;white-space:nowrap;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
-    .ann-txt{font-size:.95rem;line-height:1.55;color:var(--dim);letter-spacing:-.005em;}
-    .ann-txt strong{font-weight:700;color:var(--ink);}
-    @media (max-width:640px){.ann{flex-direction:column;gap:.3rem;}}
-  </style>
-  <button type="button" class="bc-toggle" aria-expanded="false" aria-controls="bc-panel" style="width:100%;display:flex;align-items:center;gap:1rem;padding:1.15rem var(--pad);background:transparent;border:none;font-family:var(--font);text-align:left;cursor:pointer;color:var(--ink);transition:background .15s;">
-    <span style="position:relative;display:inline-flex;flex:none;"><span class="bc-dot" style="width:9px;height:9px;border-radius:50%;background:var(--ink);animation:bc-pulse 2.6s ease-out infinite;"></span></span>
-    <span class="bc-toggle-text" style="flex:1;font-weight:600;font-size:clamp(.95rem,1.6cqi,1.08rem);letter-spacing:.02em;text-transform:uppercase;">Notice board</span>
-    <span class="bc-toggle-label" style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);white-space:nowrap;">View</span>
-    <svg class="bc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:var(--dim);transform:rotate(0deg);transition:transform .4s cubic-bezier(.4,0,.2,1);"><path d="M6 9l6 6 6-6"></path></svg>
-  </button>
-  <div id="bc-panel" class="bc-panel" style="overflow:hidden;max-height:0;opacity:0;transition:max-height .45s cubic-bezier(.4,0,.2,1),opacity .35s ease;">
-    <div style="padding:.35rem var(--pad) 1.4rem;">
-      <!-- Each .ann is one announcement bar. Duplicate a block to add another. -->
-      <div class="ann">
-        <span class="ann-tag">Next Sit</span>
-        <span class="ann-txt"><strong>Beyond Belief</strong> · 35-day experiment · from 16 Sept · £222</span>
-      </div>
-      <div class="ann">
-        <span class="ann-tag">Next Salon</span>
-        <span class="ann-txt"><strong><span class="salon-date">Sept 27</span></strong> · last Sunday of the month · <span class="salon-time">5:30pm UK</span></span>
-      </div>
-    </div>
-  </div>
+<div style="border-bottom:1px solid rgba(23,25,22,0.13);background:#F2ECFF;padding:1.4rem clamp(1.5rem,4.5cqi,3.5rem);display:grid;grid-template-columns:auto 1fr;gap:0.6rem 2.5rem;align-items:baseline;">
+  <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;grid-column:1/-1;">On the notice board</span>
+  <span style="font-size:0.66rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5A4B7C;white-space:nowrap;">Next Sit</span>
+  <span style="font-size:1rem;line-height:1.5;color:#3F413D;"><strong style="font-weight:700;color:#171916;">Beyond Belief</strong> — a 35-day experiment, from 16 September, £222</span>
+  <span style="font-size:0.66rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#5A4B7C;white-space:nowrap;">Next Salon</span>
+  <span style="font-size:1rem;line-height:1.5;color:#3F413D;"><strong style="font-weight:700;color:#171916;">Sunday 27 September</strong> — last Sunday of the month, 5:30pm UK</span>
 </div>
 
-<section id="orienting" style="scroll-margin-top:5.5rem;padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);">
-  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">About</div>
-  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:16ch;text-wrap:balance;">Beings Club is a <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">realisationhouse</span> for the curious.</h2>
-  <div style="margin-top:1.6rem;max-width:54ch;background:var(--slateW);border-left:3px solid var(--amber);padding:clamp(1.1rem,2.5vw,1.4rem) clamp(1.3rem,3vw,1.6rem);">
-    <div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:.35rem .8rem;margin-bottom:.55rem;">
-      <span style="font-weight:700;letter-spacing:-.01em;font-size:1.05rem;color:var(--ink);">realisationhouse</span>
-      <span style="font-size:.92rem;color:var(--soft);letter-spacing:.01em;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span>
-      <i style="font-style:italic;font-weight:600;color:var(--amber);font-size:.92rem;">n.</i>
+<section id="about" data-chapter="About" style="scroll-margin-top:6rem;padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div data-reveal="1" style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:1.6rem;">About</div>
+  <h2 data-reveal="1" style="font-weight:800;letter-spacing:-0.035em;line-height:0.98;font-size:clamp(2.2rem,6cqi,3.9rem);text-transform:uppercase;">Beings Club is a <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">realisationhouse</span> for the curious.</h2>
+  <div style="margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:start;">
+    <div data-reveal="1" style="display:grid;gap:1.3rem;">
+      <p style="max-width:30ch;font-size:clamp(1.3rem,2.8cqi,1.7rem);font-weight:500;letter-spacing:-0.02em;line-height:1.35;text-wrap:pretty;">We gather as the curious to realise what is possible — in ourselves, between us, and in the world.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Together we share two orienting principles. First: we hold each other as precious. Second: we stay curious.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Our offerings and practices are presented for you to experiment with and discover the reality of for yourself, and ask every participant to take responsibility as a form of care — for ourselves, each other, and the world.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Joining requires a discernment call and a mutual yes. Afterwards, you'll receive invitations to our Salons, Sits, and IRL Happenings.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#171916;font-weight:600;">Curious? Keep scrolling to find out more.</p>
     </div>
-    <p style="font-size:1.15rem;font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.45;">A social gathering place where contemplative practice is recognised as a means of realising new possibilities.</p>
-  </div>
-  <p class="ob-lead" style="margin-top:2rem;font-size:1.05rem;color:var(--ink);line-height:1.6;">At Beings Club we gather as the curious to realise what is possible — in ourselves, between us, and in the world.</p>
-  <div style="margin-top:1rem;max-width:82ch;display:grid;gap:1rem;">
-    <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">Together we share two orienting principles.</p>
-    <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">First: we hold each other as precious.<br>Second: we stay curious.</p>
-    <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">As a result, we approach contemplative practice with both curiosity and care.</p>
-    <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">Practices are presented for practitioners to experiment with and discover the reality of for themselves, and practised collectively as a form of care — for ourselves, each other, and the world.</p>
-    <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">Joining requires a discernment call and a mutual yes.</p>
-    <p style="font-size:1.05rem;color:var(--dim);line-height:1.6;">Afterwards, you'll receive invitations to our Salons, Sits, and IRL Happenings.</p>
-    <p style="font-size:1.05rem;color:var(--ink);font-weight:600;line-height:1.6;">Curious? Keep scrolling to find out more.</p>
+    <aside style="position:sticky;top:7rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
+      <img src="/assets/img/pastel-shapes.jpg" alt="Soft overlapping shapes of light" style="width:100%;aspect-ratio:4/5;object-fit:cover;display:block;" />
+      <div style="background:#EFF1F4;padding:1.4rem 1.6rem;">
+        <div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:0.3rem 0.7rem;margin-bottom:0.7rem;">
+          <span style="font-weight:700;font-size:1.05rem;letter-spacing:-0.01em;">realisationhouse</span>
+          <i style="font-style:italic;font-weight:600;font-size:0.9rem;color:#5A4B7C;">n.</i>
+        </div>
+        <div style="font-size:0.9rem;color:#6E706B;margin-bottom:0.6rem;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</div>
+        <p style="font-size:1rem;line-height:1.65;color:#3F413D;">A social gathering place where contemplative practice is recognised as a means of realising new possibilities.</p>
+      </div>
+    </aside>
   </div>
 </section>
 
-<section id="origin" style="scroll-margin-top:5.5rem;padding:var(--sy) var(--pad);border-bottom:1px solid var(--ink);">
-  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.1rem;">Story</div>
-  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;text-wrap:balance;">A space where curious<br>people meet to<br><span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">realise what's possible</span>.</h2>
-  <p style="margin-top:1.8rem;max-width:82ch;font-size:1.05rem;color:var(--ink);line-height:1.6;"><b>In the lineage of a tea house.</b></p>
-  <div class="xp"><p style="margin-top:.9rem;max-width:82ch;font-size:1.05rem;color:var(--dim);line-height:1.6;">Beings Club exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible. <br><br>Whilst the retreat schedule was truly valuable, I was drawn again and again to a little tea house and the conversations that could happen there – free from a prescribed topic or theme. <br><br>Beings Club is a <span class="rh" tabindex="0" role="button" aria-label="realisationhouse — definition">realisationhouse<span class="rh-tip" role="tooltip"><b class="rh-hw">realisationhouse</b><span class="rh-ipa">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span><i class="rh-pos">n.</i><span class="rh-def">A social gathering place where contemplative practice is recognised as a means of realising new possibilities.</span></span></span> in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine, a space for conversations of all kinds.</p>
-  <p style="margin-top:1.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p></div><button type="button" class="xp-btn" aria-expanded="false"><span class="xp-lbl">Read more</span></button>
+<figure style="margin:0;border-bottom:1px solid rgba(23,25,22,0.13);">
+  <img src="/assets/img/field-rings.jpg" alt="A figure standing before concentric rings of light in a field" style="width:100%;height:clamp(20rem,52vh,34rem);object-fit:cover;object-position:center 62%;display:block;" />
+  <figcaption style="padding:0.8rem clamp(1.5rem,4.5cqi,3.5rem);font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;border-top:1px solid rgba(23,25,22,0.13);">Realising what is possible</figcaption>
+</figure>
+
+<section id="story" data-chapter="Story" style="scroll-margin-top:6rem;padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div data-reveal="1" style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:1.4rem;">Story</div>
+  <h2 data-reveal="1" style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.9rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">In the lineage of a tea house.</h2>
+  <div style="margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:start;">
+    <div data-reveal="1" style="display:grid;gap:1.3rem;">
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Beings Club exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Whilst the retreat schedule was truly valuable, I was drawn again and again to a little tea house and the conversations that could happen there — free from a prescribed topic or theme.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Beings Club is a realisationhouse in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine, a space for conversations of all kinds.</p>
+      <p style="font-size:0.95rem;font-weight:600;color:#171916;">— John</p>
+    </div>
+    <aside style="position:sticky;top:7rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
+      <img src="/assets/img/tree-gathering.jpg" alt="People gathered under a tree at sunset" style="width:100%;aspect-ratio:4/5;object-fit:cover;display:block;" />
+      <div style="border-top:1px solid rgba(23,25,22,0.13);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">A lineage of feeling, not a body of doctrine.</p>
+      </div>
+    </aside>
+  </div>
 </section>
 
-<section id="offerings" style="scroll-margin-top:5.5rem;border-bottom:1px solid var(--ink);">
-  <div class="off-head">
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;">Offerings</h2>
-    <div class="off-seg" role="tablist" aria-label="Choose an offering">
-      <button type="button" role="tab" aria-selected="true" data-off="salons">Salons</button>
-      <button type="button" role="tab" aria-selected="false" data-off="sits">Sits</button>
-    </div>
+<section id="offerings" data-chapter="Offerings" style="scroll-margin-top:6rem;border-bottom:1px solid #171916;">
+  <div style="padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(2.2rem,6cqi,4rem);text-transform:uppercase;">Offerings</h2>
+    <p style="font-size:1.0625rem;line-height:1.7;color:#3F413D;max-width:44ch;"><strong style="font-weight:600;color:#171916;">Every Salon begins with meditation.</strong><br />Sits are offered for those who want to go deeper.</p>
   </div>
 
-  <div class="off-viewport">
-    <div class="off-track">
+  <div style="border-top:1px solid rgba(23,25,22,0.13);padding:clamp(2rem,4.5cqi,3rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(2rem,4.5cqi,2.6rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:start;">
+    <div style="display:grid;gap:1.2rem;align-content:start;">
+      <div style="display:flex;align-items:baseline;gap:0.8rem;flex-wrap:wrap;">
+        <h3 style="font-weight:800;font-size:1.6rem;letter-spacing:-0.025em;text-transform:uppercase;">Salons</h3>
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;">The classic format</span>
+      </div>
+      <p style="font-size:clamp(1.2rem,2.4cqi,1.45rem);font-weight:500;letter-spacing:-0.015em;line-height:1.4;color:#171916;">Space to connect — to oneself, to each other, and to what is possible.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together. The form stays reliable so that what happens inside it can be free.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">You don't need to prepare anything. You don't need to have it figured out. Come as you are, and see what happens.</p>
+      <div style="margin-top:0.3rem;"><a href="#door" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;" data-vh="lav">Join the next one <span aria-hidden="true">→</span></a></div>
+    </div>
+    <figure style="margin:0;display:grid;gap:0.7rem;max-width:22rem;justify-self:end;">
+      <img src="/assets/img/ripples.jpg" alt="Footsteps at the water's edge, ripples spreading outward" style="width:100%;display:block;" />
+      <figcaption style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;">Last Sunday of the month</figcaption>
+    </figure>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:rgba(23,25,22,0.13);border-top:1px solid rgba(23,25,22,0.13);">
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Duration</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">About two hours</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Rhythm</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Last Sunday monthly</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Time</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">5:30pm UK</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Where</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Online, from anywhere</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Cost</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Pay what you can</div></div>
+  </div>
 
-      <div class="off-panel" data-panel="salons">
-        <p class="off-intro">Salons are Beings Club's classic format — where curiosity connects.</p>
-        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;align-items:start;">
-          <div style="padding:var(--cell);border-right:1px solid var(--ink);display:grid;gap:1.2rem;align-content:start;">
-            <p style="color:var(--ink);font-weight:600;letter-spacing:-.01em;line-height:1.5;max-width:82ch;">Space to connect — to oneself, to each other, and to what is possible.</p>
-            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">Salons have a simple format: a period of individual practice held in a shared field, time for breakout conversations, and a closing that brings everyone back together.</p>
-            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">The form stays reliable so that what happens inside it can be free.</p>
-            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">You don't need to prepare anything. You don't need to have it figured out.</p>
-            <p style="color:var(--ink);font-weight:600;line-height:1.65;max-width:82ch;">Come as you are, and see what happens.</p>
-          </div>
-          <div style="padding:var(--cell);background:var(--slateW);">
-            <div style="display:flex;flex-direction:column;gap:1.2rem;">
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Duration</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">About two hours</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Rhythm</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Last Sunday of the month</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div class="salon-time" style="font-weight:600;font-size:.95rem;letter-spacing:-.01em;">5:30pm UK</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Offered on a pay-what-you-can basis</div></div>
-              </div>
-          </div>
+  <div style="border-top:1px solid rgba(23,25,22,0.13);padding:clamp(2rem,4.5cqi,3rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(2rem,4.5cqi,2.6rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:start;">
+    <div style="display:grid;gap:1.2rem;align-content:start;">
+      <div style="display:flex;align-items:baseline;gap:0.8rem;flex-wrap:wrap;">
+        <h3 style="font-weight:800;font-size:1.6rem;letter-spacing:-0.025em;text-transform:uppercase;">Sits</h3>
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">First cohort open</span>
+      </div>
+      <p style="font-size:clamp(1.35rem,3cqi,1.85rem);font-weight:700;letter-spacing:-0.025em;line-height:1.15;">Beyond Belief: <span style="color:#6E706B;font-weight:600;">The Art of Trusting Yourself</span></p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">A way into a meditation practice, a deeper sense of trust, and a more embodied life. Each week takes up one of five principles — <strong style="font-weight:600;color:#171916;">curiosity, care, responsibility, play, and rest</strong> — as lenses to sit through, not ideas to believe. We meet live on Wednesday evenings, and you're paired with a different fellow sitter each week.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Not a course you attend — a 35-day experiment. We sit every day we can, each in our own room and our own hour, knowing nine others are sitting the same days with the same principle. No required length; five minutes on a hard day is a real sit, not a failed one. Missed days are expected — beginning again is the practice.</p>
+      <div style="margin-top:0.3rem;"><a href="/beyondbelief" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;" data-vh="lav">Learn more <span aria-hidden="true">→</span></a></div>
+    </div>
+    <figure style="margin:0;display:grid;gap:0.7rem;max-width:22rem;justify-self:end;">
+      <img src="/assets/img/beyond-belief-cover.jpg" alt="Beyond Belief: The Art of Trusting Yourself — course cover" style="width:100%;display:block;" />
+      <figcaption style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;">Beyond Belief · a 35-day experiment</figcaption>
+    </figure>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:rgba(23,25,22,0.13);border-top:1px solid rgba(23,25,22,0.13);">
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Format</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">35 days · six meetings</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Dates</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Wednesdays, 16 Sep – 21 Oct</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Time</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">6:30–7:45pm UK</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Where</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Online, from anywhere</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Places</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Ten</div></div>
+    <div style="background:#EFF1F4;padding:1.15rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.3rem;">Cost</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">£222</div></div>
+  </div>
+</section>
+
+<section id="ground" data-chapter="Shared ground" style="scroll-margin-top:6rem;border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div style="padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(2.2rem,6cqi,4rem);text-transform:uppercase;">Shared<br />ground</h2>
+    <p style="font-size:1.0625rem;line-height:1.7;color:#3F413D;max-width:40ch;">What makes Beings Club possible.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));border-top:1px solid rgba(23,25,22,0.13);">
+    <div data-reveal="1" style="padding:clamp(1.8rem,3.5cqi,2.6rem) clamp(1.5rem,4.5cqi,3.5rem);display:grid;gap:1rem;align-content:start;">
+      <img src="/assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:clamp(72px,10cqi,104px);height:auto;mix-blend-mode:multiply;margin-bottom:0.4rem;" />
+      <div style="display:flex;align-items:baseline;gap:0.7rem;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">01</span>
+        <h3 style="font-weight:700;font-size:1.25rem;letter-spacing:-0.02em;">We hold each other as precious</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.7;color:#171916;font-weight:600;max-width:44ch;">Each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;max-width:50ch;text-wrap:pretty;">This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;max-width:50ch;text-wrap:pretty;">This is held sacred, and it is why everything else is free to change. It frames how we meet each other <i>and</i> how we meet ourselves.</p>
+      <p style="font-size:1.0625rem;line-height:1.7;color:#171916;font-weight:600;">We are beings, together.</p>
+    </div>
+    <div data-reveal="1" style="padding:clamp(1.8rem,3.5cqi,2.6rem) clamp(1.5rem,4.5cqi,3.5rem);display:grid;gap:1rem;align-content:start;border-left:1px solid rgba(23,25,22,0.13);">
+      <img src="/assets/opart/stillness.png" alt="" aria-hidden="true" style="width:clamp(72px,10cqi,104px);height:auto;mix-blend-mode:multiply;margin-bottom:0.4rem;" />
+      <div style="display:flex;align-items:baseline;gap:0.7rem;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">02</span>
+        <h3 style="font-weight:700;font-size:1.25rem;letter-spacing:-0.02em;">Curiosity connects</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.7;color:#171916;font-weight:600;max-width:44ch;">We define curiosity as “an orientation to experience that is open to discovery”.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;max-width:50ch;text-wrap:pretty;">Practised in this way, we create the conditions for the discovery of connection — to ourselves, to each other, and to what is possible.</p>
+      <p style="font-size:1.0625rem;line-height:1.75;color:#3F413D;max-width:50ch;text-wrap:pretty;">We can meet whatever arises with curiosity, inclusive of any conflict or tension. We can even be curious about whether we should be curious at all.</p>
+      <p style="font-size:1.0625rem;line-height:1.7;color:#171916;font-weight:600;">Stay curious.</p>
+    </div>
+  </div>
+</section>
+
+<section style="border-bottom:1px solid rgba(23,25,22,0.13);background:#F2ECFF;padding:clamp(3rem,7vh,4.5rem) clamp(1.5rem,4.5cqi,3.5rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:center;">
+  <figure style="margin:0;display:grid;gap:0.7rem;max-width:24rem;">
+    <img src="/assets/img/water-arch.jpg" alt="A rainbow arch standing open above still water" style="width:100%;display:block;" />
+  </figure>
+  <p style="font-weight:800;letter-spacing:-0.03em;line-height:1.08;font-size:clamp(1.5rem,3.6cqi,2.4rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">The moment you stop treating the edge of the possible as fixed, reality reveals its <span style="-webkit-text-stroke:1.3px #171916;color:transparent;">true nature</span>.</p>
+</section>
+
+<section id="testimonials" data-chapter="Field notes" style="scroll-margin-top:6rem;padding:clamp(4.5rem,10vh,7rem) clamp(1.5rem,4.5cqi,3.5rem);background:#F7F6F3;color:#171916;border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;margin-bottom:2.6rem;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(2rem,5cqi,3.2rem);text-transform:uppercase;">Field notes</h2>
+    <p style="font-size:1.0625rem;line-height:1.7;color:#3F413D;max-width:40ch;">Words from those who've spent time at Beings Club.</p>
+  </div>
+  <div style="columns:3 16rem;column-gap:1.4rem;">
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“A space to slow down, reflect together, and make sense of things out loud.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Ana C · Designer</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“90 minutes of nothing in particular could fly by and also be so energizing.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Mark F · Product</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“Genuine encounters with people whose timelines wouldn't typically intersect with mine.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Zak EF · Engineer-philosopher</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“Beings Club became my Sunday ritual.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Sean P · Founder, tbd.zip</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“I have had several experiences of being seen, heard, and held.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Manansh S · Founder</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“It was amazing. I found genuine connection on each call.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Catra · Contributor, HIGHER</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“It feels like a kind of therapy — really enriching to discover new ways of thinking.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Victor · Brands &amp; Design</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“I'm so so grateful this space exists.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Jordan N · Designer &amp; Creative Director</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“Highly recommend it to anyone who's curious but on the fence.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">Esme · Joy Seeker, esmemadethis.com</figcaption>
+    </figure>
+    <figure style="break-inside:avoid;margin:0 0 1.4rem;display:grid;gap:0.65rem;padding:1.35rem 1.5rem;background:#FFFFFF;border-top:1px solid rgba(23,25,22,0.12);">
+      <blockquote style="font-size:1.05rem;line-height:1.6;letter-spacing:-0.01em;color:#171916;">“I leave every time feeling more human, more like a being.”</blockquote>
+      <figcaption style="font-size:0.64rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6E706B;">The Dude</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="vision" data-chapter="Vision" style="scroll-margin-top:6rem;padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div data-reveal="1" style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:1.4rem;">Vision</div>
+  <h2 data-reveal="1" style="font-weight:800;letter-spacing:-0.035em;line-height:0.98;font-size:clamp(2.1rem,5.6cqi,3.6rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">A micro-culture of <span style="-webkit-text-stroke:1.4px #171916;color:transparent;">creative realisation</span>, in service of life's flourishing.</h2>
+  <div style="margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:start;">
+    <div data-reveal="1" style="display:grid;gap:1.3rem;">
+      <p style="font-size:1.3rem;font-weight:500;letter-spacing:-0.015em;line-height:1.5;color:#171916;text-wrap:pretty;">Creativity is only ever limited by our sense of what's possible — and that sense is not fixed. It grows, or it shrinks, depending on the company we keep.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Beings Club is a space built to let it grow. When people hold each other as precious and stay curious, the edge of what feels possible starts to move — and once it moves, we find new ways to reach toward it. That's how the future arrives: not waiting ahead of us, but showing up wherever people make room for it.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">We hope this won't be the only such room. We imagine realisationhouses becoming ordinary and widespread, each with its own atmosphere and its own way of gathering — enough of them to change what a culture believes it can do.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Curiosity is the ground it all rests on, and it asks to be practised. Sitting is simply curiosity turned inward — the same attention we bring to each other, offered to ourselves. Not something to believe in; something to play with and discover the reality of for yourself.</p>
+    </div>
+    <aside style="position:sticky;top:7rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
+      <img src="/assets/img/vessel.jpg" alt="A vessel rippling with interference patterns" style="width:100%;aspect-ratio:4/5;object-fit:cover;display:block;" />
+      <div style="border-top:1px solid rgba(23,25,22,0.13);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">What's at stake</span>
+        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">Whether we can share a planet without tearing it, or each other, apart — and find some joy in the company while we do.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section style="padding:clamp(3.5rem,9vh,5rem) clamp(1.5rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(23,25,22,0.13);background:#F2ECFF;">
+  <p style="font-weight:800;letter-spacing:-0.03em;line-height:1.08;font-size:clamp(1.5rem,4cqi,2.5rem);text-transform:uppercase;max-width:26ch;text-wrap:balance;">What unfolds is unplanned, ordinary, and <span style="-webkit-text-stroke:1.3px #171916;color:transparent;white-space:nowrap;">sometimes&nbsp;magic</span>.</p>
+</section>
+
+<section data-chapter="A note from John" style="padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div data-reveal="1" style="font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:1.4rem;">A note from John</div>
+  <h2 data-reveal="1" style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.9rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;">We do this together.</h2>
+  <div style="margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:clamp(2rem,5cqi,4rem);align-items:start;">
+    <div data-reveal="1" style="display:grid;gap:1.3rem;">
+      <p style="font-size:1.3rem;font-weight:500;letter-spacing:-0.015em;line-height:1.5;color:#171916;">I'll be honest about why Beings Club exists.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">There's a more beautiful world our hearts know is possible. And to realise it, we're asked to be the ones who can live in it.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">It isn't a thing that one person can build and others will visit. It only happens as we live it together — which means it only happens if you're part of it.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">Beings Club is held and designed to be a place where we can live it together. Salons are for meeting each other with genuine curiosity and care across difference. Sits are for deepening our own capacity to meet every moment with heart and strength.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#3F413D;text-wrap:pretty;">So this isn't an invitation in the usual sense. I'm not offering you something finished. I'm inviting you into something that doesn't exist without you, and asking you to help make it real.</p>
+      <p style="font-size:1.125rem;line-height:1.75;color:#171916;font-weight:600;">We do this together, or it doesn't happen.</p>
+      <p style="font-size:0.95rem;font-weight:600;color:#171916;">— John</p>
+    </div>
+    <aside style="position:sticky;top:7rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
+      <img src="/assets/img/walking.jpg" alt="Two figures walking together, contours spreading behind them" style="width:100%;aspect-ratio:4/5;object-fit:cover;display:block;" />
+      <div style="border-top:1px solid rgba(23,25,22,0.13);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <span style="font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">The invitation</span>
+        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">Something that doesn't exist without you.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="door" data-chapter="The door" style="scroll-margin-top:6rem;border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div style="padding:clamp(4rem,9vh,6rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(2rem,4vh,2.6rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(2.2rem,6cqi,4rem);text-transform:uppercase;">This is<br />the door</h2>
+    <p style="font-size:1.0625rem;line-height:1.7;color:#3F413D;max-width:40ch;">Register your interest in any of our offerings. There's no obligation, and nothing is automated.</p>
+  </div>
+
+  <form id="v4-form" novalidate style="border-top:1px solid rgba(23,25,22,0.13);padding:clamp(2rem,4.5cqi,3rem) clamp(1.5rem,4.5cqi,3.5rem) clamp(3rem,7vh,4rem);background:#FFF7EE;">
+    <div style="max-width:34rem;display:grid;gap:1.4rem;">
+      <div>
+        <span style="display:block;font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.6rem;">I'm interested in</span>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button type="button" data-toggle="salons" style="display:inline-flex;align-items:center;gap:0.55rem;border:1px solid #171916;padding:0.7rem 1.2rem;cursor:pointer;font-family:inherit;font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:transparent;color:#171916;"><span style="width:9px;height:9px;border:1px solid currentColor;background:transparent;"></span>Salons</button>
+          <button type="button" data-toggle="sits" style="display:inline-flex;align-items:center;gap:0.55rem;border:1px solid #171916;padding:0.7rem 1.2rem;cursor:pointer;font-family:inherit;font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;background:transparent;color:#171916;"><span style="width:9px;height:9px;border:1px solid currentColor;background:transparent;"></span>Sits</button>
         </div>
       </div>
-
-      <div class="off-panel" data-panel="sits">
-        <p class="off-intro">Sits are Beings Club's meditation classes — and the first series is open.</p>
-        <div class="split" style="display:grid;grid-template-columns:1.6fr 1fr;align-items:start;">
-          <div style="padding:var(--cell);border-right:1px solid var(--ink);display:grid;gap:1.2rem;align-content:start;">
-            <div style="font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">A 35-day experiment</div>
-            <p style="color:var(--ink);font-weight:700;letter-spacing:-.02em;font-size:clamp(1.4rem,3.4cqi,2.1rem);line-height:1.1;max-width:82ch;">Beyond Belief: <span style="color:var(--dim);font-weight:600;">The Art of Trusting Yourself</span></p>
-            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">A way into a meditation practice, a deeper sense of trust, and a more embodied life — built on five principles: <strong style="color:var(--ink);font-weight:600;">curiosity, care, responsibility, play, and rest.</strong></p>
-            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">Ten of us sit daily for just over a month, and gather live six Wednesday evenings — five principles and a closing. Each week you're paired with a new practice partner.</p>
-            <p style="color:var(--dim);line-height:1.65;max-width:82ch;">By the end, you'll walk away with a meditation practice and a lighter, more open way of meeting whatever life throws at you.</p>
-            <p style="color:var(--ink);font-weight:600;line-height:1.55;max-width:82ch;">Six Wednesdays, 16 September – 21 October 2026 · 6:30–7:45pm UK · ten places · £222.</p>
-            <div><a class="btn-ink" href="/beyondbelief" style="display:inline-flex;align-items:center;gap:.7rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;padding:.9rem 1.7rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Learn more <span aria-hidden="true">→</span></a></div>
-          </div>
-          <div style="padding:var(--cell);background:var(--slateW);">
-            <div style="display:flex;flex-direction:column;gap:1.2rem;">
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Format</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">35 days · six gatherings</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Dates</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Six Wednesdays, 16 Sep – 21 Oct 2026</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Time</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">6:30–7:45pm UK</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Where</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Online — join from anywhere</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Places</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">Ten</div></div>
-                <div><div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Cost</div><div style="font-weight:600;font-size:1rem;letter-spacing:-.01em;">£222</div></div>
-              </div>
-          </div>
-        </div>
+      <div>
+        <label for="bc-name" style="display:block;font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.5rem;">Your name</label>
+        <input id="bc-name" name="name" type="text" placeholder="What shall we call you?" autocomplete="name" style="width:100%;border:1px solid #171916;background:#FFFFFF;padding:0.85rem 1rem;font-family:inherit;font-size:0.95rem;color:#171916;outline:none;" />
       </div>
-
-    </div>
-  </div>
-  <p class="off-intro" style="border-top:1px solid var(--ink);border-bottom:none;"><strong style="color:var(--ink);font-weight:600;">Every Salon begins with meditation.</strong> Sits are offered for those who want to go deeper.</p>
-</section>
-
-<img class="opart-motif mr" src="assets/opart/ground.png" alt="" aria-hidden="true" style="margin:var(--sy) var(--pad) 1.3rem auto;">
-<div id="ground" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:0 var(--pad) clamp(1.4rem,3.5vh,2rem);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">SHARED GROUND</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">What makes Beings Club possible.</p>
-</div>
-
-<div>
-
-<div class="trio" style="display:grid;grid-template-columns:repeat(2,1fr);border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell);">
-    <img class="opart-motif" src="assets/opart/interdependence.png" alt="" aria-hidden="true">
-    <div style="font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--amber);margin-bottom:.6rem;">1.</div>
-    <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">We hold each other as precious</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care.</b><br><br>This posture does not ask that you erase yourself. It asks you to extend care in every direction. Your own life is precious on the same terms.<br><br>This is held sacred, and it is why everything else is free to change. It frames how we meet each other <i>and</i> how we meet ourselves.<br><br>We are beings, together.</p>
-  </div>
-  <div style="padding:var(--cell);">
-    <img class="opart-motif" src="assets/opart/stillness.png" alt="" aria-hidden="true">
-    <div style="font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--amber);margin-bottom:.6rem;">2.</div>
-    <h3 style="margin:0 0 .7rem;font-weight:700;font-size:1.25rem;letter-spacing:-.02em;">Curiosity connects</h3>
-    <p style="font-size:.92rem;color:var(--dim);line-height:1.6;"><b>Beings Club defines curiosity as "an orientation to experience that is open to discovery". <br></b><br>Practiced in this way, we create the conditions for the discovery of connection – to ourselves, to each other, and to what is possible.<br><br>We can meet whatever arises with curiosity, inclusive of any conflict or tension. We can even be curious about if we should be curious at all.<br><br>Stay curious.</p>
-  </div>
-</div>
-</div>
-
-<div id="testimonials" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">Testimonials</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Curious people love Beings Club.</p>
-</div>
-
-<div>
-<div style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);display:flex;justify-content:space-between;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;"><p style="font-size:1.05rem;color:var(--dim);line-height:1.6;max-width:60ch;">Words from those who’ve spent time at Beings Club.</p><div style="display:flex;gap:.5rem;flex:none;"><button type="button" class="tprev" aria-label="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></button><button type="button" class="tnext" aria-label="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></button></div></div>
-<div class="tscroll">
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"A space to slow down, reflect together, and make sense of things out loud."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Ana C · Designer</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"90 minutes of nothing in particular could fly by and also be so energizing."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Mark F · Product</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Genuine encounters with people whose timelines wouldn't typically intersect with mine."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Zak EF · Engineer-philosopher</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Beings Club became my Sunday ritual."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Sean P · Founder, tbd.zip</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I have had several experiences of being seen, heard, and held."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Manansh S · Founder</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"It was amazing. I found genuine connection on each call."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Catra · Contributor, HIGHER</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"It feels like a kind of therapy — really enriching to discover new ways of thinking."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Victor · Brands &amp; Design</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I'm so so grateful this space exists."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Jordan N · Designer &amp; Creative Director</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"Highly recommend it to anyone who's curious but on the fence."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">Esme · Joy Seeker, esmemadethis.com</figcaption>
-  </figure>
-    <figure class="tcard">
-    <blockquote style="margin:0;font-size:1.05rem;font-style:italic;line-height:1.5;letter-spacing:-.01em;">"I leave every time feeling more human, more like a being."</blockquote>
-    <figcaption style="font-size:.62rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);">The Dude</figcaption>
-  </figure>
-  </div>
-</div>
-
-<section style="padding:clamp(3rem,9vh,5.5rem) var(--pad);border-bottom:1px solid var(--ink);text-align:center;background:var(--lav);">
-  <p style="font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(1.6rem,4.5cqi,3rem);text-transform:uppercase;max-width:20ch;margin:0 auto;">The moment you stop treating the edge of the possible as fixed, reality reveals its <span style="-webkit-text-stroke:1.4px var(--ink);color:transparent;">true nature</span>.</p>
-</section>
-
-<section id="vision" style="scroll-margin-top:5.5rem;padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
-  <img class="opart-motif mr" src="assets/opart/spacious.png" alt="" aria-hidden="true" style="margin-top:-.5rem;">
-  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">Vision</div>
-  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:22ch;">A micro-culture of <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">creative realisation</span>, in service of life's flourishing.</h2>
-  <div style="margin-top:2rem;display:grid;grid-template-columns:1fr;gap:1.05rem;max-width:82ch;">
-    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">Creativity is only ever limited by our sense of what's possible. And that sense — how much we believe can happen — is not fixed. It grows, or it shrinks, depending on the company we keep and the spaces we spend our time in.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">Beings Club is a space built to let it grow. When people meet with real curiosity, genuine care, and a shared sense of responsibility, the edge of what feels possible starts to move — and once it moves, we find new ways to reach toward it.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">This is how the future actually arrives. The world where we meet across our differences and make something beautiful of them isn't waiting somewhere ahead of us; it shows up wherever people recognise it as possible and make space for it to happen. Beings Club is one of those spaces. We hope it won't be the only one — we imagine realisationhouses becoming ordinary and widespread, each with its own way of gathering, each grounded in contemplative practice. That's what we'll need to create true networks, communities, and fields of realisation.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">Because that's the ground it all rests on. A space full of open, generous attention doesn't appear by itself. It's made by people who have practised meeting their own experience without flinching — who can stay present when a conversation gets real, and kind when it gets hard. So we sit. Not to escape our lives or reach some special state, but to become more available: to ourselves, to each other, and to whatever a moment is actually offering. The practice is simple, and the aim is ordinary — to be here, on purpose, with care. Everything else grows from that.</p>
-  </div>
-</section>
-
-<section style="padding:clamp(3rem,9vh,5.5rem) var(--pad);border-bottom:1px solid var(--ink);text-align:center;background:var(--lav);">
-  <p style="font-weight:800;letter-spacing:-.03em;line-height:1.05;font-size:clamp(1.5rem,4.2cqi,2.8rem);text-transform:uppercase;max-width:22ch;margin:0 auto;">What unfolds is unplanned, ordinary, and <span style="-webkit-text-stroke:1.4px var(--ink);color:transparent;white-space:nowrap;">sometimes&nbsp;magic</span>.</p>
-</section>
-
-<section style="padding:clamp(3.5rem,10vh,6rem) var(--pad);border-bottom:1px solid var(--ink);">
-  <div style="font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--soft);margin-bottom:1.3rem;">A note from John</div>
-  <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.98;font-size:clamp(2rem,7.5cqi,5rem);text-transform:uppercase;max-width:20ch;">We do this <span style="-webkit-text-stroke:1.5px var(--ink);color:transparent;">together</span>.</h2>
-  <div style="margin-top:2rem;display:grid;gap:.9rem;max-width:82ch;">
-    <p style="font-size:1.05rem;color:var(--ink);line-height:1.6;">I'll be honest about why Beings Club exists.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">There's a more beautiful world our hearts know is possible. And to realise it, we're asked to be the ones who can live in it.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">It isn't a thing that one person can build and others will visit. It only happens as we live it together — which means it only happens if you're part of it.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">Beings Club is held and designed to be a place where we can live it together. Salons are for meeting each other with genuine curiosity and care across difference. Sits are for deepening our own capacity to meet every moment with heart and strength.</p>
-    <p style="font-size:1rem;color:var(--dim);line-height:1.65;">So this isn't an invitation in the usual sense. I'm not offering you something finished. I'm inviting you into something that doesn't exist without you, and asking you to help make it real.</p>
-    <p style="font-size:1.05rem;color:var(--ink);font-weight:600;line-height:1.6;">We do this together, or it doesn't happen.</p>
-    <p style="margin-top:.3rem;font-size:.95rem;font-weight:600;color:var(--ink);">— John</p>
-  </div>
-</section>
-
-<div id="door" class="sechead" style="scroll-margin-top:5.5rem;display:grid;grid-template-columns:1fr 1.6fr;align-items:end;gap:1.5rem;padding:var(--sy) var(--pad) clamp(1.4rem,3.5vh,2rem);border-bottom:1px solid var(--ink);">
-  <div>
-    <h2 style="font-weight:800;letter-spacing:-.035em;line-height:.9;font-size:clamp(2.4rem,7.5cqi,4.75rem);text-transform:uppercase;white-space:nowrap;">THE DOOR</h2>
-  </div>
-  <p style="font-size:clamp(1rem,1.7cqi,1.15rem);font-weight:500;letter-spacing:-.01em;line-height:1.45;max-width:34ch;justify-self:end;text-align:right;">Enter here.</p>
-</div>
-
-<div>
-<p style="padding:clamp(1.4rem,3.5vh,2rem) var(--pad);border-bottom:1px solid var(--ink);font-size:1.05rem;color:var(--dim);line-height:1.6;">Why else would you scroll this far down?</p>
-<section style="padding:clamp(4rem,10vh,7rem) var(--pad);text-align:center;border-bottom:1px solid var(--ink);background:var(--amberW);">
-  <h2 style="margin:0 0 1.3rem;font-weight:800;letter-spacing:-.035em;line-height:1;font-size:clamp(2.6rem,8.5cqi,5rem);text-transform:uppercase;">THIS IS THE DOOR</h2>
-  <p style="max-width:46ch;margin:0 auto 2.8rem;color:var(--dim);font-size:1.1rem;line-height:1.6;">Register your interest in any of our offerings.</p>
-  <button class="btn-ink" id="bc-open" type="button" style="display:inline-flex;align-items:center;gap:.9rem;font-family:var(--font);font-weight:700;font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;padding:1.25rem 2.6rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;">Leave us a note<span>→</span></button>
-</section>
-</div>
-
-<section class="duo" style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--ink);">
-  <div style="padding:var(--cell) var(--cell) var(--cell) var(--pad);border-right:1px solid var(--ink);">
-    <h3 style="font-weight:700;font-size:1.3rem;letter-spacing:-.02em;margin-bottom:.6rem;">Wonderfool</h3>
-    <p style="color:var(--dim);font-size:.95rem;line-height:1.6;">Letters on being, every 1st and 3rd Tuesday. Written by John — the same voice that hosts the room.</p>
-  </div>
-  <div style="padding:var(--cell);display:flex;align-items:center;">
-    <form action="https://wonderfool.substack.com/subscribe" method="get" target="_blank" style="display:flex;width:100%;border:1px solid var(--ink);">
-      <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required="" style="flex:1;border:none;outline:none;padding:.9rem 1rem;font-family:var(--font);font-size:.9rem;background:transparent;color:var(--ink);min-width:0;">
-      <button class="btn-ink" type="submit" style="border:none;border-left:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:.9rem 1.4rem;font-family:var(--font);font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;">Subscribe</button>
-    </form>
-  </div>
-</section>
-
-<footer style="padding:clamp(2.25rem,5vh,3.25rem) var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-  <span style="font-weight:800;font-size:.8rem;letter-spacing:-.01em;text-transform:uppercase;">Beings Club</span>
-  <span style="font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);">For the benefit of all beings</span>
-  <div style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
-    <a class="social" href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:var(--dim);">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
-    </a>
-    <a class="social" href="https://x.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on X" style="display:inline-flex;color:var(--dim);">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg>
-    </a>
-    <a class="social" href="mailto:john@spacetobe.xyz" style="display:inline-flex;color:var(--dim);font-size:.68rem;font-weight:600;letter-spacing:.04em;">john@spacetobe.xyz</a>
-  </div>
-</footer>
-
-</div>
-
-<div class="focusblur fb-bot" aria-hidden="true"><span class="fl1"></span><span class="fl2"></span><span class="fl3"></span><span class="fl4"></span></div>
-
-<div class="bc-overlay" id="bc-overlay" role="dialog" aria-modal="true" aria-labelledby="bc-ov-title">
-  <button class="bc-close" id="bc-close" type="button" aria-label="Close">Close <span aria-hidden="true">✕</span></button>
-  <div class="bc-ov-inner">
-    <div class="bc-ov-head">
-      <h2 id="bc-ov-title">Leave us a note</h2>
-      <p>Tell us what you're drawn to and we'll be in touch. There's no obligation, and nothing is automated.</p>
-    </div>
-  <form id="bc-note" novalidate="" style="max-width:34rem;margin:0 auto;text-align:left;">
-    <div class="bc-part" style="margin-bottom:1.6rem;text-align:center;">
-      <span class="bc-lab">I'm interested in</span>
-      <div style="display:flex;gap:.65rem;justify-content:center;flex-wrap:wrap;">
-        <label style="position:relative;display:inline-flex;">
-          <input class="bc-check" type="checkbox" name="interest" value="Salons">
-          <span class="bc-chip">Salons</span>
-        </label>
-        <label style="position:relative;display:inline-flex;">
-          <input class="bc-check" type="checkbox" name="interest" value="Sits">
-          <span class="bc-chip">Sits</span>
-        </label>
+      <div>
+        <label for="bc-email" style="display:block;font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.5rem;">Where to reach you</label>
+        <input id="bc-email" name="email" type="email" placeholder="you@somewhere" autocomplete="email" style="width:100%;border:1px solid #171916;background:#FFFFFF;padding:0.85rem 1rem;font-family:inherit;font-size:0.95rem;color:#171916;outline:none;" />
       </div>
-    </div>
-    <div class="bc-part" style="margin-bottom:1.1rem;">
-      <label class="bc-lab" for="bc-name">Your name</label>
-      <input class="bc-in" id="bc-name" name="name" type="text" placeholder="What shall we call you?" autocomplete="name">
-    </div>
-    <div class="bc-part" style="margin-bottom:1.1rem;">
-      <label class="bc-lab" for="bc-email">Where to reach you</label>
-      <input class="bc-in" id="bc-email" name="email" type="email" placeholder="you@somewhere" autocomplete="email">
-    </div>
-    <div class="bc-part" style="margin-bottom:1.1rem;">
-      <label class="bc-lab" for="bc-drawn">What's drawing you toward this?</label>
-      <textarea class="bc-in" id="bc-drawn" name="drawn" rows="3" placeholder="A few lines, in your own words…"></textarea>
-    </div>
-    <div class="bc-part" style="margin-bottom:1.6rem;">
-      <label class="bc-lab" for="bc-found">How did you find us?</label>
-      <div class="bc-selwrap">
-        <select class="bc-in bc-sel" id="bc-found" name="found">
-          <option value="" selected="">Choose one…</option>
+      <div>
+        <label for="bc-drawn" style="display:block;font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.5rem;">What's drawing you toward this?</label>
+        <textarea id="bc-drawn" name="drawn" rows="3" placeholder="A few lines, in your own words…" style="width:100%;border:1px solid #171916;background:#FFFFFF;padding:0.85rem 1rem;font-family:inherit;font-size:0.95rem;color:#171916;outline:none;resize:vertical;"></textarea>
+      </div>
+      <div>
+        <label for="bc-found" style="display:block;font-size:0.62rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;margin-bottom:0.5rem;">How did you find us?</label>
+        <select id="bc-found" name="found" style="width:100%;border:1px solid #171916;background:#FFFFFF;padding:0.85rem 1rem;font-family:inherit;font-size:0.95rem;color:#171916;outline:none;border-radius:0;">
+          <option value="">Choose one…</option>
           <option>Someone I know</option>
           <option>Instagram</option>
           <option>X</option>
@@ -583,472 +363,119 @@
           <option>A search</option>
           <option>Somewhere else</option>
         </select>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
       </div>
+      <div>
+        <button type="submit" style="display:inline-flex;align-items:center;gap:0.8rem;font-family:inherit;font-weight:700;font-size:0.78rem;letter-spacing:0.16em;text-transform:uppercase;padding:1rem 2rem;background:#171916;color:#FFFFFF;border:1px solid #171916;cursor:pointer;" data-vh="lav">Leave us a note <span aria-hidden="true">→</span></button>
+      </div>
+      <p id="v4-status" role="status" aria-live="polite" style="font-size:0.95rem;line-height:1.6;color:#3F413D;"></p>
     </div>
-    <div class="bc-part" id="bc-who-wrap" hidden="" style="margin-bottom:1.6rem;">
-      <label class="bc-lab" for="bc-who">Who can we thank?</label>
-      <input class="bc-in" id="bc-who" name="referrer" type="text" placeholder="Their name, so we can say thanks">
-    </div>
-    <div class="bc-part" style="text-align:center;">
-      <button class="btn-ink" id="bc-submit" type="submit" style="display:inline-flex;align-items:center;gap:.8rem;font-family:var(--font);font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;padding:1rem 2rem;background:var(--ink);color:var(--paper);border:1px solid var(--ink);cursor:pointer;"><span id="bc-submit-label">Leave us a note</span><span>→</span></button>
-    </div>
-    <p id="bc-msg" role="status" aria-live="polite" style="margin-top:1.2rem;text-align:center;font-size:.95rem;color:var(--dim);line-height:1.6;"></p>
   </form>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));border-bottom:1px solid rgba(23,25,22,0.13);">
+  <div style="padding:clamp(1.8rem,3.5cqi,2.6rem) clamp(1.5rem,4.5cqi,3.5rem);">
+    <h3 style="font-weight:700;font-size:1.25rem;letter-spacing:-0.02em;margin-bottom:0.6rem;">Wonderfool</h3>
+    <p style="font-size:1rem;line-height:1.7;color:#3F413D;max-width:44ch;">Letters on being, every 1st and 3rd Tuesday. Written by John — the same voice that hosts the room.</p>
   </div>
+  <div style="padding:clamp(1.8rem,3.5cqi,2.6rem) clamp(1.5rem,4.5cqi,3.5rem);display:flex;align-items:center;border-left:1px solid rgba(23,25,22,0.13);">
+    <form action="https://wonderfool.substack.com/subscribe" method="get" target="_blank" style="display:flex;width:100%;border:1px solid #171916;">
+      <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required="required" style="flex:1;border:none;outline:none;padding:0.9rem 1rem;font-family:inherit;font-size:0.9rem;background:transparent;color:#171916;min-width:0;" />
+      <button type="submit" style="border:none;border-left:1px solid #171916;background:#171916;color:#FFFFFF;padding:0.9rem 1.4rem;font-family:inherit;font-weight:700;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;" data-vh="lav">Subscribe</button>
+    </form>
+  </div>
+</section>
+
+<footer style="padding:clamp(2.25rem,5vh,3.25rem) clamp(1.5rem,4.5cqi,3.5rem);display:flex;justify-content:space-between;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;">
+  <span style="font-weight:800;font-size:0.8rem;letter-spacing:0.01em;text-transform:uppercase;">Beings Club</span>
+  <span style="font-size:0.66rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#6E706B;">For the benefit of all beings</span>
+  <div style="display:flex;align-items:center;gap:1.2rem;margin-left:auto;">
+    <a href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:#6E706B;">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+    </a>
+    <a href="https://x.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on X" style="display:inline-flex;color:#6E706B;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg>
+    </a>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:0.68rem;font-weight:600;color:#6E706B;">john@spacetobe.xyz</a>
+  </div>
+</footer>
+
 </div>
+
+<div id="v4-horizon" aria-hidden="true" style="position:fixed;left:0;right:0;bottom:0;height:clamp(90px,16vh,150px);pointer-events:none;z-index:15;opacity:0;background:linear-gradient(to top,rgba(255,255,255,0.92) 0%,rgba(255,255,255,0.62) 42%,rgba(255,255,255,0) 100%);transition:opacity .5s cubic-bezier(.22,1,.36,1);"></div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-const root = document;
+  var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-    // Inline the logo SVG so its concentric outline rings can pulse outward
-    (function () {
-      var host = root.getElementById('bc-logo');
-      if (!host) return;
-      fetch('assets/beings-logo-outline.svg')
-        .then(function (r) { return r.text(); })
-        .then(function (txt) {
-          host.innerHTML = txt;
-          var svg = host.querySelector('svg');
-          if (!svg) return;
-          svg.removeAttribute('width');
-          svg.removeAttribute('height');
-          // Use the logo's own outermost outline as the exact hover hit-region.
-          var rings = Array.prototype.slice.call(host.querySelectorAll('[data-ring]'));
-          rings.forEach(function (p) { p.style.pointerEvents = 'none'; });
-          var outer = rings.reduce(function (a, b) {
-            return (+b.getAttribute('data-ring')) > (+a.getAttribute('data-ring')) ? b : a;
-          });
-          if (outer) {
-            outer.style.pointerEvents = 'fill'; // interior counts even though fill:none
-            outer.addEventListener('mouseenter', function () { host.classList.add('is-bold'); });
-            outer.addEventListener('mouseleave', function () { host.classList.remove('is-bold'); });
-          }
-        })
-        .catch(function () {});
-    })();
-
-    // Expandable / minimizable sections
-    root.querySelectorAll('.sechead').forEach(function (head) {
-      if (head.id === 'door' || head.id === 'ground' || head.id === 'testimonials' || head.id === 'salons' || head.id === 'sits') return; // stay permanently expanded
-      var body = head.nextElementSibling;
-      if (!body) return;
-      var col = head.firstElementChild;
-      col.style.display = 'flex';
-      col.style.alignItems = 'center';
-      col.style.gap = '.7rem';
-      var chev = document.createElement('span');
-      chev.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
-      chev.style.display = 'inline-flex';
-      chev.style.flex = 'none';
-      chev.style.color = 'var(--dim)';
-      chev.style.transition = 'transform .4s cubic-bezier(.4,0,.2,1)';
-      chev.style.transform = 'rotate(0deg)';
-      col.appendChild(chev);
-      head.style.cursor = 'pointer';
-      head.style.userSelect = 'none';
-      head.setAttribute('role', 'button');
-      head.setAttribute('aria-expanded', 'false');
-      body.style.overflow = 'hidden';
-      var cs = getComputedStyle(body);
-      var padT = cs.paddingTop, padB = cs.paddingBottom;
-      var ease = 'cubic-bezier(.22,1,.36,1)'; // gentle deceleration, not snappy
-      var trans = 'max-height .42s ' + ease + ',padding .42s ' + ease;
-      body.style.transition = trans;
-      body.style.maxHeight = '0px';
-      body.style.opacity = '1';
-      body.style.paddingTop = '0px';
-      body.style.paddingBottom = '0px';
-      var open = false;
-      var openToken = 0;
-      head.addEventListener('click', function () {
-        open = !open;
-        chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
-        head.setAttribute('aria-expanded', String(open));
-        if (open) {
-          // smooth height reveal; content is already opaque so nothing fades in late
-          var token = ++openToken;
-          body.style.transition = trans;
-          body.style.paddingTop = padT;
-          body.style.paddingBottom = padB;
-          body.style.maxHeight = body.scrollHeight + 'px';
-          var settle = function () {
-            if (open && token === openToken) body.style.maxHeight = 'none';
-          };
-          body.addEventListener('transitionend', function te(e) {
-            if (e.propertyName !== 'max-height') return;
-            settle();
-            body.removeEventListener('transitionend', te);
-          });
-          setTimeout(settle, 550);
-        } else {
-          ++openToken;
-          body.style.transition = trans;
-          body.style.maxHeight = body.scrollHeight + 'px';
-          void body.offsetHeight;
-          body.style.maxHeight = '0px';
-          body.style.paddingTop = '0px';
-          body.style.paddingBottom = '0px';
-        }
-      });
-    });
-    // Status panel toggle
-    (function () {
-      var btn = root.querySelector('.bc-toggle');
-      var panel = root.getElementById('bc-panel');
-      var chev = root.querySelector('.bc-chev');
-      var label = root.querySelector('.bc-toggle-label');
-      if (!btn || !panel) return;
-      var open = false;
-      function apply() {
-        panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
-        panel.style.opacity = open ? '1' : '0';
-        chev.style.transform = 'rotate(' + (open ? 180 : 0) + 'deg)';
-        label.textContent = open ? 'Close' : 'View';
-        btn.setAttribute('aria-expanded', String(open));
-      }
-      btn.addEventListener('click', function () { open = !open; apply(); });
-      window.addEventListener('resize', function () { if (open) panel.style.maxHeight = panel.scrollHeight + 'px'; });
-    })();
-
-    // Full-screen note overlay
-    (function () {
-      var openBtn = root.getElementById('bc-open');
-      var closeBtn = root.getElementById('bc-close');
-      var overlay = root.getElementById('bc-overlay');
-      var shell = root.querySelector('.shell');
-      if (!openBtn || !overlay) return;
-      var scrollY = 0;
-      function open() {
-        scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = -scrollY + 'px';
-        document.body.style.width = '100%';
-        overlay.classList.add('is-open');
-        if (shell) shell.inert = true;
-        var first = root.querySelector('.bc-check');
-        if (first) first.focus({ preventScroll: true });
-        document.addEventListener('keydown', onKey);
-      }
-      function close() {
-        overlay.classList.remove('is-open');
-        if (shell) shell.inert = false;
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        void document.body.offsetHeight;
-        window.scrollTo({ top: scrollY, behavior: 'instant' });
-        openBtn.focus({ preventScroll: true });
-        document.removeEventListener('keydown', onKey);
-      }
-      function onKey(e) { if (e.key === 'Escape') close(); }
-      openBtn.addEventListener('click', open);
-      closeBtn.addEventListener('click', close);
-    })();
-
-    // Interest form
-    (function () {
-      var form = root.getElementById('bc-note');
-      if (!form) return;
-      var btn = root.getElementById('bc-submit');
-      var label = root.getElementById('bc-submit-label');
-      var msg = root.getElementById('bc-msg');
-      var found = root.getElementById('bc-found');
-      var whoWrap = root.getElementById('bc-who-wrap');
-      var who = root.getElementById('bc-who');
-      found.addEventListener('change', function () {
-        var personal = found.value === 'Someone I know';
-        whoWrap.hidden = !personal;
-        if (!personal) who.value = '';
-      });
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        var fd = new FormData(form);
-        var interest = fd.getAll('interest');
-        var name = (fd.get('name') || '').trim();
-        var email = (fd.get('email') || '').trim();
-        if (!interest.length) { msg.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
-        if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          msg.textContent = 'A name and a valid email, please.'; return;
-        }
-        btn.disabled = true; label.textContent = 'Sending…'; msg.textContent = '';
-        try {
-          var res = await fetch('https://formspree.io/f/xpqkbpyv', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              intent: 'take part as a participant',
-              interest: interest.join(', '),
-              name: name, email: email,
-              drawn: fd.get('drawn') || '',
-              found: fd.get('found') || 'Not said',
-              referrer: (fd.get('referrer') || '').trim()
-            })
-          });
-          if (res.ok) {
-            form.querySelectorAll('.bc-part').forEach(function (el) { el.style.display = 'none'; });
-            msg.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.';
-          } else {
-            label.textContent = 'Try again'; btn.disabled = false;
-            msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
-          }
-        } catch (err) {
-          label.textContent = 'Try again'; btn.disabled = false;
-          msg.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
-        }
-      });
-    })();
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  /* ---- offerings swipe ---- */
+  // logo hover: inline the SVG, thicken every ring when the outer outline is hovered
   (function () {
-    var track = document.querySelector('.off-track');
-    var vp = document.querySelector('.off-viewport');
-    if (!track || !vp) return;
-    var seg = [].slice.call(document.querySelectorAll('.off-seg button'));
-    var panels = [].slice.call(document.querySelectorAll('.off-panel'));
-    var idx = 0;
-    function setHeight() { vp.style.height = panels[idx].offsetHeight + 'px'; }
-    function go(i) {
-      idx = Math.max(0, Math.min(panels.length - 1, i));
-      track.style.transform = 'translateX(' + (-idx * 100) + '%)';
-      seg.forEach(function (b, k) { b.setAttribute('aria-selected', String(k === idx)); });
-      setHeight();
-    }
-    seg.forEach(function (b, k) { b.addEventListener('click', function () { go(k); }); });
-    document.querySelectorAll('[data-offering]').forEach(function (a) {
-      a.addEventListener('click', function () {
-        var t = a.getAttribute('data-offering') === 'sits' ? 1 : 0;
-        setTimeout(function () { go(t); }, 60);
-      });
-    });
-    // pointer swipe with horizontal-intent threshold (so taps/clicks/selection pass through)
-    var startX = 0, startY = 0, dx = 0, active = false, decided = false, w = 0;
-    vp.addEventListener('pointerdown', function (e) {
-      active = true; decided = false; dx = 0; startX = e.clientX; startY = e.clientY; w = vp.offsetWidth;
-    });
-    vp.addEventListener('pointermove', function (e) {
-      if (!active) return;
-      var mx = e.clientX - startX, my = e.clientY - startY;
-      if (!decided) {
-        if (Math.abs(mx) < 8 && Math.abs(my) < 8) return;
-        if (Math.abs(mx) <= Math.abs(my)) { active = false; return; } // vertical -> let page scroll
-        decided = true; track.classList.add('dragging');
-        try { vp.setPointerCapture(e.pointerId); } catch (x) {}
-      }
-      dx = mx;
-      track.style.transform = 'translateX(calc(' + (-idx * 100) + '% + ' + dx + 'px))';
-    });
-    function end() {
-      if (!active) return; active = false;
-      if (decided) { track.classList.remove('dragging'); go(idx + (dx < -w * 0.18 ? 1 : (dx > w * 0.18 ? -1 : 0))); }
-    }
-    vp.addEventListener('pointerup', end);
-    vp.addEventListener('pointercancel', end);
-    window.addEventListener('resize', setHeight);
-    requestAnimationFrame(function () { requestAnimationFrame(setHeight); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setHeight);
+    var host = document.getElementById('v4-logo'); if (!host) return;
+    fetch('/assets/beings-logo-outline.svg').then(function (r) { return r.text(); }).then(function (txt) {
+      host.innerHTML = txt; var svg = host.querySelector('svg'); if (!svg) return;
+      svg.removeAttribute('width'); svg.removeAttribute('height');
+      svg.style.width = '100%'; svg.style.height = 'auto'; svg.style.display = 'block';
+      var rings = [].slice.call(host.querySelectorAll('[data-ring]')); if (!rings.length) return;
+      rings.forEach(function (p) { p.style.transition = 'stroke-width .3s cubic-bezier(.22,1,.36,1)'; p.style.pointerEvents = 'none'; p.dataset.baseWidth = p.getAttribute('stroke-width') || ''; });
+      var outer = rings.reduce(function (a, b) { return (+b.getAttribute('data-ring')) > (+a.getAttribute('data-ring')) ? b : a; });
+      outer.style.pointerEvents = 'fill';
+      outer.addEventListener('mouseenter', function () { rings.forEach(function (p) { p.style.strokeWidth = '6.5'; }); });
+      outer.addEventListener('mouseleave', function () { rings.forEach(function (p) { p.style.strokeWidth = p.dataset.baseWidth || ''; }); });
+    }).catch(function () {});
   })();
 
-  /* ---- testimonials drag / arrows ---- */
+  // reveal on scroll, with fail-open guards
   (function () {
-    var row = document.querySelector('.tscroll');
-    if (!row) return;
-    var down = false, sx = 0, sl = 0, moved = 0;
-    row.addEventListener('pointerdown', function (e) { down = true; sx = e.clientX; sl = row.scrollLeft; moved = 0; row.classList.add('dragging'); });
-    row.addEventListener('pointermove', function (e) { if (!down) return; var d = e.clientX - sx; moved = Math.max(moved, Math.abs(d)); row.scrollLeft = sl - d; });
-    function up() { down = false; row.classList.remove('dragging'); }
-    row.addEventListener('pointerup', up);
-    row.addEventListener('pointerleave', up);
-    row.addEventListener('pointercancel', up);
-    row.addEventListener('click', function (e) { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
-    function cardW() { var f = row.querySelector('.tcard'); return f ? f.offsetWidth + 1 : 320; }
-    var p = document.querySelector('.tprev'), n = document.querySelector('.tnext');
-    if (p) p.addEventListener('click', function () { row.scrollBy({ left: -cardW(), behavior: 'smooth' }); });
-    if (n) n.addEventListener('click', function () { row.scrollBy({ left: cardW(), behavior: 'smooth' }); });
+    var blocks = [].slice.call(document.querySelectorAll('[data-reveal]')); if (!blocks.length) return;
+    function show(el) { el.style.opacity = '1'; el.style.transform = 'none'; }
+    function showAll() { blocks.forEach(show); }
+    if (reduced || !('IntersectionObserver' in window) || document.visibilityState !== 'visible') return;
+    setTimeout(showAll, 1800);
+    if (window.matchMedia) { var mq = matchMedia('print'); if (mq.addEventListener) mq.addEventListener('change', showAll); }
+    addEventListener('beforeprint', showAll);
+    blocks.forEach(function (el) { el.style.opacity = '0'; el.style.transform = 'translateY(14px)'; el.style.transition = 'opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)'; el.style.willChange = 'opacity,transform'; });
+    var io = new IntersectionObserver(function (entries) { entries.forEach(function (e) { if (!e.isIntersecting) return; show(e.target); io.unobserve(e.target); }); }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+    blocks.forEach(function (el) { io.observe(el); });
   })();
 
-  /* ---- scroll-progress rail ---- */
+  // scroll progress + chapter label + horizon fade
   (function () {
-    var rail = document.querySelector('.rail');
-    if (!rail) return;
-    var fill = rail.querySelector('.rail-fill');
-    var targets = [['#origin', 'Story'], ['#ground', 'Ground'], ['#offerings', 'Offerings'], ['#testimonials', 'Field notes'], ['#door', 'The door']];
-    var dots = targets.map(function (t) {
-      var el = document.querySelector(t[0]); if (!el) return null;
-      var a = document.createElement('a'); a.className = 'rail-dot'; a.href = t[0]; a.setAttribute('data-label', t[1]);
-      a.addEventListener('click', function (e) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); });
-      rail.appendChild(a); return { a: a, el: el };
-    }).filter(Boolean);
-    function place() {
-      var H = document.documentElement.scrollHeight;
-      dots.forEach(function (d) { var top = d.el.getBoundingClientRect().top + window.scrollY; d.a.style.top = (top / H * 100) + '%'; });
-    }
-    function update() {
+    var bar = document.getElementById('v4-progress'), chapter = document.getElementById('v4-chapter'), horizon = document.getElementById('v4-horizon');
+    var sections = [].slice.call(document.querySelectorAll('[data-chapter]')), footer = document.querySelector('footer');
+    function onScroll() {
       var max = document.documentElement.scrollHeight - innerHeight;
-      fill.style.height = Math.min(100, Math.max(0, (window.scrollY / (max || 1)) * 100)) + '%';
-      var act = dots[0];
-      dots.forEach(function (d) { if (d.el.getBoundingClientRect().top <= innerHeight * 0.35) act = d; });
-      dots.forEach(function (d) { d.a.classList.toggle('is-active', d === act); });
+      if (bar) bar.style.width = Math.min(100, Math.max(0, (scrollY / (max || 1)) * 100)) + '%';
+      if (chapter) { var now = null; sections.forEach(function (sn) { if (sn.getBoundingClientRect().top <= innerHeight * 0.4) now = sn; }); var label = now ? now.getAttribute('data-chapter') : 'A realisationhouse'; if (chapter.textContent !== label) chapter.textContent = label; }
+      if (horizon) { var vh = innerHeight, band = horizon.offsetHeight; var op = scrollY < 150 ? 0 : 1; if (footer) { var ft = footer.getBoundingClientRect().top; op = Math.min(op, Math.max(0, Math.min(1, (ft - vh + band) / band))); } horizon.style.opacity = String(op); }
     }
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', function () { place(); update(); });
-    requestAnimationFrame(function () { place(); update(); });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { place(); update(); });
+    addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); onScroll();
   })();
 
-  /* ---- read-more expanders ---- */
+  // read time
   (function () {
-    document.querySelectorAll('.xp-btn').forEach(function (btn) {
-      var xp = btn.previousElementSibling;
-      if (!xp || xp.className.indexOf('xp') === -1) return;
-      var lbl = btn.querySelector('.xp-lbl');
-      btn.addEventListener('click', function () {
-        var open = !xp.classList.contains('open');
-        xp.classList.toggle('open', open);
-        btn.classList.toggle('open', open);
-        xp.style.maxHeight = open ? xp.scrollHeight + 'px' : '0px';
-        if (lbl) lbl.textContent = open ? 'Read less' : 'Read more';
-        btn.setAttribute('aria-expanded', String(open));
-      });
+    var el = document.getElementById('v4-readtime'); if (!el) return;
+    var words = (document.body.innerText || '').trim().split(/\s+/).length;
+    el.textContent = 'Best read unhurried · about ' + Math.max(2, Math.round(words / 230)) + ' minutes';
+  })();
+
+  // interest toggles + form
+  (function () {
+    var state = { salons: false, sits: false };
+    var ON = { bg: '#171916', fg: '#FFFFFF', mark: '#F2ECFF' }, OFF = { bg: 'transparent', fg: '#171916', mark: 'transparent' };
+    function paint(btn, on) { var v = on ? ON : OFF; btn.style.background = v.bg; btn.style.color = v.fg; var mk = btn.querySelector('span'); if (mk) mk.style.background = v.mark; }
+    [].slice.call(document.querySelectorAll('[data-toggle]')).forEach(function (btn) {
+      var key = btn.getAttribute('data-toggle'); paint(btn, state[key]);
+      btn.addEventListener('click', function () { state[key] = !state[key]; paint(btn, state[key]); });
     });
-    window.addEventListener('resize', function () {
-      document.querySelectorAll('.xp.open').forEach(function (xp) { xp.style.maxHeight = xp.scrollHeight + 'px'; });
+    var form = document.getElementById('v4-form'), status = document.getElementById('v4-status');
+    if (form && status) form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nf = form.querySelector('[name="name"]'), ef = form.querySelector('[name="email"]');
+      var name = (nf ? nf.value : '').trim(), email = (ef ? ef.value : '').trim();
+      if (!state.salons && !state.sits) { status.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
+      if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = 'A name and a valid email, please.'; return; }
+      status.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.';
     });
   })();
 });
-</script>
-<script>
-(function () {
-  var rhs = [].slice.call(document.querySelectorAll('.rh'));
-  if (!rhs.length) return;
-  rhs.forEach(function (rh) {
-    var tip = rh.querySelector('.rh-tip');
-    if (!tip) return;
-    // keep each tooltip within the viewport (the word sits mid-line, so a
-    // left-anchored box would run off the right edge)
-    function place() {
-      tip.style.left = '0px';
-      var r = tip.getBoundingClientRect(), m = 12;
-      var over = r.right - (window.innerWidth - m);
-      if (over > 0) tip.style.left = (-over) + 'px';
-      var r2 = tip.getBoundingClientRect();
-      if (r2.left < m) tip.style.left = (parseFloat(tip.style.left) + (m - r2.left)) + 'px';
-    }
-    rh.addEventListener('mouseenter', place);
-    rh.addEventListener('focus', place, true);
-    rh.addEventListener('click', function (e) { e.stopPropagation(); rh.classList.toggle('is-open'); place(); });
-    rh.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); rh.classList.toggle('is-open'); place(); }
-      else if (e.key === 'Escape') { rh.classList.remove('is-open'); rh.blur(); }
-    });
-    window.addEventListener('resize', place);
-  });
-  document.addEventListener('click', function () {
-    rhs.forEach(function (rh) { rh.classList.remove('is-open'); });
-  });
-})();
-</script>
-<script>
-(function () {
-  // Salons recur on the LAST SUNDAY of each month at 5:30–7:30pm UK time,
-  // starting September 2026. Compute the next occurrence on load and render the
-  // date (.salon-date) and the visitor-localised time (.salon-time). DST is
-  // automatic: 5:30pm London resolves to 16:30 UTC in BST, 17:30 UTC in GMT.
-  var timeEls = document.querySelectorAll('.salon-time');
-  var dateEls = document.querySelectorAll('.salon-date');
-  if (!timeEls.length && !dateEls.length) return;
-
-  function fmt(ms, tz) {
-    var s = new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: tz });
-    return s.replace(/\s/g, '').toLowerCase(); // -> "5:30pm"
-  }
-  function zoneName(ms, tz) {
-    try {
-      var parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short', hour: 'numeric' }).formatToParts(new Date(ms));
-      for (var i = 0; i < parts.length; i++) if (parts[i].type === 'timeZoneName') return parts[i].value;
-    } catch (e) {}
-    return '';
-  }
-  // day-of-month of the last Sunday of month m (0-indexed) in year y
-  function lastSunday(y, m) {
-    var d = new Date(Date.UTC(y, m + 1, 0)); // last day of the month
-    return d.getUTCDate() - d.getUTCDay();
-  }
-  // instant (ms) when the wall clock reads hh:mm in zone tz on y-m-d
-  function zonedToUTC(y, m, d, hh, mm, tz) {
-    var guess = Date.UTC(y, m, d, hh, mm);
-    var dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    function asUTC(ms) {
-      var p = {};
-      dtf.formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = x.value; });
-      var h = p.hour === '24' ? 0 : +p.hour;
-      return Date.UTC(+p.year, +p.month - 1, +p.day, h, +p.minute, +p.second);
-    }
-    return guess - (asUTC(guess) - guess);
-  }
-  // next Salon at or after now, never earlier than September 2026
-  function nextSalon(nowMs) {
-    var d0 = new Date(nowMs), y = 2026, m = 8; // September 2026 is the first
-    if (d0.getUTCFullYear() > 2026 || (d0.getUTCFullYear() === 2026 && d0.getUTCMonth() > 8)) {
-      y = d0.getUTCFullYear(); m = d0.getUTCMonth();
-    }
-    for (var i = 0; i < 36; i++) {
-      var day = lastSunday(y, m);
-      var startUTC = zonedToUTC(y, m, day, 17, 30, 'Europe/London');
-      if (startUTC >= nowMs) return { y: y, m: m, d: day, startUTC: startUTC };
-      m++; if (m > 11) { m = 0; y++; }
-    }
-    return null;
-  }
-
-  var salon = nextSalon(Date.now());
-  if (!salon) return;
-  var startUTC = salon.startUTC, endUTC = startUTC + 2 * 3600 * 1000;
-
-  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-  var dateStr = MON[salon.m] + ' ' + salon.d;   // brief, e.g. "Sept 27"
-  dateEls.forEach(function (el) { el.textContent = dateStr; });
-
-  var localTz;
-  try { localTz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { localTz = null; }
-  var ukStart = fmt(startUTC, 'Europe/London');
-  var out;
-  if (!localTz) {
-    out = ukStart + ' UK';
-  } else {
-    var locStart = fmt(startUTC, localTz);
-    if (locStart === ukStart) {
-      out = ukStart + ' UK';
-    } else {
-      var z = zoneName(startUTC, localTz);
-      out = locStart + (z ? ' ' + z : '') + ' · ' + ukStart + ' UK';
-    }
-  }
-  timeEls.forEach(function (el) { el.textContent = out; });
-})();
-</script>
-<script>
-(function () {
-  // Fade the bottom focus-blur away as the footer arrives, so it reads sharp.
-  var band = document.querySelector('.fb-bot');
-  var footer = document.querySelector('footer');
-  if (!band || !footer) return;
-  function update() {
-    var h = band.offsetHeight;
-    if (!h) { band.style.transform = ''; return; } // hidden → let CSS decide
-    var ft = footer.getBoundingClientRect().top;
-    var op = Math.max(0, Math.min(1, (ft - window.innerHeight) / h));
-    // Slide the band out of view (not opacity) — opacity:0 on a backdrop-filter
-    // element freezes its compositing and it won't repaint when it returns.
-    band.style.transform = 'translateY(' + ((1 - op) * 100) + '%)';
-  }
-  update();
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-})();
 </script>
 </body>
 </html>
