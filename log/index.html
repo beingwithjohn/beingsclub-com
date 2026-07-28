@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Practice Log · Beings Club</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --ink:#171916; --dim:#5a5c58; --soft:#9a9c97; --paper:#f4f4f2; --white:#fff;
+      --cream:#fff7ee; --amber:#FFAD54; --hair:rgba(23,25,22,.14); --font:'Host Grotesk',system-ui,-apple-system,sans-serif; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5;min-height:100vh;}
+    a{color:inherit;}
+    ::selection{background:var(--amber);color:var(--ink);}
+    .wrap{max-width:34rem;margin:0 auto;min-height:100vh;background:var(--white);border-left:1px solid var(--hair);border-right:1px solid var(--hair);display:flex;flex-direction:column;}
+    .bar{display:flex;justify-content:space-between;align-items:baseline;padding:1.1rem 1.4rem;border-bottom:1px solid var(--hair);}
+    .brand{font-weight:800;font-size:.72rem;letter-spacing:.02em;text-transform:uppercase;}
+    .barlab{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
+    .preview{background:var(--cream);border-bottom:1px solid var(--hair);padding:.6rem 1.4rem;font-size:.66rem;font-weight:600;letter-spacing:.04em;color:var(--dim);text-align:center;}
+    main{flex:1;padding:clamp(1.6rem,6vw,2.6rem) 1.4rem 2.6rem;display:flex;flex-direction:column;}
+    .eyebrow{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
+    .stack{display:flex;flex-direction:column;justify-content:center;flex:1;gap:1.4rem;text-align:center;min-height:16rem;}
+    h1{font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(2rem,9vw,2.9rem);text-transform:uppercase;}
+    .sub{color:var(--dim);font-size:1rem;line-height:1.6;max-width:30ch;margin:0 auto;}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;font-family:var(--font);font-weight:700;
+      font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;padding:1.15rem 2.2rem;background:var(--ink);color:var(--white);
+      border:1px solid var(--ink);cursor:pointer;transition:background .18s,color .18s;}
+    .btn:hover{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+    .btn.amber{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+    .btn.amber:hover{background:var(--ink);color:var(--white);border-color:var(--ink);}
+    .btnrow{display:flex;justify-content:center;}
+    .dot{width:11px;height:11px;border-radius:50%;flex:none;}
+    .dot.me{background:var(--amber);box-shadow:0 0 0 3px rgba(255,173,84,.28);}
+    .dot.them{background:var(--ink);}
+    .dot.off{background:transparent;border:1px solid var(--hair);}
+    .today-dots{display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;}
+    .card{border:1px solid var(--hair);padding:1.2rem 1.3rem;margin-top:1.6rem;}
+    .card.logged{border-color:var(--amber);background:var(--cream);}
+    .field{width:100%;border:1px solid var(--ink);background:var(--white);padding:.8rem .9rem;font-family:var(--font);
+      font-size:.95rem;color:var(--ink);outline:none;border-radius:0;}
+    .field:focus{box-shadow:0 0 0 3px rgba(255,173,84,.4);}
+    .link{background:none;border:none;font-family:var(--font);cursor:pointer;color:var(--dim);font-size:.8rem;
+      font-weight:600;letter-spacing:.02em;text-decoration:underline;text-underline-offset:3px;padding:.2rem 0;}
+    .link:hover{color:var(--ink);}
+    .grid35{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:.9rem;}
+    .sq{aspect-ratio:1;border:1px solid var(--hair);position:relative;}
+    .sq.future{opacity:.4;}
+    .sq.today{outline:2px solid var(--ink);outline-offset:-1px;}
+    .sq .mine{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+    .sq .mine::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber);}
+    .feed{margin-top:.9rem;display:flex;flex-direction:column;gap:.7rem;}
+    .feedrow{display:flex;gap:.6rem;align-items:baseline;font-size:.9rem;}
+    .feedname{font-weight:700;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);flex:none;min-width:4.5rem;}
+    .feednote{color:var(--dim);line-height:1.5;}
+    .sectlab{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
+    .muted{color:var(--soft);font-size:.78rem;line-height:1.5;}
+    /* John panel (private, on black) */
+    .john{margin-top:1.8rem;background:var(--ink);color:var(--white);padding:1.3rem;}
+    .john .sectlab{color:rgba(255,255,255,.5);}
+    .john .field{background:#26282400;border-color:rgba(255,255,255,.4);color:var(--white);}
+    .john .field::placeholder{color:rgba(255,255,255,.45);}
+    .john .btn{background:var(--white);color:var(--ink);border-color:var(--white);}
+    .john .btn:hover{background:var(--amber);border-color:var(--amber);}
+    .foot{padding:1.4rem;border-top:1px solid var(--hair);display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+    .foot a,.foot button{font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);background:none;border:none;cursor:pointer;font-family:var(--font);}
+    .foot a:hover,.foot button:hover{color:var(--ink);}
+    .legend{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.8rem;font-size:.62rem;color:var(--soft);letter-spacing:.02em;}
+    .legend span{display:inline-flex;align-items:center;gap:.35rem;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar"><span class="brand">Beings Club</span><span class="barlab" id="barlab">Practice Log</span></div>
+  <div class="preview" id="preview" hidden></div>
+  <main id="app"></main>
+  <div class="foot">
+    <button id="reminderBtn" type="button">Reminder</button>
+    <a href="/beyondbelief">Beyond Belief ↗</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var LS = window.localStorage;
+  var DAY = 86400000;
+  var START = Date.UTC(2026, 8, 16);           // Sep 16 2026 = Day 1
+  var TOTAL = 35;                               // 35 days of practice
+  var NAMES = ['Ana','Mark','Zak','Sean','Manansh','Catra','Esme','Jordan','Sam'];  // the other nine
+
+  // ---- which day are we on ----
+  function todayUTC() { var d = new Date(); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); }
+  var realIdx = Math.round((todayUTC() - START) / DAY);
+  var isDemo = realIdx < 0 || realIdx >= TOTAL;
+  var dayIdx = isDemo ? 17 : realIdx;           // in-window? real day : Day 18 preview
+  function dateLabel(i) { return new Date(START + i * DAY).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }); }
+
+  // ---- my log (persisted) ----
+  function load() { try { return JSON.parse(LS.getItem('bc_log') || '{}'); } catch (e) { return {}; } }
+  function save(o) { try { LS.setItem('bc_log', JSON.stringify(o)); } catch (e) {} }
+  var mine = load();
+  function mineOn(i) { return mine[i] && mine[i].sat; }
+
+  // ---- seeded cohort: deterministic "did member m sit on day i" ----
+  function hash(a, b) { var x = (a * 73856093) ^ (b * 19349663); x = (x ^ (x >>> 13)) * 1274126177; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; }
+  function themOn(m, i) { return i <= dayIdx && hash(m + 1, i + 1) < 0.8; }     // ~80% sit, only up to today
+  function themNote(m, i) {
+    var notes = ['restless but stayed', 'ten minutes, in the car', 'kept coming back', 'quiet one today', 'nearly skipped — glad I didn’t', 'short, on the floor', 'sat with the noise'];
+    if (hash(m + 5, i + 5) < 0.35) return notes[Math.floor(hash(m + 9, i + 2) * notes.length)];
+    return '';
+  }
+  function countToday() { var n = mineOn(dayIdx) ? 1 : 0; for (var m = 0; m < NAMES.length; m++) if (themOn(m, dayIdx)) n++; return n; }
+
+  var app = document.getElementById('app');
+  var barlab = document.getElementById('barlab');
+  var preview = document.getElementById('preview');
+  if (isDemo) { preview.hidden = false; preview.textContent = 'Preview — the log runs 16 September – 20 October 2026. Showing Day 18.'; }
+
+  function el(html) { var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+
+  function render() {
+    barlab.textContent = mineOn(dayIdx) ? 'Logged' : 'Practice Log';
+    app.innerHTML = '';
+    var logged = mineOn(dayIdx);
+
+    if (!logged) {
+      var s = el('<div class="stack">\
+        <div class="eyebrow">Day ' + (dayIdx + 1) + ' of ' + TOTAL + ' · ' + dateLabel(dayIdx) + '</div>\
+        <h1>Did you<br>sit today?</h1>\
+        <p class="sub">Any length counts. Five minutes on a hard day is a real sit, not a failed one.</p>\
+        <div class="btnrow"><button class="btn amber" id="satBtn">I sat</button></div>\
+        <div><button class="link" id="askLink">Ask John something</button></div>\
+      </div>');
+      app.appendChild(s);
+      document.getElementById('satBtn').addEventListener('click', function () { mine[dayIdx] = { sat: true, note: (mine[dayIdx] && mine[dayIdx].note) || '' }; save(mine); render(); });
+      document.getElementById('askLink').addEventListener('click', showJohn);
+      renderStretch();
+      return;
+    }
+
+    // logged: reveal the others
+    var others = countToday() - 1;
+    var dots = '';
+    dots += '<span class="dot me" title="you"></span>';
+    for (var m = 0; m < NAMES.length; m++) dots += '<span class="dot ' + (themOn(m, dayIdx) ? 'them' : 'off') + '"></span>';
+
+    var head = el('<div>\
+      <div class="eyebrow">Day ' + (dayIdx + 1) + ' of ' + TOTAL + ' · ' + dateLabel(dayIdx) + '</div>\
+      <div class="card logged" style="margin-top:1rem;text-align:center;">\
+        <div class="today-dots" style="margin-bottom:1rem;">' + dots + '</div>\
+        <div style="font-weight:700;font-size:1.15rem;letter-spacing:-.02em;">You sat.' + (others > 0 ? ' So did ' + others + ' other' + (others === 1 ? '' : 's') + ' today.' : ' You’re first today.') + '</div>\
+        <p class="muted" style="margin-top:.4rem;">The whole room is sitting with you.</p>\
+      </div>\
+    </div>');
+    app.appendChild(head);
+
+    // note (optional, group sees)
+    var myNote = (mine[dayIdx] && mine[dayIdx].note) || '';
+    var noteCard = el('<div class="card">\
+      <div class="sectlab">Add a note · the others see it</div>\
+      ' + (myNote
+        ? '<p class="feednote" style="margin-top:.6rem;font-style:italic;">“' + esc(myNote) + '”</p>'
+        : '<div style="display:flex;gap:.5rem;margin-top:.6rem;"><input class="field" id="noteIn" maxlength="90" placeholder="A line, or nothing at all…"><button class="btn" id="noteBtn" style="padding:.8rem 1.1rem;">Post</button></div>') + '\
+    </div>');
+    app.appendChild(noteCard);
+    if (!myNote) {
+      var post = function () { var v = document.getElementById('noteIn').value.trim(); mine[dayIdx].note = v; save(mine); render(); };
+      document.getElementById('noteBtn').addEventListener('click', post);
+      document.getElementById('noteIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') post(); });
+    }
+
+    // the group's notes today
+    var feed = '';
+    for (var m2 = 0; m2 < NAMES.length; m2++) { if (themOn(m2, dayIdx)) { var nn = themNote(m2, dayIdx); if (nn) feed += '<div class="feedrow"><span class="feedname">' + NAMES[m2] + '</span><span class="feednote">' + nn + '</span></div>'; } }
+    if (feed) app.appendChild(el('<div class="card"><div class="sectlab">Today, in the room</div><div class="feed">' + feed + '</div></div>'));
+
+    renderStretch();
+    app.appendChild(el('<div style="margin-top:1.6rem;text-align:center;"><button class="link" id="askLink2">Ask John something · privately</button></div>'));
+    document.getElementById('askLink2').addEventListener('click', showJohn);
+  }
+
+  function renderStretch() {
+    var sq = '';
+    for (var i = 0; i < TOTAL; i++) {
+      var cls = 'sq';
+      if (i > dayIdx) cls += ' future';
+      if (i === dayIdx) cls += ' today';
+      // shade by how many of us sat that day
+      var c = 0; if (mineOn(i)) c++; for (var m = 0; m < NAMES.length; m++) if (themOn(m, i)) c++;
+      var frac = i <= dayIdx ? c / (NAMES.length + 1) : 0;
+      var bg = i <= dayIdx ? 'rgba(23,25,22,' + (0.06 + frac * 0.5).toFixed(2) + ')' : 'transparent';
+      sq += '<div class="' + cls + '" style="background:' + bg + '" title="Day ' + (i + 1) + '">' + (mineOn(i) ? '<span class="mine"></span>' : '') + '</div>';
+    }
+    var wrap = el('<div style="margin-top:2rem;">\
+      <div class="sectlab">The thirty-five days</div>\
+      <div class="grid35">' + sq + '</div>\
+      <div class="legend"><span><span class="dot me" style="width:8px;height:8px;box-shadow:none;"></span>you sat</span><span>darker · more of us sat</span><span>no streaks, no scores</span></div>\
+    </div>');
+    app.appendChild(wrap);
+  }
+
+  function showJohn() {
+    if (document.getElementById('johnPanel')) { document.getElementById('johnQ').focus(); return; }
+    var p = el('<div class="john" id="johnPanel">\
+      <div class="sectlab">A question for John · only John sees this</div>\
+      <p class="muted" style="color:rgba(255,255,255,.6);margin:.5rem 0 .8rem;">Where honest struggle goes. He answers by voice, usually within a day or two.</p>\
+      <textarea class="field" id="johnQ" rows="3" placeholder="Say the true thing…"></textarea>\
+      <div style="margin-top:.8rem;"><button class="btn" id="johnSend">Send to John</button></div>\
+      <p class="muted" id="johnMsg" style="color:rgba(255,255,255,.6);margin-top:.7rem;" aria-live="polite"></p>\
+    </div>');
+    app.appendChild(p);
+    document.getElementById('johnQ').focus();
+    document.getElementById('johnSend').addEventListener('click', function () {
+      var v = document.getElementById('johnQ').value.trim();
+      if (!v) return;
+      var qs; try { qs = JSON.parse(LS.getItem('bc_john') || '[]'); } catch (e) { qs = []; }
+      qs.push({ day: dayIdx + 1, q: v }); try { LS.setItem('bc_john', JSON.stringify(qs)); } catch (e) {}
+      document.getElementById('johnQ').value = '';
+      document.getElementById('johnMsg').textContent = 'Sent to John, privately. He’ll reply by voice.';
+    });
+  }
+
+  document.getElementById('reminderBtn').addEventListener('click', function () {
+    var cur = LS.getItem('bc_reminder') || '07:30';
+    var t = prompt('A daily nudge, at a time you choose (24h, e.g. 07:30).\nOne email, one button — never a mention of streaks or misses.\n\n(Emails aren’t sent in this preview.)', cur);
+    if (t) { try { LS.setItem('bc_reminder', t); } catch (e) {} alert('Reminder set for ' + t + '. (Not sent in this preview.)'); }
+  });
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  render();
+})();
+</script>
+</body>
+</html>
