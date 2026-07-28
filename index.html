@@ -468,11 +468,31 @@ document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('v4-form'), status = document.getElementById('v4-status');
     if (form && status) form.addEventListener('submit', function (e) {
       e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
       var nf = form.querySelector('[name="name"]'), ef = form.querySelector('[name="email"]');
+      var df = form.querySelector('[name="drawn"]'), ff = form.querySelector('[name="found"]');
       var name = (nf ? nf.value : '').trim(), email = (ef ? ef.value : '').trim();
-      if (!state.salons && !state.sits) { status.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
+      var interest = []; if (state.salons) interest.push('Salons'); if (state.sits) interest.push('Sits');
+      if (!interest.length) { status.textContent = 'Salons, Sits, or both — pick at least one.'; return; }
       if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { status.textContent = 'A name and a valid email, please.'; return; }
-      status.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.';
+      if (btn) btn.disabled = true;
+      status.textContent = 'Sending…';
+      fetch('https://formspree.io/f/xpqkbpyv', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          intent: 'take part as a participant',
+          interest: interest.join(', '),
+          name: name, email: email,
+          drawn: df ? df.value : '',
+          found: (ff && ff.value) ? ff.value : 'Not said'
+        })
+      }).then(function (r) {
+        if (r.ok) { status.textContent = 'Received, with thanks. We’ll be in touch — until then, stay curious.'; }
+        else { if (btn) btn.disabled = false; status.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.'; }
+      }).catch(function () {
+        if (btn) btn.disabled = false; status.textContent = 'That didn’t send. Try again, or email john@spacetobe.xyz.';
+      });
     });
   })();
 });
