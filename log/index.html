@@ -2,237 +2,731 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <title>Practice Log · Beings Club</title>
+  <meta name="theme-color" content="#FDFCF8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Practice">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
   <style>
-    :root{ --ink:#171916; --dim:#5a5c58; --soft:#9a9c97; --paper:#f4f4f2; --white:#fff;
-      --cream:#fff7ee; --amber:#FFAD54; --hair:rgba(23,25,22,.14); --font:'Host Grotesk',system-ui,-apple-system,sans-serif; }
+    :root{
+      --ink:#171916; --paper:#FDFCF8; --muted:#5a5c58; --faint:#9a9c97;
+      --amber:#FFAD54; --sand:#FBF4EA; --hair:rgba(23,25,22,.14); --hair-strong:rgba(23,25,22,.16);
+      --dim:rgba(23,25,22,.12);
+    }
     *{margin:0;padding:0;box-sizing:border-box;}
-    html{-webkit-font-smoothing:antialiased;}
-    body{background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.5;min-height:100vh;}
-    a{color:inherit;}
+    html{-webkit-text-size-adjust:100%;}
+    body{background:#F3F1E9;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;
+      font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;}
+    img{display:block;max-width:100%;}
+    button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left;}
     ::selection{background:var(--amber);color:var(--ink);}
-    .wrap{max-width:34rem;margin:0 auto;min-height:100vh;background:var(--white);border-left:1px solid var(--hair);border-right:1px solid var(--hair);display:flex;flex-direction:column;}
-    .bar{display:flex;justify-content:space-between;align-items:baseline;padding:1.1rem 1.4rem;border-bottom:1px solid var(--hair);}
-    .brand{font-weight:800;font-size:.72rem;letter-spacing:.02em;text-transform:uppercase;}
-    .barlab{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
-    .preview{background:var(--cream);border-bottom:1px solid var(--hair);padding:.6rem 1.4rem;font-size:.66rem;font-weight:600;letter-spacing:.04em;color:var(--dim);text-align:center;}
-    main{flex:1;padding:clamp(1.6rem,6vw,2.6rem) 1.4rem 2.6rem;display:flex;flex-direction:column;}
-    .eyebrow{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
-    .stack{display:flex;flex-direction:column;justify-content:center;flex:1;gap:1.4rem;text-align:center;min-height:16rem;}
-    h1{font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(2rem,9vw,2.9rem);text-transform:uppercase;}
-    .sub{color:var(--dim);font-size:1rem;line-height:1.6;max-width:30ch;margin:0 auto;}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;font-family:var(--font);font-weight:700;
-      font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;padding:1.15rem 2.2rem;background:var(--ink);color:var(--white);
-      border:1px solid var(--ink);cursor:pointer;transition:background .18s,color .18s;}
-    .btn:hover{background:var(--amber);color:var(--ink);border-color:var(--amber);}
-    .btn.amber{background:var(--amber);color:var(--ink);border-color:var(--amber);}
-    .btn.amber:hover{background:var(--ink);color:var(--white);border-color:var(--ink);}
-    .btnrow{display:flex;justify-content:center;}
-    .dot{width:11px;height:11px;border-radius:50%;flex:none;}
-    .dot.me{background:var(--amber);box-shadow:0 0 0 3px rgba(255,173,84,.28);}
-    .dot.them{background:var(--ink);}
-    .dot.off{background:transparent;border:1px solid var(--hair);}
-    .today-dots{display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;}
-    .card{border:1px solid var(--hair);padding:1.2rem 1.3rem;margin-top:1.6rem;}
-    .card.logged{border-color:var(--amber);background:var(--cream);}
-    .field{width:100%;border:1px solid var(--ink);background:var(--white);padding:.8rem .9rem;font-family:var(--font);
-      font-size:.95rem;color:var(--ink);outline:none;border-radius:0;}
-    .field:focus{box-shadow:0 0 0 3px rgba(255,173,84,.4);}
-    .link{background:none;border:none;font-family:var(--font);cursor:pointer;color:var(--dim);font-size:.8rem;
-      font-weight:600;letter-spacing:.02em;text-decoration:underline;text-underline-offset:3px;padding:.2rem 0;}
-    .link:hover{color:var(--ink);}
-    .grid35{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:.9rem;}
-    .sq{aspect-ratio:1;border:1px solid var(--hair);position:relative;}
-    .sq.future{opacity:.4;}
-    .sq.today{outline:2px solid var(--ink);outline-offset:-1px;}
-    .sq .mine{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-    .sq .mine::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--amber);}
-    .feed{margin-top:.9rem;display:flex;flex-direction:column;gap:.7rem;}
-    .feedrow{display:flex;gap:.6rem;align-items:baseline;font-size:.9rem;}
-    .feedname{font-weight:700;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);flex:none;min-width:4.5rem;}
-    .feednote{color:var(--dim);line-height:1.5;}
-    .sectlab{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);}
-    .muted{color:var(--soft);font-size:.78rem;line-height:1.5;}
-    /* John panel (private, on black) */
-    .john{margin-top:1.8rem;background:var(--ink);color:var(--white);padding:1.3rem;}
-    .john .sectlab{color:rgba(255,255,255,.5);}
-    .john .field{background:#26282400;border-color:rgba(255,255,255,.4);color:var(--white);}
-    .john .field::placeholder{color:rgba(255,255,255,.45);}
-    .john .btn{background:var(--white);color:var(--ink);border-color:var(--white);}
-    .john .btn:hover{background:var(--amber);border-color:var(--amber);}
-    .foot{padding:1.4rem;border-top:1px solid var(--hair);display:flex;justify-content:space-between;align-items:center;gap:1rem;}
-    .foot a,.foot button{font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);background:none;border:none;cursor:pointer;font-family:var(--font);}
-    .foot a:hover,.foot button:hover{color:var(--ink);}
-    .legend{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:.8rem;font-size:.62rem;color:var(--soft);letter-spacing:.02em;}
-    .legend span{display:inline-flex;align-items:center;gap:.35rem;}
+    em{font-style:italic;}
+
+    /* the app is one paper sheet; on wide screens it stops stacking, capped at 64rem */
+    .app{background:var(--paper);min-height:100svh;display:flex;flex-direction:column;
+      max-width:34rem;margin:0 auto;border-left:1px solid var(--hair);border-right:1px solid var(--hair);}
+    @media (min-width:48rem){ .app{max-width:64rem;} }
+
+    .bar{padding:1.1rem 1.5rem;border-bottom:1px solid var(--hair);
+      display:flex;justify-content:space-between;align-items:baseline;gap:1rem;}
+    .brand{font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;}
+    .barlab{font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+    .barlab.on{color:var(--amber);}
+    .barlink{font-size:.78rem;color:var(--muted);}
+
+    main{flex:1;display:flex;flex-direction:column;}
+    .centre{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+      text-align:center;gap:1.6rem;padding:2rem 1.5rem;}
+    .pad{padding:1.4rem 1.5rem;}
+    .eyebrow{font-weight:700;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);}
+    .caps{font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+    h3.ask{font-weight:800;font-size:2.1rem;line-height:1;letter-spacing:-.04em;text-transform:uppercase;max-width:12ch;}
+    h3.head{font-weight:800;font-size:1.6rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:16ch;}
+    p.body{font-size:.95rem;line-height:1.6;color:var(--muted);}
+    p.note{font-size:.88rem;line-height:1.6;color:var(--faint);max-width:30ch;}
+    .band{padding:1.4rem 1.5rem;border-bottom:1px solid var(--hair);background:var(--sand);}
+    .band p{font-weight:700;font-size:1.15rem;letter-spacing:-.02em;line-height:1.25;}
+    .foot{padding:1.1rem 1.5rem;border-top:1px solid var(--hair);
+      display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+    .foot span,.foot button{font-size:.78rem;color:var(--faint);}
+    .ul{color:var(--muted);border-bottom:1px solid rgba(23,25,22,.25);}
+
+    /* the tap square */
+    .tap{width:100%;max-width:15rem;aspect-ratio:1;border:1px solid var(--ink);background:var(--sand);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;
+      transition:transform 90ms ease-out,background 180ms ease-out;}
+    .tap b{font-weight:800;font-size:1.1rem;letter-spacing:-.02em;text-transform:uppercase;}
+    .tap i{font-style:normal;font-size:.78rem;color:var(--muted);}
+    .tap.dip{transform:scale(.98);}
+    .tap.done{background:var(--amber);border-color:var(--amber);}
+    .tap.done b{font-size:1.3rem;letter-spacing:-.03em;}
+    .tap.done i{color:rgba(23,25,22,.7);}
+
+    .fade{opacity:0;transition:opacity .6s ease-out;}
+    .fade.in{opacity:1;}
+    .rise{transform:translateY(14px);opacity:0;transition:transform .3s ease-out,opacity .3s ease-out;}
+    .rise.in{transform:none;opacity:1;}
+
+    /* dots: one per person, per day */
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);}
+    .dot.did{background:var(--ink);}
+    .dot.me{background:var(--amber);box-shadow:0 0 0 2px rgba(255,173,84,.3);}
+    .daycol{display:grid;gap:.4rem;justify-items:center;}
+    .daycol.future{opacity:.3;}
+    .dots{display:grid;gap:3px;}
+    .dlab{font-size:.56rem;font-weight:700;color:var(--faint);}
+    .dlab.today{font-weight:800;color:var(--ink);}
+    .week{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;align-items:end;}
+    .legend{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;}
+    .legend span{display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--muted);}
+    .key{width:7px;height:7px;border-radius:50%;}
+
+    /* tabs */
+    .tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--hair);}
+    .tabs button{text-align:center;padding:.75rem;font-weight:700;font-size:.66rem;
+      letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+    .tabs button:first-child{border-right:1px solid var(--hair);}
+    .tabs button.sel{background:var(--ink);color:#fff;}
+
+    /* all 35 days */
+    .sq{aspect-ratio:1;background:rgba(23,25,22,.05);position:relative;}
+    .sq .mine{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber);}
+    .sq.today{outline:2px solid var(--ink);outline-offset:2px;}
+    .wkrow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+    .wkhead{display:flex;justify-content:space-between;align-items:baseline;}
+    .wkhead b{font-weight:700;font-size:.72rem;letter-spacing:-.01em;}
+    .wkhead span{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+    .wkhead span.now{font-weight:700;color:var(--amber);}
+
+    .field{width:100%;border:1px solid var(--ink);background:transparent;padding:.9rem 1rem;
+      font-family:inherit;font-size:1rem;line-height:1.5;color:var(--ink);outline:none;resize:none;border-radius:0;}
+    .field::placeholder{color:var(--faint);}
+    .btn{display:block;width:100%;text-align:center;padding:.95rem;font-weight:700;font-size:.76rem;
+      letter-spacing:.16em;text-transform:uppercase;background:var(--ink);color:#fff;
+      transition:background .18s,color .18s;}
+    .btn:hover{background:var(--amber);color:var(--ink);}
+    .btn.amber{background:var(--amber);color:var(--ink);}
+    .btn.amber:hover{background:var(--ink);color:#fff;}
+    .quiet{display:block;width:100%;text-align:center;padding:.5rem;font-size:.85rem;color:var(--muted);}
+    .count{font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+
+    /* black is John */
+    .dark{background:var(--ink);color:#fff;min-height:100svh;display:flex;flex-direction:column;}
+    .dark .bar{border-bottom:1px solid rgba(255,255,255,.18);}
+    .dark .field{border-color:rgba(255,255,255,.35);color:#fff;}
+    .dark .field::placeholder{color:rgba(255,255,255,.45);}
+    .dark p.body{color:rgba(255,255,255,.72);}
+    .dark .caps,.dark .barlink{color:rgba(255,255,255,.5);}
+
+    .rows > div{padding:1.2rem 1.5rem;border-bottom:1px solid var(--hair);}
+    .rowflex{display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+    .rowflex b{font-weight:700;font-size:.95rem;letter-spacing:-.02em;}
+    .rowflex p{font-size:.82rem;color:var(--faint);margin-top:.2rem;}
+    .sw{width:44px;height:26px;background:var(--dim);border-radius:13px;position:relative;flex:none;transition:background .18s;}
+    .sw.on{background:var(--ink);}
+    .sw i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+      background:var(--paper);transition:left .18s;}
+    .sw.on i{left:21px;}
+    .chip{font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;}
+    .chip.sel{border-color:var(--ink);background:var(--ink);color:#fff;}
+    .notes{display:grid;gap:.75rem;}
+    .noterow{display:grid;gap:.15rem;}
+    .noterow b{font-weight:700;font-size:.8rem;}
+    .noterow p{font-size:.88rem;line-height:1.5;color:var(--muted);}
+
+    .dtitle{display:none;}
+    @media (min-width:48rem){
+      /* the two mobile tabs become one view — week above, whole run below,
+         notes in the rail. Nothing new appears. */
+      .split{display:grid;grid-template-columns:1.35fr 1fr;gap:2.5rem;padding:1.8rem 2rem;align-items:start;}
+      .split > *{min-width:0;}
+      .main{display:grid;gap:2rem;align-content:start;}
+      .tabs{display:none;}
+      .centre{padding:3rem 2rem;}
+      .dtitle{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+        border-bottom:1px solid var(--hair);padding-bottom:.6rem;margin-bottom:.9rem;}
+      .dtitle b{font-weight:700;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;}
+      .dtitle span{font-size:.78rem;color:var(--faint);}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .tap,.fade,.rise{transition-duration:.2s !important;}
+      .tap.dip{transform:none;}
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="bar"><span class="brand">Beings Club</span><span class="barlab" id="barlab">Practice Log</span></div>
-  <div class="preview" id="preview" hidden></div>
-  <main id="app"></main>
-  <div class="foot">
-    <button id="reminderBtn" type="button">Reminder</button>
-    <a href="/beyondbelief">Beyond Belief ↗</a>
-  </div>
-</div>
+<div id="root"></div>
 
 <script>
 (function () {
-  var LS = window.localStorage;
-  var DAY = 86400000;
-  var START = Date.UTC(2026, 8, 16);           // Sep 16 2026 = Day 1
-  var TOTAL = 35;                               // 35 days of practice
-  var NAMES = ['Ana','Mark','Zak','Sean','Manansh','Catra','Esme','Jordan','Sam'];  // the other nine
+  'use strict';
 
-  // ---- which day are we on ----
-  function todayUTC() { var d = new Date(); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); }
-  var realIdx = Math.round((todayUTC() - START) / DAY);
-  var isDemo = realIdx < 0 || realIdx >= TOTAL;
-  var dayIdx = isDemo ? 17 : realIdx;           // in-window? real day : Day 18 preview
-  function dateLabel(i) { return new Date(START + i * DAY).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }); }
+  // ---- the run -------------------------------------------------------------
+  // The cohort run is 16 Sep – 20 Oct 2026. Until then the log starts the day
+  // you first open it, so it can be lived with for a month before the ten arrive.
+  var TOTAL = 35;
+  var PRINCIPLES = ['Curiosity', 'Care', 'Responsibility', 'Play', 'Rest'];
+  // The one-tap button in every outgoing email reads "Log Your Practice"
+  // (John's wording, replacing the design's "I practised today").
+  var EMAIL_CTA = 'Log Your Practice';
+  var HOURS = ['6:30am', '7:00am', '12:00pm', '9:00pm'];
+  var KEY = 'bc_practice_log_v2';
+  var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-  // ---- my log (persisted) ----
-  function load() { try { return JSON.parse(LS.getItem('bc_log') || '{}'); } catch (e) { return {}; } }
-  function save(o) { try { LS.setItem('bc_log', JSON.stringify(o)); } catch (e) {} }
-  var mine = load();
-  function mineOn(i) { return mine[i] && mine[i].sat; }
-
-  // ---- seeded cohort: deterministic "did member m sit on day i" ----
-  function hash(a, b) { var x = (a * 73856093) ^ (b * 19349663); x = (x ^ (x >>> 13)) * 1274126177; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; }
-  function themOn(m, i) { return i <= dayIdx && hash(m + 1, i + 1) < 0.8; }     // ~80% sit, only up to today
-  function themNote(m, i) {
-    var notes = ['restless but stayed', 'ten minutes, in the car', 'kept coming back', 'quiet one today', 'nearly skipped — glad I didn’t', 'short, on the floor', 'sat with the noise'];
-    if (hash(m + 5, i + 5) < 0.35) return notes[Math.floor(hash(m + 9, i + 2) * notes.length)];
-    return '';
+  var S = load();
+  function load() {
+    var d = {};
+    try { d = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    if (!d.days) d.days = {};
+    if (!d.questions) d.questions = [];
+    if (typeof d.notesOn !== 'boolean') d.notesOn = true;
+    if (typeof d.nudgeOn !== 'boolean') d.nudgeOn = true;
+    if (!d.hour) d.hour = HOURS[1];
+    if (!d.cohort) d.cohort = [];        // the other nine, once there are others
+    return d;
   }
-  function countToday() { var n = mineOn(dayIdx) ? 1 : 0; for (var m = 0; m < NAMES.length; m++) if (themOn(m, dayIdx)) n++; return n; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
-  var app = document.getElementById('app');
-  var barlab = document.getElementById('barlab');
-  var preview = document.getElementById('preview');
-  if (isDemo) { preview.hidden = false; preview.textContent = 'Preview — the log runs 16 September – 20 October 2026. Showing Day 18.'; }
+  // ---- days ----------------------------------------------------------------
+  // A day rolls at the participant's own midnight: a 1am sit counts for the
+  // night they were awake, so everything is computed in local time.
+  function midnight(d) { d = d || new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }
+  function dayIdx() { return S.start == null ? 0 : Math.floor((midnight() - S.start) / 86400000); }
+  function dateOf(i) { return new Date(S.start + i * 86400000); }
+  function fmt(d, opt) { return d.toLocaleDateString('en-GB', opt || { weekday: 'long', day: 'numeric', month: 'long' }); }
+  function principleOf(i) { return PRINCIPLES[Math.min(PRINCIPLES.length - 1, Math.floor(i / 7))]; }
+  function mark(i) { return S.days[i] || null; }
+  function didI(i) { return !!(S.days[i] && S.days[i].sat); }
 
-  function el(html) { var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+  // Others, when there are others. Solo, these are honestly empty.
+  function others() { return S.cohort || []; }
+  function othersOn(i) { var n = 0; others().forEach(function (p) { if (p.days && p.days[i]) n++; }); return n; }
+  function roomSize() { return others().length + 1; }
 
+  var WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen',
+    'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six',
+    'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three',
+    'thirty-four', 'thirty-five'];
+  function word(n) { return WORDS[n] || String(n); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ---- view state ----------------------------------------------------------
+  var view = null;        // null = decide from data
+  var tab = 'week';
+  var openDay = null;
+  var noteOffered = {};   // dismissed notes do not return that day
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function h(html) { var d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; }
+  var root = document.getElementById('root');
+
+  function go(v) { view = v; render(); window.scrollTo(0, 0); }
+
+  // ---- render --------------------------------------------------------------
   function render() {
-    barlab.textContent = mineOn(dayIdx) ? 'Logged' : 'Practice Log';
-    app.innerHTML = '';
-    var logged = mineOn(dayIdx);
-
-    if (!logged) {
-      var s = el('<div class="stack">\
-        <div class="eyebrow">Day ' + (dayIdx + 1) + ' of ' + TOTAL + ' · ' + dateLabel(dayIdx) + '</div>\
-        <h1>Did you<br>sit today?</h1>\
-        <p class="sub">Any length counts. Five minutes on a hard day is a real sit, not a failed one.</p>\
-        <div class="btnrow"><button class="btn amber" id="satBtn">I sat</button></div>\
-        <div><button class="link" id="askLink">Ask John something</button></div>\
-      </div>');
-      app.appendChild(s);
-      document.getElementById('satBtn').addEventListener('click', function () { mine[dayIdx] = { sat: true, note: (mine[dayIdx] && mine[dayIdx].note) || '' }; save(mine); render(); });
-      document.getElementById('askLink').addEventListener('click', showJohn);
-      renderStretch();
-      return;
-    }
-
-    // logged: reveal the others
-    var others = countToday() - 1;
-    var dots = '';
-    dots += '<span class="dot me" title="you"></span>';
-    for (var m = 0; m < NAMES.length; m++) dots += '<span class="dot ' + (themOn(m, dayIdx) ? 'them' : 'off') + '"></span>';
-
-    var head = el('<div>\
-      <div class="eyebrow">Day ' + (dayIdx + 1) + ' of ' + TOTAL + ' · ' + dateLabel(dayIdx) + '</div>\
-      <div class="card logged" style="margin-top:1rem;text-align:center;">\
-        <div class="today-dots" style="margin-bottom:1rem;">' + dots + '</div>\
-        <div style="font-weight:700;font-size:1.15rem;letter-spacing:-.02em;">You sat.' + (others > 0 ? ' So did ' + others + ' other' + (others === 1 ? '' : 's') + ' today.' : ' You’re first today.') + '</div>\
-        <p class="muted" style="margin-top:.4rem;">The whole room is sitting with you.</p>\
-      </div>\
-    </div>');
-    app.appendChild(head);
-
-    // note (optional, group sees)
-    var myNote = (mine[dayIdx] && mine[dayIdx].note) || '';
-    var noteCard = el('<div class="card">\
-      <div class="sectlab">Add a note · the others see it</div>\
-      ' + (myNote
-        ? '<p class="feednote" style="margin-top:.6rem;font-style:italic;">“' + esc(myNote) + '”</p>'
-        : '<div style="display:flex;gap:.5rem;margin-top:.6rem;"><input class="field" id="noteIn" maxlength="90" placeholder="A line, or nothing at all…"><button class="btn" id="noteBtn" style="padding:.8rem 1.1rem;">Post</button></div>') + '\
-    </div>');
-    app.appendChild(noteCard);
-    if (!myNote) {
-      var post = function () { var v = document.getElementById('noteIn').value.trim(); mine[dayIdx].note = v; save(mine); render(); };
-      document.getElementById('noteBtn').addEventListener('click', post);
-      document.getElementById('noteIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') post(); });
-    }
-
-    // the group's notes today
-    var feed = '';
-    for (var m2 = 0; m2 < NAMES.length; m2++) { if (themOn(m2, dayIdx)) { var nn = themNote(m2, dayIdx); if (nn) feed += '<div class="feedrow"><span class="feedname">' + NAMES[m2] + '</span><span class="feednote">' + nn + '</span></div>'; } }
-    if (feed) app.appendChild(el('<div class="card"><div class="sectlab">Today, in the room</div><div class="feed">' + feed + '</div></div>'));
-
-    renderStretch();
-    app.appendChild(el('<div style="margin-top:1.6rem;text-align:center;"><button class="link" id="askLink2">Ask John something · privately</button></div>'));
-    document.getElementById('askLink2').addEventListener('click', showJohn);
+    var i = dayIdx();
+    if (S.start == null) return viewFirstRun();
+    // The last day is still a day you can log; once it's in, the run closes.
+    if (i >= TOTAL || (i === TOTAL - 1 && didI(i) && view !== 'john')) return viewClosing();
+    if (view === 'john') return viewJohn();
+    if (view === 'settings') return viewSettings();
+    if (view === 'yesterday') return viewYesterday();
+    if (view === 'day') return viewDay();
+    if (view === 'note') return viewNote();
+    if (view === 'cohort') return viewCohort();
+    // no explicit view: already logged opens straight to the room
+    if (didI(i)) return viewCohort();
+    return viewLog();
   }
 
-  function renderStretch() {
-    var sq = '';
-    for (var i = 0; i < TOTAL; i++) {
-      var cls = 'sq';
-      if (i > dayIdx) cls += ' future';
-      if (i === dayIdx) cls += ' today';
-      // shade by how many of us sat that day
-      var c = 0; if (mineOn(i)) c++; for (var m = 0; m < NAMES.length; m++) if (themOn(m, i)) c++;
-      var frac = i <= dayIdx ? c / (NAMES.length + 1) : 0;
-      var bg = i <= dayIdx ? 'rgba(23,25,22,' + (0.06 + frac * 0.5).toFixed(2) + ')' : 'transparent';
-      sq += '<div class="' + cls + '" style="background:' + bg + '" title="Day ' + (i + 1) + '">' + (mineOn(i) ? '<span class="mine"></span>' : '') + '</div>';
-    }
-    var wrap = el('<div style="margin-top:2rem;">\
-      <div class="sectlab">The thirty-five days</div>\
-      <div class="grid35">' + sq + '</div>\
-      <div class="legend"><span><span class="dot me" style="width:8px;height:8px;box-shadow:none;"></span>you sat</span><span>darker · more of us sat</span><span>no streaks, no scores</span></div>\
-    </div>');
-    app.appendChild(wrap);
+  function shell(inner, opts) {
+    opts = opts || {};
+    root.innerHTML = '';
+    var app = h('<div class="' + (opts.dark ? 'dark' : 'app') + '"></div>');
+    app.appendChild(h(
+      '<div class="bar">' +
+        (opts.left || '<span class="brand">Beings Club</span>') +
+        (opts.right || '') +
+      '</div>'));
+    var main = h('<main></main>');
+    main.appendChild(inner);
+    app.appendChild(main);
+    if (opts.foot) app.appendChild(opts.foot);
+    root.appendChild(app);
+  }
+  function dayLabel() {
+    var i = dayIdx();
+    return i === TOTAL - 1
+      ? '<span class="barlab on">Day 35 · last</span>'
+      : '<span class="barlab">Day ' + (i + 1) + ' of ' + TOTAL + '</span>';
   }
 
-  function showJohn() {
-    if (document.getElementById('johnPanel')) { document.getElementById('johnQ').focus(); return; }
-    var p = el('<div class="john" id="johnPanel">\
-      <div class="sectlab">A question for John · only John sees this</div>\
-      <p class="muted" style="color:rgba(255,255,255,.6);margin:.5rem 0 .8rem;">Where honest struggle goes. He answers by voice, usually within a day or two.</p>\
-      <textarea class="field" id="johnQ" rows="3" placeholder="Say the true thing…"></textarea>\
-      <div style="margin-top:.8rem;"><button class="btn" id="johnSend">Send to John</button></div>\
-      <p class="muted" id="johnMsg" style="color:rgba(255,255,255,.6);margin-top:.7rem;" aria-live="polite"></p>\
-    </div>');
-    app.appendChild(p);
-    document.getElementById('johnQ').focus();
-    document.getElementById('johnSend').addEventListener('click', function () {
-      var v = document.getElementById('johnQ').value.trim();
-      if (!v) return;
-      var qs; try { qs = JSON.parse(LS.getItem('bc_john') || '[]'); } catch (e) { qs = []; }
-      qs.push({ day: dayIdx + 1, q: v }); try { LS.setItem('bc_john', JSON.stringify(qs)); } catch (e) {}
-      document.getElementById('johnQ').value = '';
-      document.getElementById('johnMsg').textContent = 'Sent to John, privately. He’ll reply by voice.';
+  // ---- first run -----------------------------------------------------------
+  function viewFirstRun() {
+    var inner = h(
+      '<div class="centre" style="text-align:left;align-items:stretch;">' +
+        '<div class="eyebrow">Beyond Belief · thirty-five days</div>' +
+        '<h3 class="head" style="max-width:18ch;">One question, once a day.</h3>' +
+        '<p class="body">You practise, you say so, and you see the others who did. Nothing is scored and nothing is kept but the days themselves.</p>' +
+        '<div><div class="caps" style="margin-bottom:.5rem;">Your name</div>' +
+          '<input class="field" id="nm" placeholder="What the others see on your notes" autocomplete="given-name"></div>' +
+        '<div><div class="caps" style="margin-bottom:.5rem;">A daily nudge at</div>' +
+          '<div style="display:flex;gap:.4rem;flex-wrap:wrap;" id="hrs"></div>' +
+          '<p class="note" style="margin-top:.7rem;max-width:none;">Your local time — ' + esc(tz()) + '</p></div>' +
+        '<button class="btn" id="begin">Begin</button>' +
+        '<p class="note" style="max-width:none;">Twenty minutes is standard, and sitting daily matters far more than sitting long. Five minutes on a hard day is a real practice, not a failed one.</p>' +
+      '</div>');
+    shell(inner, { right: '<span class="barlab">Set up</span>' });
+
+    var hrs = document.getElementById('hrs');
+    HOURS.forEach(function (t) {
+      var b = h('<button class="chip' + (t === S.hour ? ' sel' : '') + '">' + t + '</button>');
+      b.addEventListener('click', function () { S.hour = t; save(); render(); });
+      hrs.appendChild(b);
+    });
+    document.getElementById('nm').value = S.name || '';
+    document.getElementById('begin').addEventListener('click', function () {
+      S.name = (document.getElementById('nm').value || '').trim() || 'You';
+      S.start = midnight();
+      save(); go(null);
+    });
+  }
+  function tz() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return 'your time'; } }
+
+  // ---- the log surface (before the tap) ------------------------------------
+  // Nothing before the tap: no cohort, no counts, no notes on this screen.
+  function viewLog() {
+    var i = dayIdx();
+    var away = daysAway();
+    var inner = h('<div class="centre"></div>');
+
+    if (away >= 3) {
+      // The gap is never mentioned, never counted.
+      inner.appendChild(h(
+        '<img src="/assets/opart/spacious.png" alt="" aria-hidden="true" style="width:72px;mix-blend-mode:multiply;">'));
+      inner.appendChild(h('<h3 class="head" style="max-width:14ch;">Good to see you.</h3>'));
+      inner.appendChild(h('<p class="body" style="max-width:32ch;">Nothing has been kept. Nothing needs explaining. There\'s just today, the same as it was.</p>'));
+    } else {
+      inner.appendChild(h('<div class="eyebrow">' + esc(fmt(dateOf(i))) + '</div>'));
+      inner.appendChild(h('<h3 class="ask">Did you practise today?</h3>'));
+    }
+
+    var tap = h('<button class="tap" id="tap"><b>I practised</b><i>tap anywhere here</i></button>');
+    inner.appendChild(tap);
+
+    inner.appendChild(h('<p class="note">' + (away >= 3
+      ? 'Beginning again is not the failure. It <em>is</em> the practice.'
+      : 'Twenty minutes is standard, and sitting daily matters far more than sitting long. Five minutes on a hard day is a real practice, not a failed one.') + '</p>'));
+
+    var foot = h('<div class="foot"></div>');
+    var yBtn = h('<span>Yesterday? <button class="ul" id="yday">Add it</button></span>');
+    foot.appendChild(canAddYesterday() ? yBtn : h('<span></span>'));
+    foot.appendChild(h('<button id="setl">Settings</button>'));
+
+    shell(inner, { right: dayLabel(), foot: foot });
+    document.getElementById('setl').addEventListener('click', function () { go('settings'); });
+    if (canAddYesterday()) document.getElementById('yday').addEventListener('click', function () { go('yesterday'); });
+    tap.addEventListener('click', function () { doTap(tap); });
+    S.seen = midnight(); save();
+  }
+
+  function daysAway() {
+    if (!S.seen) return 0;
+    return Math.max(0, Math.round((midnight() - S.seen) / 86400000));
+  }
+  function canAddYesterday() {
+    var y = dayIdx() - 1;
+    return y >= 0 && !didI(y);
+  }
+
+  // ---- the anatomy of one tap ---------------------------------------------
+  // 0ms dip + haptic · 120ms commit to amber · a beat alone · 700ms the count ·
+  // 1400ms the grid · 2000ms the note. Reduced motion collapses it to a crossfade.
+  function doTap(tap) {
+    var i = dayIdx();
+    S.days[i] = { sat: true, at: Date.now(), note: (S.days[i] && S.days[i].note) || '' };
+    save();
+    if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+
+    if (reduced) { afterTap(); return; }
+
+    tap.classList.add('dip');
+    setTimeout(function () { tap.classList.remove('dip'); }, 90);
+    setTimeout(function () {
+      tap.classList.add('done');
+      tap.querySelector('b').textContent = 'You practised.';
+      tap.querySelector('i').textContent = 'Day ' + (i + 1);
+      var lab = document.querySelector('.barlab');
+      if (lab) { lab.textContent = navigator.onLine === false ? 'Logged · offline' : 'Logged'; lab.classList.add('on'); }
+      // the rest of the screen steps back so the square is alone
+      [].forEach.call(document.querySelectorAll('.centre > *'), function (el) {
+        if (el !== tap) { el.style.transition = 'opacity .4s ease-out'; el.style.opacity = '0'; }
+      });
+    }, 120);
+
+    setTimeout(function () {
+      var line = h('<p class="body fade" style="max-width:26ch;">' + revealLine(i) + '</p>');
+      tap.parentNode.appendChild(line);
+      requestAnimationFrame(function () { line.classList.add('in'); });
+    }, 700);
+
+    // 1400ms the grid fades up beneath you; 2000ms the note prompt rises.
+    setTimeout(function () { go('cohort'); }, 1400);
+    setTimeout(afterTap, 2000);
+  }
+
+  function revealLine(i) {
+    var n = othersOn(i);
+    if (!others().length) return 'Your day is in.';         // solo: never invent a room
+    if (n === 0) return 'You\'re the first one in.';
+    return cap(word(n)) + ' other' + (n === 1 ? '' : 's') + ' ' + (n === 1 ? 'has' : 'have') + ' practised so far today.';
+  }
+
+  function afterTap() {
+    var i = dayIdx();
+    if (S.notesOn && !noteOffered[i] && !(S.days[i] && S.days[i].note)) { noteOffered[i] = true; go('note'); }
+    else if (view !== 'cohort') go('cohort');
+  }
+
+  // ---- the note (offered once) --------------------------------------------
+  function viewNote() {
+    var i = dayIdx();
+    var seenBy = others().length
+      ? 'The ' + word(others().length) + ' others will see this'
+      : 'Kept with your day';
+    var inner = h(
+      '<div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.25rem;">' +
+        '<div style="display:flex;align-items:center;gap:.7rem;">' +
+          '<span class="dot me" style="width:10px;height:10px;box-shadow:0 0 0 3px rgba(255,173,84,.3);"></span>' +
+          '<span class="caps">Day ' + (i + 1) + ' · you practised</span></div>' +
+        '<h3 class="head" style="max-width:15ch;">Add a note?</h3>' +
+        '<p class="body">A line for the others. What it was like, or nothing at all.</p>' +
+        '<div><textarea class="field" id="nt" rows="3" maxlength="100" placeholder="Restless the whole way through. Sat anyway."></textarea>' +
+          '<div style="display:flex;justify-content:flex-end;margin-top:.4rem;"><span class="count" id="left">100 left</span></div></div>' +
+        '<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--faint);">' +
+          '<span style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.3);"></span><span>' + seenBy + '</span></div>' +
+        '<div style="display:grid;gap:.6rem;margin-top:.4rem;">' +
+          '<button class="btn" id="addit">Add it</button>' +
+          '<button class="quiet" id="skip">Skip — no note today</button></div>' +
+      '</div>');
+    var foot = h('<div class="foot" style="justify-content:center;"><span style="color:var(--muted);">Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
+    if (!reduced) inner.classList.add('rise');
+    shell(inner, { right: '<span class="barlab on">Logged</span>', foot: foot });
+    requestAnimationFrame(function () { inner.classList.add('in'); });
+
+    var ta = document.getElementById('nt'), left = document.getElementById('left');
+    ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
+    ta.focus();
+    document.getElementById('addit').addEventListener('click', function () {
+      var v = ta.value.trim();
+      if (v) { S.days[i].note = v; save(); }
+      go('cohort');
+    });
+    document.getElementById('skip').addEventListener('click', function () { go('cohort'); });
+    document.getElementById('jl').addEventListener('click', function () { go('john'); });
+  }
+
+  // ---- the room ------------------------------------------------------------
+  function viewCohort() {
+    var i = dayIdx();
+    var inner = h('<div style="flex:1;display:flex;flex-direction:column;"></div>');
+
+    var n = othersOn(i);
+    var todayLine = !others().length
+      ? (didI(i) ? 'You practised today.' : 'Today is still open.')
+      : (n === 0 ? 'You\'re the first one in.'
+        : 'You and ' + word(n) + ' other' + (n === 1 ? '' : 's') + ' have practised.');
+    inner.appendChild(h('<div class="band"><div class="caps" style="margin-bottom:.5rem;">Today</div><p>' + todayLine + '</p></div>'));
+
+    var tabs = h('<div class="tabs">' +
+      '<button id="tw" class="' + (tab === 'week' ? 'sel' : '') + '">This week</button>' +
+      '<button id="ta" class="' + (tab === 'all' ? 'sel' : '') + '">All 35 days</button></div>');
+    inner.appendChild(tabs);
+
+    var body = h('<div class="split"></div>');
+    var wk = weekBlock(), all = allBlock(), notes = notesBlock(dayIdx());
+    if (window.matchMedia('(min-width:48rem)').matches) {
+      var col = h('<div class="main"></div>');
+      var wkWrap = h('<div></div>');
+      wkWrap.appendChild(h('<div class="dtitle"><b>This week</b><span>' +
+        esc(fmt(dateOf(i))) + ' · ' + principleOf(i).toLowerCase() + '</span></div>'));
+      wkWrap.appendChild(wk);
+      var allWrap = h('<div></div>');
+      allWrap.appendChild(h('<div class="dtitle"><b>All thirty-five days</b><span>Click a day to open it</span></div>'));
+      allWrap.appendChild(all);
+      col.appendChild(wkWrap); col.appendChild(allWrap);
+      body.appendChild(col);
+      body.appendChild(notes || h('<div></div>'));
+    } else {
+      body.style.display = 'block'; body.className = 'pad';
+      body.appendChild(tab === 'week' ? wk : all);
+      if (tab === 'week' && notes) body.appendChild(notes);
+    }
+    inner.appendChild(body);
+
+    var foot = h('<div class="foot"><button id="setl">Settings</button>' +
+      '<span style="color:var(--muted);">Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
+    shell(inner, { right: '<span class="barlab on">' + (navigator.onLine === false ? 'Logged · offline' : 'Logged') + '</span>', foot: foot });
+
+    document.getElementById('tw').addEventListener('click', function () { tab = 'week'; render(); });
+    document.getElementById('ta').addEventListener('click', function () { tab = 'all'; render(); });
+    document.getElementById('setl').addEventListener('click', function () { go('settings'); });
+    document.getElementById('jl').addEventListener('click', function () { go('john'); });
+
+    if (navigator.onLine === false) {
+      body.appendChild(h('<div style="border:1px solid rgba(23,25,22,.2);padding:1rem 1.1rem;display:grid;gap:.4rem;margin-top:1.3rem;">' +
+        '<span class="caps">Saved on this device</span>' +
+        '<p class="body" style="font-size:.9rem;">No signal, so the others aren\'t here yet. Your day is kept and will go up on its own.</p></div>'));
+    }
+  }
+
+  // days across, one dot per person — never a row per person
+  function weekBlock() {
+    var i = dayIdx(), wkStart = Math.floor(i / 7) * 7;
+    var box = h('<div style="display:grid;gap:1.3rem;align-content:start;"></div>');
+    var row = h('<div class="week"></div>');
+    for (var d = wkStart; d < wkStart + 7; d++) {
+      var future = d > i, dt = dateOf(d);
+      var col = h('<div class="daycol' + (future ? ' future' : '') + '"></div>');
+      var dots = h('<div class="dots" style="grid-template-columns:repeat(' + Math.min(2, roomSize()) + ',6px);"></div>');
+      dots.appendChild(h('<div class="dot ' + (didI(d) ? 'me' : '') + '"></div>'));
+      others().forEach(function (p) { dots.appendChild(h('<div class="dot ' + (p.days && p.days[d] ? 'did' : '') + '"></div>')); });
+      col.appendChild(dots);
+      col.appendChild(h('<span class="dlab' + (d === i ? ' today' : '') + '">' + fmt(dt, { weekday: 'narrow' }) + '</span>'));
+      row.appendChild(col);
+    }
+    box.appendChild(row);
+    box.appendChild(h('<div class="legend">' +
+      '<span><span class="key" style="background:var(--amber);"></span>You</span>' +
+      '<span><span class="key" style="background:var(--ink);"></span>Practised</span>' +
+      '<span style="color:var(--faint);"><span class="key" style="background:var(--dim);"></span>Not yet</span></div>'));
+
+    return box;
+  }
+
+  // notes: their own block, so desktop can put them in the rail
+  function notesBlock(d) {
+    var notes = notesFor(d);
+    if (!notes.length) return null;
+    var nb = h('<div style="display:grid;gap:.75rem;margin-top:1.3rem;">' +
+      '<div class="caps">Notes today</div><div class="notes"></div></div>');
+    var list = nb.querySelector('.notes');
+    notes.forEach(function (nn) {
+      list.appendChild(h('<div class="noterow"><b>' + esc(nn.who) + '</b><p>' + esc(nn.text) + '</p></div>'));
+    });
+    return nb;
+  }
+  function notesFor(d) {
+    var out = [];
+    var mine = mark(d);
+    if (mine && mine.note) out.push({ who: 'You', text: mine.note });
+    others().forEach(function (p) {
+      var m = p.days && p.days[d];
+      if (m && m.note) out.push({ who: p.name, text: m.note });
+    });
+    return out;
+  }
+
+  // a day is one square: darkness is how many of us practised, amber edge is you
+  function allBlock() {
+    var i = dayIdx();
+    var box = h('<div style="display:grid;gap:1rem;align-content:start;"></div>');
+    for (var w = 0; w < 5; w++) {
+      var wkStart = w * 7, future = wkStart > i;
+      var blk = h('<div style="display:grid;gap:.45rem;' + (future ? 'opacity:.45;' : '') + '"></div>');
+      var head = h('<div class="wkhead"><b>' + PRINCIPLES[w] + '</b></div>');
+      var isNow = i >= wkStart && i < wkStart + 7;
+      head.appendChild(h('<span class="' + (isNow ? 'now' : '') + '">' + (isNow ? 'This week'
+        : fmt(dateOf(wkStart), { day: 'numeric', month: 'short' })) + '</span>'));
+      blk.appendChild(head);
+      var row = h('<div class="wkrow"></div>');
+      for (var d = wkStart; d < wkStart + 7; d++) {
+        var did = didI(d), c = (did ? 1 : 0) + othersOn(d);
+        var frac = d <= i ? c / roomSize() : 0;
+        var bg = d > i ? 'rgba(23,25,22,.05)'
+          : (c === 0 ? 'rgba(23,25,22,.05)' : 'rgba(23,25,22,' + (0.3 + frac * 0.52).toFixed(2) + ')');
+        var sq = h('<button class="sq' + (d === i ? ' today' : '') + '" style="background:' + bg + '" aria-label="Day ' + (d + 1) + '"></button>');
+        if (did) sq.appendChild(h('<span class="mine"></span>'));
+        (function (dd) { sq.addEventListener('click', function () { openDay = dd; go('day'); }); })(d);
+        row.appendChild(sq);
+      }
+      blk.appendChild(row);
+      box.appendChild(blk);
+    }
+    box.appendChild(h('<div style="border-top:1px solid var(--hair);padding-top:.9rem;display:grid;gap:.5rem;">' +
+      '<div class="legend">' +
+        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.05);position:relative;display:inline-block;">' +
+          '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber);"></span></span>You practised</span>' +
+        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.75);display:inline-block;"></span>Darker, more of us</span>' +
+        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.3);outline:1.5px solid var(--ink);outline-offset:1.5px;display:inline-block;"></span>Today</span>' +
+      '</div>' +
+      '<p style="font-size:.8rem;line-height:1.5;color:var(--faint);">Tap any day to see who practised and what they wrote.</p></div>'));
+    return box;
+  }
+
+  // ---- one day, opened -----------------------------------------------------
+  function viewDay() {
+    var d = openDay, i = dayIdx();
+    var did = didI(d), c = (did ? 1 : 0) + othersOn(d);
+    var line = d > i ? 'Not yet.'
+      : (c === 0 ? 'Nobody practised.' : cap(word(c)) + ' of us practised.');
+    if (!others().length) line = d > i ? 'Not yet.' : (did ? 'You practised.' : 'You didn\'t mark this day.');
+
+    var inner = h('<div style="flex:1;display:flex;flex-direction:column;"></div>');
+    var head = h('<div class="pad" style="border-bottom:1px solid var(--hair);display:grid;gap:.7rem;">' +
+      '<div class="eyebrow">' + esc(fmt(dateOf(d))) + ' · ' + principleOf(d).toLowerCase() + '</div>' +
+      '<p style="font-weight:700;font-size:1.3rem;letter-spacing:-.03em;line-height:1.15;">' + line + '</p></div>');
+    var sqs = h('<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:11rem;"></div>');
+    for (var k = 0; k < roomSize(); k++) {
+      var on = k === 0 ? did : !!(others()[k - 1].days && others()[k - 1].days[d]);
+      sqs.appendChild(h('<div style="aspect-ratio:1;background:' + (k === 0 && on ? 'var(--amber)' : on ? 'var(--ink)' : 'rgba(23,25,22,.12)') + ';"></div>'));
+    }
+    head.appendChild(sqs);
+    inner.appendChild(head);
+
+    var notes = notesFor(d);
+    var nb = h('<div class="pad" style="flex:1;display:grid;gap:1.1rem;align-content:start;"><div class="caps">What people wrote</div></div>');
+    if (notes.length) notes.forEach(function (nn) {
+      nb.appendChild(h('<div class="noterow"><b>' + esc(nn.who) + '</b><p>' + esc(nn.text) + '</p></div>'));
+    });
+    else nb.appendChild(h('<p class="body" style="font-size:.9rem;">Nothing was written on this day.</p>'));
+    nb.appendChild(h('<p style="font-size:.82rem;line-height:1.55;color:var(--faint);border-top:1px solid var(--hair);padding-top:.9rem;">Who didn\'t practise isn\'t shown. Only what people chose to say.</p>'));
+    inner.appendChild(nb);
+
+    shell(inner, {
+      left: '<button class="barlink" id="back">← All 35 days</button>',
+      right: '<span class="barlab">Day ' + (d + 1) + '</span>'
+    });
+    document.getElementById('back').addEventListener('click', function () { tab = 'all'; go('cohort'); });
+  }
+
+  // ---- yesterday, added late ----------------------------------------------
+  function viewYesterday() {
+    var y = dayIdx() - 1, dt = dateOf(y);
+    var inner = h('<div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;">' +
+      '<h3 class="head">Did you practise on ' + esc(fmt(dt, { weekday: 'long' })) + '?</h3>' +
+      '<p class="body">Only yesterday can be added, and only until midnight tonight. After that a day is what it was.</p>' +
+      '<div style="display:grid;gap:.6rem;">' +
+        '<button id="yes" style="border:1px solid var(--ink);background:var(--sand);padding:1rem;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Yes, I practised</span>' +
+          '<span style="font-size:.78rem;color:var(--muted);">' + esc(fmt(dt, { weekday: 'short', day: 'numeric', month: 'short' })) + '</span></button>' +
+        '<button class="quiet" id="no">No — leave it as it is</button></div>' +
+      '<div style="background:var(--sand);padding:1rem 1.1rem;"><p style="font-size:.85rem;line-height:1.58;color:var(--muted);">It joins the grid without a mark saying it was late. Nobody is told the difference, because there isn\'t one.</p></div>' +
+    '</div>');
+    var foot = h('<div class="foot" style="justify-content:center;"><span>No notes on a late day — the moment has passed</span></div>');
+    shell(inner, { left: '<button class="barlink" id="back">← Today</button>', right: '<span class="barlab">Yesterday</span>', foot: foot });
+    document.getElementById('back').addEventListener('click', function () { go(null); });
+    document.getElementById('no').addEventListener('click', function () { go(null); });
+    document.getElementById('yes').addEventListener('click', function () {
+      S.days[y] = { sat: true, at: Date.now(), note: '' }; save(); go(null);
     });
   }
 
-  document.getElementById('reminderBtn').addEventListener('click', function () {
-    var cur = LS.getItem('bc_reminder') || '07:30';
-    var t = prompt('A daily nudge, at a time you choose (24h, e.g. 07:30).\nOne email, one button — never a mention of streaks or misses.\n\n(Emails aren’t sent in this preview.)', cur);
-    if (t) { try { LS.setItem('bc_reminder', t); } catch (e) {} alert('Reminder set for ' + t + '. (Not sent in this preview.)'); }
-  });
+  // ---- black is John -------------------------------------------------------
+  function viewJohn() {
+    var inner = h('<div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.25rem;">' +
+      '<h3 class="head" style="max-width:16ch;">Nobody else sees this.</h3>' +
+      '<p class="body">Not the cohort, not your partner. Ask anything, or say how it\'s actually going.</p>' +
+      '<textarea class="field" id="q" rows="5" placeholder="I\'ve sat every day this week and felt nothing. Am I doing it wrong, or is that the point?"></textarea>' +
+      '<div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:rgba(255,255,255,.55);">' +
+        '<span style="width:6px;height:6px;border-radius:50%;background:var(--amber);"></span>' +
+        '<span>Private for the thirty-five days</span></div>' +
+      '<button class="btn amber" id="send">Send to John</button>' +
+      '<p style="font-size:.82rem;line-height:1.5;color:rgba(255,255,255,.45);" id="msg" aria-live="polite">He answers by voice, usually within a day or two. If an answer would help others, he\'ll re-ask it anonymously — never your words, never your name.</p>' +
+    '</div>');
+    shell(inner, {
+      dark: true,
+      left: '<span class="brand">Just to John</span>',
+      right: '<button class="barlink" id="close">Close</button>'
+    });
+    document.getElementById('close').addEventListener('click', function () { go(null); });
+    var q = document.getElementById('q'); q.focus();
+    document.getElementById('send').addEventListener('click', function () {
+      var v = q.value.trim(); if (!v) return;
+      S.questions.push({ day: dayIdx() + 1, at: Date.now(), text: v }); save();
+      q.value = '';
+      document.getElementById('msg').textContent = 'Sent. He answers by voice, usually within a day or two.';
+    });
+  }
 
-  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  // ---- settings ------------------------------------------------------------
+  function viewSettings() {
+    var inner = h('<div class="rows" style="flex:1;"></div>');
+    inner.appendChild(row('Daily nudge', 'One email, no cohort news in it', 'nudgeOn'));
+    var hrs = h('<div><div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;margin-bottom:.75rem;">Send it at</div>' +
+      '<div style="display:flex;gap:.4rem;flex-wrap:wrap;" id="hrs"></div>' +
+      '<p style="font-size:.82rem;color:var(--faint);margin-top:.7rem;">Your local time — ' + esc(tz()) + '</p></div>');
+    inner.appendChild(hrs);
+    inner.appendChild(row('Notes', 'Offer a line after logging', 'notesOn'));
+    inner.appendChild(h('<div class="rowflex"><div><b>Show me in the cohort as</b><p>The name on your notes</p></div>' +
+      '<button class="ul" id="nm" style="font-size:.85rem;font-weight:600;flex:none;">' + esc(S.name || 'You') + '</button></div>'));
+    inner.appendChild(h('<div><div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;margin-bottom:.3rem;">' + esc(S.name || 'You') + '</div>' +
+      '<p style="font-size:.82rem;color:var(--faint);">Beyond Belief · day ' + (dayIdx() + 1) + ' of ' + TOTAL + '</p></div>'));
+    inner.appendChild(h('<div style="border-bottom:none;"><p style="font-size:.85rem;line-height:1.6;color:var(--faint);">No streaks are kept, and nothing here is scored. When the thirty-five days end, your grid stays yours.</p></div>'));
 
+    shell(inner, { left: '<span class="brand">Settings</span>', right: '<button class="barlink" id="done">Done</button>' });
+    document.getElementById('done').addEventListener('click', function () { go(null); });
+    HOURS.forEach(function (t) {
+      var b = h('<button class="chip' + (t === S.hour ? ' sel' : '') + '">' + t + '</button>');
+      b.addEventListener('click', function () { S.hour = t; save(); render(); });
+      document.getElementById('hrs').appendChild(b);
+    });
+    document.getElementById('nm').addEventListener('click', function () {
+      var v = prompt('The name on your notes', S.name || '');
+      if (v && v.trim()) { S.name = v.trim(); save(); render(); }
+    });
+  }
+  function row(title, sub, key) {
+    var r = h('<div class="rowflex"><div><b>' + title + '</b><p>' + sub + '</p></div>' +
+      '<button class="sw' + (S[key] ? ' on' : '') + '"><i></i></button></div>');
+    r.querySelector('.sw').addEventListener('click', function () { S[key] = !S[key]; save(); render(); });
+    return r;
+  }
+
+  // ---- day 35 · closing ----------------------------------------------------
+  function viewClosing() {
+    var done = 0, i;
+    for (i = 0; i < TOTAL; i++) if (didI(i)) done++;
+    var missed = TOTAL - done;
+
+    var inner = h('<div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;">' +
+      '<h3 class="head" style="max-width:15ch;">That\'s thirty-five days.</h3>' +
+      '<p class="body">' + (others().length
+        ? 'Ten people practised, mostly apart, mostly unseen. Here is the whole of it.'
+        : 'You practised, mostly unseen. Here is the whole of it.') + '</p>' +
+    '</div>');
+    var grid = h('<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>');
+    for (i = 0; i < TOTAL; i++) {
+      var c = (didI(i) ? 1 : 0) + othersOn(i);
+      var frac = c / roomSize();
+      grid.appendChild(h('<div style="aspect-ratio:1;background:' +
+        (c === 0 ? 'rgba(23,25,22,.05)' : (didI(i) && !others().length ? 'var(--amber)' : 'rgba(23,25,22,' + (0.3 + frac * 0.52).toFixed(2) + ')')) + ';"></div>'));
+    }
+    inner.appendChild(grid);
+    inner.appendChild(h('<div style="background:var(--sand);padding:1rem 1.1rem;display:grid;gap:.4rem;">' +
+      '<p style="font-weight:700;font-size:1.02rem;letter-spacing:-.02em;line-height:1.3;">You marked ' + word(done) + ' of them.</p>' +
+      '<p style="font-size:.85rem;line-height:1.55;color:var(--muted);">And didn\'t mark ' + word(missed) + '. Both are part of the run.</p></div>'));
+    inner.appendChild(h('<p style="font-size:.9rem;line-height:1.6;color:var(--muted);">The log stays here, unchanged, as long as you want it — what happens next is yours.</p>'));
+
+    var foot = h('<div class="foot" style="justify-content:center;"><span style="color:var(--muted);">Say something to John before we close? <button class="ul" id="jl">Write privately</button></span></div>');
+    shell(inner, { right: '<span class="barlab on">Day 35 · last</span>', foot: foot });
+    document.getElementById('jl').addEventListener('click', function () { go('john'); });
+  }
+
+  addEventListener('online', render);
+  addEventListener('offline', render);
   render();
 })();
 </script>
