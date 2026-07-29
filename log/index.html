@@ -181,6 +181,20 @@
   var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
 
   var S = load();
+
+  // A link from an email must never write anything. Mail scanners, link
+  // preview bots and "safe links" services follow every GET they see — a
+  // one-tap URL that records the day would log practices nobody did.
+  // The token only identifies the person and opens the log surface with the
+  // square primed; the mark is written by a tap on the page (a POST).
+  (function () {
+    var m = location.search.match(/[?&]t=([^&#]+)/);
+    if (!m) return;
+    S.token = decodeURIComponent(m[1]);            // the server validates this
+    save();
+    // keep the token out of the address bar, history and any shared screenshot
+    try { history.replaceState({}, '', location.pathname); } catch (e) {}
+  })();
   function load() {
     var d = {};
     try { d = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
