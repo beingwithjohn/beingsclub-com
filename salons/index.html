@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
-  <title>Salons — where curiosity connects · Beings Club</title>
-  <meta name="description" content="Beings Club Salons: a monthly online gathering. Meditation together, then real conversation. Nothing to prepare. Pay what you can.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Beings Club">
-  <meta property="og:title" content="Salons — where curiosity connects">
-  <meta property="og:description" content="A monthly online gathering. Meditation, then conversation. Nothing to prepare.">
-  <meta property="og:url" content="https://beingsclub.com/salons">
-  <meta property="og:image" content="https://beingsclub.com/assets/social-preview.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Salons — where curiosity connects">
-  <meta name="twitter:description" content="A monthly online gathering. Meditation, then conversation. Nothing to prepare.">
-  <meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salons — where curiosity connects · Beings Club</title>
+<meta name="description" content="Beings Club Salons: a monthly online gathering. Meditation together, then real conversation. Nothing to prepare. Pay what you can.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Beings Club">
+<meta property="og:title" content="Salons — where curiosity connects">
+<meta property="og:description" content="A monthly online gathering. Meditation, then conversation. Nothing to prepare.">
+<meta property="og:url" content="https://beingsclub.com/salons">
+<meta property="og:image" content="https://beingsclub.com/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Salons — where curiosity connects">
+<meta name="twitter:description" content="A monthly online gathering. Meditation, then conversation. Nothing to prepare.">
+<meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
@@ -29,22 +29,25 @@ img{display:block;max-width:100%;}
 a{color:#171916;text-decoration:none;}
 a:hover{color:#5A4B7C;}
 ::selection{background:#F2ECFF;color:#171916;}
-[data-vh]{transition:background .18s,color .18s,border-color .18s;}
-[data-vh="ink"]:hover{background:#171916 !important;color:#FFFFFF !important;}
-[data-vh="lav"]:hover{background:#F2ECFF !important;color:#171916 !important;}
+@media (max-width:52rem){
+  [data-split="1"]{grid-template-columns:1fr!important;}
+  [data-split="1"]>aside{border-left:0!important;padding-left:0!important;}
+  [data-qa="1"]{grid-template-columns:1fr!important;gap:0.55rem!important;}
+}
 @media (max-width:36rem){
-  aside,section figure{flex-basis:100%!important;max-width:100%!important;}
-  aside{position:static!important;padding-top:0!important;}
+  aside{flex-basis:100%!important;max-width:100%!important;position:static!important;padding-top:0!important;}
   [data-navlink="1"]{display:none!important;}
   [data-facts="1"]>div{padding-left:clamp(1.25rem,4.5cqi,3.5rem)!important;}
   [data-stack="1"]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;}
   [data-cta="1"]{width:100%;justify-content:center;}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+[data-vh]{transition:background .18s,color .18s,border-color .18s;}
+[data-vh="ink"]:hover{background:#171916 !important;color:#FFFFFF !important;}
+[data-vh="lav"]:hover{background:#F2ECFF !important;color:#171916 !important;}
 </style>
 </head>
 <body>
-
 <div style="max-width:70rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);container-type:inline-size;min-height:100svh;">
 
 <nav style="position:sticky;top:0;background:rgba(253,252,249,0.93);backdrop-filter:blur(10px);z-index:20;border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -56,23 +59,23 @@ a:hover{color:#5A4B7C;}
     <div style="display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap;margin-left:auto;">
       <a href="/" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Home</a>
       <a href="/beyondbelief" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Sits</a>
-      <a href="/#door" style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid #171916;padding:0.55rem 1rem;" data-vh="ink">Join</a>
+      <a href="/#door" style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid #171916;padding:0.55rem 1rem;transition:background .18s,color .18s;" data-vh="ink">Join</a>
     </div>
   </div>
 </nav>
 
-<header style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+<header style="padding:clamp(3.25rem,8vh,5.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
   <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Salons · the curiosity social club</div>
   <h1 style="font-weight:800;letter-spacing:-0.035em;line-height:0.98;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;max-width:20ch;text-wrap:balance;">Space to connect — to oneself, to each other, and to what is <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">possible</span>.</h1>
-  <div style="margin-top:clamp(1.9rem,4.5vh,2.6rem);display:flex;flex-wrap:wrap;gap:clamp(2rem,5cqi,4rem);align-items:flex-start;">
-    <div style="flex:1 1 22rem;min-width:0;max-width:58ch;display:grid;gap:1.3rem;">
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:stretch;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Every month we gather to take time for ourselves and to meet one another. <strong style="font-weight:600;color:#171916;">Every Salon begins with meditation.</strong></p>
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Following, members meet either 1:1 or in groups of 3. There are no conversation prompts, there are no themes, and there is nothing to do except stay curious.</p>
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Everyone takes part: cameras on, and nothing is recorded.</p>
       <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;">Nothing to prepare, nothing to have figured out.</p>
     </div>
-    <aside style="flex:0 1 19rem;padding-top:0.45rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
-      <img src="/assets/img/ripples.jpg" alt="Footsteps at the water's edge, ripples spreading outward" style="width:100%;display:block;" />
+    <aside style="padding-top:0.2rem;display:grid;grid-template-rows:minmax(8rem,1fr) auto;gap:1.1rem;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);">
+      <img src="/assets/img/ripples.jpg" alt="Footsteps at the water's edge, ripples spreading outward" style="width:100%;height:100%;object-fit:cover;object-position:50% 40%;display:block;">
       <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
         <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">The next one</span>
         <p id="next-salon" style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">The last Sunday of the month, 5:30pm UK</p>
@@ -91,32 +94,31 @@ a:hover{color:#5A4B7C;}
 </div>
 
 <section style="border-bottom:1px solid rgba(38,34,26,0.10);">
-  <div style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
-    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;">How a Salon<br />unfolds</h2>
+  <div style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;">How a Salon<br>unfolds</h2>
     <p style="font-size:1.0625rem;line-height:1.75;color:#43403A;max-width:46ch;">The form stays reliable so what happens inside it can be free.</p>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));border-top:1px solid rgba(38,34,26,0.10);">
-    <div style="padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem);display:grid;gap:1rem;align-content:start;">
-      <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">01</span>
-      <h3 style="font-weight:700;font-size:1.25rem;letter-spacing:-0.02em;">We sit together</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">About twenty minutes of meditation to open — individual practice, held in a shared field. Nothing has to be believed: it's an invitation, to experiment with and discover the reality of for yourself.</p>
+  <div style="display:grid;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">01</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Whole group practice</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">About twenty minutes of meditation, held in a shared field.</p>
     </div>
-    <div style="padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem);display:grid;gap:1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);" data-stack="1">
-      <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">02</span>
-      <h3 style="font-weight:700;font-size:1.25rem;letter-spacing:-0.02em;">Three invitations, then the rooms open</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Offered before the rooms open, to make the time your own — not rules to follow.</p>
-      <ol style="display:grid;gap:0.6rem;padding-left:0;list-style:none;margin-top:0.1rem;">
-        <li style="display:grid;grid-template-columns:1.2rem 1fr;gap:0.6rem;align-items:baseline;"><span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">1</span><span style="font-size:1rem;line-height:1.7;color:#43403A;">To share pronouns and correct name pronunciation in real time, so that you are addressed how you prefer.</span></li>
-        <li style="display:grid;grid-template-columns:1.2rem 1fr;gap:0.6rem;align-items:baseline;"><span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">2</span><span style="font-size:1rem;line-height:1.7;color:#43403A;">To settle in together with a few moments of silence.</span></li>
-        <li style="display:grid;grid-template-columns:1.2rem 1fr;gap:0.6rem;align-items:baseline;"><span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">3</span><span style="font-size:1rem;line-height:1.7;color:#43403A;">To stay curious.</span></li>
-      </ol>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#171916;font-weight:600;">Then: “Curiosity Connects” — and the rooms open.</p>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Thirty minutes in randomly assorted pairs, with a two-minute countdown as the time closes. The invitations are offered again, and the rooms open a second time in threes. Allocation is random, so if you find yourself with the same person, that is a part of the Salon experience.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">02</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Small group spaces</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">Thirty minutes as pairs, followed by thirty minutes as groups of three.</p>
     </div>
-    <div style="padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem);display:grid;gap:1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);" data-stack="1">
-      <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">03</span>
-      <h3 style="font-weight:700;font-size:1.25rem;letter-spacing:-0.02em;">We close together</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Everyone comes back into one room to land.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">03</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Whole group closing</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">Everyone comes back into one room to land.</p>
     </div>
   </div>
 </section>
@@ -125,19 +127,19 @@ a:hover{color:#5A4B7C;}
   <p style="font-weight:800;letter-spacing:-0.03em;line-height:1.08;font-size:clamp(1.4rem,3.8cqi,2.4rem);text-transform:uppercase;max-width:26ch;text-wrap:balance;">The things worth caring about make themselves <span style="-webkit-text-stroke:1.3px #171916;color:transparent;">known</span>.</p>
 </section>
 
-<section style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
   <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">The principle</div>
   <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;"><span style="-webkit-text-stroke:1.5px #171916;color:transparent;">Curiosity</span> connects.</h2>
-  <div style="margin-top:clamp(1.9rem,4.5vh,2.6rem);display:flex;flex-wrap:wrap;gap:clamp(2rem,5cqi,4rem);align-items:flex-start;">
-    <div style="flex:1 1 22rem;min-width:0;max-width:58ch;display:grid;gap:1.3rem;">
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:start;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
       <p style="font-size:1.0625rem;line-height:1.75;color:#171916;font-weight:600;max-width:46ch;">We define curiosity as “an orientation to experience that is open to discovery”.</p>
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Practised in this way, we create the conditions for the discovery of connection — to ourselves, to each other, and to what is possible.</p>
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Conversations develop in their own way. Each room is a unique combination of experience and intention. Topics, pauses, and new questions arise on their own with curiosity.</p>
-      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Salons rely on your participation. We ask everybody to turn their cameras on and feel like they can show up as themselves.</p>
+      
       <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;"><a href="/#ground" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">The shared ground, in full →</a></p>
     </div>
-    <aside style="flex:0 1 19rem;padding-top:0.45rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
-      <img src="/assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:clamp(72px,10cqi,104px);height:auto;mix-blend-mode:multiply;" />
+    <aside style="padding-top:0.2rem;display:grid;gap:1.1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);">
+      <img src="/assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:clamp(72px,10cqi,104px);height:auto;mix-blend-mode:multiply;">
       <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
         <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Recording</span>
         <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">Nothing is recorded.</p>
@@ -150,36 +152,36 @@ a:hover{color:#5A4B7C;}
   </div>
 </section>
 
-<section style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
   <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Purpose</div>
   <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">Regular spaces for connection.</h2>
-  <div style="margin-top:clamp(1.9rem,4.5vh,2.6rem);display:flex;flex-wrap:wrap;gap:clamp(2rem,5cqi,4rem);align-items:flex-start;">
-    <div style="flex:1 1 22rem;min-width:0;max-width:58ch;display:grid;gap:1.3rem;">
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:start;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
       <p style="font-size:1.3rem;font-weight:500;letter-spacing:-0.015em;line-height:1.5;color:#171916;text-wrap:pretty;">The purpose of Beings Club Salons is to provide regular spaces for connection between individuals, ideas, and aspirations and their realisation.</p>
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">The intention is that all beings benefit as a result.</p>
-      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Salons are the curiosity social club — the room where this happens month by month. Beings Club overall is a <a href="/" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">realisationhouse for the curious</a>.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Salons are like an online curiosity social club — a room where this happens month by month.</p>
     </div>
-    <aside style="flex:0 1 19rem;padding-top:0.45rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
-      <img src="/assets/opart/symmetry.png" alt="" aria-hidden="true" style="width:clamp(72px,10cqi,104px);height:auto;mix-blend-mode:multiply;" />
+    <aside style="padding-top:0.2rem;display:grid;gap:1.1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);">
       <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
         <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">The host</span>
-        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">I'm John and I host the Salons. My role is to support a healthy relationship between known and unknown.</p>
+        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">John hosts the Salons. <br>His role is to support a healthy relationship between known and unknown.</p>
       </div>
     </aside>
   </div>
 </section>
 
-<section style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem);background:#F8F6F1;border-bottom:1px solid rgba(38,34,26,0.10);">
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);background:#F8F6F1;border-bottom:1px solid rgba(38,34,26,0.10);">
   <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Mutual care</div>
   <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:26ch;text-wrap:balance;">Mutual care is a commitment to reduce harm.</h2>
-  <div style="margin-top:clamp(1.9rem,4.5vh,2.6rem);display:flex;flex-wrap:wrap;gap:clamp(2rem,5cqi,4rem);align-items:flex-start;">
-    <div style="flex:1 1 22rem;min-width:0;max-width:58ch;display:grid;gap:1.3rem;">
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:start;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Everybody brings with them a life of depth and richness that we can never fully see into that makes them who they are. People change, and in allowing change we discover our own innate capacity to care.</p>
       <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Salons are designed to support as diverse a pool of people as is possible. Individuals may range in terms of politics, time spent online, religious and spiritual beliefs, and much more.</p>
-      <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;text-wrap:pretty;">We hold each other as precious — each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care.</p>
-      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">One request is made: if someone reaches out to meet outside of the Club, let them know if you can't commit to meeting.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;text-wrap:pretty;">We are asked to hold each other as precious — each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;"><i>If someone reaches out to meet outside of the Salon, please let them know if you can't commit to meeting.</i></p>
     </div>
-    <aside style="flex:0 1 19rem;padding-top:0.45rem;max-width:19rem;display:grid;gap:1.3rem;align-content:start;">
+    <aside style="padding-top:0.2rem;display:grid;gap:1.1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);">
+      <img src="/assets/opart/stillness.png" alt="" aria-hidden="true" style="width:clamp(104px,15cqi,150px);height:auto;mix-blend-mode:multiply;">
       <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
         <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Discovery</span>
         <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">Discovery is a process, not an outcome.</p>
@@ -189,43 +191,39 @@ a:hover{color:#5A4B7C;}
   </div>
 </section>
 
-<section style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
   <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Frequently asked questions</div>
-  <div style="display:grid;gap:0;max-width:64ch;">
-    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">I've never meditated. Is that a problem?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">No — whether you have lots of meditation experience or none at all. The guided practices at the beginning of Salons are accessible to everyone, and nothing has to be believed.</p>
+  <div style="display:grid;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">I've never meditated. Is that a problem?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">No. Whatever your experience, the opening practice is accessible — and nothing has to be believed.</p>
     </div>
-    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">Do I have to talk?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Yes — it is a social gathering. You don't have to have anything interesting to say, or arrive with anything worked out, but we ask that everybody shows up and participates in some way. That can include periods of not speaking. Everybody is invited to participate, and speaking is part of that.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">Is it recorded?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">No. Salons are ephemeral spaces for those who join them.</p>
     </div>
-    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">Is it recorded?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">No, nothing is recorded. What's shared in Salons is not for sharing beyond that space.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">Is it religious?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">No. John's training is in traditions connected to Jack Kornfield, Tara Brach and David Nichtern, but his appreciation for different traditions is wide, and his own background: multi-faith.</p>
     </div>
-    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">Is it religious?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">No. The meditation practice at the beginning of each Salon is presented so that no belief needs to be taken on — it is something to experiment with and discover the reality of for yourself. There is no prescribed way a conversation should unfold either. For context: John's training is in meditation traditions connected to Jack Kornfield, Tara Brach and David Nichtern.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">What if I meet the same person twice?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Allocation is random, so it can happen. Meeting someone twice is a feature, not a fault.</p>
     </div>
-    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">What if I meet the same person twice?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Allocation is random, so that can happen — and it is a part of the Salon experience. The chance of meeting the same people more than once is a feature, not a fault.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">What if I can only come sometimes?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">That is how most people come. Turn up when it works, leave a gap when it doesn't.</p>
     </div>
-    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">What if I can only come sometimes?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">That is absolutely fine. It's a monthly space to show up to when you can — turn up when it works and leave a gap when it doesn't.</p>
-    </div>
-    <div style="border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;gap:0.55rem;">
-      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">How is this different from Beings Club Sits?</h3>
-      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">A Salon is one evening, monthly, and primarily based on the idea that curiosity connects. <a href="/beyondbelief" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">Sits</a> are for going deeper into meditation practice with a small group over a number of weeks.</p>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">How is this different from Beings Club Sits?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;">A Salon is one evening a month, mostly about meeting each other. <a href="/beyondbelief" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">Sits</a> go deeper into practice with a small group over weeks.</p>
     </div>
   </div>
 </section>
 
 <section style="border-bottom:1px solid rgba(38,34,26,0.10);">
-  <div style="padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
-    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;">Come to<br />the next one</h2>
+  <div style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;">Come to<br>the next one</h2>
     <p style="font-size:1.0625rem;line-height:1.75;color:#43403A;max-width:44ch;">Register your interest and John writes back himself. No obligation, nothing automated.</p>
   </div>
   <div style="border-top:1px solid rgba(38,34,26,0.10);padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(3rem,7vh,4.5rem);background:#FFF7EE;display:flex;flex-wrap:wrap;gap:1.6rem 3rem;align-items:center;">
@@ -234,7 +232,7 @@ a:hover{color:#5A4B7C;}
       <p id="next-salon-2" style="font-size:clamp(1.2rem,2.6cqi,1.6rem);font-weight:700;letter-spacing:-0.02em;line-height:1.25;">The last Sunday of the month, 5:30pm UK</p>
       <p id="next-local-2" style="font-size:0.95rem;line-height:1.6;color:#75726A;"></p>
     </div>
-    <a href="/#door" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;" data-vh="lav" data-cta="1">Join the next one <span aria-hidden="true">→</span></a>
+    <a href="/#door" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;transition:background .18s,color .18s;" data-vh="lav" data-cta="1">Join the next one <span aria-hidden="true">→</span></a>
   </div>
 </section>
 
@@ -250,12 +248,10 @@ a:hover{color:#5A4B7C;}
 </footer>
 
 </div>
-
 <script>
 (function () {
-  // The Salon recurs on the last Sunday of the month at 5:30pm UK, so the date
-  // is computed rather than written down — it can't go stale, and it stays
-  // correct across the BST/GMT change.
+  // The Salon recurs on the last Sunday of the month at 5:30pm UK, so the date is
+  // computed — it can't go stale and stays correct across the BST/GMT change.
   function londonOffset(ts) {
     var p = {};
     new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour12: false,
@@ -264,21 +260,20 @@ a:hover{color:#5A4B7C;}
     var h = p.hour === '24' ? 0 : +p.hour;
     return Date.UTC(+p.year, +p.month - 1, +p.day, h, +p.minute) - ts;
   }
-  function ukToUTC(y, m, d, hh, mm) {              // m is 0-based
+  function ukToUTC(y, m, d, hh, mm) {
     var guess = Date.UTC(y, m, d, hh, mm);
     for (var i = 0; i < 3; i++) guess = Date.UTC(y, m, d, hh, mm) - londonOffset(guess);
     return guess;
   }
   function lastSundayUTC(y, m) {
-    var last = new Date(Date.UTC(y, m + 1, 0));    // last day of month
-    var d = last.getUTCDate() - last.getUTCDay();  // back up to Sunday
+    var last = new Date(Date.UTC(y, m + 1, 0));
+    var d = last.getUTCDate() - last.getUTCDay();
     return ukToUTC(y, m, d, 17, 30);
   }
-  // Salons recommence in September, so nothing earlier is ever offered.
-  var RESUME = lastSundayUTC(2026, 8);              // Sunday 27 September 2026
+  var RESUME = lastSundayUTC(2026, 8);            // Salons recommence Sunday 27 September 2026
   var now = Date.now(), d = new Date();
   var t = lastSundayUTC(d.getUTCFullYear(), d.getUTCMonth());
-  if (t < now) {                                    // this month's has passed
+  if (t < now) {
     var nx = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
     t = lastSundayUTC(nx.getUTCFullYear(), nx.getUTCMonth());
   }
@@ -286,18 +281,11 @@ a:hover{color:#5A4B7C;}
   var when = new Date(t);
   var dateText = when.toLocaleDateString('en-GB', { timeZone: 'Europe/London',
     weekday: 'long', day: 'numeric', month: 'long' }) + ', 5:30pm UK';
-
-  var localText = '';
   var localTime = when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   var ukTime = when.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: 'numeric', minute: '2-digit' });
-  if (localTime !== ukTime) localText = 'That’s ' + localTime + ' where you are.';
-
-  ['next-salon', 'next-salon-2'].forEach(function (id) {
-    var el = document.getElementById(id); if (el) el.textContent = dateText;
-  });
-  ['next-local', 'next-local-2'].forEach(function (id) {
-    var el = document.getElementById(id); if (el) el.textContent = localText;
-  });
+  var localText = localTime !== ukTime ? 'That\u2019s ' + localTime + ' where you are.' : '';
+  ['next-salon', 'next-salon-2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = dateText; });
+  ['next-local', 'next-local-2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = localText; });
 })();
 </script>
 </body>
