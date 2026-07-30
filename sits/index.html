@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sits — learn to meditate, in company · Beings Club</title>
+<meta name="description" content="Beings Club Sits: learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Beings Club">
+<meta property="og:title" content="Sits — learn to meditate, in company">
+<meta property="og:description" content="Beings Club Sits: learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment.">
+<meta property="og:url" content="https://beingsclub.com/sits">
+<meta property="og:image" content="https://beingsclub.com/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sits — learn to meditate, in company">
+<meta name="twitter:description" content="Beings Club Sits: learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment.">
+<meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;}
+img{display:block;max-width:100%;}
+a{color:#171916;text-decoration:none;}
+a:hover{color:#5A4B7C;}
+::selection{background:#F2ECFF;color:#171916;}
+@media (max-width:52rem){
+  [data-split="1"]{grid-template-columns:1fr!important;}
+  [data-split="1"]>aside{border-left:0!important;padding-left:0!important;}
+  [data-qa="1"]{grid-template-columns:1fr!important;gap:0.55rem!important;}
+}
+@media (max-width:36rem){
+  aside{flex-basis:100%!important;max-width:100%!important;position:static!important;padding-top:0!important;}
+  [data-navlink="1"]{display:none!important;}
+  [data-facts="1"]>div{padding-left:clamp(1.25rem,4.5cqi,3.5rem)!important;}
+  [data-stack="1"]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;}
+  [data-cta="1"]{width:100%;justify-content:center;}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+[data-vh]{transition:background .18s,color .18s,border-color .18s;}
+[data-vh="ink"]:hover{background:#171916 !important;color:#FFFFFF !important;}
+[data-vh="lav"]:hover{background:#F2ECFF !important;color:#171916 !important;}
+</style>
+
+<!--
+  ══════════════════════════════════════════════════════════════════════
+  SITS PAGE · Beings Club
+  ══════════════════════════════════════════════════════════════════════
+  This page describes Sits in general. One section — "The next Sit" —
+  carries the current offering, and it is built entirely from the
+  OFFERING block below. To swap in the next Sit:
+
+  1. Keep this file where it is (site/sits/index.html)
+  2. Edit the OFFERING block below — that is the only place dates, prices,
+     titles, links, images and the weekly principles live. Everything in it
+     is written into the page at load (facts strip, hero, week list, CTA,
+     meta tags, page title).
+  3. Rewrite the editorial prose in the body (search the file for "COPY:"
+     markers) if the argument for the offering has changed. Structure stays.
+  4. Drop the new cover image into /assets/img/ and point the OFFERING
+     block at it. The general sections rarely need to change at all.
+
+  Nothing else needs touching. Sections you don't need can be deleted
+  whole; they are separated by <section> boundaries and hairline rules.
+  ══════════════════════════════════════════════════════════════════════
+-->
+<script>
+/* ─── OFFERING ─────────────────────────────────────────────────────── */
+window.OFFERING = {
+  /* Identity */
+  name:        "Beyond Belief",
+  subtitle:    "the art of trusting yourself",
+  strokeWord:  "trusting",              // word drawn as outline in the H1
+  eyebrow:     "Sits · a 35-day experiment",
+  summary:     "Thirty-five days of practice, six Wednesday evenings, and five principles to test one at a time. Ten people, beginning together.",
+  nextLine:    "Beyond Belief begins Wednesday 16 September",
+  metaDesc:    "A 35-day meditation experiment. Ten people, six Wednesday evenings, 16 Sep – 21 Oct 2026. No experience needed. Nothing to believe.",
+
+  /* Dates & logistics */
+  startLong:   "Wednesday 16 September, 6:30pm UK",
+  runLine:     "Wednesdays until 21 October · online · £222 · places close 14 September",
+  closesLine:  "Places close on 14 September, or when the ten are taken.",
+  facts: [
+    { label: "Length", value: "Thirty-five days" },
+    { label: "Rhythm", value: "Six Wednesdays" },
+    { label: "Time",   value: "6:30–7:45pm UK" },
+    { label: "Where",  value: "Online, from anywhere" },
+    { label: "Cost",   value: "£222" },
+    { label: "Places", value: "Ten" }
+  ],
+  priceLine:   "£222 · ten places · online",
+  groupSize:   "Ten people, so John stays in contact with each of you.",   // this offering; the general section says "twelve or less"
+  arcHeadline: "Five principles, five weeks.",
+  closingNote: "In friendship,<br>John",
+  ctaHeadline: "Join a small group with a commitment to practice.",
+  nextSitLine: "<i>Beyond Belief: The Art of Trusting Yourself</i> starts on Wednesday 16 September at 6:30pm UK",
+  leaveWithEyebrow: "By closing",
+  refundLine:  "The £222 is paid up front — but sit the thirty-five days, tell me it wasn't worth it, and I'll return it. If it's out of reach to begin with, write to me.",
+  ctaUrl:      "https://luma.com/0tosnxn0",
+  ctaLabel:    "Take a place",
+
+  /* Cover image. Paths are relative (/assets/…) so they resolve both in
+     preview and in production, where the page sits one folder deep. */
+  cover: {
+    src: "/assets/img/beyond-belief-cover.jpg",
+    alt: "A face at rest dissolving into bands of iridescent interference"
+  },
+
+  /* The weekly arc — add or remove rows freely */
+  principlesIntro: "Curiosity. Care. Responsibility. Play. Rest.",
+  principles: [
+    { name: "Curiosity",      date: "16 Sep", text: "Opening toward what's actually here, and discovering it." },
+    { name: "Care",           date: "23 Sep", text: "Gentleness and warmth — turned toward yourself first, which is where most people find it hardest." },
+    { name: "Responsibility", date: "30 Sep", text: "The ability to respond to what arises — and to meet what's actually needed." },
+    { name: "Play",           date: "7 Oct",  text: "The generosity of not getting it wrong. There's no correct way, so nothing you bring is wasted. The week the practice becomes a friend." },
+    { name: "Rest",           date: "14 Oct", text: "Pausing every striving, and finding what was already here — the open space holding all of it, uncontrived, needing nothing from you." },
+    { name: "The closing",    date: "21 Oct", text: "We look back over the thirty-five days together, and end." }
+  ]
+};
+/* ─── end OFFERING ─────────────────────────────────────────────────── */
+</script>
+</head>
+<body>
+<div style="max-width:70rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);container-type:inline-size;min-height:100svh;">
+
+<nav style="position:sticky;top:0;background:rgba(253,252,249,0.93);backdrop-filter:blur(10px);z-index:20;border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div style="display:flex;align-items:center;gap:0.8rem 1.5rem;flex-wrap:wrap;padding:0.9rem clamp(1.25rem,4.5cqi,3.5rem);">
+    <a href="/" style="display:flex;flex-direction:column;gap:0.1rem;min-width:0;">
+      <span style="font-weight:800;font-size:0.82rem;letter-spacing:0.01em;text-transform:uppercase;">Beings Club</span>
+      <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Sits</span>
+    </a>
+    <div style="display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap;margin-left:auto;">
+      <a href="/" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Home</a>
+      <a href="/salons" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Salons</a>
+      <a data-f="ctaUrl|href" href="#" target="_blank" rel="noopener" style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid #171916;padding:0.55rem 1rem;transition:background .18s,color .18s;" data-vh="ink"><span data-f="ctaLabel">Take a place</span></a>
+    </div>
+  </div>
+</nav>
+
+<header style="padding:clamp(3.25rem,8vh,5.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:stretch;" data-split="1">
+    <!-- COPY: what a Sit is, in general. Rarely changes between offerings. -->
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
+      <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits · learn to meditate, in company</div>
+      <h1 style="margin-bottom:0.4rem;font-weight:800;letter-spacing:-0.035em;line-height:0.98;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;max-width:20ch;text-wrap:balance;">A practice made <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">yours</span>, in company.</h1>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">A Sit is a small group learning to meditate together over a fixed stretch of days. <strong style="font-weight:600;color:#171916;">We all sit every day we can, and meet one evening a week.</strong></p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Each meeting is another chance to explore. The days that follow are where it becomes yours — with a practice partner alongside you.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">No experience needed. Every instruction is offered as an experiment to test in your own experience.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;">Nothing to prepare, and nothing to believe.</p>
+      <div style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:1rem 1.25rem;align-items:center;">
+        <a data-f="ctaUrl|href" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;transition:background .18s,color .18s;" data-vh="lav" data-cta="1"><span data-f="ctaLabel">Take a place</span> <span aria-hidden="true">→</span></a>
+        <span data-f="priceLine" style="font-size:0.95rem;color:#75726A;"></span>
+      </div>
+    </div>
+    <aside style="display:grid;align-content:start;gap:1.1rem;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);">
+      <img src="/assets/img/walking.jpg" alt="Two figures walking, their steps spreading rings of light" style="width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 40%;">
+      <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">The next Sit</span>
+        <p data-f="nextLine" style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;"></p>
+        <p style="font-size:0.9rem;line-height:1.6;color:#75726A;"><a href="#next" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">What this one is about →</a></p>
+      </div>
+    </aside>
+  </div>
+</header>
+
+<section id="next" style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);scroll-margin-top:5rem;">
+  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">The next Sit</div>
+  <h2 data-f="headline" style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;"></h2>
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:start;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
+      <p data-f="summary" style="font-size:1.3rem;font-weight:500;letter-spacing:-0.015em;line-height:1.5;color:#171916;text-wrap:pretty;"></p>
+      <p data-f="principlesIntro" style="font-size:1.0625rem;line-height:1.75;color:#171916;font-weight:600;"></p>
+      <div id="principles" style="display:grid;margin-top:0.5rem;"></div>
+    </div>
+    <aside style="padding-top:0.2rem;display:grid;gap:1.1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);" data-stack="1">
+      <img data-f="cover" src="/assets/img/beyond-belief-cover.jpg" alt="" style="width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 35%;">
+      <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">We begin</span>
+        <p data-f="startLong" style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;"></p>
+        <p data-f="closesLine" style="font-size:0.9rem;line-height:1.6;color:#75726A;"></p>
+      </div>
+      <div id="facts" style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.75rem;"></div>
+      <a data-f="ctaUrl|href" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;transition:background .18s,color .18s;" data-vh="lav" data-cta="1"><span data-f="ctaLabel">Take a place</span> <span aria-hidden="true">→</span></a>
+    </aside>
+  </div>
+</section>
+
+<section id="week" style="border-bottom:1px solid rgba(38,34,26,0.10);scroll-margin-top:5rem;">
+  <div style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(1.6rem,3.5vh,2.2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:end;">
+    <h2 style="font-weight:800;letter-spacing:-0.035em;line-height:0.92;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;">How a week<br>unfolds</h2>
+    <p style="font-size:1.0625rem;line-height:1.75;color:#43403A;max-width:46ch;">An evening together, then the rest of the week on your own. The same shape repeats until the closing.</p>
+  </div>
+  <!-- COPY: the four moving parts of a week -->
+  <div style="display:grid;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">01</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">The evening together</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">We share how the week has actually gone, perhaps a new principle is introduced, and we are together for 75 minutes.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">02</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Your own days</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">You sit every day you can, wherever you can — twenty minutes is standard. One principle, returned to.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">03</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">A practice partner</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">Someone to share the practice with each week. However the two of you decide to stay in touch — paired as companions, not monitors.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.4rem clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <div style="display:flex;gap:0.9rem;align-items:baseline;">
+        <span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">04</span>
+        <h3 style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">One tap to say you sat</h3>
+      </div>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">A short email at a time you choose. You see who else has sat that day. You record the journey of your own practice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COPY: pull-quote band. One line, uppercase, one word in outline. -->
+<section style="border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;padding:clamp(2.5rem,7vh,4.5rem) clamp(1.25rem,4.5cqi,3.5rem);">
+  <p style="font-weight:800;letter-spacing:-0.03em;line-height:1.08;font-size:clamp(1.4rem,3.8cqi,2.4rem);text-transform:uppercase;max-width:26ch;text-wrap:balance;">Meditation practice is <span style="-webkit-text-stroke:1.3px #171916;color:transparent;">super-ordinary</span>.</p>
+</section>
+
+<section id="plain" style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);scroll-margin-top:5rem;">
+  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">What you're agreeing to</div>
+  <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">A <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">commitment</span>, not a course.</h2>
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:stretch;" data-split="1">
+    <!-- COPY: why the shape of this offering is what it is -->
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
+      <p style="font-size:1.3rem;font-weight:500;letter-spacing:-0.015em;line-height:1.5;color:#171916;text-wrap:pretty;">Almost everything that makes meditation worth doing happens through the gradual accumulation of practice.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">So a small group begins on the same day, sits the same stretch of days, and comes back each week to explore what actually happened — including the days it didn't happen. A shared calendar is the container.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">“Every day you can” is meant literally, and it isn't a test. Some days it's twenty minutes on a cushion; some days it's twenty minutes in a parked car, and that counts.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;text-wrap:pretty;">Every Sit runs through a real turn in the year, start to finish. Long enough to feel the undercurrent of life's changes while you practise.</p>
+    </div>
+    <aside style="padding-top:0.2rem;display:grid;align-content:start;gap:1.1rem;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);" data-stack="1">
+      <img src="/assets/img/vessel.jpg" alt="A vessel of still water holding faint interference rings" style="width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 50%;">
+      <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Group size</span>
+        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">Twelve or less, so John remains available to be in contact with each of you.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);background:#F8F6F1;border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Why it's built this way</div>
+  <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:26ch;text-wrap:balance;">It isn't always easy to be <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">curious</span>.</h2>
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:stretch;" data-split="1">
+    <!-- COPY: the argument. Four paragraphs, third one in ink and semibold. -->
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">It's often easier to defend a point of view than to admit you may not know what's happening. It takes courage to open to possibilities beyond what you thought possible — and on the other side of that courage is a kind of liberation.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Manifestation techniques hack that openness by asking you to affirm your way past your own limits. It can work. But affirmations are made to be certainties, and they often feel disingenuous even when they work.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;text-wrap:pretty;">Affirmational work suffers from the unsteadiness of unearned certainty.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">The more sustainable path is to notice the simple field of possibility that's already here — to see that that which is true now rather than what we are hoping or fearing may be true.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">That's what Sits are for. For meeting what is true for you now. Not a better set of beliefs.</p>
+    </div>
+    <aside style="padding-top:0.2rem;display:grid;align-content:start;gap:1.1rem;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);" data-stack="1">
+      <img src="/assets/img/field-rings.jpg" alt="A figure alone in a field beneath concentric rings of light" style="width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 45%;">
+      <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.7rem;">
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Belief</span>
+        <p style="font-size:clamp(1.15rem,2.3cqi,1.4rem);font-weight:600;letter-spacing:-0.015em;line-height:1.35;color:#171916;text-wrap:pretty;">Nothing has to be believed.</p>
+        <p style="font-size:0.95rem;line-height:1.65;color:#43403A;">Every practice is an experiment. Keep what holds up in your own experience.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section style="border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;padding:clamp(2.5rem,7vh,4.5rem) clamp(1.25rem,4.5cqi,3.5rem);">
+  <p style="font-weight:800;letter-spacing:-0.03em;line-height:1.08;font-size:clamp(1.4rem,3.8cqi,2.4rem);text-transform:uppercase;max-width:26ch;text-wrap:balance;">In recognising openness, there is more room and more <span style="-webkit-text-stroke:1.3px #171916;color:transparent;">freedom</span>.</p>
+</section>
+
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Who it's for</div>
+  <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">Sceptics <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">welcome</span>.</h2>
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:stretch;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">This is for you if you've never meditated, or you've tried an app and it never stuck. If you want a practice that survives contact with an ordinary, busy life.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">Importantly, Sits are for people who are ready to commit to a sustained period of regular practice as an experiment, with their full curiosity, and earnest engagement.</p>
+    </div>
+    <aside style="padding-top:0.2rem;display:grid;gap:1.1rem;align-content:start;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);" data-stack="1">
+      <div style="display:grid;gap:0.7rem;">
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Probably not for you if</span>
+        <p style="font-size:0.95rem;line-height:1.65;color:#43403A;">You want a quick fix, or a technique that makes difficult feelings go away.</p>
+        <p style="font-size:0.95rem;line-height:1.65;color:#43403A;">You're looking for a lineage, a certification, or a final answer.</p>
+        <p style="font-size:0.95rem;line-height:1.65;color:#43403A;">You want the classes but not the days in between.</p>
+        <p style="font-size:0.95rem;line-height:1.65;color:#43403A;">These are the wrong weeks for you. Wait for the next Sit — it'll arrive.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div data-f="leaveWithEyebrow" style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">By the last evening</div>
+  <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">What you leave with.</h2>
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1px;background:rgba(38,34,26,0.10);border:1px solid rgba(38,34,26,0.10);">
+    <div style="background:#FDFCF9;padding:clamp(1.4rem,3cqi,2rem);display:grid;gap:0.85rem;align-content:start;">
+      <img src="/assets/opart/ground.png" alt="" aria-hidden="true" style="width:clamp(60px,8cqi,84px);height:auto;mix-blend-mode:multiply;">
+      <h3 style="font-weight:700;font-size:1.1rem;letter-spacing:-0.02em;">Weeks of real experience</h3>
+      <p style="font-size:1rem;line-height:1.7;color:#43403A;text-wrap:pretty;">Not the intention to start, and not a streak to protect — a stretch of daily practice you have already done.</p>
+    </div>
+    <div style="background:#FDFCF9;padding:clamp(1.4rem,3cqi,2rem);display:grid;gap:0.85rem;align-content:start;">
+      <img src="/assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:clamp(60px,8cqi,84px);height:auto;mix-blend-mode:multiply;">
+      <h3 style="font-weight:700;font-size:1.1rem;letter-spacing:-0.02em;">People who have sat with you</h3>
+      <p style="font-size:1rem;line-height:1.7;color:#43403A;text-wrap:pretty;">A group of fellow practitioners. You'll be invited to keep the conversation going at <a href="/salons" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">Salons</a>.</p>
+    </div>
+    <div style="background:#FDFCF9;padding:clamp(1.4rem,3cqi,2rem);display:grid;gap:0.85rem;align-content:start;">
+      <img src="/assets/opart/spacious.png" alt="" aria-hidden="true" style="width:clamp(60px,8cqi,84px);height:auto;mix-blend-mode:multiply;">
+      <h3 style="font-weight:700;font-size:1.1rem;letter-spacing:-0.02em;">A map to keep exploring</h3>
+      <p style="font-size:1rem;line-height:1.7;color:#43403A;text-wrap:pretty;">A written companion — covering body, heart and mind as places to rest attention. Yours from day one.</p>
+    </div>
+  </div>
+</section>
+
+<section style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Who's holding it</div>
+  <h2 style="font-weight:800;letter-spacing:-0.03em;line-height:1.02;font-size:clamp(1.75rem,4.2cqi,2.7rem);text-transform:uppercase;max-width:24ch;text-wrap:balance;">A note from <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">John</span>.</h2>
+  <div style="margin-top:clamp(1.5rem,3.2vh,2rem);display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:clamp(1.75rem,4cqi,3rem);align-items:stretch;" data-split="1">
+    <div style="min-width:0;max-width:60ch;display:grid;gap:1.05rem;align-content:start;">
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">For a long time meditation has been my main way of investigating what's worth trusting. More recently I've been carrying the essence of it into the rest of my life, beyond the cushion.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">I host Beings Club — the monthly <a href="/salons" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">Salons</a>, and now these Sits. I write <a href="https://wonderfool.substack.com" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">Wonderfool</a>, letters on being, twice a month. I'm not offering you a lineage or a certification, and I'd be suspicious of me if I did.</p>
+      <p style="font-size:1.125rem;line-height:1.8;color:#43403A;text-wrap:pretty;">What I can offer is company for the stretch, and my attention: I'll know how your days are going, and you'll always be able to ask me the awkward question.</p>
+      <p data-f="closingNote" style="font-size:1.125rem;line-height:1.8;color:#171916;font-weight:600;"></p>
+    </div>
+    <aside style="padding-top:0.2rem;display:grid;align-content:start;gap:1.1rem;border-left:1px solid rgba(38,34,26,0.10);padding-left:clamp(1.25rem,2.5cqi,2rem);" data-stack="1">
+      <img src="/assets/img/tree-gathering.jpg" alt="People gathered under a great tree at sunset" style="width:100%;aspect-ratio:1/1;object-fit:cover;object-position:50% 60%;">
+      <!-- COPY: two short testimonials, plus an honesty note if the offering is new -->
+      <div style="border-top:1px solid rgba(38,34,26,0.10);padding-top:1.1rem;display:grid;gap:0.9rem;">
+        <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">In their words</span>
+        <p style="font-size:1rem;line-height:1.7;color:#171916;font-weight:500;text-wrap:pretty;">“John has this rare capacity to make you feel at ease, accepted, and guided.”</p>
+        <p style="font-size:0.8rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#75726A;">Laura F · Writer</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="questions" style="padding:clamp(2.75rem,6.5vh,4.25rem) clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);scroll-margin-top:5rem;">
+  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Frequently asked questions</div>
+  <!-- COPY: duplicate a row to add a question; delete a row to drop one -->
+  <div style="display:grid;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">I've never meditated. Will I be behind?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">No. Sits are purposely designed to accommodate people with no meditation experience. Arguably, everyone should arrive with the beginner's approach.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">How long each day?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">Twenty minutes is standard and you're encouraged to make time for it. However, sitting daily matters far more than sitting long.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">What if I miss days?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">Everyone does. Let it be part of the learning rather than a lapse — beginning again <i>is</i> the practice.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">What if I miss a class?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">Tell me and I'll get you up to speed as best as I can.<br>Missing one class is survivable, missing three isn't.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">Do I need a cushion or an app?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">You'll need somewhere you can join meetings from where won't be interrupted. As for meditation, you can meditate on a cushion, stool, or chair. Mostly anywhere works — cold, birdsong and traffic can be part of practice.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">Is it recorded?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">No. Nothing is recorded, and nothing said in the room is repeated outside it.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">Is this religious?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">No. The practices come out of contemplative traditions and I won't pretend otherwise, but nothing is asked of you as belief.</p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">What if it isn't worth it?</h3>
+      <p data-f="refundLine" style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;"></p>
+    </div>
+    <div style="border-top:1px solid rgba(38,34,26,0.10);padding:1.3rem 0;display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:start;" data-qa="1">
+      <h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;text-wrap:pretty;">How is this different from a Salon?</h3>
+      <p style="font-size:1.0625rem;line-height:1.8;color:#43403A;text-wrap:pretty;max-width:56ch;">A <a href="/salons" style="text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;">Salon</a> is one evening a month, mostly about connecting with each other. A Sit goes deeper into practice with a small group over weeks.</p>
+    </div>
+  </div>
+</section>
+
+<section style="border-bottom:1px solid rgba(38,34,26,0.10);">
+  <div style="padding:clamp(2.25rem,5vh,3.25rem) clamp(1.25rem,4.5cqi,3.5rem);display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem 3rem;align-items:center;">
+    <h2 data-f="ctaHeadline" style="font-weight:800;letter-spacing:-0.035em;line-height:0.95;font-size:clamp(1.75rem,4.4cqi,2.9rem);text-transform:uppercase;max-width:22ch;text-wrap:balance;"></h2>
+    <div style="display:grid;gap:1rem;max-width:44ch;">
+      <p style="font-size:1.0625rem;line-height:1.75;color:#43403A;">Sits are for people who are curious about meditation and ready to commit to giving the practice a real shot.<br><b style="font-weight:600;color:#171916;">Got questions? John writes back himself.</b></p>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(38,34,26,0.10);padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem) clamp(3rem,7vh,4.5rem);background:#FFF7EE;display:flex;flex-wrap:wrap;gap:1.6rem 3rem;align-items:center;">
+    <div style="flex:1 1 20rem;min-width:0;display:grid;gap:0.55rem;">
+      <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">The next Sit</span>
+      <p data-f="nextSitLine" style="font-size:clamp(1.2rem,2.6cqi,1.6rem);font-weight:700;letter-spacing:-0.02em;line-height:1.25;"></p>
+      <p data-f="runLine" style="font-size:0.95rem;line-height:1.6;color:#75726A;"></p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.75rem;">
+      <a data-f="ctaUrl|href" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;background:#171916;color:#FFFFFF;transition:background .18s,color .18s;" data-vh="lav" data-cta="1"><span data-f="ctaLabel">Take a place</span> <span aria-hidden="true">→</span></a>
+      <a href="mailto:john@spacetobe.xyz" style="display:inline-flex;align-items:center;gap:0.7rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:0.95rem 1.7rem;border:1px solid #171916;transition:background .18s,color .18s;" data-vh="ink" data-cta="1">Ask me anything</a>
+    </div>
+  </div>
+</section>
+
+<footer style="padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem);display:flex;justify-content:space-between;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;">
+  <a href="/" style="font-weight:800;font-size:0.8rem;letter-spacing:0.01em;text-transform:uppercase;">Beings Club</a>
+  <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Stay curious</span>
+  <div style="display:flex;align-items:center;gap:1.2rem;margin-left:auto;">
+    <a href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:#75726A;">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+    </a>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:0.7rem;font-weight:600;color:#75726A;">john@spacetobe.xyz</a>
+  </div>
+</footer>
+
+</div>
+
+<script>
+/* Fills the page from window.OFFERING. Nothing below needs editing. */
+(function () {
+  var o = window.OFFERING, HAIR = '1px solid rgba(38,34,26,0.10)', esc = function (s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
+
+  /* Derived lines */
+  var stroke = '<span style="-webkit-text-stroke:1.5px #171916;color:transparent;">' + esc(o.strokeWord) + '</span>';
+  o.headline = esc(o.name) + ': ' + esc(o.subtitle).replace(esc(o.strokeWord), stroke) + '.';
+
+  /* Slots: data-f="key" sets HTML; data-f="key|href" sets an attribute */
+  document.querySelectorAll('[data-f]').forEach(function (el) {
+    var parts = el.getAttribute('data-f').split('|'), val = o[parts[0]];
+    if (parts[0] === 'cover') { el.src = o.cover.src; el.alt = o.cover.alt; return; }
+    if (val == null) return;
+    if (parts[1]) el.setAttribute(parts[1], val); else el.innerHTML = val;
+  });
+
+  /* Facts, listed in the offering aside */
+  document.getElementById('facts').innerHTML = o.facts.map(function (f) {
+    return '<div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:0.75rem;align-items:baseline;">' +
+      '<div style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">' + esc(f.label) + '</div>' +
+      '<div style="font-weight:600;font-size:0.95rem;line-height:1.45;letter-spacing:-0.01em;">' + esc(f.value) + '</div></div>';
+  }).join('');
+
+  /* Weekly arc */
+  document.getElementById('principles').innerHTML = o.principles.map(function (p, i) {
+    var last = i === o.principles.length - 1;
+    return '<div style="border-top:' + HAIR + (last ? ';border-bottom:' + HAIR : '') +
+      ';padding:1.1rem 0;display:grid;grid-template-columns:9rem minmax(0,1fr);gap:0.4rem 1.25rem;align-items:start;" data-qa="1">' +
+      '<div style="display:flex;gap:0.6rem;align-items:baseline;">' +
+      '<span style="font-size:0.8rem;font-weight:700;color:#5A4B7C;">' + ('0' + (i + 1)).slice(-2) + '</span>' +
+      '<div><h3 style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">' + esc(p.name) + '</h3>' +
+      '<div style="font-weight:600;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;margin-top:0.15rem;">' + esc(p.date) + '</div></div></div>' +
+      '<p style="font-size:1rem;line-height:1.7;color:#43403A;text-wrap:pretty;max-width:56ch;">' + esc(p.text) + '</p></div>';
+  }).join('');
+})();
+</script>
+</body>
+</html>
