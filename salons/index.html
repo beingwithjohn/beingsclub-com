@@ -83,7 +83,7 @@ a:hover{color:#5A4B7C;}
 </header>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);" data-facts="1">
-  <div style="background:#F0EEE8;padding:1.2rem clamp(1.2rem,2.5cqi,1.6rem) 1.2rem clamp(1.25rem,4.5cqi,3.5rem);"><div style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:0.3rem;">Duration</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Two hours together</div></div>
+  <div style="background:#F0EEE8;padding:1.2rem clamp(1.2rem,2.5cqi,1.6rem) 1.2rem clamp(1.25rem,4.5cqi,3.5rem);"><div style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:0.3rem;">Duration</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">About two hours</div></div>
   <div style="background:#F0EEE8;padding:1.2rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:0.3rem;">Rhythm</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Last Sunday monthly</div></div>
   <div style="background:#F0EEE8;padding:1.2rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:0.3rem;">Time</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">5:30pm UK</div></div>
   <div style="background:#F0EEE8;padding:1.2rem clamp(1.2rem,2.5cqi,1.6rem);"><div style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:0.3rem;">Where</div><div style="font-weight:600;font-size:1rem;line-height:1.4;letter-spacing:-0.01em;">Online, from anywhere</div></div>
@@ -258,12 +258,15 @@ a:hover{color:#5A4B7C;}
     var d = last.getUTCDate() - last.getUTCDay();  // back up to Sunday
     return ukToUTC(y, m, d, 17, 30);
   }
+  // Salons recommence in September, so nothing earlier is ever offered.
+  var RESUME = lastSundayUTC(2026, 8);              // Sunday 27 September 2026
   var now = Date.now(), d = new Date();
   var t = lastSundayUTC(d.getUTCFullYear(), d.getUTCMonth());
   if (t < now) {                                    // this month's has passed
     var nx = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
     t = lastSundayUTC(nx.getUTCFullYear(), nx.getUTCMonth());
   }
+  if (t < RESUME) t = RESUME;
   var when = new Date(t);
   var dateText = when.toLocaleDateString('en-GB', { timeZone: 'Europe/London',
     weekday: 'long', day: 'numeric', month: 'long' }) + ', 5:30pm UK';
