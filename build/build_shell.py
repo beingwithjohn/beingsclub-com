@@ -122,8 +122,7 @@ def convert(body, key):
             ('Beings Club exists because of a tea house at Plum Village, where I found myself '
              'in conversations over tea that expanded my sense of what is possible — free of any prescribed topic.',
              'Beings Club exists because of a tea house at Plum Village, where I found myself '
-             'in conversations over tea that expanded beyond the retreat schedule and expanded '
-             'my sense of what is possible.', 'origin paragraph'),
+             'in conversations over tea that expanded my sense of what is possible.', 'origin paragraph'),
             ('This is in the lineage of that atmosphere:',
              'Beings Club is in the lineage of that atmosphere:', 'lineage line'),
         ]:
