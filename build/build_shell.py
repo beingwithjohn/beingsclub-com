@@ -45,8 +45,10 @@ def convert(body, key):
         return 'data-vh="%d"' % hover_seen[decls]
     body = re.sub(r'style-hover="([^"]*)"', hov, body)
 
-    # assets live at the site root
+    # assets live at the site root — including inside style attributes, or the nav
+    # wordmark resolves to /salons/assets/… and 404s on every inner screen
     body = body.replace('src="assets/', 'src="/assets/').replace('href="assets/', 'href="/assets/')
+    body = body.replace("url('assets/", "url('/assets/").replace('url("assets/', 'url("/assets/')
 
     # design-file links become genuine paths, so the site works with JS off
     def link(m):
@@ -63,10 +65,32 @@ def convert(body, key):
 
     if key == 'home':
         body = body.replace('ref="{{ logoRef }}"', 'id="bc-logo"')
+        # "The Door" is the longest label and wraps the door row to two lines on a
+        # phone; the article is dropped there so the four cells sit level.
+        body = body.replace('>The Door</a>', '><span class="bc-the">The </span>Door</a>')
+        body = body.replace('background:#F8F6F1;">', 'background:#F8F6F1;" data-homefoot="1">')
         body = body.replace(';">{{ line }}</div>', ';" id="bc-line">For the benefit of all beings</div>')
         body = body.replace('onMouseLeave="{{ leave }}"', 'data-doors="1"')
         for k in ('salons', 'sits', 'about', 'door'):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
+
+    if key == 'about':
+        # The word the whole site rests on, defined once, directly under the header.
+        # No data-reveal: it sits above the fold and must never start hidden.
+        definition = """
+  <section style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F0EEE8;">
+    <dl style="margin:0;max-width:54ch;">
+      <div style="display:grid;gap:10px;">
+        <dt style="font-size:clamp(24px,3.4vw,32px);font-weight:600;letter-spacing:-0.025em;color:#171916;">realisationhouse <i style="font-size:0.6em;font-weight:400;color:#5A4B7C;letter-spacing:0;">n.</i></dt>
+        <dd style="margin:0;font-size:16px;line-height:1.6;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</dd>
+        <dd style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</dd>
+      </div>
+    </dl>
+  </section>
+"""
+        anchor = '</header>'
+        assert anchor in body, 'About header not found'
+        body = body.replace(anchor, anchor + '\n' + definition, 1)
 
     if key == 'join':
         body = body.replace('onSubmit="{{ submit }}"', 'id="bc-form" novalidate')
@@ -109,8 +133,10 @@ CSS = """
   .bc-layer[data-active="1"]{opacity:1;visibility:visible;pointer-events:auto;overflow-y:auto;
     transition:opacity 1100ms cubic-bezier(.22,1,.36,1) 120ms;}
 
-  /* the landing page suppresses the violet link hover — the doors own it */
-  #s-home a:hover{color:#171916;}
+  /* The landing page suppresses the violet link hover — but NOT on the doors,
+     which carry their own hover (paper on violet). Without :not([data-vh]) this
+     rule outranks the door rule on specificity and the label goes dark on violet. */
+  #s-home a:not([data-vh]):hover{color:#171916;}
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
 
@@ -121,6 +147,15 @@ CSS = """
     #bc-door{height:auto!important;min-height:100svh;overflow:visible!important;}
     #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
+  }
+
+  /* landing page on a phone: doors on one line, footer on one row */
+  @media (max-width:36rem){
+    .bc-the{display:none;}
+    [data-door]{padding:20px 8px!important;font-size:11px!important;letter-spacing:0.12em!important;}
+    [data-homefoot="1"]{padding:12px 20px!important;gap:10px!important;}
+    [data-homefoot="1"] span,[data-homefoot="1"] a{font-size:10px!important;letter-spacing:0.1em!important;white-space:nowrap;}
+    [data-homefoot="1"] > div{gap:12px!important;}
   }
 
   /* The Door */
@@ -252,6 +287,31 @@ JS = r"""
   }
   var logoHost = document.getElementById('bc-logo');
   if (logoHost) inlineLogo(logoHost);
+
+  // The nav wordmark on inner screens: a CSS background until the SVG arrives (so
+  // nothing shifts), then inlined so the outlines can thicken 9 -> 12 on hover.
+  var marks = document.querySelectorAll('[data-navmark]');
+  if (marks.length) {
+    fetch('/assets/beings-logo-outline.svg').then(function (r) { return r.text(); }).then(function (txt) {
+      [].forEach.call(marks, function (host) {
+        var w = document.createElement('div'); w.innerHTML = txt;
+        var svg = w.querySelector('svg'); if (!svg) return;
+        svg.removeAttribute('width'); svg.removeAttribute('height');
+        svg.style.width = '100%'; svg.style.height = '100%'; svg.style.display = 'block';
+        host.style.backgroundImage = 'none';
+        host.appendChild(svg);
+        var rings = [].slice.call(svg.querySelectorAll('[data-ring]'));
+        if (!rings.length) return;
+        rings.forEach(function (p) {
+          p.style.transition = 'stroke-width .25s cubic-bezier(.22,1,.36,1)';
+          p.style.strokeWidth = '9';
+        });
+        var hit = host.closest('a') || host;
+        hit.addEventListener('mouseenter', function () { rings.forEach(function (p) { p.style.strokeWidth = '12'; }); });
+        hit.addEventListener('mouseleave', function () { rings.forEach(function (p) { p.style.strokeWidth = '9'; }); });
+      });
+    }).catch(function () {});
+  }
 
   // ---- the doors change the info line ----
   var line = document.getElementById('bc-line');

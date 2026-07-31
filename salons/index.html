@@ -42,8 +42,10 @@
   .bc-layer[data-active="1"]{opacity:1;visibility:visible;pointer-events:auto;overflow-y:auto;
     transition:opacity 1100ms cubic-bezier(.22,1,.36,1) 120ms;}
 
-  /* the landing page suppresses the violet link hover — the doors own it */
-  #s-home a:hover{color:#171916;}
+  /* The landing page suppresses the violet link hover — but NOT on the doors,
+     which carry their own hover (paper on violet). Without :not([data-vh]) this
+     rule outranks the door rule on specificity and the label goes dark on violet. */
+  #s-home a:not([data-vh]):hover{color:#171916;}
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
 
@@ -54,6 +56,15 @@
     #bc-door{height:auto!important;min-height:100svh;overflow:visible!important;}
     #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
+  }
+
+  /* landing page on a phone: doors on one line, footer on one row */
+  @media (max-width:36rem){
+    .bc-the{display:none;}
+    [data-door]{padding:20px 8px!important;font-size:11px!important;letter-spacing:0.12em!important;}
+    [data-homefoot="1"]{padding:12px 20px!important;gap:10px!important;}
+    [data-homefoot="1"] span,[data-homefoot="1"] a{font-size:10px!important;letter-spacing:0.1em!important;white-space:nowrap;}
+    [data-homefoot="1"] > div{gap:12px!important;}
   }
 
   /* The Door */
@@ -110,11 +121,11 @@
       <a href="/salons/" data-door="salons" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;" data-vh="0">Salons</a>
       <a href="/sits/" data-door="sits" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" data-vh="0">Sits</a>
       <a href="/about/" data-door="about" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" data-vh="0">About</a>
-      <a href="/join/" data-door="door" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" data-vh="0">The Door</a>
+      <a href="/join/" data-door="door" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" data-vh="0"><span class="bc-the">The </span>Door</a>
     </div>
   </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:24px;padding:14px 40px;border-top:1px solid rgba(38,34,26,0.10);background:#F8F6F1;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:24px;padding:14px 40px;border-top:1px solid rgba(38,34,26,0.10);background:#F8F6F1;" data-homefoot="1">
     <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Beings Club</span>
     <div style="display:flex;align-items:center;gap:20px;">
       <a href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:#75726A;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg></a>
@@ -128,7 +139,7 @@
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
       <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
@@ -141,6 +152,17 @@
     <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a realisationhouse for the curious.</h1>
     <p style="margin:0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">We gather to realise what is possible — in ourselves, between us, and in the world. Two principles hold the room, and everything else is free to change.</p>
   </header>
+
+  <section style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F0EEE8;">
+    <dl style="margin:0;max-width:54ch;">
+      <div style="display:grid;gap:10px;">
+        <dt style="font-size:clamp(24px,3.4vw,32px);font-weight:600;letter-spacing:-0.025em;color:#171916;">realisationhouse <i style="font-size:0.6em;font-weight:400;color:#5A4B7C;letter-spacing:0;">n.</i></dt>
+        <dd style="margin:0;font-size:16px;line-height:1.6;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</dd>
+        <dd style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</dd>
+      </div>
+    </dl>
+  </section>
+
 
   <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));border-bottom:1px solid rgba(38,34,26,0.10);">
     <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;">
@@ -233,7 +255,7 @@
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/about/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
       <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
@@ -338,7 +360,7 @@
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/about/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
@@ -426,7 +448,7 @@
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
@@ -597,7 +619,7 @@
 <div id="bc-door" style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);height:100svh;display:flex;flex-direction:column;overflow:hidden;">
 
   <nav style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/about/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
@@ -754,6 +776,31 @@
   }
   var logoHost = document.getElementById('bc-logo');
   if (logoHost) inlineLogo(logoHost);
+
+  // The nav wordmark on inner screens: a CSS background until the SVG arrives (so
+  // nothing shifts), then inlined so the outlines can thicken 9 -> 12 on hover.
+  var marks = document.querySelectorAll('[data-navmark]');
+  if (marks.length) {
+    fetch('/assets/beings-logo-outline.svg').then(function (r) { return r.text(); }).then(function (txt) {
+      [].forEach.call(marks, function (host) {
+        var w = document.createElement('div'); w.innerHTML = txt;
+        var svg = w.querySelector('svg'); if (!svg) return;
+        svg.removeAttribute('width'); svg.removeAttribute('height');
+        svg.style.width = '100%'; svg.style.height = '100%'; svg.style.display = 'block';
+        host.style.backgroundImage = 'none';
+        host.appendChild(svg);
+        var rings = [].slice.call(svg.querySelectorAll('[data-ring]'));
+        if (!rings.length) return;
+        rings.forEach(function (p) {
+          p.style.transition = 'stroke-width .25s cubic-bezier(.22,1,.36,1)';
+          p.style.strokeWidth = '9';
+        });
+        var hit = host.closest('a') || host;
+        hit.addEventListener('mouseenter', function () { rings.forEach(function (p) { p.style.strokeWidth = '12'; }); });
+        hit.addEventListener('mouseleave', function () { rings.forEach(function (p) { p.style.strokeWidth = '9'; }); });
+      });
+    }).catch(function () {});
+  }
 
   // ---- the doors change the info line ----
   var line = document.getElementById('bc-line');
