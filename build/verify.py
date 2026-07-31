@@ -72,10 +72,12 @@ if "--live" in sys.argv:
     branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
     ok("on the branch Pages serves (main)", branch == "main", "on '%s'" % branch)
     try:
-        built = json.load(urllib.request.urlopen(
-            "https://api.github.com/repos/beingwithjohn/beingsclub-com/pages/builds/latest"))
-        ok("Pages built the current commit", built.get("commit") == head,
-           "serving %s, local %s" % (str(built.get("commit"))[:7], head[:7]))
+        # the Pages API needs auth; gh carries it, anonymous urllib gets a 404
+        out = subprocess.run(["gh", "api",
+            "repos/beingwithjohn/beingsclub-com/pages/builds/latest", "--jq", ".commit"],
+            capture_output=True, text=True).stdout.strip()
+        ok("Pages built the current commit", out == head,
+           "serving %s, local %s" % (out[:7], head[:7]))
     except Exception as e:
         ok("Pages build status readable", False, str(e))
 

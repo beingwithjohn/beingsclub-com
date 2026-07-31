@@ -29,7 +29,8 @@ echo "==> verifying the build"
 python3 build/verify.py
 
 echo "==> committing"
-git add -A
+# only the site — never sweep in a neighbouring project's build artefacts
+git add index.html about salons sits beyondbelief join 404.html assets build docs .gitignore 2>/dev/null || true
 if git diff --cached --quiet; then echo "nothing to commit"; else
   git commit -q -m "$MSG
 
