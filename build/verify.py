@@ -66,6 +66,31 @@ after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in bef
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
 
+# Pages outside the app shell (404, the Practice Map) wear the same header and
+# footer. They are hand-maintained, so nothing but this check keeps them in step.
+STANDALONE = ["404.html", "practice-map/index.html"]
+
+def chrome(html, tag):
+    m = re.search(r"(?s)<%s.*?</%s>" % (tag, tag), html)
+    return re.sub(r"\s+", " ", m.group(0)) if m else ""
+
+shell = io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+navjs = os.path.join(ROOT, "assets", "navmark.js")
+good, err = js_parses(io.open(navjs, encoding="utf-8").read()) if os.path.exists(navjs) else (False, "missing")
+ok("assets/navmark.js parses", good, err)
+
+for p in STANDALONE:
+    path = os.path.join(ROOT, p)
+    if not os.path.exists(path):
+        ok(p + ": exists", False); continue
+    html = io.open(path, encoding="utf-8").read()
+    ok(p + ": header matches the shell", chrome(html, "nav") == chrome(shell, "nav"))
+    ok(p + ": footer matches the shell", chrome(html, "footer") == chrome(shell, "footer"))
+    ok(p + ": wordmark hover wired up",
+       'data-navmark' in html and '/assets/navmark.js' in html)
+    ok(p + ": no relative asset paths",
+       'url(\'assets/' not in html and 'src="assets/' not in html)
+
 if "--live" in sys.argv:
     print("\nLIVE — " + ORIGIN)
     head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
