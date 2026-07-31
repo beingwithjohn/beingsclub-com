@@ -131,6 +131,16 @@ def convert(body, key):
             body = body.replace(old, new, 1)
 
     if key == 'about':
+        # The three doors at the foot of About carry the same info lines the
+        # home doors reveal on hover — one phrase per destination, site-wide.
+        for old, new, what in [
+            ('>Monthly · last Sunday · 5:30pm UK<', '>Where curiosity connects<', 'salons door'),
+            ('>Beyond Belief · from 16 September<', '>For making meditation yours<', 'sits door'),
+            ('>Join us · John writes back himself<', '>Join the club<', 'the door'),
+        ]:
+            assert old in body, 'About %s line not found' % what
+            body = body.replace(old, new, 1)
+
         # The glossary trigger, per MERGE.md §1. All values are the design's; the tip
         # is lifted OUT of the <h1> and positioned by script, so the page's main
         # heading stays "Beings Club is a realisationhouse for the curious."
