@@ -12,82 +12,70 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html{-webkit-font-smoothing:antialiased;}
-body{background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;}
-img{display:block;max-width:100%;}
-a{color:#171916;text-decoration:none;}
-a:hover{color:#5A4B7C;}
-::selection{background:#F2ECFF;color:#171916;}
-[data-vh]{transition:background .18s,color .18s,border-color .18s;}
-[data-vh="ink"]:hover{background:#171916 !important;color:#FFFFFF !important;}
-[data-go]{transition:background .18s;}
-[data-go]:hover{background:#F2ECFF;}
-[data-go]:hover .go-arrow{transform:translateX(0.25rem);}
-.go-arrow{display:inline-block;transition:transform .18s;color:#5A4B7C;}
-@media (max-width:52rem){
-  [data-go]{grid-template-columns:1fr!important;gap:0.35rem!important;}
-}
-@media (max-width:36rem){
-  [data-navlink="1"]{display:none!important;}
-  main{padding-top:2.9rem!important;padding-bottom:2.9rem!important;}
-  main>p{margin-top:1.5rem!important;}
-  [data-go]{padding-top:1.1rem!important;padding-bottom:1.1rem!important;}
-  footer{flex-direction:column;align-items:flex-start!important;gap:0.9rem!important;padding-top:2rem!important;padding-bottom:2rem!important;}
-  footer>div{margin-left:0!important;}
-}
-@media (prefers-reduced-motion:reduce){.go-arrow{transition:none;}}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  /* one action idiom: text, violet, trailing arrow — no boxes */
+  .bc-act{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
+    letter-spacing:0.16em;text-transform:uppercase;color:#171916;}
+  .bc-act:hover{color:#5A4B7C;}
+  .bc-go{display:grid;grid-template-columns:14rem minmax(0,1fr);gap:6px clamp(24px,4vw,48px);
+    align-items:baseline;padding:20px clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);
+    transition:background .18s;}
+  .bc-go:hover{background:#F8F6F1;}
+  .bc-go .arw{display:inline-block;color:#5A4B7C;transition:transform .18s;}
+  .bc-go:hover .arw{transform:translateX(4px);}
+  @media (max-width:44rem){ .bc-go{grid-template-columns:1fr;gap:4px;} }
+  @media (max-width:36rem){ .bc-navlink{display:none;} }
+  @media (prefers-reduced-motion:reduce){ .bc-go .arw{transition:none;} }
 </style>
 </head>
 <body>
 
-<div style="max-width:70rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);container-type:inline-size;min-height:100svh;display:flex;flex-direction:column;">
+<div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;display:flex;flex-direction:column;">
 
-<nav style="border-bottom:1px solid rgba(38,34,26,0.10);">
-  <div style="display:flex;align-items:center;gap:0.8rem 1.5rem;flex-wrap:wrap;padding:0.9rem clamp(1.25rem,4.5cqi,3.5rem);">
-    <a href="/" style="display:flex;flex-direction:column;gap:0.1rem;min-width:0;">
-      <span style="font-weight:800;font-size:0.82rem;letter-spacing:0.01em;text-transform:uppercase;">Beings Club</span>
-      <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">A realisationhouse</span>
-    </a>
-    <div style="display:flex;gap:1.6rem;align-items:center;flex-wrap:wrap;margin-left:auto;">
-      <a href="/salons/" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Salons</a>
-      <a href="/sits/" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Sits</a>
-      <a href="/join/" style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid #171916;padding:0.55rem 1rem;" data-vh="ink">Join</a>
+  <nav style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
+      <a href="/salons/" class="bc-navlink" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
+      <a href="/sits/" class="bc-navlink" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
+      <a href="/join/" class="bc-act">The Door <span aria-hidden="true">&#8594;</span></a>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<main style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(3.25rem,9vh,6rem) clamp(1.25rem,4.5cqi,3.5rem);">
-  <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:1.4rem;">Error 404 · off the path</div>
-  <h1 style="font-weight:800;letter-spacing:-0.035em;line-height:0.98;font-size:clamp(1.95rem,6cqi,4rem);text-transform:uppercase;max-width:20ch;text-wrap:balance;">This path hasn't been <span style="-webkit-text-stroke:1.5px #171916;color:transparent;">realised</span> yet.</h1>
-  <p style="margin-top:clamp(1.5rem,3.2vh,2rem);font-size:1.125rem;line-height:1.8;color:#43403A;max-width:52ch;text-wrap:pretty;">The page you were looking for has moved, or perhaps never quite came into being. Here is where things are happening.</p>
-</main>
+  <main style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">Error 404 &#183; off the path</span>
+    <h1 style="margin:22px 0 0;max-width:22ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">This path hasn't been realised yet.</h1>
+    <p style="margin:22px 0 0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">The page you were looking for has moved, or perhaps never quite came into being. Here is where things are happening.</p>
+  </main>
 
-<div style="border-top:1px solid rgba(38,34,26,0.10);">
-  <a href="/" style="display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:baseline;padding:1.3rem clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);" data-go>
-    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">Home <span class="go-arrow" aria-hidden="true">→</span></span>
-    <span style="font-size:1.0625rem;line-height:1.8;color:#43403A;">A realisationhouse for the curious.</span>
-  </a>
-  <a href="/salons/" style="display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:baseline;padding:1.3rem clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);" data-go>
-    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">Salons <span class="go-arrow" aria-hidden="true">→</span></span>
-    <span style="font-size:1.0625rem;line-height:1.8;color:#43403A;">A monthly gathering online, on the last Sunday of the month.</span>
-  </a>
-  <a href="/sits/" style="display:grid;grid-template-columns:15rem minmax(0,1fr);gap:0.5rem clamp(1.75rem,4cqi,3rem);align-items:baseline;padding:1.3rem clamp(1.25rem,4.5cqi,3.5rem);border-bottom:1px solid rgba(38,34,26,0.10);" data-go>
-    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-0.02em;">Sits <span class="go-arrow" aria-hidden="true">→</span></span>
-    <span style="font-size:1.0625rem;line-height:1.8;color:#43403A;">Learn to meditate, in company. The next one begins 16 September.</span>
-  </a>
-</div>
-
-<footer style="padding:clamp(1.75rem,4.5vh,3rem) clamp(1.25rem,4.5cqi,3.5rem);display:flex;justify-content:space-between;align-items:center;gap:1rem 1.5rem;flex-wrap:wrap;">
-  <a href="/" style="font-weight:800;font-size:0.8rem;letter-spacing:0.01em;text-transform:uppercase;">Beings Club</a>
-  <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">In any case, stay curious</span>
-  <div style="display:flex;align-items:center;gap:1.2rem;margin-left:auto;">
-    <a href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:#75726A;">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+  <div style="border-top:1px solid rgba(38,34,26,0.10);">
+    <a href="/" class="bc-go">
+      <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;">Home <span class="arw" aria-hidden="true">&#8594;</span></span>
+      <span style="font-size:16px;line-height:1.6;color:#43403A;">A realisationhouse for the curious.</span>
     </a>
-    <a href="mailto:john@spacetobe.xyz" style="font-size:0.7rem;font-weight:600;color:#75726A;">john@spacetobe.xyz</a>
+    <a href="/about/" class="bc-go">
+      <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;">About <span class="arw" aria-hidden="true">&#8594;</span></span>
+      <span style="font-size:16px;line-height:1.6;color:#43403A;">Why Beings Club exists, and the two principles that hold the room.</span>
+    </a>
+    <a href="/salons/" class="bc-go">
+      <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;">Salons <span class="arw" aria-hidden="true">&#8594;</span></span>
+      <span style="font-size:16px;line-height:1.6;color:#43403A;">Monthly &#183; last Sunday &#183; 5:30pm UK.</span>
+    </a>
+    <a href="/sits/" class="bc-go">
+      <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;">Sits <span class="arw" aria-hidden="true">&#8594;</span></span>
+      <span style="font-size:16px;line-height:1.6;color:#43403A;">For making meditation yours. Beyond Belief begins 16 September.</span>
+    </a>
   </div>
-</footer>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;gap:24px;padding:16px clamp(24px,5vw,56px);border-top:1px solid rgba(38,34,26,0.10);background:#F8F6F1;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+  </footer>
 
 </div>
 </body>

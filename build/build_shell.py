@@ -75,6 +75,17 @@ def convert(body, key):
         for k in ('salons', 'sits', 'about', 'door'):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
 
+    # ---- John's copy pass ----------------------------------------------
+    # "practice" is the spelling everywhere, noun and verb alike.
+    body = body.replace('Practised this way', 'Practiced this way')
+    # one testimonial carried a curly apostrophe; the site's convention is straight
+    body = body.replace('timelines wouldn\u2019t typically', "timelines wouldn't typically")
+
+    if key == 'sits':
+        # "lab partner" is the term site-wide — the experiment framing is the point
+        body = body.replace('a different fellow sitter each week', 'a different lab partner each week')
+        body = body.replace('>Ten<', '>Ten max<')
+
     if key == 'beyondbelief':
         # The cohort may not fill, so nothing promises a headcount: the lead says
         # "a group", the eyebrow says "max", and the closing band drops the count.
@@ -85,6 +96,10 @@ def convert(body, key):
              'A Sit · ten people max · begins 16 September', 'eyebrow'),
             ('>Ten people. Thirty-five days. One practice.<',
              '>Thirty-five days. One practice.<', 'closing band'),
+            ('>10 people<', '>10 people max<', 'stat trio'),
+            ('>Ten<', '>Ten max<', 'places chip'),
+            ('Pausing every striving, and recognising space uncontrived, and open.',
+             'Pausing every striving, and recognising space uncontrived and open.', 'rest row'),
         ]:
             assert old in body, 'BB %s not found' % what
             body = body.replace(old, new, 1)
@@ -95,6 +110,11 @@ def convert(body, key):
         cameras = ' Cameras on, nothing recorded.'
         assert cameras in body, 'cameras line not found in Salons'
         body = body.replace(cameras, '', 1)
+        # The next Salon is computed at load — a written-in date goes stale the day
+        # after it passes and quietly advertises a Salon that has already happened.
+        stale = 'The next one is Sunday 27 September, 5:30pm UK.'
+        assert stale in body, 'salons next-date line not found'
+        body = body.replace(stale, '<span id="bc-next-salon">' + stale + '</span>', 1)
 
     if key == 'about':
         # The glossary trigger, per MERGE.md §1. All values are the design's; the tip
@@ -112,6 +132,7 @@ def convert(body, key):
         body = body.replace('</header>', tip + '\n  </header>', 1)
 
     if key == 'join':
+        body = body.replace("If there's a mutual yes during the call, you'll start receiving the relevant invitations.", "If it's a yes from both of us, John sends the invitations himself — Salons, Sits, and happenings in person.", 1)
         body = body.replace('onSubmit="{{ submit }}"', 'id="bc-form" novalidate')
         body = body.replace('onInput="{{ onName }}"', 'data-begin="1"')
         body = body.replace('onInput="{{ onEmail }}"', 'data-begin="1"')
@@ -408,6 +429,40 @@ JS = r"""
     addEventListener('resize', function () { if (rhTip.getAttribute('data-open') === '1') rhPlace(); });
   }
 
+
+  // ---- the next Salon: last Sunday of the month, 5:30pm UK, DST-correct ----
+  var nextEl = document.getElementById('bc-next-salon');
+  if (nextEl) {
+    function londonOffset(ts) {
+      var p = {};
+      new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour12: false,
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        .formatToParts(new Date(ts)).forEach(function (x) { p[x.type] = x.value; });
+      var hh = p.hour === '24' ? 0 : +p.hour;
+      return Date.UTC(+p.year, +p.month - 1, +p.day, hh, +p.minute) - ts;
+    }
+    function ukToUTC(y, m, d, hh, mm) {
+      var g = Date.UTC(y, m, d, hh, mm);
+      for (var i = 0; i < 3; i++) g = Date.UTC(y, m, d, hh, mm) - londonOffset(g);
+      return g;
+    }
+    function lastSunday(y, m) {
+      var last = new Date(Date.UTC(y, m + 1, 0));
+      return ukToUTC(y, m, last.getUTCDate() - last.getUTCDay(), 17, 30);
+    }
+    var RESUME = lastSunday(2026, 8);          // Salons resume Sunday 27 September 2026
+    var now = Date.now(), d0 = new Date();
+    var t = lastSunday(d0.getUTCFullYear(), d0.getUTCMonth());
+    if (t < now) {
+      var nx = new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 1, 1));
+      t = lastSunday(nx.getUTCFullYear(), nx.getUTCMonth());
+    }
+    if (t < RESUME) t = RESUME;
+    var when = new Date(t);
+    nextEl.textContent = 'The next one is ' + when.toLocaleDateString('en-GB',
+      { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long' }) + ', 5:30pm UK.';
+  }
+
   // ---- The Door: chips, progressive reveal, Formspree ----
   var form = document.getElementById('bc-form');
   if (form) {
@@ -448,9 +503,9 @@ JS = r"""
         body: JSON.stringify({ intent: 'take part as a participant', interest: interest.join(', '),
           name: name, email: email, drawn: v('drawn'), found: v('found') || 'Not said' })
       }).then(function (r) {
-        if (r.ok) say('Received, with thanks. We’ll be in touch — until then, stay curious.');
-        else { state.sending = false; say('That didn’t send. Try again, or email john@spacetobe.xyz.'); }
-      }).catch(function () { state.sending = false; say('That didn’t send. Try again, or email john@spacetobe.xyz.'); });
+        if (r.ok) say('Received, with thanks. We'll be in touch — until then, stay curious.');
+        else { state.sending = false; say('That didn't send. Try again, or email john@spacetobe.xyz.'); }
+      }).catch(function () { state.sending = false; say('That didn't send. Try again, or email john@spacetobe.xyz.'); });
     });
   }
 
