@@ -1,0 +1,19 @@
+{
+  "name": "practice-log",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The Practice Log for beingsclub.com — one question a day, and the others who answered it.",
+  "scripts": {
+    "build": "node app/build.js",
+    "test": "node --test 'test/*.test.js'",
+    "check": "node test/checks.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute practice-log --local --file=migrations/0001_init.sql",
+    "db:remote": "wrangler d1 execute practice-log --remote --file=migrations/0001_init.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  }
+}

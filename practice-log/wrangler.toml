@@ -1,0 +1,33 @@
+name = "practice-log"
+main = "src/index.js"
+compatibility_date = "2025-05-01"
+
+# Half-hourly, so a 6:30am nudge lands at 6:30am wherever the person is.
+# One trigger, not one per timezone. See src/nudge.js.
+[triggers]
+crons = ["0,30 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "practice-log"
+# `wrangler d1 create practice-log` prints this. Paste it here; it is not a secret.
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+# The app's own origin. The API only accepts browser calls from here.
+# Comma-separated for more than one. An entry may end in `:*` to allow any port
+# on that host, which is only ever useful in .dev.vars — keep this one exact.
+APP_ORIGIN = "https://beingsclub.com"
+APP_URL = "https://beingsclub.com/log/"
+
+# From-lines. beingsclub.com cannot receive mail (no MX, SPF is deny-all),
+# so every send carries a reply-to that can. See README "Sending domain".
+MAIL_FROM = "Beings Club <practice@beingsclub.com>"
+MAIL_FROM_HOST = "John <practice@beingsclub.com>"
+MAIL_REPLY_TO = "john@spacetobe.xyz"
+
+# Secrets — set with `wrangler secret put`, never written here:
+#   RESEND_API_KEY   the Resend key
+#   LINK_KEY         32 random bytes, base64. Seals the magic links at rest, so
+#                    a copy of the database is not a set of live logins.
+#                    Generate: openssl rand -base64 32
