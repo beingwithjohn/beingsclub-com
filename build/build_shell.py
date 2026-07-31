@@ -24,7 +24,7 @@ SCREENS = [
      "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
-     "A Sit for ten people, beginning 16 September. Thirty-five days, six Wednesday evenings, online. Pay what you can."),
+     "A Sit for up to ten people, beginning 16 September. Thirty-five days, six Wednesday evenings, online. Pay what you can."),
     ("join", "Join",
      "/join/", "The Door — leave us a note · Beings Club",
      "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."),
@@ -76,10 +76,18 @@ def convert(body, key):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
 
     if key == 'beyondbelief':
-        # The cohort may not fill, so the lead no longer promises a headcount.
-        old_lead = 'and nine other people doing it with you'
-        assert old_lead in body, 'BB lead not found'
-        body = body.replace(old_lead, 'and a group of other people doing it with you', 1)
+        # The cohort may not fill, so nothing promises a headcount: the lead says
+        # "a group", the eyebrow says "max", and the closing band drops the count.
+        for old, new, what in [
+            ('and nine other people doing it with you',
+             'and a group of other people doing it with you', 'lead'),
+            ('A Sit · ten people · begins 16 September',
+             'A Sit · ten people max · begins 16 September', 'eyebrow'),
+            ('>Ten people. Thirty-five days. One practice.<',
+             '>Thirty-five days. One practice.<', 'closing band'),
+        ]:
+            assert old in body, 'BB %s not found' % what
+            body = body.replace(old, new, 1)
 
     if key == 'salons':
         # John removed this line; the design source still carries it, so drop it on
