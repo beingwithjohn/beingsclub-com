@@ -230,9 +230,6 @@ records at Squarespace Domains, and the deny-all replaced. Every email already
 carries `reply-to: john@spacetobe.xyz`, so replies work without an MX. Both
 addresses are `[vars]` in `wrangler.toml`, not constants.
 
-**The from name.** The design bundle writes John's letters as *John Kirby*.
-`MAIL_FROM_HOST` currently says just "John". Set it to whatever is right.
-
 **The accent.** The log's own bundle made amber `#FFAD54` the colour that means
 *you*. The site has no amber; its accent is violet `#5A4B7C` with lilac `#F2ECFF`
 bands. Since you asked for alignment with the site, **violet is what I built**,
