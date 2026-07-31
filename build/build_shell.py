@@ -503,9 +503,9 @@ JS = r"""
         body: JSON.stringify({ intent: 'take part as a participant', interest: interest.join(', '),
           name: name, email: email, drawn: v('drawn'), found: v('found') || 'Not said' })
       }).then(function (r) {
-        if (r.ok) say('Received, with thanks. We'll be in touch — until then, stay curious.');
-        else { state.sending = false; say('That didn't send. Try again, or email john@spacetobe.xyz.'); }
-      }).catch(function () { state.sending = false; say('That didn't send. Try again, or email john@spacetobe.xyz.'); });
+        if (r.ok) say("Received, with thanks. We'll be in touch — until then, stay curious.");
+        else { state.sending = false; say("That didn't send. Try again, or email john@spacetobe.xyz."); }
+      }).catch(function () { state.sending = false; say("That didn't send. Try again, or email john@spacetobe.xyz."); });
     });
   }
 
@@ -518,8 +518,9 @@ JS = r"""
   if (intro) {
     var seen = false;
     try { seen = sessionStorage.getItem('bc-intro-seen') === '1'; } catch (e) {}
-    if (seen || reduced || current !== 'home') { intro.setAttribute('data-off', '1'); }
+    if (seen || reduced || current !== 'home') { /* stays dismissed */ }
     else {
+      intro.removeAttribute('data-off');
       try { sessionStorage.setItem('bc-intro-seen', '1'); } catch (e) {}
       intro.addEventListener('click', function () { intro.setAttribute('data-off', '1'); });
       var host = document.getElementById('bc-intro-mark');
@@ -563,13 +564,26 @@ JS = r"""
 })();
 """
 
+
+
 ROUTES = {slug: key for key, _, slug, _, _ in SCREENS}
 TITLES = {key: {"t": t, "d": d} for key, _, _, t, d in SCREENS}
 JS = JS.replace('%ROUTES%', json.dumps(ROUTES)).replace('%TITLES%', json.dumps(TITLES))
 
+# The emitted script must parse. A stray apostrophe inside a single-quoted JS
+# string once broke the whole shell silently; never again.
+import subprocess, tempfile
+_probe = tempfile.NamedTemporaryFile('w', suffix='.js', delete=False, encoding='utf-8')
+_probe.write(JS); _probe.close()
+_check = subprocess.run(['node', '--check', _probe.name], capture_output=True, text=True)
+os.unlink(_probe.name)
+if _check.returncode != 0:
+    raise SystemExit('BUILD FAILED — emitted JavaScript does not parse:\n' + _check.stderr)
+print('js syntax: OK')
+
 BODY = ('<div class="bc-shell" id="bc-shell">\n'
         + '\n'.join(layers) + '\n'
-        + '<div id="bc-intro"><div id="bc-intro-mark" role="img" aria-label="Beings Club" '
+        + '<div id="bc-intro" data-off="1"><div id="bc-intro-mark" role="img" aria-label="Beings Club" '
           'style="width:min(760px,88vw);max-height:70vh;line-height:0;"></div></div>\n'
         + '</div>')
 
