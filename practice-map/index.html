@@ -41,6 +41,13 @@
     .page{box-shadow:none;break-after:page;page-break-after:always;break-inside:avoid;}
     .page:last-child{break-after:auto;page-break-after:auto;}
   }
+  /* On a phone an A4 sheet is wider than the screen. Rather than asking people
+     to pinch and pan, the whole document is scaled to the viewport (see the
+     script at the end of the file). */
+  @media (max-width:52rem){
+    .doc{gap:5mm;padding:5mm 0;}
+    .page{box-shadow:0 1px 6px rgba(23,25,22,.16);}
+  }
 </style>
 
 </head>

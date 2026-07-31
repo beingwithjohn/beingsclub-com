@@ -43,7 +43,54 @@
   .navlink:hover{color:#171916;}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
   @media (max-width:48rem){nav .navlink{display:none;}}
-  @media (max-width:30rem){section .cta,section .cta-ghost,header .cta-light{width:100%;justify-content:center;}}
+
+  /* --- mobile menu (shared) --- */
+  .bc-mobile{display:none!important;}
+  #bc-drawer{position:fixed;inset:0;z-index:60;visibility:hidden;opacity:0;transition:opacity .22s ease,visibility .22s;}
+  #bc-drawer[data-open="1"]{visibility:visible;opacity:1;}
+  #bc-drawer .bc-scrim{position:absolute;inset:0;background:rgba(23,25,22,0.4);}
+  #bc-drawer .bc-sheet{position:absolute;left:0;right:0;top:0;max-height:100svh;overflow-y:auto;background:#FDFCF8;border-bottom:1px solid #171916;padding:0.9rem 1.25rem 1.5rem;transform:translateY(-10px);transition:transform .26s cubic-bezier(.22,1,.36,1);}
+  #bc-drawer[data-open="1"] .bc-sheet{transform:translateY(0);}
+
+  @media (max-width:36rem){
+    section .cta,section .cta-ghost,header .cta-light{width:100%;justify-content:center;}
+    .bc-mobile{display:inline-flex!important;}
+    nav>span{display:none;}
+    nav{gap:.6rem .9rem!important;padding:.85rem 1.25rem!important;}
+
+    /* hero: let the image be an image and the words be words */
+    header[style*="background:#171916"]>img{height:clamp(13rem,34svh,17rem)!important;}
+    header[style*="background:#171916"]>div[style*="inset:0"]{bottom:auto!important;height:clamp(13rem,34svh,17rem)!important;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.05) 45%,rgba(0,0,0,.35) 100%)!important;}
+    header[style*="background:#171916"]>div[style*="bottom:0"]{position:static!important;padding:1.5rem 1.25rem 2rem!important;}
+    header[style*="background:#171916"]>div[style*="top:0"]{padding:1rem 1.25rem!important;}
+
+    /* vertical rhythm */
+    section[id]{scroll-margin-top:4rem!important;}
+    [style*="clamp(3rem,7vh,4.75rem) clamp(1.5rem,5cqi,3.75rem)"],[style*="clamp(3rem,7vh,4.5rem) clamp(1.5rem,5cqi,3.75rem)"]{padding-top:2.9rem!important;padding-bottom:2.9rem!important;}
+    [style*="clamp(3rem,7vh,4.75rem) clamp(1.5rem,5cqi,3.75rem) 0"],[style*="clamp(3rem,7vh,4.5rem) clamp(1.5rem,5cqi,3.75rem) 0"]{padding-bottom:0!important;}
+    [style*="clamp(1.5rem,5cqi,3.75rem) clamp(1.6rem,4vh,2.4rem)"]{padding-bottom:1.4rem!important;}
+    [style*="clamp(4rem,10vh,6.5rem)"]{padding-top:3.2rem!important;padding-bottom:3.2rem!important;}
+    [style*="margin-bottom:clamp(1.6rem,4vh,2.4rem)"]{margin-bottom:1.5rem!important;}
+    [style*="margin-top:clamp(1.6rem,4vh,2.4rem)"]{margin-top:1.5rem!important;}
+
+    /* strips: keep the hairlines honest when columns collapse */
+    [style*="minmax(12rem,1fr)"]{grid-template-columns:1fr 1fr!important;}
+    [style*="minmax(12rem,1fr)"]>div{padding-left:1.25rem!important;padding-right:1.25rem!important;border-bottom:1px solid rgba(23,25,22,.14);}
+    [style*="minmax(12rem,1fr)"]>div:nth-child(even){border-right:0!important;}
+    [style*="minmax(20rem,1fr)"]>div,[style*="minmax(16rem,1fr)"]>div{border-right:0!important;}
+    [style*="minmax(20rem,1fr)"]>div:not(:last-child),[style*="grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));margin-top"]>div:not(:last-child){border-bottom:1px solid rgba(23,25,22,.14);}
+    [style*="grid-template-columns:4.5rem 1fr"]{grid-template-columns:2.5rem 1fr!important;}
+
+    footer{flex-direction:column;align-items:flex-start!important;gap:0.8rem!important;}
+  }
+  @media (max-width:22rem){
+  /* Below ~352px a minmax(Nrem,1fr) track can't shrink to fit, so these grids
+     pushed the document wider than the screen. Collapse them to one column. */
+  [style*="minmax(12rem,1fr)"],[style*="minmax(13rem,1fr)"],[style*="minmax(16rem,1fr)"],[style*="minmax(20rem,1fr)"]{grid-template-columns:1fr!important;}
+
+    [style*="minmax(12rem,1fr)"]{grid-template-columns:1fr!important;}
+    [style*="minmax(12rem,1fr)"]>div{border-right:0!important;}
+  }
 </style>
 </head>
 <body>
@@ -58,6 +105,7 @@
     <a class="navlink" href="#weeks" style="font-size:.66rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#5a5c58;">Five principles</a>
     <a class="navlink" href="#questions" style="font-size:.66rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#5a5c58;">Questions</a>
     <a class="cta" href="https://luma.com/0tosnxn0" target="_blank" rel="noopener" style="font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;border:1px solid #171916;background:#171916;color:#ffffff;padding:.6rem 1.1rem;">Take a place ↗</a>
+    <button type="button" id="bc-menu-btn" class="bc-mobile" aria-controls="bc-drawer" aria-expanded="false" style="align-items:center;border:1px solid #171916;background:transparent;padding:.6rem 1rem;font-family:inherit;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#171916;cursor:pointer;">Menu</button>
   </div>
 </nav>
 
@@ -464,5 +512,41 @@
 
 </div>
 
+<div id="bc-drawer" aria-hidden="true">
+  <div class="bc-scrim" data-close="1"></div>
+  <div class="bc-sheet" role="dialog" aria-label="Menu">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-bottom:0.9rem;">
+      <span style="font-weight:700;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Beyond Belief</span>
+      <button type="button" data-close="1" aria-label="Close menu" style="border:1px solid #171916;background:transparent;padding:.55rem .9rem;font-family:inherit;font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#171916;cursor:pointer;">Close</button>
+    </div>
+    <div style="display:grid;">
+      <a href="#plain" style="padding:.95rem 0;border-top:1px solid rgba(23,25,22,.14);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;text-transform:uppercase;">What it is</a>
+      <a href="#week" style="padding:.95rem 0;border-top:1px solid rgba(23,25,22,.14);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;text-transform:uppercase;">A week</a>
+      <a href="#weeks" style="padding:.95rem 0;border-top:1px solid rgba(23,25,22,.14);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;text-transform:uppercase;">Five principles</a>
+      <a href="#questions" style="padding:.95rem 0;border-top:1px solid rgba(23,25,22,.14);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;text-transform:uppercase;">Questions</a>
+      <a href="https://beingsclub.com" style="padding:.95rem 0;border-top:1px solid rgba(23,25,22,.14);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;text-transform:uppercase;">Beings Club</a>
+    </div>
+    <a class="cta" href="https://luma.com/0tosnxn0" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:.75rem;margin-top:1.2rem;font-weight:700;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;padding:1rem 1.5rem;background:#171916;color:#ffffff;border:1px solid #171916;">Take a place <span aria-hidden="true">↗</span></a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('bc-menu-btn'), drawer = document.getElementById('bc-drawer');
+  if (!btn || !drawer) return;
+  function set(open) {
+    drawer.setAttribute('data-open', open ? '1' : '0');
+    drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  btn.addEventListener('click', function () { set(drawer.getAttribute('data-open') !== '1'); });
+  drawer.addEventListener('click', function (e) {
+    if (e.target.closest('[data-close]') || e.target.closest('a')) set(false);
+  });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+  addEventListener('resize', function () { if (innerWidth > 576) set(false); });
+})();
+</script>
 </body>
 </html>

@@ -25,9 +25,42 @@
   a:hover{color:#5a5c58;}
   ::selection{background:#FFAD54;color:#171916;}
   em{font-style:italic;}
-  @media (max-width:48rem){nav > div{display:none;}}
-  @media (max-width:36rem){div[style*="8rem 1fr"]{grid-template-columns:1fr!important;gap:.25rem!important;}div[style*="6rem 1fr"]{grid-template-columns:1fr!important;gap:.5rem!important;}}
+  @media (max-width:48rem){
+    /* the section links are the only way through a long document — on a phone
+       they become a scrollable rail rather than disappearing */
+    nav{padding-left:0!important;padding-right:0!important;gap:.4rem!important;}
+    nav>a,nav>span{margin-left:1.25rem;}
+    nav>span{margin-right:1.25rem;}
+    nav>div{margin-left:0!important;width:100%;flex-wrap:nowrap!important;overflow-x:auto;gap:1.25rem!important;padding:.35rem 1.25rem .1rem;scrollbar-width:none;border-top:1px solid rgba(23,25,22,.14);}
+    nav>div::-webkit-scrollbar{display:none;}
+    nav>div>a{white-space:nowrap;padding:.35rem 0;}
+  }
+  @media (max-width:36rem){
+    div[style*="8rem 1fr"]{grid-template-columns:1fr!important;gap:.25rem!important;}
+    div[style*="6rem 1fr"]{grid-template-columns:1fr!important;gap:.5rem!important;}
+
+    /* hero: image, then words — not words stacked on an image */
+    header>img{height:clamp(13rem,34svh,17rem)!important;}
+    header>div[style*="inset:0"]{bottom:auto!important;height:clamp(13rem,34svh,17rem)!important;}
+    header>div[style*="bottom:0"]{position:static!important;padding:1.5rem 1.25rem 2rem!important;}
+    header>div[style*="top:0"]{padding:1rem 1.25rem!important;}
+
+    [style*="clamp(3rem,7vh,4.75rem)"]{padding-top:2.9rem!important;padding-bottom:2.9rem!important;}
+    [style*="clamp(2.5rem,6vh,4rem)"]{padding-top:2.5rem!important;padding-bottom:2.5rem!important;}
+    [style*="margin-top:clamp(1.6rem,4vh,2.4rem)"]{margin-top:1.5rem!important;}
+    [style*="minmax(13rem,1fr)"]{grid-template-columns:1fr 1fr!important;}
+    [style*="minmax(13rem,1fr)"]>div{padding-left:1.25rem!important;padding-right:1.25rem!important;border-bottom:1px solid rgba(23,25,22,.14);}
+    [style*="minmax(13rem,1fr)"]>div:nth-child(even){border-right:0!important;}
+    [style*="minmax(13rem,1fr)"]>div:last-child:nth-child(odd){grid-column:1/-1;border-right:0!important;}
+    [style*="minmax(20rem,1fr)"]>div,[style*="minmax(16rem,1fr)"]>div{border-right:0!important;}
+    [style*="minmax(16rem,1fr)"]>div:not(:last-child){border-bottom:1px solid rgba(23,25,22,.14);}
+  }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+@media (max-width:22rem){
+  /* Below ~352px a minmax(Nrem,1fr) track can't shrink to fit, so these grids
+     pushed the document wider than the screen. Collapse them to one column. */
+  [style*="minmax(12rem,1fr)"],[style*="minmax(13rem,1fr)"],[style*="minmax(16rem,1fr)"],[style*="minmax(20rem,1fr)"]{grid-template-columns:1fr!important;}
+}
 </style>
 </head>
 <body>

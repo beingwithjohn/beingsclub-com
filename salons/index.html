@@ -31,15 +31,55 @@ a:hover{color:#5A4B7C;}
 ::selection{background:#F2ECFF;color:#171916;}
 @media (max-width:52rem){
   [data-split="1"]{grid-template-columns:1fr!important;}
-  [data-split="1"]>aside{border-left:0!important;padding-left:0!important;}
+  [data-split="1"]>aside{border-left:0!important;padding-left:0!important;border-top:1px solid rgba(38,34,26,0.10);padding-top:1.35rem;margin-top:0.35rem;}
   [data-qa="1"]{grid-template-columns:1fr!important;gap:0.55rem!important;}
 }
+/* --- mobile menu (shared) --- */
+.bc-mobile{display:none!important;}
+#bc-drawer{position:fixed;inset:0;z-index:40;visibility:hidden;opacity:0;transition:opacity .22s ease,visibility .22s;}
+#bc-drawer[data-open="1"]{visibility:visible;opacity:1;}
+#bc-drawer .bc-scrim{position:absolute;inset:0;background:rgba(23,25,22,0.36);}
+#bc-drawer .bc-sheet{position:absolute;left:0;right:0;top:0;max-height:100svh;overflow-y:auto;background:#FDFCF9;border-bottom:1px solid rgba(38,34,26,0.10);padding:0.9rem 1.25rem 1.5rem;transform:translateY(-10px);transition:transform .26s cubic-bezier(.22,1,.36,1);}
+#bc-drawer[data-open="1"] .bc-sheet{transform:translateY(0);}
+
 @media (max-width:36rem){
   aside{flex-basis:100%!important;max-width:100%!important;position:static!important;padding-top:0!important;}
   [data-navlink="1"]{display:none!important;}
-  [data-facts="1"]>div{padding-left:clamp(1.25rem,4.5cqi,3.5rem)!important;}
+  .bc-mobile{display:inline-flex!important;}
   [data-stack="1"]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;}
   [data-cta="1"]{width:100%;justify-content:center;}
+
+  /* vertical rhythm: mobile steps replace the desktop vh clamps */
+  section[id]{scroll-margin-top:4.5rem!important;}
+  [style*="clamp(3.25rem,8vh,5.25rem)"]{padding-top:2.1rem!important;padding-bottom:2.6rem!important;}
+  [style*="clamp(2.75rem,6.5vh,4.25rem)"]{padding-top:2.9rem!important;padding-bottom:2.9rem!important;}
+  [style*="clamp(2.5rem,7vh,4.5rem)"]{padding-top:2.4rem!important;padding-bottom:2.4rem!important;}
+  [style*="clamp(2.25rem,5vh,3.25rem)"]{padding-top:2.4rem!important;padding-bottom:1.6rem!important;}
+  [style*="clamp(1.75rem,4.5vh,3rem)"]{padding-top:2rem!important;padding-bottom:2rem!important;}
+  [style*="clamp(1.6rem,3.5vh,2.2rem)"]{padding-bottom:1.3rem!important;}
+  [style*="clamp(3rem,7vh,4.5rem)"]{padding-bottom:2.4rem!important;}
+  [style*="margin-top:clamp(1.5rem,3.2vh,2rem)"]{margin-top:1.5rem!important;}
+
+  /* asides read as a lead image, not a tall column */
+  aside img[style*="aspect-ratio"]{aspect-ratio:16/10!important;}
+  aside[style*="grid-template-rows"]{grid-template-rows:auto auto!important;}
+  aside[style*="grid-template-rows"] img{height:auto!important;aspect-ratio:16/10;}
+  aside{gap:1.15rem!important;}
+
+  /* fact strips: even two-up grid instead of a ragged auto-fit */
+  [data-facts="1"]{grid-template-columns:1fr 1fr!important;}
+  [data-facts="1"]>div{padding:0.95rem 1.1rem!important;}
+  [data-facts="1"]>div:nth-child(odd){padding-left:1.25rem!important;}
+  [data-facts="1"]>div:nth-child(even){padding-right:1.25rem!important;}
+  /* an odd last cell spans the row rather than leaving a hole */
+  [data-facts="1"]>div:last-child:nth-child(odd){grid-column:1/-1;padding-left:1.25rem!important;padding-right:1.25rem!important;}
+
+  footer{flex-direction:column;align-items:flex-start!important;gap:0.9rem!important;}
+  footer>div{margin-left:0!important;}
+}
+@media (max-width:22rem){
+  [data-facts="1"]{grid-template-columns:1fr!important;}
+  [data-facts="1"]>div{padding-right:1.25rem!important;padding-left:1.25rem!important;}
 }
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
 [data-vh]{transition:background .18s,color .18s,border-color .18s;}
@@ -60,6 +100,7 @@ a:hover{color:#5A4B7C;}
       <a href="/" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Home</a>
       <a href="/sits" style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#75726A;padding:0.45rem 0;" data-navlink="1">Sits</a>
       <a href="/#door" style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid #171916;padding:0.55rem 1rem;transition:background .18s,color .18s;" data-vh="ink">Join</a>
+      <button type="button" id="bc-menu-btn" class="bc-mobile" aria-controls="bc-drawer" aria-expanded="false" style="align-items:center;gap:0.5rem;border:1px solid rgba(38,34,26,0.28);background:transparent;padding:0.55rem 0.95rem;font-family:inherit;font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#171916;cursor:pointer;">Menu</button>
     </div>
   </div>
 </nav>
@@ -286,6 +327,41 @@ a:hover{color:#5A4B7C;}
   var localText = localTime !== ukTime ? 'That\u2019s ' + localTime + ' where you are.' : '';
   ['next-salon', 'next-salon-2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = dateText; });
   ['next-local', 'next-local-2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = localText; });
+})();
+</script>
+<div id="bc-drawer" aria-hidden="true">
+  <div class="bc-scrim" data-close="1"></div>
+  <div class="bc-sheet" role="dialog" aria-label="Menu">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-bottom:0.9rem;">
+      <span style="font-size:0.64rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</span>
+      <button type="button" data-close="1" aria-label="Close menu" style="border:1px solid rgba(38,34,26,0.28);background:transparent;padding:0.5rem 0.9rem;font-family:inherit;font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#171916;cursor:pointer;">Close</button>
+    </div>
+    <div style="display:grid;">
+      <a href="/" style="padding:0.95rem 0;border-top:1px solid rgba(38,34,26,0.10);font-weight:800;font-size:1.15rem;letter-spacing:-0.02em;text-transform:uppercase;">Home</a>
+      <a href="/sits" style="padding:0.95rem 0;border-top:1px solid rgba(38,34,26,0.10);font-weight:800;font-size:1.15rem;letter-spacing:-0.02em;text-transform:uppercase;">Sits</a>
+      <a href="/beyondbelief" style="padding:0.95rem 0;border-top:1px solid rgba(38,34,26,0.10);font-weight:800;font-size:1.15rem;letter-spacing:-0.02em;text-transform:uppercase;">Beyond Belief</a>
+      <a href="/log" style="padding:0.95rem 0;border-top:1px solid rgba(38,34,26,0.10);font-weight:800;font-size:1.15rem;letter-spacing:-0.02em;text-transform:uppercase;">Log</a>
+    </div>
+    <a href="/#door" style="display:flex;align-items:center;justify-content:center;gap:0.7rem;margin-top:1.2rem;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;padding:1rem 1.5rem;background:#171916;color:#FFFFFF;" data-vh="lav">Join <span aria-hidden="true">→</span></a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('bc-menu-btn'), drawer = document.getElementById('bc-drawer');
+  if (!btn || !drawer) return;
+  function set(open) {
+    drawer.setAttribute('data-open', open ? '1' : '0');
+    drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  btn.addEventListener('click', function () { set(drawer.getAttribute('data-open') !== '1'); });
+  drawer.addEventListener('click', function (e) {
+    if (e.target.closest('[data-close]') || e.target.closest('a')) set(false);
+  });
+  addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+  addEventListener('resize', function () { if (innerWidth > 576) set(false); });
 })();
 </script>
 </body>
