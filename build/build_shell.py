@@ -75,6 +75,19 @@ def convert(body, key):
         for k in ('salons', 'sits', 'about', 'door'):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
 
+    if key == 'beyondbelief':
+        # The cohort may not fill, so the lead no longer promises a headcount.
+        old_lead = 'and nine other people doing it with you'
+        assert old_lead in body, 'BB lead not found'
+        body = body.replace(old_lead, 'and a group of other people doing it with you', 1)
+
+    if key == 'salons':
+        # John removed this line; the design source still carries it, so drop it on
+        # every regeneration rather than editing the built file.
+        cameras = ' Cameras on, nothing recorded.'
+        assert cameras in body, 'cameras line not found in Salons'
+        body = body.replace(cameras, '', 1)
+
     if key == 'about':
         # The glossary trigger, per MERGE.md §1. All values are the design's; the tip
         # is lifted OUT of the <h1> and positioned by script, so the page's main
