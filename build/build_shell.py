@@ -117,6 +117,20 @@ def convert(body, key):
         body = body.replace(stale, '<span id="bc-next-salon">' + stale + '</span>', 1)
 
     if key == 'about':
+        # John's wording for the origin story.
+        for old, new, what in [
+            ('Beings Club exists because of a tea house at Plum Village, where I found myself '
+             'in conversations over tea that expanded my sense of what is possible — free of any prescribed topic.',
+             'Beings Club exists because of a tea house at Plum Village, where I found myself '
+             'in conversations over tea that expanded beyond the retreat schedule and expanded '
+             'my sense of what is possible.', 'origin paragraph'),
+            ('This is in the lineage of that atmosphere:',
+             'Beings Club is in the lineage of that atmosphere:', 'lineage line'),
+        ]:
+            assert old in body, 'About %s not found' % what
+            body = body.replace(old, new, 1)
+
+    if key == 'about':
         # The glossary trigger, per MERGE.md §1. All values are the design's; the tip
         # is lifted OUT of the <h1> and positioned by script, so the page's main
         # heading stays "Beings Club is a realisationhouse for the curious."
