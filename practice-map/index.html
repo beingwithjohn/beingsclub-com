@@ -1,401 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-screen="practice-map">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
-  <meta name="description" content="Body, Heart &amp; Mind — a practice map from Beings Club: three places to rest attention, and what each reveals. A thirteen-page document to read or print.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Beings Club">
-  <meta property="og:title" content="Body, Heart &amp; Mind — a practice map">
-  <meta property="og:description" content="Three places to rest attention, and what each reveals. A practice map from Beings Club.">
-  <meta property="og:url" content="https://beingsclub.com/practice-map">
-  <meta property="og:image" content="https://beingsclub.com/assets/course-cover.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Body, Heart &amp; Mind — a practice map">
-  <meta name="twitter:description" content="Three places to rest attention, and what each reveals. A practice map from Beings Club.">
-  <meta name="twitter:image" content="https://beingsclub.com/assets/course-cover.jpg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Body, Heart &amp; Mind — a practice map · Beings Club</title>
+<meta name="description" content="A practice map from Beings Club: body, heart and mind as three places to rest attention, and the rhythm that moves between them.">
+<link rel="canonical" href="https://beingsclub.com/practice-map/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Beings Club">
+<meta property="og:title" content="Body, Heart &amp; Mind — a practice map">
+<meta property="og:description" content="Three places to rest attention, and the rhythm that moves between them.">
+<meta property="og:url" content="https://beingsclub.com/practice-map/">
+<meta property="og:image" content="https://beingsclub.com/assets/img/practice-map-hero.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Body, Heart &amp; Mind — a practice map">
+<meta name="twitter:description" content="Three places to rest attention, and the rhythm that moves between them.">
+<meta name="twitter:image" content="https://beingsclub.com/assets/img/practice-map-hero.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;font-family:'Host Grotesk',system-ui,sans-serif;background:#FDFCF8;}
-  a{color:#171916;text-decoration:none;}
-  a:hover{color:#5a5c58;}
-  .page{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
 
-  /* Paged document — the sheet geometry doc-page.js supplied in preview. */
-  body{background:#E7E5E0;}
-  .doc{display:flex;flex-direction:column;align-items:center;gap:8mm;padding:8mm 0;}
-  /* border-box matters: these files carry no box-sizing reset, and every page
-     sets its own mm padding — content-box would inflate each sheet past A4. */
-  .page{width:210mm;height:297mm;box-sizing:border-box;overflow:hidden;position:relative;flex:none;
-        box-shadow:0 1px 8px rgba(23,25,22,.18);}
-  @media print{
-    @page{size:A4;margin:0;}
-    html,body{background:#fff;margin:0;}
-    .doc{display:block;gap:0;padding:0;zoom:1 !important;}
-    .page{box-shadow:none;break-after:page;page-break-after:always;break-inside:avoid;}
-    .page:last-child{break-after:auto;page-break-after:auto;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  [data-vh="0"]:hover{background:#5A4B7C;color:#FDFCF9;}
+  [data-vh="2"]:hover{background:#F8F6F1;}
+  @media (max-width:44rem){
+    [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(190px,32vh,260px)!important;}
+    [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
+    [data-splitcopy]{padding:32px 24px!important;}
   }
-  /* On a phone an A4 sheet is wider than the screen. Rather than asking people
-     to pinch and pan, the whole document is scaled to the viewport (see the
-     script at the end of the file). */
-  @media (max-width:52rem){
-    .doc{gap:5mm;padding:5mm 0;}
-    .page{box-shadow:0 1px 6px rgba(23,25,22,.16);}
+  @media (max-width:36rem){
+    [data-rowlabel]{grid-template-columns:1fr!important;gap:4px!important;}
   }
 </style>
-
 </head>
 <body>
-<div class="doc">
+<div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
-<section class="page" style="position:relative;overflow:hidden;background:#171916;color:#ffffff;">
-  <img src="/assets/course-cover.jpg" alt="A face at rest dissolving into bands of iridescent interference" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;">
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.34) 0%,rgba(0,0,0,.04) 30%,rgba(0,0,0,.40) 66%,rgba(0,0,0,.80) 100%);"></div>
-
-  <div style="position:absolute;left:20mm;right:20mm;top:20mm;display:flex;justify-content:space-between;align-items:baseline;gap:16px;">
-    <span style="font-weight:800;font-size:11px;letter-spacing:.04em;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.7);">Beings Club</span>
-    <span style="font-weight:700;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.85);text-shadow:0 2px 10px rgba(0,0,0,.7);">A practice companion</span>
-  </div>
-
-  <div style="position:absolute;left:20mm;right:20mm;bottom:20mm;">
-    <div style="font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;text-shadow:0 2px 12px rgba(0,0,0,.75);">A practice map</div>
-    <h1 style="margin:0;font-weight:800;font-size:58px;line-height:.94;letter-spacing:-.04em;text-transform:uppercase;text-shadow:0 2px 18px rgba(0,0,0,.7),0 0 60px rgba(0,0,0,.5);">Body,<br>Heart<br>&amp; Mind</h1>
-    <p style="margin:16px 0 24px;font-size:19px;font-weight:500;line-height:1.35;letter-spacing:-.02em;max-width:32ch;text-shadow:0 2px 12px rgba(0,0,0,.8);">Three places to rest attention, and the rhythm that moves between them.</p>
-    <div style="border-top:1px solid rgba(255,255,255,.42);padding-top:16px;display:grid;grid-template-columns:1fr auto;gap:8px 24px;align-items:end;">
-      <div style="text-shadow:0 2px 10px rgba(0,0,0,.8);">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:4px;">For anyone sitting</div>
-        <div style="font-weight:700;font-size:15px;letter-spacing:-.01em;">No experience needed. Nothing to believe.</div>
-      </div>
-      <div style="font-weight:600;font-size:11px;letter-spacing:.04em;text-shadow:0 2px 10px rgba(0,0,0,.8);">beingsclub.com</div>
+  <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
+      <a href="/about/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
+      <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
+      <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
     </div>
-  </div>
-</section>
+  </nav>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">Before you begin</div>
-    <p style="margin:0 0 20px;font-weight:800;font-size:30px;line-height:1.1;letter-spacing:-.03em;">This is a map, not a method.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;">This map won't give you a single specific meditation technique. There are enough voices doing that. These pages describe territory — what the body, the heart and the mind actually are as places to rest attention — so that you can find your own way.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;">Nothing here asks you to believe anything. That is deliberate. Every claim on these pages is written to be tested against your own experience, and to be let go of if it doesn't land.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;">The premise is simple: you already have what these practices point at. Presence, resonance, spaciousness — none of it is manufactured from nought. It is uncovered. Practice is only sometimes cultivation and often just the removing of what obscures.</p>
-    <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#5a5c58;">A rhythm — <em style="font-style:italic;">effort and rest</em> — runs through everything here. We build a habit of attention, then let the habit show us what needs no habit at all.</p>
-    <div style="border-top:1px solid rgba(23,25,22,.14);padding-top:20px;">
-      <p style="margin:0;font-weight:500;font-size:18px;line-height:1.45;letter-spacing:-.01em;color:#171916;">Nothing to fix. Nothing to change. Nothing to do.</p>
+  <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">A practice map</span>
+    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Body, heart and mind — three places to rest attention.</h1>
+    <div style="display:grid;gap:16px;max-width:54ch;">
+      <p style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">This is a map, not a method. It describes territory — what the body, the heart and the mind actually are as places to rest attention — so that you can find your own way.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Nothing here asks you to believe anything. Every claim is written to be tested against your own experience, and to be let go of if it doesn't land.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;font-weight:600;">No experience needed. Nothing to believe.</p>
     </div>
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>Beings Club · A Practice Map</span><span>02</span>
-  </div>
-</section>
+  </header>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">The how</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;">How to explore the map</h2>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Before the <em style="font-style:italic;">where</em>, a word on the <em style="font-style:italic;">how</em>. <br>However you practice, these two qualities are worth bringing with you.</p>
+  <figure style="margin:0;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="eager" decoding="async" src="/assets/img/practice-map-hero.jpg" alt="A lone figure walking a field toward banded hills" style="width:100%;height:clamp(220px,38vh,340px);background:#F0EEE8;object-fit:cover;object-position:center 78%;">
+  </figure>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div style="border:1px solid rgba(23,25,22,.14);padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;margin-bottom:8px;">Quality one</div>
-        <div style="font-weight:700;font-size:20px;letter-spacing:-.02em;margin-bottom:8px;">Gentleness</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">A softening. A way of treating ourselves and others as precious, and a counter to the harshness that can creep in when we apply effort. Without it, practice becomes another place where we're hard on ourselves.</p>
-      </div>
-      <div style="border:1px solid rgba(23,25,22,.14);padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;margin-bottom:8px;">Quality two</div>
-        <div style="font-weight:700;font-size:20px;letter-spacing:-.02em;margin-bottom:8px;">Precision</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">An exactness; a way of meeting reality with complete contact, and a counter to the dullness that can happen when we grow complacent. Without it, practice becomes an unhelpful nap.</p>
-      </div>
+  <section style="padding:clamp(32px,5.5vh,56px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;">
+    <p style="margin:0;max-width:26ch;font-size:clamp(22px,3.2vw,30px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">The map is not the territory.</p>
+  </section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The rhythm</span>
+    <h2 style="margin:0;max-width:24ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Effort, and then rest.</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Each territory has two ways of approach. First you might <em>cultivate</em> — a deliberate practice, something to do. Then you might <em>rest</em> — stop efforting, and let what is already here reveal itself.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">They are not stages, and you don't graduate from one to the next. You already have what these practices point at: presence, resonance, spaciousness are uncovered, not manufactured.</p>
     </div>
+  </section>
 
-    <p style="margin:20px 0 0;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Too much gentleness goes slack. Too much precision becomes rigid. The practice lives in both at once — and when they come into balance, a third thing arrives on its own.</p>
-
-    <div style="margin-top:20px;background:#EFEAF6;padding:20px 24px;display:grid;gap:8px;">
-      <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#5a5c58;">What follows</div>
-      <div style="font-weight:800;font-size:24px;letter-spacing:-.03em;">Letting go</div>
-      <p style="margin:0;font-size:15px;line-height:1.6;color:#5a5c58;">Not a technique but a result: right effort, the absence of aggression, the natural release of clinging. It happens naturally, once gentleness and precision are in tune.</p>
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;">
+      <img loading="lazy" decoding="async" src="/assets/opart/symmetry.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;margin-bottom:6px;">
+      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Gentleness</h2>
+      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">A softening. A way of treating ourselves and others as precious, and a counter to the harshness that can creep in when we apply effort. Without it, practice becomes another place where we're hard on ourselves.</p>
     </div>
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>How to explore the map</span><span>03</span>
-  </div>
-</section>
+    <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;border-left:1px solid rgba(38,34,26,0.10);">
+      <img loading="lazy" decoding="async" src="/assets/opart/stillness.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;margin-bottom:6px;">
+      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Precision</h2>
+      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">An exactness. A way of meeting experience with complete contact, and a counter to the dullness that can arise when we grow complacent. Without it, practice can become a place to hide from what's true.</p>
+    </div>
+  </section>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">The one practicality</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;">A suggested posture</h2>
-    <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Posture is the same balance in physical form: <strong style="font-weight:600;color:#171916;">precision</strong> with <strong style="font-weight:600;color:#171916;">gentleness</strong>. <br>Wakeful and at ease, at the same time. Something to play with until it feels right.</p>
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="display:grid;gap:8px;max-width:54ch;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;">What follows</span>
+      <p style="margin:0;font-size:clamp(20px,2.6vw,25px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#5A4B7C;">Letting go.</p>
+      <p style="margin:0;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Not a technique but a result: right effort, the absence of aggression, the natural release of clinging. It happens naturally, once gentleness and precision are in tune.</p>
+    </div>
+  </section>
 
-    <div style="display:grid;gap:1px;background:rgba(23,25,22,.14);border-top:1px solid rgba(23,25,22,.14);border-bottom:1px solid rgba(23,25,22,.14);">
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Place</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Indoors is good. Outdoors can be better — a garden, a doorway, a park bench, or simply the window open. Weather, birdsong and traffic are not interruptions to the practice; they can be part of practice.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Seat</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Chair, cushion, bench or floor — all of them work. Aim to have your hips a little higher than your knees, so the lower back keeps its natural curve instead of collapsing.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Spine</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Upright without strain. Think of lengthening from the crown of the head. Uprightness here is dignity, not rigidity.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Hands</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Resting palms down on the thighs or cradled in the lap.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Face</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Relaxed muscles of the face, mouth closed or lips just separated, tongue soft, chin perhaps very slightly tucked. Breathe through the nose if you can.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Eyes</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Open with a soft, unfocused gaze a metre or so ahead, or closed. Try both over a stretch of days; they produce noticeably different practices.</div>
-      </div>
-      <div style="display:grid;grid-template-columns:7rem 1fr;gap:20px;background:#FDFCF8;padding:12px 0;">
-        <div style="font-weight:700;font-size:13px;letter-spacing:-.01em;">Pain</div>
-        <div style="font-size:14px;line-height:1.6;color:#5a5c58;">Move. Look after your body. Enduring real pain teaches nothing except that practice hurts. Lie down, stand, walk. Do what you have to do.</div>
+  <figure style="margin:0;border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="lazy" decoding="async" src="/assets/img/practice-map-body.jpg" alt="A stable ground map — banded terrain in earth tones" style="width:100%;height:clamp(160px,26vh,240px);background:#F0EEE8;object-fit:cover;object-position:center 50%;">
+  </figure>
+
+  <section id="body" style="scroll-margin-top:72px;padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px) clamp(28px,4.5vh,44px);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">GROUNDING</span>
+    <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">The body</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">The body is always in contact with the present. It is a field of changing sensation with its own non-conceptual intelligence — grounded, immediate, already here.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">But we rarely stay with it. We fix our attention elsewhere, often to avoid what feels uncomfortable, and lose awareness of that which is never anywhere but now.</p>
+    </div>
+  </section>
+
+  <div style="display:grid;gap:1px;background:rgba(38,34,26,0.10);border-top:1px solid rgba(38,34,26,0.10);">
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:22px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:8px 24px;align-items:baseline;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Cultivate</span>
+      <div style="display:grid;gap:6px;">
+        <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Turn toward sensation</h3>
+        <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Body scans and walking meditation. Allow your attention to fill the body, deepening your capacity to be with the pleasant, the unpleasant and the neutral alike.</p>
       </div>
     </div>
-
-    <p style="margin:20px 0 0;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">None of this is a prerequisite. Posture is an instrument you have to support your practice — worth tuning and observing the effects of.</p>
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>A suggested posture</span><span>04</span>
-  </div>
-</section>
-
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">The shape of it</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;">Three aspects of experience,<br>one rhythm</h2>
-    <p style="margin:0 0 12px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">This map describes three places you already have access to but perhaps rarely visit on purpose. Each one has two ways of approach. First you might <em style="font-style:italic;">cultivate</em> — a deliberate practice, something to do. Then you might <em style="font-style:italic;">rest</em> — stop efforting, and let what is already here reveal itself spontaneously.</p>
-    <p style="margin:0 0 12px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">They are not stages, and you don't graduate from one to the next. Body, heart and mind are all available on any given day; which one you begin with is a matter of what the day is like.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">The body is here — unmistakably. The heart resonates outwards and inwards. The mind can open to include everything.</p>
-
-    <div style="display:grid;gap:1px;background:rgba(23,25,22,.14);border-top:1px solid #171916;">
-      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:baseline;background:#FDFCF8;padding:16px 0;">
-        <span style="font-weight:700;font-size:13px;color:#FFAD54;">01</span>
-        <span><span style="font-weight:700;font-size:19px;letter-spacing:-.02em;">The Body</span><span style="font-size:15px;font-style:italic;color:#9a9c97;margin-left:12px;">presence</span></span>
-        <span style="font-weight:700;font-size:12px;color:#9a9c97;">06</span>
-      </div>
-      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:baseline;background:#FDFCF8;padding:16px 0;">
-        <span style="font-weight:700;font-size:13px;color:#FFAD54;">02</span>
-        <span><span style="font-weight:700;font-size:19px;letter-spacing:-.02em;">The Heart</span><span style="font-size:15px;font-style:italic;color:#9a9c97;margin-left:12px;">resonance</span></span>
-        <span style="font-weight:700;font-size:12px;color:#9a9c97;">08</span>
-      </div>
-      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:baseline;background:#FDFCF8;padding:16px 0;">
-        <span style="font-weight:700;font-size:13px;color:#FFAD54;">03</span>
-        <span><span style="font-weight:700;font-size:19px;letter-spacing:-.02em;">The Mind</span><span style="font-size:15px;font-style:italic;color:#9a9c97;margin-left:12px;">spaciousness</span></span>
-        <span style="font-weight:700;font-size:12px;color:#9a9c97;">10</span>
-      </div>
-      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:baseline;background:#FDFCF8;padding:16px 0;border-bottom:1px solid #171916;">
-        <span style="font-weight:700;font-size:13px;color:#FFAD54;">04</span>
-        <span><span style="font-weight:700;font-size:19px;letter-spacing:-.02em;">Making it your own</span><span style="font-size:15px;font-style:italic;color:#9a9c97;margin-left:12px;">play &amp; rest</span></span>
-        <span style="font-weight:700;font-size:12px;color:#9a9c97;">12</span>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:22px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:8px 24px;align-items:baseline;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Rest</span>
+      <div style="display:grid;gap:6px;">
+        <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Let awareness diffuse</h3>
+        <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Stop moving attention. Let the body's natural sensitivity become a ground you relax into, and trust its intelligence to hold your life.</p>
       </div>
     </div>
   </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The shape of it</span><span>05</span>
-  </div>
-</section>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">Territory one</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:44px;line-height:1;letter-spacing:-.03em;text-transform:uppercase;">The Body</h2>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">The body is always in contact with the present. It is a field of changing sensation with its own non-conceptual intelligence — grounded, immediate, already here.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">But we rarely stay with it. We fix our attention elsewhere, often to avoid what feels uncomfortable, and lose awareness of that which is never anywhere but now.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">To come back is to rediscover that the body is a world in its own right. It has been here for your whole life, a witness to most of every day. Air that was outside a moment ago is inside you now; warmth, light and sound arrive uninvited. The body is sensitive and learning, and that intelligence can be offered to the situations of our lives.</p>
+  <section style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);background:#F8F6F1;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;margin-bottom:clamp(18px,3vh,32px);">
+    <img loading="lazy" decoding="async" src="/assets/opart/ground.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;">
+    <div style="flex:1 1 22rem;min-width:0;display:grid;gap:8px;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">What is revealed</span>
+      <p style="margin:0;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;">Presence.</p>
+      <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">You don't have to <em>do</em> being here. You already are. What's left is embodiment without striving — a trust that the body can be rested in, exactly as it is.</p>
+    </div>
+  </section>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div style="background:#E8EBE2;padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">Cultivate</div>
-        <div style="font-weight:700;font-size:17px;letter-spacing:-.02em;margin-bottom:8px;">Turn toward sensation</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">Body scans and walking. Move attention through the body, deepening your capacity to be with the pleasant, the unpleasant and the neutral alike.</p>
-      </div>
-      <div style="background:#EFEAF6;padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">Rest</div>
-        <div style="font-weight:700;font-size:17px;letter-spacing:-.02em;margin-bottom:8px;">Let awareness diffuse</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">Stop moving attention. Let the body's natural sensitivity become a ground you relax into, and trust its intelligence to hold your life.</p>
+  <figure style="margin:0;border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="lazy" decoding="async" src="/assets/img/practice-map-heart.jpg" alt="A resonance map — concentric rings radiating from a centre" style="width:100%;height:clamp(160px,26vh,240px);background:#F0EEE8;object-fit:cover;object-position:center 45%;">
+  </figure>
+
+  <section id="heart" style="scroll-margin-top:72px;padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px) clamp(28px,4.5vh,44px);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">RESONATING</span>
+    <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">The heart</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">The heart is an organ of attunement. It resonates — with our own experience, with others, with the wider world — and it carries its own knowing: a reservoir of care, compassion and courage.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Its capacity to feel is endlessly deep, and because it is so deep, we often find our hearts closing to protect us from the fullness of it. Opening the heart is not done by force.</p>
+    </div>
+  </section>
+
+  <div style="display:grid;gap:1px;background:rgba(38,34,26,0.10);border-top:1px solid rgba(38,34,26,0.10);">
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:22px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:8px 24px;align-items:baseline;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Cultivate</span>
+      <div style="display:grid;gap:6px;">
+        <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Wish well, on purpose</h3>
+        <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Loving-kindness. Deliberate warmth, turned toward yourself and then outward, until gentleness begins to feel natural rather than performed.</p>
       </div>
     </div>
-
-    <img src="/assets/opart/ground.png" alt="" style="display:block;width:34mm;height:auto;margin:24px auto 0;mix-blend-mode:multiply;">
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The Body</span><span>06</span>
-  </div>
-</section>
-
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;max-width:52ch;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:20px;">What is revealed</div>
-    <p style="margin:0 0 24px;font-weight:800;font-size:64px;line-height:1;letter-spacing:-.04em;">Presence.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;">You don't have to <em style="font-style:italic;">do</em> being here. You already are. After turning toward sensation, dropping all effort, what's left is simply this: embodiment without striving. A trust that the body can be rested in, exactly as it is.</p>
-    <div style="align-self:start;background:#FBF4EA;border:1px solid rgba(23,25,22,.14);padding:20px 24px;">
-      <p style="margin:0;font-weight:500;font-size:17px;line-height:1.45;letter-spacing:-.01em;">Nothing to fix. Nothing to change. Nothing to do.</p>
-    </div>
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The Body · presence</span><span>07</span>
-  </div>
-</section>
-
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">Territory two</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:44px;line-height:1;letter-spacing:-.03em;text-transform:uppercase;">The Heart</h2>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">The heart is an organ of attunement. It resonates — with our own experience, with others, with the wider world — and it carries its own knowing: a reservoir of care, compassion and courage.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Its capacity to feel is endlessly deep, and because it is so deep, we often find our hearts closing to protect us from the fullness of it.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Opening the heart is not done by force. But we can plant seeds of intention that let it remember its own strength — its courage to face all kinds of pain.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div style="background:#E8EBE2;padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">Cultivate</div>
-        <div style="font-weight:700;font-size:17px;letter-spacing:-.02em;margin-bottom:8px;">Wish well, on purpose</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">Loving-kindness. Deliberate warmth, turned toward yourself and then outward, until gentleness begins to feel natural rather than performed.</p>
-      </div>
-      <div style="background:#EFEAF6;padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">Rest</div>
-        <div style="font-weight:700;font-size:17px;letter-spacing:-.02em;margin-bottom:8px;">Let the heart resonate</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">Begin in the body, then bring awareness to the heart and let its qualities respond on their own, without needing them to any particular way.</p>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:22px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:8px 24px;align-items:baseline;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Rest</span>
+      <div style="display:grid;gap:6px;">
+        <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Let the heart resonate</h3>
+        <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Begin in the body, then bring awareness to the heart and let its qualities respond on their own.</p>
       </div>
     </div>
-
-    <img src="/assets/opart/interdependence.png" alt="" style="display:block;width:34mm;height:auto;margin:24px auto 0;mix-blend-mode:multiply;">
   </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The Heart</span><span>08</span>
-  </div>
-</section>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;max-width:52ch;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:20px;">What is revealed</div>
-    <p style="margin:0 0 24px;font-weight:800;font-size:64px;line-height:1;letter-spacing:-.04em;">Resonance.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;">You are not generating the care. You are discovering that the heart does this on its own — it resonates and responds, if you let it. What surfaces is a wide, expansive sense of feeling experience, carried by love and a real sense of capacity and courage.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;">Notice where the heart's resonance reaches: towards others and the world without excluding oneself. Warmth reaches as readily to an animal, a tree or a place as to a person. It's as natural as ones care for a new-born child.</p>
-    <div style="align-self:start;background:#FBF4EA;border:1px solid rgba(23,25,22,.14);padding:20px 24px;">
-      <p style="margin:0;font-weight:500;font-size:17px;line-height:1.45;letter-spacing:-.01em;">Nothing to fix. Nothing to change. Nothing to do.</p>
+  <section style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);background:#F8F6F1;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;margin-bottom:clamp(18px,3vh,32px);">
+    <img loading="lazy" decoding="async" src="/assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;">
+    <div style="flex:1 1 22rem;min-width:0;display:grid;gap:8px;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">What is revealed</span>
+      <p style="margin:0;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;">Resonance.</p>
+      <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">You are not generating the care. You are discovering that the heart does this on its own — it resonates and responds, if you let it. Warmth reaches as readily to an animal, a tree or a place as to a person.</p>
     </div>
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The Heart · resonance</span><span>09</span>
-  </div>
-</section>
+  </section>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">Territory three</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:44px;line-height:1;letter-spacing:-.03em;text-transform:uppercase;">The Mind</h2>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">The mind thinks — that is what it does. Usually we don't notice we're thinking; we're simply lost to it.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Our culture teaches us to meet a complex world through concept and abstraction, and that never quite satisfies, because the world is not a concept. It is an unfathomable, changing reality.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">We make a little more ease for ourselves by loosening the grip of thought as the only way we relate to our lives and noticing the space in which all thoughts arise.</p>
+  <figure style="margin:0;border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="lazy" decoding="async" src="/assets/img/practice-map-mind.jpg" alt="An open-space map — starfield crossed by bands of colour" style="width:100%;height:clamp(160px,26vh,240px);background:#F0EEE8;object-fit:cover;object-position:center 50%;">
+  </figure>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-      <div style="background:#E8EBE2;padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">Cultivate</div>
-        <div style="font-weight:700;font-size:17px;letter-spacing:-.02em;margin-bottom:8px;">Note thinking as thinking</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">When you notice you've been thinking, note it, and return. Thought becomes one phenomenon among many — not reality itself.</p>
-      </div>
-      <div style="background:#EFEAF6;padding:20px 24px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">Rest</div>
-        <div style="font-weight:700;font-size:17px;letter-spacing:-.02em;margin-bottom:8px;">Open into space</div>
-        <p style="margin:0;font-size:14px;line-height:1.6;color:#5a5c58;">Through body, then heart, then a recognition of the mind as naturally spacious. Let phenomena arise and pass by themselves.</p>
+  <section id="mind" style="scroll-margin-top:72px;padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px) clamp(28px,4.5vh,44px);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">OPENING</span>
+    <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">The mind</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">The mind thinks — that is what it does. Usually we don't notice we're thinking; we're simply lost to it.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Our culture teaches us to meet a complex world through concept and abstraction, and that never quite satisfies, because the world is not a concept. It is an unfathomable, changing reality.</p>
+    </div>
+  </section>
+
+  <div style="display:grid;gap:1px;background:rgba(38,34,26,0.10);border-top:1px solid rgba(38,34,26,0.10);">
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:22px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:8px 24px;align-items:baseline;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Cultivate</span>
+      <div style="display:grid;gap:6px;">
+        <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Note thinking as thinking</h3>
+        <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">When you notice you've been thinking, note it, and return. Thought becomes one phenomenon among many — not reality itself.</p>
       </div>
     </div>
-
-    <img src="/assets/opart/spacious.png" alt="" style="display:block;width:34mm;height:auto;margin:24px auto 0;mix-blend-mode:multiply;">
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The Mind</span><span>10</span>
-  </div>
-</section>
-
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;max-width:52ch;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:20px;">What is revealed</div>
-    <p style="margin:0 0 24px;font-weight:800;font-size:60px;line-height:1;letter-spacing:-.04em;">Spaciousness.</p>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;">The noticing was always happening in something already open. Thoughts arise and pass without your control; you don't have to run the show.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;">What remains is a sense of spaciousness, and rest. There is space.</p>
-    <div style="align-self:start;background:#FBF4EA;border:1px solid rgba(23,25,22,.14);padding:20px 24px;">
-      <p style="margin:0;font-weight:500;font-size:17px;line-height:1.45;letter-spacing:-.01em;">Nothing to fix. Nothing to change. Nothing to do.</p>
-    </div>
-  </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>The Mind · spaciousness</span><span>11</span>
-  </div>
-</section>
-
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:16px;">The point of a map</div>
-    <h2 style="margin:0 0 16px;font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;">Making it your own</h2>
-    <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">A map is no use if you only ever read it. The three aspects of experience — grounding into the body, resonating through the heart, resting in the spaciousness of mind — are yours to explore in whatever order and rhythm your practice asks for.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">That freedom is what <em style="font-style:italic;">play</em> means here. Let your practice become a friend.</p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(23,25,22,.14);border-top:1px solid rgba(23,25,22,.14);border-bottom:1px solid rgba(23,25,22,.14);">
-      <div style="background:#FDFCF8;padding:16px 16px 16px 0;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">If overwhelmed</div>
-        <div style="font-weight:700;font-size:16px;letter-spacing:-.01em;">Begin with the body</div>
-      </div>
-      <div style="background:#FDFCF8;padding:16px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">If angry</div>
-        <div style="font-weight:700;font-size:16px;letter-spacing:-.01em;">Begin with the heart</div>
-      </div>
-      <div style="background:#FDFCF8;padding:16px 0 16px 16px;">
-        <div style="font-weight:700;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:8px;">If scattered</div>
-        <div style="font-weight:700;font-size:16px;letter-spacing:-.01em;">Begin with the mind</div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:22px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:8px 24px;align-items:baseline;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Rest</span>
+      <div style="display:grid;gap:6px;">
+        <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Open into space</h3>
+        <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Through body, then heart, then a recognition of the mind as naturally spacious. Let phenomena arise and pass by themselves.</p>
       </div>
     </div>
+  </div>
 
-    <p style="margin:24px 0 16px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">Twenty minutes is standard, and sitting daily matters far more than sitting long. Experiment. On a hard day, five minutes counts. When you lapse — everyone lapses — simply begin again. Beginning again is not the failure. It is the practice.</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.65;color:#5a5c58;max-width:64ch;">And remember: what you were reaching for was never produced by any of this. Presence, resonance, spaciousness — they are here all the time.</p>
+  <section style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);background:#F8F6F1;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;margin-bottom:clamp(18px,3vh,32px);">
+    <img loading="lazy" decoding="async" src="/assets/opart/spacious.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;">
+    <div style="flex:1 1 22rem;min-width:0;display:grid;gap:8px;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">What is revealed</span>
+      <p style="margin:0;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;">Spaciousness.</p>
+      <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">The noticing was always happening in something already open. Thoughts arise and pass without your control; you don't have to run the show. What remains is a sense of spaciousness, and rest.</p>
+    </div>
+  </section>
 
-    <div style="border-top:1px solid rgba(23,25,22,.14);padding-top:20px;display:flex;align-items:center;gap:24px;">
-      <p style="margin:0;font-weight:500;font-size:19px;line-height:1.4;letter-spacing:-.02em;color:#171916;max-width:32ch;">We build a habit only to find what needs no habit at all.</p>
-      <img src="/assets/opart/stillness.png" alt="" style="display:block;width:26mm;height:auto;margin-left:auto;mix-blend-mode:multiply;">
+  <figure style="margin:0;border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="position:relative;height:clamp(160px,26vh,240px);overflow:hidden;background:#F0EEE8;">
+      <img loading="lazy" decoding="async" src="/assets/img/practice-map-posture.jpg" alt="A balanced cairn of stones against bands of colour" style="position:absolute;top:50%;left:50%;width:clamp(160px,26vh,240px);height:64rem;object-fit:cover;transform:translate(-50%,-50%) rotate(90deg);">
+    </div>
+  </figure>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px) clamp(28px,4.5vh,44px);display:grid;gap:20px;">
+    <span data-postureeyebrow="1" style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">ON THE POSTURE</span>
+    <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Some suggestions regarding form</h2>
+    <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Find the same balance in physical form: precision with gentleness.<br>Wakeful and easeful, at the same time.</p>
+  </section>
+
+  <div style="display:grid;gap:1px;background:rgba(38,34,26,0.10);border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Place</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Indoors is good. Outdoors can be better — a garden, a doorway, a park bench, or simply the window open. Weather, birdsong and traffic can be part of practice.</p>
+    </div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Seat</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Chair, cushion, bench or floor — all of them work. Aim to have your hips a little higher than your knees, so the lower back keeps its natural curve.</p>
+    </div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Spine</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Upright without strain. Think of lengthening from the crown of the head. Uprightness here is dignity, not rigidity.</p>
+    </div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Hands</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Resting palms down on the thighs or cradled in the lap.</p>
+    </div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Face</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Relaxed muscles of the face, mouth closed or lips just separated, tongue soft. Breathe through the nose if you can.</p>
+    </div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Eyes</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Open with a soft, unfocused gaze a metre or so ahead, or closed. Try both over a stretch of days; they produce noticeably different practices.</p>
+    </div>
+    <div data-rowlabel="1" style="background:#FDFCF9;padding:16px clamp(24px,5vw,56px);display:grid;grid-template-columns:7rem 1fr;gap:4px 24px;align-items:baseline;">
+      <span style="font-size:16px;font-weight:600;letter-spacing:-0.01em;">Pain</span>
+      <p style="margin:0;max-width:60ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Move. Look after your body. Enduring real pain teaches nothing except that practice hurts. Lie down, stand, walk. Do what you have to do.</p>
     </div>
   </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>Making it your own</span><span>12</span>
-  </div>
-</section>
+  <div style="height:clamp(18px,3vh,32px);"></div>
 
-<section class="page" style="position:relative;display:flex;flex-direction:column;padding:24mm 20mm 24mm;background:#FDFCF8;color:#171916;text-align:center;">
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-    <img src="/assets/opart/symmetry.png" alt="" style="display:block;width:30mm;height:auto;margin:0 0 24px;mix-blend-mode:multiply;">
-    <div style="font-weight:700;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;margin-bottom:20px;">Beings Club</div>
-    <p style="margin:0 0 24px;font-weight:800;font-size:34px;line-height:1.1;letter-spacing:-.03em;max-width:24ch;">Stay curious.</p>
-    <p style="margin:0;font-size:16px;line-height:1.65;color:#5a5c58;max-width:52ch;">This map is a companion to our practice together — in the Sits, where we learn these tools, and the Salons, where we gather as the curious to realise what's possible: in ourselves, between us, and in the world.</p>
-    <div style="width:60px;height:1px;background:rgba(23,25,22,.14);margin:24px auto;"></div>
-    <p style="margin:0;font-weight:700;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">For the benefit of all beings</p>
-    <p style="margin:12px 0 0;font-weight:600;font-size:13px;letter-spacing:.04em;"><a href="https://beingsclub.com">beingsclub.com</a></p>
+  <figure style="margin:0;border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="lazy" decoding="async" src="/assets/img/practice-map-yours.jpg" alt="A standing figure at the centre of radiating bands of light" style="width:100%;height:clamp(160px,26vh,240px);background:#F0EEE8;object-fit:cover;object-position:center 84%;">
+  </figure>
+
+  <section id="yours" style="scroll-margin-top:72px;padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px) clamp(28px,4.5vh,44px);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The point of a map</span>
+    <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Making it your own</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">A map is no use if you only ever read it. The three territories are yours to explore in whatever order and rhythm your practice asks for. Let your practice become a friend.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Twenty minutes is standard, and sitting daily matters far more than sitting long. On a hard day, five minutes counts. When you lapse — everyone lapses — simply begin again. Beginning again is not the failure. It is the practice.</p>
+    </div>
+  </section>
+
+  <div style="display:flex;align-items:stretch;flex-wrap:wrap;border-top:1px solid rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="#body" style="flex:1 1 12rem;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;" data-vh="2">
+      <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Begin with the body</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">If overwhelmed</span>
+    </a>
+    <a href="#heart" style="flex:1 1 12rem;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="2">
+      <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Begin with the heart</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">If angry</span>
+    </a>
+    <a href="#mind" style="flex:1 1 12rem;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="2">
+      <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Begin with the mind</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">If scattered</span>
+    </a>
   </div>
-  <div style="position:absolute;left:20mm;right:20mm;bottom:16mm;display:flex;justify-content:space-between;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">
-    <span>Beings Club · A Practice Map</span><span>13</span>
-  </div>
-</section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:20px;">
+    <p style="margin:0;max-width:30ch;font-size:clamp(22px,3.2vw,30px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">We build a habit only to find what needs no habit at all.</p>
+    <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">What you were reaching for was never produced by any of this. Presence, resonance, spaciousness — they are here all the time.</p>
+  </section>
+
+  <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
+    <p style="margin:0;max-width:24ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">This map is a companion to our practice together.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
+      <a href="/sits/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Sit with us <span aria-hidden="true">→</span></a>
+      <a href="/salons/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Come to a Salon</a>
+    </div>
+  </section>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:16px clamp(24px,5vw,56px);background:#F8F6F1;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+  </footer>
 
 </div>
-<script>
-(function () {
-  var doc = document.querySelector('.doc');
-  if (!doc) return;
-  function fit() {
-    var avail = document.documentElement.clientWidth - 16;   // 210mm ~= 793.7px @96dpi
-    doc.style.zoom = Math.min(1, avail / 794);
-  }
-  fit();
-  addEventListener('resize', fit);
-})();
-</script>
 </body>
 </html>

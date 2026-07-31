@@ -29,8 +29,22 @@ echo "==> verifying the build"
 python3 build/verify.py
 
 echo "==> committing"
-# only the site — never sweep in a neighbouring project's build artefacts
-git add index.html about salons sits beyondbelief join 404.html assets build docs .gitignore 2>/dev/null || true
+git add -A
+# an allowlist of paths goes stale and silently drops changes; instead take
+# everything and refuse anything that looks like a build artefact. node_modules
+# once slipped in this way — 133MB, including an 82MB binary.
+BIG="$(git diff --cached --name-only | while read -r f; do
+        if [ -f "$f" ] && [ "$(wc -c <"$f")" -gt 5000000 ]; then echo "$f"; fi
+      done)"
+JUNK="$(git diff --cached --name-only | grep -E '(^|/)(node_modules|\.wrangler|dist)/' || true)"
+if [ -n "$BIG$JUNK" ]; then
+  echo "REFUSING: these do not belong in the site repo —"
+  [ -n "$BIG" ]  && echo "$BIG"  | sed 's/^/  over 5MB: /'
+  [ -n "$JUNK" ] && echo "$JUNK" | sed 's/^/  build artefact: /'
+  echo "  add them to .gitignore, then re-run"
+  git reset -q
+  exit 1
+fi
 if git diff --cached --quiet; then echo "nothing to commit"; else
   git commit -q -m "$MSG
 
