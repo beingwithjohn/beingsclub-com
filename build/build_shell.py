@@ -5,7 +5,7 @@
 # The slug copies are GENERATED — never hand-edited — so they cannot drift.
 import re, io, os, json, shutil
 
-SRC  = "/Users/john/Downloads/design_handoff_beings_club"
+SRC  = "/Users/john/Downloads/design_handoff_beings_club 3"
 SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
 
 # key, source file, slug (trailing-slash convention), title, description
@@ -44,6 +44,7 @@ def convert(body, key):
             hover_rules.append('[data-vh="%d"]:hover{%s}' % (hover_seen[decls], decls))
         return 'data-vh="%d"' % hover_seen[decls]
     body = re.sub(r'style-hover="([^"]*)"', hov, body)
+    body = re.sub(r'\s*style-focus="[^"]*"', '', body)  # focus handled in CSS
 
     # assets live at the site root — including inside style attributes, or the nav
     # wordmark resolves to /salons/assets/… and 404s on every inner screen
@@ -75,22 +76,19 @@ def convert(body, key):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
 
     if key == 'about':
-        # The word the site rests on, defined where it is first used — a small card
-        # on hover, focus, or tap. Not a section; the h1 keeps its own weight.
-        trigger = ('<span class="bc-def" tabindex="0" role="button" aria-expanded="false" '
-                   'aria-controls="bc-def-card">realisationhouse</span>')
-        h1 = 'Beings Club is a realisationhouse for the curious.'
-        assert h1 in body, 'About h1 not found'
-        body = body.replace(h1, h1.replace('realisationhouse', trigger, 1), 1)
-        # The card lives OUTSIDE the h1 and is positioned under the word by script —
-        # inside it, the definition would become part of the page's main heading.
-        card = ('<div class="bc-def-card" id="bc-def-card" role="tooltip">'
-                '<b>realisationhouse <i>n.</i></b>'
-                '<em>[rɪəlaɪˈzeɪʃᵊnhaʊs]</em>'
-                '<span>A social gathering place where contemplative practice is recognised and '
-                'engaged as a means of realising new possibilities.</span>'
-                '</div>')
-        body = body.replace('</header>', card + '\n  </header>', 1)
+        # The glossary trigger, per MERGE.md §1. All values are the design's; the tip
+        # is lifted OUT of the <h1> and positioned by script, so the page's main
+        # heading stays "Beings Club is a realisationhouse for the curious."
+        body = body.replace('ref="{{ rhRef }}"', 'id="bc-rh"')
+        for hole, attr in [('rhOn','data-rh-on'), ('rhOff','data-rh-off'),
+                           ('rhToggle','data-rh-toggle'), ('rhKey','data-rh-key')]:
+            body = re.sub(r'on[A-Za-z]+="\{\{ ' + hole + r' \}\}"', attr + '="1"', body)
+        m = re.search(r'<span style="\{\{ rhTipStyle \}\}">(.*?)</span></span>', body, re.S)
+        assert m, 'rh tip not found'
+        tip_inner = m.group(1)
+        body = body[:m.start()] + '</span>' + body[m.end():]
+        tip = '<span class="bc-rh-tip" id="bc-rh-tip" role="tooltip">' + tip_inner + '</span>'
+        body = body.replace('</header>', tip + '\n  </header>', 1)
 
     if key == 'join':
         body = body.replace('onSubmit="{{ submit }}"', 'id="bc-form" novalidate')
@@ -153,34 +151,26 @@ CSS = """
   .bc-def{position:relative;cursor:help;border-bottom:1px dashed rgba(38,34,26,0.35);}
   .bc-def:focus-visible{outline:2px solid #5A4B7C;outline-offset:3px;}
   #s-about header{position:relative;}
-  /* A dictionary card. Stone fill, because on this site a definition belongs to
-     the facts family; ink hairline because it floats; violet for the small marks. */
-  .bc-def-card{
-    position:absolute;left:0;top:0;z-index:25;
-    width:max-content;max-width:min(30rem,calc(100vw - 32px));
-    display:grid;gap:9px;
-    background:#F0EEE8;border:1px solid #171916;padding:18px 20px 20px;
-    /* the h1's display type must not leak in */
+  /* realisationhouse gloss — values per MERGE.md §1 / README § About.
+     The outlined word filling to solid ink IS the affordance; no underline. */
+  #bc-rh{position:relative;display:inline-block;cursor:help;color:transparent;
+    -webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;}
+  #bc-rh:hover,#bc-rh:focus,#bc-rh[aria-expanded="true"]{color:#171916;}
+  #bc-rh:focus-visible{outline:2px solid #5A4B7C;outline-offset:4px;}
+  .bc-rh-tip{
+    position:absolute;left:0;top:0;z-index:30;
+    width:min(23rem,80vw);padding:18px 20px;
+    background:#F2ECFF;border:1px solid rgba(38,34,26,0.10);
+    color:#171916;-webkit-text-stroke:0;
     font-size:16px;font-weight:400;line-height:1.6;letter-spacing:normal;
-    text-transform:none;color:#43403A;text-wrap:pretty;
-    opacity:0;visibility:hidden;transform:translateY(-4px);
-    transition:opacity .18s ease,transform .18s cubic-bezier(.22,1,.36,1),visibility 0s linear .18s;
+    text-transform:none;text-align:left;white-space:normal;text-wrap:pretty;
+    pointer-events:none;opacity:0;visibility:hidden;transform:translateY(5px);
+    transition:opacity 180ms ease,transform 180ms ease,visibility 0s 180ms;
   }
-  .bc-def-card::before{
-    content:"Definition";
-    font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;
+  .bc-rh-tip[data-open="1"]{
+    pointer-events:auto;opacity:1;visibility:visible;transform:translateY(0);
+    transition:opacity 180ms ease,transform 180ms ease;
   }
-  .bc-def-card b{font-size:20px;font-weight:600;letter-spacing:-0.025em;color:#171916;line-height:1.2;}
-  .bc-def-card b i{font-size:0.7em;font-weight:400;font-style:italic;color:#5A4B7C;letter-spacing:0;}
-  .bc-def-card em{
-    font-style:normal;font-size:14px;color:#75726A;
-    padding-bottom:11px;border-bottom:1px solid rgba(38,34,26,0.14);
-  }
-  .bc-def-card > span{font-size:16px;line-height:1.7;color:#43403A;}
-  .bc-def-card[data-open="1"]{opacity:1;visibility:visible;transform:none;transition-delay:0s;}
-  /* the word itself reads as a term, in the site's accent */
-  .bc-def{color:#171916;border-bottom-color:rgba(90,75,124,0.45);}
-  .bc-def:hover,.bc-def[aria-expanded="true"]{color:#5A4B7C;border-bottom-color:#5A4B7C;}
 
   /* landing page on a phone: doors on one line, footer on one row */
   @media (max-width:36rem){
@@ -357,45 +347,44 @@ JS = r"""
   var doors = document.querySelector('[data-doors]');
   if (doors) doors.addEventListener('mouseleave', function () { if (line) line.textContent = REST; });
 
-  // ---- realisationhouse: one tap on touch, hover/focus on a pointer ----
-  var def = document.querySelector('.bc-def');
-  var defCard = document.getElementById('bc-def-card');
-  if (def && defCard) {
-    var host = defCard.offsetParent || defCard.parentElement;
-    function place() {                        // sit under the word, stay on screen
-      var t = def.getBoundingClientRect(), h = host.getBoundingClientRect(), pad = 16;
-      defCard.style.left = '0px';
-      defCard.style.top = (t.bottom - h.top + 12) + 'px';
-      var want = t.left - h.left;
-      defCard.style.left = want + 'px';
-      var c = defCard.getBoundingClientRect();
-      if (c.right > innerWidth - pad) want -= (c.right - (innerWidth - pad));
-      if (t.left - h.left + want < 0 || c.left < pad) want = Math.max(want, pad - h.left);
-      defCard.style.left = want + 'px';
+  // ---- realisationhouse gloss: hover/focus, tap, keyboard ----
+  var rh = document.getElementById('bc-rh'), rhTip = document.getElementById('bc-rh-tip');
+  if (rh && rhTip) {
+    var rhHost = rhTip.offsetParent || rhTip.parentElement, rhHold = null;
+    function rhPlace() {                       // the word sits mid-line
+      var r = rh.getBoundingClientRect(), h0 = rhHost.getBoundingClientRect(), m = 12;
+      var w = Math.min(23 * 16, innerWidth * 0.8);
+      var left = 0, over = (r.left + w) - (innerWidth - m);
+      if (over > 0) left = -over;
+      if (r.left + left < m) left = m - r.left;
+      rhTip.style.left = Math.round((r.left - h0.left) + left) + 'px';
+      rhTip.style.top  = Math.round(r.bottom - h0.top + 10) + 'px';
     }
-    function openDef(on) {
-      if (on) place();
-      defCard.setAttribute('data-open', on ? '1' : '0');
-      def.setAttribute('aria-expanded', on ? 'true' : 'false');
+    function rhOpen(on) {
+      clearTimeout(rhHold);
+      if (on) rhPlace();
+      rhTip.setAttribute('data-open', on ? '1' : '0');
+      rh.setAttribute('aria-expanded', on ? 'true' : 'false');
     }
-    var canHover = matchMedia('(hover:hover)').matches;
-    if (canHover) {
-      def.addEventListener('mouseenter', function () { openDef(true); });
-      def.addEventListener('mouseleave', function () { openDef(false); });
-      def.addEventListener('focus', function () { openDef(true); });
-      def.addEventListener('blur', function () { openDef(false); });
-    }
-    // one tap opens it on touch, and works as a second way in on a pointer
-    def.addEventListener('click', function (e) {
-      e.stopPropagation();
-      openDef(defCard.getAttribute('data-open') !== '1');
+    // The tip is a sibling, not a child, so the heading text stays clean; these
+    // handlers give it the same no-flicker, selectable behaviour a child would have.
+    rh.addEventListener('mouseenter', function () { rhOpen(true); });
+    rh.addEventListener('mouseleave', function () { rhHold = setTimeout(function () { rhOpen(false); }, 140); });
+    rhTip.addEventListener('mouseenter', function () { clearTimeout(rhHold); });
+    rhTip.addEventListener('mouseleave', function () { rhOpen(false); });
+    rh.addEventListener('focus', function () { rhOpen(true); });
+    rh.addEventListener('blur', function () { rhOpen(false); });
+    rh.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      rhOpen(rhTip.getAttribute('data-open') !== '1');
     });
-    def.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDef(defCard.getAttribute('data-open') !== '1'); }
+    rh.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); rhOpen(rhTip.getAttribute('data-open') !== '1'); }
+      else if (e.key === 'Escape') { rhOpen(false); rh.blur && rh.blur(); }
     });
-    document.addEventListener('click', function () { openDef(false); });
-    addEventListener('keydown', function (e) { if (e.key === 'Escape') openDef(false); });
-    addEventListener('resize', function () { if (defCard.getAttribute('data-open') === '1') place(); });
+    rhTip.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('click', function () { rhOpen(false); });
+    addEventListener('resize', function () { if (rhTip.getAttribute('data-open') === '1') rhPlace(); });
   }
 
   // ---- The Door: chips, progressive reveal, Formspree ----

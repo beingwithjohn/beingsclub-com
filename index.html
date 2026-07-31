@@ -62,34 +62,26 @@
   .bc-def{position:relative;cursor:help;border-bottom:1px dashed rgba(38,34,26,0.35);}
   .bc-def:focus-visible{outline:2px solid #5A4B7C;outline-offset:3px;}
   #s-about header{position:relative;}
-  /* A dictionary card. Stone fill, because on this site a definition belongs to
-     the facts family; ink hairline because it floats; violet for the small marks. */
-  .bc-def-card{
-    position:absolute;left:0;top:0;z-index:25;
-    width:max-content;max-width:min(30rem,calc(100vw - 32px));
-    display:grid;gap:9px;
-    background:#F0EEE8;border:1px solid #171916;padding:18px 20px 20px;
-    /* the h1's display type must not leak in */
+  /* realisationhouse gloss — values per MERGE.md §1 / README § About.
+     The outlined word filling to solid ink IS the affordance; no underline. */
+  #bc-rh{position:relative;display:inline-block;cursor:help;color:transparent;
+    -webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;}
+  #bc-rh:hover,#bc-rh:focus,#bc-rh[aria-expanded="true"]{color:#171916;}
+  #bc-rh:focus-visible{outline:2px solid #5A4B7C;outline-offset:4px;}
+  .bc-rh-tip{
+    position:absolute;left:0;top:0;z-index:30;
+    width:min(23rem,80vw);padding:18px 20px;
+    background:#F2ECFF;border:1px solid rgba(38,34,26,0.10);
+    color:#171916;-webkit-text-stroke:0;
     font-size:16px;font-weight:400;line-height:1.6;letter-spacing:normal;
-    text-transform:none;color:#43403A;text-wrap:pretty;
-    opacity:0;visibility:hidden;transform:translateY(-4px);
-    transition:opacity .18s ease,transform .18s cubic-bezier(.22,1,.36,1),visibility 0s linear .18s;
+    text-transform:none;text-align:left;white-space:normal;text-wrap:pretty;
+    pointer-events:none;opacity:0;visibility:hidden;transform:translateY(5px);
+    transition:opacity 180ms ease,transform 180ms ease,visibility 0s 180ms;
   }
-  .bc-def-card::before{
-    content:"Definition";
-    font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;
+  .bc-rh-tip[data-open="1"]{
+    pointer-events:auto;opacity:1;visibility:visible;transform:translateY(0);
+    transition:opacity 180ms ease,transform 180ms ease;
   }
-  .bc-def-card b{font-size:20px;font-weight:600;letter-spacing:-0.025em;color:#171916;line-height:1.2;}
-  .bc-def-card b i{font-size:0.7em;font-weight:400;font-style:italic;color:#5A4B7C;letter-spacing:0;}
-  .bc-def-card em{
-    font-style:normal;font-size:14px;color:#75726A;
-    padding-bottom:11px;border-bottom:1px solid rgba(38,34,26,0.14);
-  }
-  .bc-def-card > span{font-size:16px;line-height:1.7;color:#43403A;}
-  .bc-def-card[data-open="1"]{opacity:1;visibility:visible;transform:none;transition-delay:0s;}
-  /* the word itself reads as a term, in the site's accent */
-  .bc-def{color:#171916;border-bottom-color:rgba(90,75,124,0.45);}
-  .bc-def:hover,.bc-def[aria-expanded="true"]{color:#5A4B7C;border-bottom-color:#5A4B7C;}
 
   /* landing page on a phone: doors on one line, footer on one row */
   @media (max-width:36rem){
@@ -131,9 +123,8 @@
   }
 
   [data-vh="0"]:hover{background:#5A4B7C;color:#FDFCF9;}
-  [data-vh="1"]:hover{background:#171916;color:#FDFCF9;}
+  [data-vh="1"]:hover{color:#171916;}
   [data-vh="2"]:hover{background:#F8F6F1;}
-  [data-vh="3"]:hover{background:#FDFCF9;color:#171916;}
 </style>
 </head>
 <body>
@@ -176,15 +167,15 @@
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
       <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
-      <a href="/join/" style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border:1px solid #171916;padding:9px 15px;" data-vh="1">The Door</a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
     </div>
   </nav>
 
   <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
     <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">About</span>
-    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a <span class="bc-def" tabindex="0" role="button" aria-expanded="false" aria-controls="bc-def-card">realisationhouse</span> for the curious.</h1>
+    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a <span id="bc-rh" role="button" tabindex="0" aria-label="realisationhouse, definition" data-rh-on="1" data-rh-off="1" data-rh-on="1" data-rh-off="1" data-rh-toggle="1" data-rh-key="1" style="position:relative;display:inline-block;cursor:help;color:transparent;-webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;" data-vh="1">realisationhouse</span></span> for the curious.</h1>
     <p style="margin:0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">We gather to realise what is possible — in ourselves, between us, and in the world. Two principles hold the room, and everything else is free to change.</p>
-  <div class="bc-def-card" id="bc-def-card" role="tooltip"><b>realisationhouse <i>n.</i></b><em>[rɪəlaɪˈzeɪʃᵊnhaʊs]</em><span>A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span></div>
+  <span class="bc-rh-tip" id="bc-rh-tip" role="tooltip"><span style="display:block;"><strong style="font-weight:600;color:#171916;">realisationhouse</strong><span style="margin-left:8px;font-size:14px;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span><em style="margin-left:6px;font-weight:600;color:#5A4B7C;">n.</em></span><span style="display:block;margin-top:8px;color:#43403A;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span>
   </header>
 
   <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -209,7 +200,7 @@
     <h2 style="margin:0;max-width:24ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">In the lineage of a tea house.</h2>
     <div style="display:grid;gap:16px;max-width:56ch;">
       <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Beings Club exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible — free of any prescribed topic.</p>
-      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">This is a realisationhouse in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">This is in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine.</p>
       <p style="margin:0;font-size:15px;font-weight:600;">— John</p>
     </div>
   </section>
@@ -218,7 +209,8 @@
     <div data-splitcopy="1" style="flex:1 1 22rem;min-width:0;display:grid;gap:20px;align-content:start;padding:clamp(40px,7vh,72px) 0 clamp(40px,7vh,72px) clamp(24px,5vw,56px);">
       <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;">Why it matters</span>
       <p style="margin:0;max-width:30ch;font-size:clamp(22px,3.2vw,30px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Creativity is only ever limited by our sense of what's possible — and that sense is not fixed.</p>
-      <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. When people hold each other as precious and stay curious, the edge of what feels possible starts to move. When we practice intentionally with the ways we meet experience, we find more openness, ease, and courage. We hope more realisationhouses will arise.</p>
+      <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. When people hold each other as precious and stay curious, the edge of what feels possible starts to move. When we practice intentionally with the ways we meet experience, we find more openness, ease, and courage.</p>
+      <p style="margin:0;font-size:clamp(20px,2.6vw,25px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#5A4B7C;">We hope more realisationhouses will arise.</p>
     </div>
     <figure data-sidefig="1" style="flex:0 0 auto;width:min(19rem,40%);margin:0;align-self:stretch;overflow:hidden;line-height:0;">
       <img loading="eager" decoding="async" src="/assets/img/about-aura.jpg" alt="A seated figure haloed in bands of colour" style="width:100%;height:100%;background:#F0EEE8;object-fit:cover;object-position:center 40%;">
@@ -255,16 +247,16 @@
       <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Sits</span>
       <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Beyond Belief · from 16 September</span>
     </a>
-    <a href="/join/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);background:#FFF7EE;" data-vh="1">
+    <a href="/join/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="0">
       <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">The Door</span>
-      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;opacity:0.7;">Join us · John writes back himself</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;opacity:0.62;">Join us · John writes back himself</span>
     </a>
   </section>
 
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
-    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Joining takes a conversation and a mutual yes.</p>
+    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Joining starts with a conversation.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;background:#171916;color:#FDFCF9;" data-vh="3">Leave us a note <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Leave us a note <span aria-hidden="true">→</span></a>
     </div>
   </section>
 
@@ -282,7 +274,7 @@
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/about/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
       <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
-      <a href="/join/" style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border:1px solid #171916;padding:9px 15px;" data-vh="1">The Door</a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
     </div>
   </nav>
 
@@ -368,7 +360,7 @@
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">The next one is Sunday 27 September, 5:30pm UK.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;background:#171916;color:#FDFCF9;" data-vh="3">Come to the next one <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Come to the next one <span aria-hidden="true">→</span></a>
       <a href="/about/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Why this exists</a>
     </div>
   </section>
@@ -387,7 +379,7 @@
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/about/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
-      <a href="/join/" style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border:1px solid #171916;padding:9px 15px;" data-vh="1">The Door</a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
     </div>
   </nav>
 
@@ -416,7 +408,7 @@
       <p style="margin:0;max-width:50ch;font-size:18px;line-height:1.7;color:#43403A;text-wrap:pretty;">A 35-day experiment in trusting yourself. Each week takes up one principle as a lens to sit through, not an idea to believe — and you're paired with a different fellow sitter each week.</p>
       <p style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;line-height:1.5;">Curiosity. Care. Responsibility. Play. Rest.</p>
       <div style="margin-top:2px;">
-        <a href="/beyondbelief/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:14px 24px;border:1px solid #171916;" data-vh="1">Learn more <span aria-hidden="true">→</span></a>
+        <a href="/beyondbelief/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:14px 24px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Learn more <span aria-hidden="true">→</span></a>
       </div>
     </div>
     <figure data-sidefig="1" style="flex:0 0 auto;width:min(21rem,42%);margin:0;align-self:stretch;overflow:hidden;line-height:0;">
@@ -456,7 +448,7 @@
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Beyond Belief.<br>Thirty-five days. One practice.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;background:#171916;color:#FDFCF9;" data-vh="3">Take a place <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Take a place <span aria-hidden="true">→</span></a>
       <a href="/salons/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Start with a Salon instead</a>
     </div>
   </section>
@@ -475,7 +467,7 @@
     <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
       <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
       <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
-      <a href="/join/" style="font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border:1px solid #171916;padding:9px 15px;" data-vh="1">Take a place</a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">Take a place <span aria-hidden="true">→</span></a>
     </div>
   </nav>
 
@@ -627,7 +619,7 @@
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Ten people. Thirty-five days. One practice.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;background:#171916;color:#FDFCF9;" data-vh="3">Take a place <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Take a place <span aria-hidden="true">→</span></a>
       <a href="/sits/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Back to Sits</a>
     </div>
   </section>
@@ -836,45 +828,44 @@
   var doors = document.querySelector('[data-doors]');
   if (doors) doors.addEventListener('mouseleave', function () { if (line) line.textContent = REST; });
 
-  // ---- realisationhouse: one tap on touch, hover/focus on a pointer ----
-  var def = document.querySelector('.bc-def');
-  var defCard = document.getElementById('bc-def-card');
-  if (def && defCard) {
-    var host = defCard.offsetParent || defCard.parentElement;
-    function place() {                        // sit under the word, stay on screen
-      var t = def.getBoundingClientRect(), h = host.getBoundingClientRect(), pad = 16;
-      defCard.style.left = '0px';
-      defCard.style.top = (t.bottom - h.top + 12) + 'px';
-      var want = t.left - h.left;
-      defCard.style.left = want + 'px';
-      var c = defCard.getBoundingClientRect();
-      if (c.right > innerWidth - pad) want -= (c.right - (innerWidth - pad));
-      if (t.left - h.left + want < 0 || c.left < pad) want = Math.max(want, pad - h.left);
-      defCard.style.left = want + 'px';
+  // ---- realisationhouse gloss: hover/focus, tap, keyboard ----
+  var rh = document.getElementById('bc-rh'), rhTip = document.getElementById('bc-rh-tip');
+  if (rh && rhTip) {
+    var rhHost = rhTip.offsetParent || rhTip.parentElement, rhHold = null;
+    function rhPlace() {                       // the word sits mid-line
+      var r = rh.getBoundingClientRect(), h0 = rhHost.getBoundingClientRect(), m = 12;
+      var w = Math.min(23 * 16, innerWidth * 0.8);
+      var left = 0, over = (r.left + w) - (innerWidth - m);
+      if (over > 0) left = -over;
+      if (r.left + left < m) left = m - r.left;
+      rhTip.style.left = Math.round((r.left - h0.left) + left) + 'px';
+      rhTip.style.top  = Math.round(r.bottom - h0.top + 10) + 'px';
     }
-    function openDef(on) {
-      if (on) place();
-      defCard.setAttribute('data-open', on ? '1' : '0');
-      def.setAttribute('aria-expanded', on ? 'true' : 'false');
+    function rhOpen(on) {
+      clearTimeout(rhHold);
+      if (on) rhPlace();
+      rhTip.setAttribute('data-open', on ? '1' : '0');
+      rh.setAttribute('aria-expanded', on ? 'true' : 'false');
     }
-    var canHover = matchMedia('(hover:hover)').matches;
-    if (canHover) {
-      def.addEventListener('mouseenter', function () { openDef(true); });
-      def.addEventListener('mouseleave', function () { openDef(false); });
-      def.addEventListener('focus', function () { openDef(true); });
-      def.addEventListener('blur', function () { openDef(false); });
-    }
-    // one tap opens it on touch, and works as a second way in on a pointer
-    def.addEventListener('click', function (e) {
-      e.stopPropagation();
-      openDef(defCard.getAttribute('data-open') !== '1');
+    // The tip is a sibling, not a child, so the heading text stays clean; these
+    // handlers give it the same no-flicker, selectable behaviour a child would have.
+    rh.addEventListener('mouseenter', function () { rhOpen(true); });
+    rh.addEventListener('mouseleave', function () { rhHold = setTimeout(function () { rhOpen(false); }, 140); });
+    rhTip.addEventListener('mouseenter', function () { clearTimeout(rhHold); });
+    rhTip.addEventListener('mouseleave', function () { rhOpen(false); });
+    rh.addEventListener('focus', function () { rhOpen(true); });
+    rh.addEventListener('blur', function () { rhOpen(false); });
+    rh.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      rhOpen(rhTip.getAttribute('data-open') !== '1');
     });
-    def.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDef(defCard.getAttribute('data-open') !== '1'); }
+    rh.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); rhOpen(rhTip.getAttribute('data-open') !== '1'); }
+      else if (e.key === 'Escape') { rhOpen(false); rh.blur && rh.blur(); }
     });
-    document.addEventListener('click', function () { openDef(false); });
-    addEventListener('keydown', function (e) { if (e.key === 'Escape') openDef(false); });
-    addEventListener('resize', function () { if (defCard.getAttribute('data-open') === '1') place(); });
+    rhTip.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('click', function () { rhOpen(false); });
+    addEventListener('resize', function () { if (rhTip.getAttribute('data-open') === '1') rhPlace(); });
   }
 
   // ---- The Door: chips, progressive reveal, Formspree ----
