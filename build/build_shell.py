@@ -24,7 +24,7 @@ SCREENS = [
      "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
-     "A Sit for up to ten people, beginning 16 September. Thirty-five days, six Wednesday evenings, online. Pay what you can."),
+     "A small group meditation class for making meditation your own. Thirty-five days, six Wednesday evenings, online from 16 September. Pay what you can."),
     ("join", "Join",
      "/join/", "The Door — leave us a note · Beings Club",
      "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."),
