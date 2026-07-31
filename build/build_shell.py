@@ -75,22 +75,22 @@ def convert(body, key):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
 
     if key == 'about':
-        # The word the whole site rests on, defined once, directly under the header.
-        # No data-reveal: it sits above the fold and must never start hidden.
-        definition = """
-  <section style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F0EEE8;">
-    <dl style="margin:0;max-width:54ch;">
-      <div style="display:grid;gap:10px;">
-        <dt style="font-size:clamp(24px,3.4vw,32px);font-weight:600;letter-spacing:-0.025em;color:#171916;">realisationhouse <i style="font-size:0.6em;font-weight:400;color:#5A4B7C;letter-spacing:0;">n.</i></dt>
-        <dd style="margin:0;font-size:16px;line-height:1.6;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</dd>
-        <dd style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</dd>
-      </div>
-    </dl>
-  </section>
-"""
-        anchor = '</header>'
-        assert anchor in body, 'About header not found'
-        body = body.replace(anchor, anchor + '\n' + definition, 1)
+        # The word the site rests on, defined where it is first used — a small card
+        # on hover, focus, or tap. Not a section; the h1 keeps its own weight.
+        trigger = ('<span class="bc-def" tabindex="0" role="button" aria-expanded="false" '
+                   'aria-controls="bc-def-card">realisationhouse</span>')
+        h1 = 'Beings Club is a realisationhouse for the curious.'
+        assert h1 in body, 'About h1 not found'
+        body = body.replace(h1, h1.replace('realisationhouse', trigger, 1), 1)
+        # The card lives OUTSIDE the h1 and is positioned under the word by script —
+        # inside it, the definition would become part of the page's main heading.
+        card = ('<div class="bc-def-card" id="bc-def-card" role="tooltip">'
+                '<b>realisationhouse <i>n.</i></b>'
+                '<em>[rɪəlaɪˈzeɪʃᵊnhaʊs]</em>'
+                '<span>A social gathering place where contemplative practice is recognised and '
+                'engaged as a means of realising new possibilities.</span>'
+                '</div>')
+        body = body.replace('</header>', card + '\n  </header>', 1)
 
     if key == 'join':
         body = body.replace('onSubmit="{{ submit }}"', 'id="bc-form" novalidate')
@@ -148,6 +148,26 @@ CSS = """
     #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
   }
+
+  /* the realisationhouse card: hover or focus on a pointer, one tap on touch */
+  .bc-def{position:relative;cursor:help;border-bottom:1px dashed rgba(38,34,26,0.35);}
+  .bc-def:focus-visible{outline:2px solid #5A4B7C;outline-offset:3px;}
+  #s-about header{position:relative;}
+  .bc-def-card{
+    position:absolute;left:0;top:0;z-index:25;
+    width:max-content;max-width:min(30rem,calc(100vw - 32px));
+    display:grid;gap:8px;
+    background:#FDFCF9;border:1px solid #171916;padding:16px 18px;
+    /* the h1's display type must not leak into the card */
+    font-size:16px;font-weight:400;line-height:1.6;letter-spacing:normal;
+    text-transform:none;color:#43403A;text-wrap:pretty;
+    opacity:0;visibility:hidden;transform:translateY(-4px);
+    transition:opacity .18s ease,transform .18s cubic-bezier(.22,1,.36,1),visibility 0s linear .18s;
+  }
+  .bc-def-card b{font-size:18px;font-weight:600;letter-spacing:-0.02em;color:#171916;}
+  .bc-def-card b i{font-size:0.8em;font-weight:400;font-style:italic;color:#5A4B7C;}
+  .bc-def-card em{font-style:normal;font-size:14px;color:#75726A;}
+  .bc-def-card[data-open="1"]{opacity:1;visibility:visible;transform:none;transition-delay:0s;}
 
   /* landing page on a phone: doors on one line, footer on one row */
   @media (max-width:36rem){
@@ -323,6 +343,47 @@ JS = r"""
   });
   var doors = document.querySelector('[data-doors]');
   if (doors) doors.addEventListener('mouseleave', function () { if (line) line.textContent = REST; });
+
+  // ---- realisationhouse: one tap on touch, hover/focus on a pointer ----
+  var def = document.querySelector('.bc-def');
+  var defCard = document.getElementById('bc-def-card');
+  if (def && defCard) {
+    var host = defCard.offsetParent || defCard.parentElement;
+    function place() {                        // sit under the word, stay on screen
+      var t = def.getBoundingClientRect(), h = host.getBoundingClientRect(), pad = 16;
+      defCard.style.left = '0px';
+      defCard.style.top = (t.bottom - h.top + 12) + 'px';
+      var want = t.left - h.left;
+      defCard.style.left = want + 'px';
+      var c = defCard.getBoundingClientRect();
+      if (c.right > innerWidth - pad) want -= (c.right - (innerWidth - pad));
+      if (t.left - h.left + want < 0 || c.left < pad) want = Math.max(want, pad - h.left);
+      defCard.style.left = want + 'px';
+    }
+    function openDef(on) {
+      if (on) place();
+      defCard.setAttribute('data-open', on ? '1' : '0');
+      def.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+    var canHover = matchMedia('(hover:hover)').matches;
+    if (canHover) {
+      def.addEventListener('mouseenter', function () { openDef(true); });
+      def.addEventListener('mouseleave', function () { openDef(false); });
+      def.addEventListener('focus', function () { openDef(true); });
+      def.addEventListener('blur', function () { openDef(false); });
+    }
+    // one tap opens it on touch, and works as a second way in on a pointer
+    def.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openDef(defCard.getAttribute('data-open') !== '1');
+    });
+    def.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDef(defCard.getAttribute('data-open') !== '1'); }
+    });
+    document.addEventListener('click', function () { openDef(false); });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape') openDef(false); });
+    addEventListener('resize', function () { if (defCard.getAttribute('data-open') === '1') place(); });
+  }
 
   // ---- The Door: chips, progressive reveal, Formspree ----
   var form = document.getElementById('bc-form');
