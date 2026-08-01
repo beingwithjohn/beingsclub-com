@@ -165,6 +165,8 @@ def convert(body, key):
         for old, new, what in [
             ("You send a few lines about what's drawing you.",
              'You send a few lines about yourself.', 'step 01'),
+            ('John replies himself, usually within a few days, and suggests a conversation.',
+             'John replies, usually within a few days, and suggests a conversation.', 'step 02'),
         ]:
             assert old in body, 'join %s not found' % what
             body = body.replace(old, new, 1)
