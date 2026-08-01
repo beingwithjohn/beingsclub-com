@@ -161,12 +161,14 @@ def convert(body, key):
         body = body.replace('</header>', tip + '\n  </header>', 1)
 
     if key == 'join':
-        body = body.replace("If there's a mutual yes during the call, you'll start receiving the relevant invitations.", "If it's a yes from both of us, John sends the invitations himself — Salons, Sits, and happenings in person.", 1)
         for old, new, what in [
             ("You send a few lines about what's drawing you.",
              'You send a few lines about yourself.', 'step 01'),
             ('John replies himself, usually within a few days, and suggests a conversation.',
              'John replies, usually within a few days, and suggests a conversation.', 'step 02'),
+            ("If there's a mutual yes during the call, you'll start receiving the relevant invitations.",
+             "If it's a mutual yes, John sends you invitations when what you're interested in is happening.",
+             'step 03'),
         ]:
             assert old in body, 'join %s not found' % what
             body = body.replace(old, new, 1)
