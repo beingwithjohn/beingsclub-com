@@ -54,11 +54,14 @@ git push -q origin main
 HEAD_SHA="$(git rev-parse HEAD)"
 echo "    pushed ${HEAD_SHA:0:7}"
 
-echo "==> waiting for Pages to build THIS commit"
+echo "==> waiting for the site to serve THIS build"
+# Not via the Pages API: repos/:r/pages/builds is legacy and has reported a stale
+# commit for a deploy that was already live. Compare the served bytes instead.
+WANT="$(shasum index.html | cut -d' ' -f1)"
 for i in $(seq 1 40); do
-  read -r STATUS SHA <<<"$(gh api "repos/$REPO/pages/builds/latest" --jq '.status + " " + .commit' 2>/dev/null || echo "unknown -")"
-  if [ "$STATUS" = "built" ] && [ "$SHA" = "$HEAD_SHA" ]; then echo "    built ${SHA:0:7}"; break; fi
-  if [ "$i" = "40" ]; then echo "    TIMED OUT — live is $STATUS ${SHA:0:7}, expected ${HEAD_SHA:0:7}"; exit 1; fi
+  GOT="$(curl -fsS "https://$(cat CNAME)/" 2>/dev/null | shasum | cut -d' ' -f1 || true)"
+  if [ "$GOT" = "$WANT" ]; then echo "    live matches ${HEAD_SHA:0:7}"; break; fi
+  if [ "$i" = "40" ]; then echo "    TIMED OUT — the site is still serving something else"; exit 1; fi
   sleep 6
 done
 

@@ -96,23 +96,26 @@ if "--live" in sys.argv:
     head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
     branch = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
     ok("on the branch Pages serves (main)", branch == "main", "on '%s'" % branch)
-    try:
-        # the Pages API needs auth; gh carries it, anonymous urllib gets a 404
-        out = subprocess.run(["gh", "api",
-            "repos/beingwithjohn/beingsclub-com/pages/builds/latest", "--jq", ".commit"],
-            capture_output=True, text=True).stdout.strip()
-        ok("Pages built the current commit", out == head,
-           "serving %s, local %s" % (out[:7], head[:7]))
-    except Exception as e:
-        ok("Pages build status readable", False, str(e))
+    ok("working tree committed", not subprocess.run(["git", "status", "--porcelain"],
+       capture_output=True, text=True, cwd=ROOT).stdout.strip(), "uncommitted changes")
 
-    for route in ROUTES:
+    # Do NOT ask the Pages API which commit is live: pages/builds is legacy, and it
+    # has reported a stale commit for a deploy that was demonstrably already
+    # serving. Compare the bytes instead — that is the thing we actually care about.
+    def live(route):
+        with urllib.request.urlopen(ORIGIN + route) as resp:
+            return resp.status, resp.read().decode("utf-8", "replace")
+
+    for route, local in list(zip(ROUTES, PAGES)) + [("/practice-map/", "practice-map/index.html"),
+                                                    ("/404.html", "404.html")]:
         try:
-            with urllib.request.urlopen(ORIGIN + route) as resp:
-                body = resp.read().decode("utf-8", "replace")
-                ok("GET " + route, resp.status == 200, str(resp.status))
-                if route == "/":
-                    audit(body, "live /")
+            status, body = live(route)
+            ok("GET " + route, status == 200, str(status))
+            want = io.open(os.path.join(ROOT, local), encoding="utf-8").read()
+            ok(route + " serves the current build", body == want,
+               "live differs from " + local)
+            if route == "/":
+                audit(body, "live /")
         except Exception as e:
             ok("GET " + route, False, str(e))
     try:
