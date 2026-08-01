@@ -26,7 +26,13 @@ def ok(name, cond, detail=""):
     print(("  ok   " if cond else "  FAIL ") + name + (("  " + detail) if detail and not cond else ""))
 
 def script_of(html):
-    m = re.search(r"(?s)<script>(.*?)</script>\s*</body>", html)
+    # greedy prefix: there is also a small <script> in <head> now, and a lazy
+    # match from the first one swallows the markup between them
+    m = re.search(r"(?s).*<script>(.*?)</script>\s*</body>", html)
+    return m.group(1) if m else ""
+
+def head_script_of(html):
+    m = re.search(r"(?s)<head>.*?<script>(.*?)</script>", html)
     return m.group(1) if m else ""
 
 def js_parses(js):
@@ -43,8 +49,17 @@ def audit(html, label):
     js = script_of(html)
     good, err = js_parses(js)
     ok(label + ": script parses", good, err)
-    # a dead script must never be able to hide the page
-    ok(label + ": intro starts dismissed", 'id="bc-intro" data-off="1"' in html)
+    # a dead script must never be able to hide the page. Two guarantees:
+    # the overlay is shut by default, and even armed it times itself out in CSS.
+    ok(label + ": intro is shut by default",
+       '#bc-intro{' in html and 'opacity:0;visibility:hidden;pointer-events:none;' in html)
+    ok(label + ": intro times itself out without JS",
+       '@keyframes bc-intro-guard' in html and 'animation:bc-intro-guard' in html)
+    # and it must be decided before first paint, or the page flashes then covers
+    hgood, herr = js_parses(head_script_of(html))
+    ok(label + ": intro decided in <head>",
+       0 <= html.find('d.setAttribute("data-intro"') < html.find('<body>'))
+    ok(label + ": the <head> script parses", hgood, herr)
     # the page must render its own screen without javascript
     ok(label + ": a layer is pre-activated", 'class="bc-layer" data-active="1"' in html)
     ok(label + ": no unresolved template holes", "{{" not in html)

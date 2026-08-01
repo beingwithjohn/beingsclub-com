@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>/* Decide the first-visit intro before anything paints. If this fails,
+   the intro simply never shows and the page is visible — which is the safe way round. */
+try{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>
 <title>The Door — leave us a note · Beings Club</title>
 <meta name="description" content="Register your interest in Beings Club. John writes back himself. No obligation, nothing automated.">
 <link rel="canonical" href="https://beingsclub.com/join/">
@@ -107,11 +110,24 @@
     color:#FFF7EE;border:1px solid #171916;cursor:pointer;opacity:0.35;transition:opacity .35s ease;}
   #bc-rest[data-on="1"] #bc-send,#bc-send[data-on="1"]{opacity:1;}
 
-  /* first-visit intro */
+  /* First-visit intro. Whether to show it is decided by the small script in
+     <head>, BEFORE first paint — arming it from the body script meant the page
+     painted and the overlay then dropped over it, which read as a flash.
+     Two independent guarantees that it can never strand the site:
+       · default is dismissed, so a script that never runs shows the page;
+       · when armed, bc-intro-guard fades it out on its own after 6s, so a
+         script that dies part-way through the animation shows it too. */
   #bc-intro{position:absolute;inset:0;z-index:30;background:#FDFCF9;display:flex;align-items:center;
-    justify-content:center;cursor:pointer;opacity:1;visibility:visible;
+    justify-content:center;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;
     transition:opacity 550ms cubic-bezier(.22,1,.36,1),visibility 0s linear 550ms;}
-  #bc-intro[data-off="1"]{opacity:0;visibility:hidden;pointer-events:none;}
+  html[data-intro="1"] #bc-intro{opacity:1;visibility:visible;pointer-events:auto;
+    animation:bc-intro-guard 6.5s linear forwards;}
+  /* Explicit keyframes from 0, rather than a delayed fade: a delayed animation
+     with fill:forwards does not reliably hold the un-animated value during its
+     delay, and the overlay never appeared at all. */
+  @keyframes bc-intro-guard{
+    0%,92%{opacity:1;visibility:visible;pointer-events:auto;}
+    100%{opacity:0;visibility:hidden;pointer-events:none;}}
 
   /* scroll reveal on inner screens */
   [data-reveal]{opacity:0;transform:translateY(12px);
@@ -691,7 +707,7 @@
   </footer>
 </div>
 </div>
-<div id="bc-intro" data-off="1"><div id="bc-intro-mark" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:70vh;line-height:0;"></div></div>
+<div id="bc-intro"><div id="bc-intro-mark" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:70vh;line-height:0;"></div></div>
 </div>
 <script>
 (function () {
@@ -949,19 +965,17 @@
   }
 
   // ---- first-visit intro: the wordmark draws itself, then lands on the page ----
+  // Armed in <head> before first paint; this only runs it and takes it down.
   var intro = document.getElementById('bc-intro');
+  var root = document.documentElement;
   function endIntro(delay) {
-    setTimeout(function () { if (intro) intro.setAttribute('data-off', '1'); }, Math.min(delay, 2600));
+    setTimeout(function () { root.removeAttribute('data-intro'); }, Math.min(delay, 2600));
   }
-  var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
   if (intro) {
-    var seen = false;
-    try { seen = sessionStorage.getItem('bc-intro-seen') === '1'; } catch (e) {}
-    if (seen || reduced || current !== 'home') { /* stays dismissed */ }
+    if (root.getAttribute('data-intro') !== '1') { /* not a first visit here */ }
     else {
-      intro.removeAttribute('data-off');
       try { sessionStorage.setItem('bc-intro-seen', '1'); } catch (e) {}
-      intro.addEventListener('click', function () { intro.setAttribute('data-off', '1'); });
+      intro.addEventListener('click', function () { root.removeAttribute('data-intro'); });
       var host = document.getElementById('bc-intro-mark');
       inlineLogo(host, function (svg, rings) {
         var sorted = rings.slice().sort(function (a, b) { return (+a.getAttribute('data-ring')) - (+b.getAttribute('data-ring')); });
