@@ -162,6 +162,12 @@ def convert(body, key):
 
     if key == 'join':
         body = body.replace("If there's a mutual yes during the call, you'll start receiving the relevant invitations.", "If it's a yes from both of us, John sends the invitations himself — Salons, Sits, and happenings in person.", 1)
+        for old, new, what in [
+            ("You send a few lines about what's drawing you.",
+             'You send a few lines about yourself.', 'step 01'),
+        ]:
+            assert old in body, 'join %s not found' % what
+            body = body.replace(old, new, 1)
         body = body.replace('onSubmit="{{ submit }}"', 'id="bc-form" novalidate')
         body = body.replace('onInput="{{ onName }}"', 'data-begin="1"')
         body = body.replace('onInput="{{ onEmail }}"', 'data-begin="1"')
