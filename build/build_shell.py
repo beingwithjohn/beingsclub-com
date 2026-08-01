@@ -41,7 +41,13 @@ def convert(body, key):
         decls = m.group(1)
         if decls not in hover_seen:
             hover_seen[decls] = len(hover_seen)
-            hover_rules.append('[data-vh="%d"]:hover{%s}' % (hover_seen[decls], decls))
+            # !important, because the design keeps its resting styles INLINE, and an
+            # inline declaration beats any ordinary stylesheet rule. Without it, a
+            # button that sets color:#5A4B7C inline keeps that colour while the
+            # hover rule paints the background violet — violet text on violet.
+            hover_rules.append('[data-vh="%d"]:hover{%s}' % (
+                hover_seen[decls],
+                ';'.join(d.strip() + ' !important' for d in decls.rstrip(';').split(';') if d.strip())))
         return 'data-vh="%d"' % hover_seen[decls]
     body = re.sub(r'style-hover="([^"]*)"', hov, body)
     body = re.sub(r'\s*style-focus="[^"]*"', '', body)  # focus handled in CSS

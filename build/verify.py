@@ -106,6 +106,34 @@ for p in STANDALONE:
     ok(p + ": no relative asset paths",
        'url(\'assets/' not in html and 'src="assets/' not in html)
 
+# The design keeps resting styles INLINE, and an inline declaration beats any
+# ordinary stylesheet rule. A hover rule that sets a property the element also
+# sets inline therefore does nothing — which is how a violet button came to have
+# violet text on a violet background. Every such property must be !important.
+def hover_conflicts(html):
+    rules = {m.group(1): m.group(2) for m in re.finditer(r'\[data-vh="(\d)"\]:hover\{([^}]*)\}', html)}
+    out = []
+    for m in re.finditer(r'<[a-z]+\b[^>]*data-vh="(\d)"[^>]*>', html):
+        tag, vh = m.group(0), m.group(1)
+        st = re.search(r'style="([^"]*)"', tag)
+        if not st:
+            continue
+        inline = {d.split(":")[0].strip() for d in st.group(1).split(";") if ":" in d}
+        for decl in rules.get(vh, "").split(";"):
+            if ":" not in decl:
+                continue
+            prop = decl.split(":")[0].strip()
+            if prop in inline and "!important" not in decl:
+                out.append("%s on data-vh=%s" % (prop, vh))
+    return sorted(set(out))
+
+for p_ in PAGES + STANDALONE:
+    path = os.path.join(ROOT, p_)
+    if not os.path.exists(path):
+        continue
+    c = hover_conflicts(io.open(path, encoding="utf-8").read())
+    ok(p_ + ": hover always beats the inline style", not c, "; ".join(c))
+
 if "--live" in sys.argv:
     print("\nLIVE — " + ORIGIN)
     head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
