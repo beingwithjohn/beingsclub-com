@@ -171,6 +171,20 @@ def convert(body, key):
         body = body.replace('style="{{ salonsStyle }}"', 'class="bc-chip"')
         body = body.replace('style="{{ sitsStyle }}"', 'class="bc-chip"')
         body = body.replace('style="{{ andStyle }}"', 'id="bc-and"')
+        # Choosing Sits opens one more question: which Sit. Not required — leaving
+        # both unpressed simply means "Sits in general", which is what most people
+        # will mean. Appears the way "and" does, once Sits is on.
+        anchor = '<button type="button" data-chip="sits" class="bc-chip">Sits</button></span>.</p>'
+        assert anchor in body, 'the Sits chip is not where the sit-detail clause hangs'
+        body = body.replace(anchor,
+            '<button type="button" data-chip="sits" class="bc-chip">Sits</button></span>'
+            # plain inline, not inline-flex: a flex box is unbreakable, so on a phone
+            # it filled the line and orphaned the full stop onto the next one
+            '<span id="bc-sitmore" data-on="0"> \u2014 '
+            '<button type="button" data-chip="bb" class="bc-chip">Beyond Belief</button> '
+            '<span style="font-size:0.9em;color:#43403A;">or</span> '
+            '<button type="button" data-chip="next" class="bc-chip">whatever comes next</button>'
+            '</span>.</p>', 1)
         body = body.replace('style="{{ sendStyle }}"', 'id="bc-send"')
         body = re.sub(r'(<p role="status"[^>]*)>\{\{ status \}\}<', r'\1 id="bc-status"><', body)
 
@@ -259,6 +273,12 @@ CSS = """
   #bc-and{font-size:0.9em;color:#43403A;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;
     transition:opacity .4s ease,max-width .4s cubic-bezier(.22,1,.36,1);}
   #bc-and[data-on="1"]{max-width:4em;opacity:1;}
+  /* The sit-detail clause is long enough to need to wrap, so it fades in where
+     "and" slides — a max-width slide would force it onto one line and overflow. */
+  #bc-sitmore{display:none;}
+  #bc-sitmore[data-on="1"]{display:inline;animation:bc-sitmore-in 420ms cubic-bezier(.22,1,.36,1);}
+  @keyframes bc-sitmore-in{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){#bc-sitmore[data-on="1"]{animation:none;}}
   #bc-rest{display:grid;gap:clamp(6px,1.4vh,14px);opacity:0;transform:translateY(8px);pointer-events:none;
     transition:opacity 1.8s cubic-bezier(.22,1,.36,1) .25s,transform 1.8s cubic-bezier(.22,1,.36,1) .25s;}
   #bc-rest[data-on="1"]{opacity:1;transform:none;pointer-events:auto;}
@@ -508,16 +528,24 @@ JS = r"""
   // ---- The Door: chips, progressive reveal, Formspree ----
   var form = document.getElementById('bc-form');
   if (form) {
-    var state = { salons: false, sits: false, sending: false };
+    var state = { salons: false, sits: false, bb: false, next: false, sending: false };
     var rest = document.getElementById('bc-rest'), and = document.getElementById('bc-and'),
-        send = document.getElementById('bc-send'), status = document.getElementById('bc-status');
+        send = document.getElementById('bc-send'), status = document.getElementById('bc-status'),
+        sitmore = document.getElementById('bc-sitmore');
     [].forEach.call(form.querySelectorAll('[data-chip]'), function (b) {
       b.setAttribute('aria-pressed', 'false');
       b.addEventListener('click', function () {
         var k = b.getAttribute('data-chip');
         state[k] = !state[k];
-        b.setAttribute('aria-pressed', state[k] ? 'true' : 'false');
+        // 'Beyond Belief' and 'whatever comes next' are alternatives, not a pair
+        if (state[k] && (k === 'bb' || k === 'next')) state[k === 'bb' ? 'next' : 'bb'] = false;
+        // dropping Sits takes its follow-up question with it
+        if (k === 'sits' && !state.sits) { state.bb = false; state.next = false; }
+        [].forEach.call(form.querySelectorAll('[data-chip]'), function (c) {
+          c.setAttribute('aria-pressed', state[c.getAttribute('data-chip')] ? 'true' : 'false');
+        });
         if (and) and.setAttribute('data-on', (state.salons && state.sits) ? '1' : '0');
+        if (sitmore) sitmore.setAttribute('data-on', state.sits ? '1' : '0');
       });
     });
     [].forEach.call(form.querySelectorAll('[data-begin]'), function (i) {
@@ -543,6 +571,8 @@ JS = r"""
       fetch('https://formspree.io/f/xpqkbpyv', {
         method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ intent: 'take part as a participant', interest: interest.join(', '),
+          sit: state.sits ? (state.bb ? 'Beyond Belief' : state.next ? 'Whatever comes next' : 'No preference given')
+                          : 'n/a',
           name: name, email: email, drawn: v('drawn'), found: v('found') || 'Not said' })
       }).then(function (r) {
         if (r.ok) say("Received, with thanks. We'll be in touch — until then, stay curious.");
