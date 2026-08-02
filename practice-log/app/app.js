@@ -712,7 +712,7 @@
     box.appendChild(h('<div style="border-top:1px solid var(--hair);padding-top:16px;display:grid;gap:10px;">' +
       '<div class="legend">' +
         '<span><span style="width:11px;height:11px;background:var(--dim);position:relative;display:inline-block;">' +
-          '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--you);"></span></span>You practised</span>' +
+          '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--you-edge);"></span></span>You practised</span>' +
         '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.75);display:inline-block;"></span>Darker, more of us</span>' +
         '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.3);outline:1.5px solid var(--ink);outline-offset:1.5px;display:inline-block;"></span>Today</span>' +
       '</div>' +
@@ -959,9 +959,16 @@
     var total = S.run.length_days || days.length;
     var unmarked = Math.max(0, total - marked);
 
+    // Never invent a room. A run of one says so; a run of ten counts them in
+    // words, as everywhere else.
+    var size = S.shared ? S.shared.size : 1;
+    var opening = size > 1
+      ? cap(word(size)) + ' people practised, mostly apart, mostly unseen. Here is the whole of it.'
+      : 'You practised, mostly unseen. Here is the whole of it.';
+
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:40rem;">' +
       '<h1 class="h1" style="max-width:16ch;">That is ' + esc(word(total)) + ' days.</h1>' +
-      '<p class="body">People practised, mostly apart, mostly unseen. Here is the whole of it.</p>' +
+      '<p class="body">' + esc(opening) + '</p>' +
     '</div>');
 
     var grid = h('<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>');

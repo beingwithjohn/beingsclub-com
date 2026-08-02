@@ -41,8 +41,17 @@
   --body:  #43403A;   /* body copy */
   --muted: #75726A;   /* eyebrows, captions */
 
+  /* Your own mark, in two weights, because it sits on two grounds.
+   *
+   * On paper — the week dots — violet on lilac reads clearly. On the whole-run
+   * squares it does not: those are ink at up to 82% and violet against them is
+   * nearly invisible, which is the one thing the bundle's amber was good at.
+   * So the edge takes violet's light companion instead, and pops on the dark
+   * exactly where violet cannot.
+   */
   --you:      #5A4B7C;              /* switch to #FFAD54 for the bundle's amber */
   --you-ring: var(--lilac);         /* with amber: rgba(255,173,84,.30) */
+  --you-edge: var(--lilac);         /* with amber: #FFAD54 */
 
   --hair:   rgba(38, 34, 26, 0.10);
   --hair-2: rgba(38, 34, 26, 0.14);
@@ -202,7 +211,7 @@ main { flex: 1; display: flex; flex-direction: column; }
 /* --------------------------------------------------------- the whole run -- */
 
 .sq { aspect-ratio: 1; background: var(--dim); position: relative; }
-.sq .mine { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--you); }
+.sq .mine { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--you-edge); }
 .sq.today { outline: 2px solid var(--ink); outline-offset: 2px; }
 .sq:hover { outline: 2px solid var(--you); outline-offset: 2px; }
 .wkrow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }

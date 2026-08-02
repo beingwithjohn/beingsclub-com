@@ -41,8 +41,17 @@
   --body:  #43403A;   /* body copy */
   --muted: #75726A;   /* eyebrows, captions */
 
+  /* Your own mark, in two weights, because it sits on two grounds.
+   *
+   * On paper — the week dots — violet on lilac reads clearly. On the whole-run
+   * squares it does not: those are ink at up to 82% and violet against them is
+   * nearly invisible, which is the one thing the bundle's amber was good at.
+   * So the edge takes violet's light companion instead, and pops on the dark
+   * exactly where violet cannot.
+   */
   --you:      #5A4B7C;              /* switch to #FFAD54 for the bundle's amber */
   --you-ring: var(--lilac);         /* with amber: rgba(255,173,84,.30) */
+  --you-edge: var(--lilac);         /* with amber: #FFAD54 */
 
   --hair:   rgba(38, 34, 26, 0.10);
   --hair-2: rgba(38, 34, 26, 0.14);
@@ -202,7 +211,7 @@ main { flex: 1; display: flex; flex-direction: column; }
 /* --------------------------------------------------------- the whole run -- */
 
 .sq { aspect-ratio: 1; background: var(--dim); position: relative; }
-.sq .mine { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--you); }
+.sq .mine { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--you-edge); }
 .sq.today { outline: 2px solid var(--ink); outline-offset: 2px; }
 .sq:hover { outline: 2px solid var(--you); outline-offset: 2px; }
 .wkrow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
@@ -1032,7 +1041,7 @@ main { flex: 1; display: flex; flex-direction: column; }
     box.appendChild(h('<div style="border-top:1px solid var(--hair);padding-top:16px;display:grid;gap:10px;">' +
       '<div class="legend">' +
         '<span><span style="width:11px;height:11px;background:var(--dim);position:relative;display:inline-block;">' +
-          '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--you);"></span></span>You practised</span>' +
+          '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--you-edge);"></span></span>You practised</span>' +
         '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.75);display:inline-block;"></span>Darker, more of us</span>' +
         '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.3);outline:1.5px solid var(--ink);outline-offset:1.5px;display:inline-block;"></span>Today</span>' +
       '</div>' +
@@ -1279,9 +1288,16 @@ main { flex: 1; display: flex; flex-direction: column; }
     var total = S.run.length_days || days.length;
     var unmarked = Math.max(0, total - marked);
 
+    // Never invent a room. A run of one says so; a run of ten counts them in
+    // words, as everywhere else.
+    var size = S.shared ? S.shared.size : 1;
+    var opening = size > 1
+      ? cap(word(size)) + ' people practised, mostly apart, mostly unseen. Here is the whole of it.'
+      : 'You practised, mostly unseen. Here is the whole of it.';
+
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:40rem;">' +
       '<h1 class="h1" style="max-width:16ch;">That is ' + esc(word(total)) + ' days.</h1>' +
-      '<p class="body">People practised, mostly apart, mostly unseen. Here is the whole of it.</p>' +
+      '<p class="body">' + esc(opening) + '</p>' +
     '</div>');
 
     var grid = h('<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>');
