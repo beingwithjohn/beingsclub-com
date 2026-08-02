@@ -670,6 +670,15 @@ BODY = ('<div class="bc-shell" id="bc-shell">\n'
 # Runs before anything paints, so the page is never shown and then covered.
 ARM_INTRO = ('<script>/* Decide the first-visit intro before anything paints. If this fails,\n   the intro simply never shows and the page is visible — which is the safe way round. */\ntry{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>\n')
 
+# Screens that share better with their own artwork than with the house card.
+# 1200x630, because both cards here are summary_large_image and anything squarer
+# gets centre-cropped to that ratio by every platform anyway.
+SOCIAL = {
+    'beyondbelief': ('/assets/img/beyond-belief-social.jpg',
+                     'Beyond Belief — a face in profile, saturated and rippling'),
+}
+SOCIAL_DEFAULT = ('/assets/social-preview.png', 'Beings Club')
+
 def page(key, slug, title, desc):
     esc = lambda s: s.replace('&', '&amp;').replace('"', '&quot;')
     head = """<meta charset="UTF-8">
@@ -685,16 +694,21 @@ def page(key, slug, title, desc):
 <meta property="og:title" content="{t}">
 <meta property="og:description" content="{d}">
 <meta property="og:url" content="{o}{s}">
-<meta property="og:image" content="{o}/assets/social-preview.png">
+<meta property="og:image" content="{o}{img}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{alt}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{t}">
 <meta name="twitter:description" content="{d}">
-<meta name="twitter:image" content="{o}/assets/social-preview.png">
+<meta name="twitter:image" content="{o}{img}">
+<meta name="twitter:image:alt" content="{alt}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">""".format(
-        t=esc(title), d=esc(desc), o=ORIGIN, s=slug)
+        t=esc(title), d=esc(desc), o=ORIGIN, s=slug,
+        img=SOCIAL.get(key, SOCIAL_DEFAULT)[0], alt=esc(SOCIAL.get(key, SOCIAL_DEFAULT)[1]))
     head = head.replace('<title>', ARM_INTRO + '<title>', 1)
 
     body = BODY.replace('<div class="bc-layer" id="s-%s"' % key,
