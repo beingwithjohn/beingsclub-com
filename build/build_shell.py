@@ -24,7 +24,7 @@ SCREENS = [
      "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
-     "A small group meditation class for making meditation your own. Thirty-five days, six Wednesday evenings, online from 16 September. Pay what you can."),
+     "A small group meditation class for making meditation your own. Thirty-five days, six Wednesday meetings, online from 16 September. Pay what you can."),
     ("join", "Join",
      "/join/", "The Door — leave us a note · Beings Club",
      "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."),
@@ -98,6 +98,8 @@ def convert(body, key):
         for old, new, what in [
             ('and nine other people doing it with you',
              'and a group of other people doing it with you', 'lead'),
+            ('six Wednesday evenings, and a group',
+             'six Wednesday meetings, and a group', 'lead — meetings'),
             ('A Sit · ten people · begins 16 September',
              'A Sit · ten people max · begins 16 September', 'eyebrow'),
             ('>Ten people. Thirty-five days. One practice.<',
