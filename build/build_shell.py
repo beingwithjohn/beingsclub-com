@@ -11,8 +11,8 @@ SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
 # key, source file, slug (trailing-slash convention), title, description
 SCREENS = [
     ("home", "Home",
-     "/", "Beings Club — a realisationhouse for the curious",
-     "Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."),
+     "/", "Beings Club — a realisation house for the curious",
+     "Beings Club is a realisation house for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."),
     ("about", "About",
      "/about/", "About — why Beings Club exists · Beings Club",
      "Two principles hold the room, and everything else is free to change. Where Beings Club came from, and why it matters."),
@@ -51,6 +51,13 @@ def convert(body, key):
         return 'data-vh="%d"' % hover_seen[decls]
     body = re.sub(r'style-hover="([^"]*)"', hov, body)
     body = re.sub(r'\s*style-focus="[^"]*"', '', body)  # focus handled in CSS
+
+    # John's spelling: two words. Covers the heading, the gloss headword, the
+    # aria-label, the home tagline and the plural in one pass.
+    body = body.replace('realisationhouse', 'realisation house')
+    # the transcription follows the word
+    body = body.replace('[r\u026a\u0259la\u026a\u02c8ze\u026a\u0283\u1d4anha\u028as]',
+                        '[r\u026a\u0259la\u026a\u02c8ze\u026a\u0283\u1d4an ha\u028as]')
 
     # assets live at the site root — including inside style attributes, or the nav
     # wordmark resolves to /salons/assets/… and 404s on every inner screen
@@ -150,7 +157,7 @@ def convert(body, key):
 
         # The glossary trigger, per MERGE.md §1. All values are the design's; the tip
         # is lifted OUT of the <h1> and positioned by script, so the page's main
-        # heading stays "Beings Club is a realisationhouse for the curious."
+        # heading stays "Beings Club is a realisation house for the curious."
         body = body.replace('ref="{{ rhRef }}"', 'id="bc-rh"')
         for hole, attr in [('rhOn','data-rh-on'), ('rhOff','data-rh-off'),
                            ('rhToggle','data-rh-toggle'), ('rhKey','data-rh-key')]:
@@ -244,11 +251,11 @@ CSS = """
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
   }
 
-  /* the realisationhouse card: hover or focus on a pointer, one tap on touch */
+  /* the realisation house card: hover or focus on a pointer, one tap on touch */
   .bc-def{position:relative;cursor:help;border-bottom:1px dashed rgba(38,34,26,0.35);}
   .bc-def:focus-visible{outline:2px solid #5A4B7C;outline-offset:3px;}
   #s-about header{position:relative;}
-  /* realisationhouse gloss — values per MERGE.md §1 / README § About.
+  /* realisation house gloss — values per MERGE.md §1 / README § About.
      The outlined word filling to solid ink IS the affordance; no underline. */
   #bc-rh{position:relative;display:inline-block;cursor:help;color:transparent;
     -webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;}
@@ -463,7 +470,7 @@ JS = r"""
   var doors = document.querySelector('[data-doors]');
   if (doors) doors.addEventListener('mouseleave', function () { if (line) line.textContent = REST; });
 
-  // ---- realisationhouse gloss: hover/focus, tap, keyboard ----
+  // ---- realisation house gloss: hover/focus, tap, keyboard ----
   var rh = document.getElementById('bc-rh'), rhTip = document.getElementById('bc-rh-tip');
   if (rh && rhTip) {
     var rhHost = rhTip.offsetParent || rhTip.parentElement, rhHold = null;
