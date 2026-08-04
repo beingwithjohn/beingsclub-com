@@ -24,7 +24,7 @@ SCREENS = [
      "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
-     "A small group meditation class for making meditation your own. Thirty-five days, six Monday meetings, online from 14 September. Pay what you can."),
+     "A small group meditation class for making meditation your own. Thirty-five days, six Tuesday meetings, online from 15 September. Pay what you can."),
     ("join", "Join",
      "/join/", "The Door — leave us a note · Beings Club",
      "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."),
@@ -99,18 +99,18 @@ def convert(body, key):
             ('and nine other people doing it with you',
              'and a group of other people doing it with you', 'lead'),
             ('six Wednesday evenings, and a group',
-             'six Monday meetings, and a group', 'lead — meetings'),
-            ('>Six Wednesdays<', '>Six Mondays<', 'stat'),
+             'six Tuesday meetings, and a group', 'lead — meetings'),
+            ('>Six Wednesdays<', '>Six Tuesdays<', 'stat'),
             ('Pay what you can, online, 16 September \u2013 21 October.',
-             'Pay what you can, online, 14 September \u2013 19 October.', 'price line'),
-            ('>16 Sep<', '>14 Sep<', 'week 1'),
-            ('>23 Sep<', '>21 Sep<', 'week 2'),
-            ('>30 Sep<', '>28 Sep<', 'week 3'),
-            ('>7 Oct<',  '>5 Oct<',  'week 4'),
-            ('>14 Oct<', '>12 Oct<', 'week 5'),
-            ('>21 Oct<', '>19 Oct<', 'week 6'),
+             'Pay what you can, online, 15 September \u2013 20 October.', 'price line'),
+            ('>16 Sep<', '>15 Sep<', 'week 1'),
+            ('>23 Sep<', '>22 Sep<', 'week 2'),
+            ('>30 Sep<', '>29 Sep<', 'week 3'),
+            ('>7 Oct<',  '>6 Oct<',  'week 4'),
+            ('>14 Oct<', '>13 Oct<', 'week 5'),
+            ('>21 Oct<', '>20 Oct<', 'week 6'),
             ('A Sit · ten people · begins 16 September',
-             'A Sit · ten people max · begins 14 September', 'eyebrow'),
+             'A Sit · ten people max · begins 15 September', 'eyebrow'),
             ('>Ten people. Thirty-five days. One practice.<',
              '>Thirty-five days. One practice.<', 'closing band'),
             ('>10 people<', '>10 people max<', 'stat trio'),
@@ -123,7 +123,7 @@ def convert(body, key):
 
     if key == 'sits':
         assert '16 Sep \u2013 21 Oct' in body, 'Sits run not found'
-        body = body.replace('16 Sep \u2013 21 Oct', '14 Sep \u2013 19 Oct', 1)
+        body = body.replace('16 Sep \u2013 21 Oct', '15 Sep \u2013 20 Oct', 1)
 
     if key == 'salons':
         # John removed this line; the design source still carries it, so drop it on
