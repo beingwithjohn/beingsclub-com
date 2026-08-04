@@ -56,7 +56,7 @@ Source tags:
 | Label | Value |
 |---|---|
 | Duration | [SITE] About two hours |
-| Rhythm | [SITE] Last week of the month |
+| Rhythm | [SITE] Monthly |
 | Time | [SITE] 5:30pm UK |
 | Where | [SITE] Online, from anywhere |
 | Cost | [SITE] Pay what you can |

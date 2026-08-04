@@ -131,11 +131,8 @@ def convert(body, key):
         cameras = ' Cameras on, nothing recorded.'
         assert cameras in body, 'cameras line not found in Salons'
         body = body.replace(cameras, '', 1)
-        # Salons stay in the last week of each month, without promising one weekday
-        # forever. Keep the compact fact strip explicit about that rhythm.
-        rhythm = '>Monthly<'
-        assert rhythm in body, 'salons rhythm line not found'
-        body = body.replace(rhythm, '>Last week<', 1)
+        # The rhythm is monthly. Individual dates stay in the last week without
+        # promising one weekday forever.
         # September is a deliberate Wednesday. The script below keeps this date
         # current, then falls back to the flexible monthly rhythm once it has passed.
         stale = 'The next one is Sunday 27 September, 5:30pm UK.'
