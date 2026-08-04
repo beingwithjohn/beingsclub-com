@@ -46,7 +46,7 @@ Source tags:
 **Paragraph 4 (bold):** [SITE] Nothing to prepare, nothing to have figured out.
 
 **Side panel label:** The next one
-**Side panel date:** {{ computed — e.g. "Sunday 27 September, 5:30pm UK" }}
+**Side panel date:** Wednesday 30 September, 5:30pm UK. After it passes, this becomes: "The next one will be in the last week of the month — date to be announced."
 **Side panel local time:** {{ computed — shown only when it differs from UK }}
 
 ---
@@ -56,7 +56,7 @@ Source tags:
 | Label | Value |
 |---|---|
 | Duration | [SITE] About two hours |
-| Rhythm | [SITE] Last Sunday monthly |
+| Rhythm | [SITE] Last week of the month |
 | Time | [SITE] 5:30pm UK |
 | Where | [SITE] Online, from anywhere |
 | Cost | [SITE] Pay what you can |

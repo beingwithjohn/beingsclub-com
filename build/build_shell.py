@@ -131,11 +131,17 @@ def convert(body, key):
         cameras = ' Cameras on, nothing recorded.'
         assert cameras in body, 'cameras line not found in Salons'
         body = body.replace(cameras, '', 1)
-        # The next Salon is computed at load — a written-in date goes stale the day
-        # after it passes and quietly advertises a Salon that has already happened.
+        # Salons stay in the last week of each month, without promising one weekday
+        # forever. Keep the compact fact strip explicit about that rhythm.
+        rhythm = '>Monthly<'
+        assert rhythm in body, 'salons rhythm line not found'
+        body = body.replace(rhythm, '>Last week<', 1)
+        # September is a deliberate Wednesday. The script below keeps this date
+        # current, then falls back to the flexible monthly rhythm once it has passed.
         stale = 'The next one is Sunday 27 September, 5:30pm UK.'
         assert stale in body, 'salons next-date line not found'
-        body = body.replace(stale, '<span id="bc-next-salon">' + stale + '</span>', 1)
+        next_salon = 'The next one is Wednesday 30 September, 5:30pm UK.'
+        body = body.replace(stale, '<span id="bc-next-salon">' + next_salon + '</span>', 1)
 
     if key == 'about':
         # John's wording for the origin story.
@@ -517,7 +523,7 @@ JS = r"""
   }
 
 
-  // ---- the next Salon: last Sunday of the month, 5:30pm UK, DST-correct ----
+  // ---- the next Salon: last week of the month; September is a Wednesday ----
   var nextEl = document.getElementById('bc-next-salon');
   if (nextEl) {
     function londonOffset(ts) {
@@ -533,21 +539,12 @@ JS = r"""
       for (var i = 0; i < 3; i++) g = Date.UTC(y, m, d, hh, mm) - londonOffset(g);
       return g;
     }
-    function lastSunday(y, m) {
-      var last = new Date(Date.UTC(y, m + 1, 0));
-      return ukToUTC(y, m, last.getUTCDate() - last.getUTCDay(), 17, 30);
+    var septemberSalon = ukToUTC(2026, 8, 30, 17, 30);
+    if (Date.now() < septemberSalon) {
+      nextEl.textContent = 'The next one is Wednesday 30 September, 5:30pm UK.';
+    } else {
+      nextEl.textContent = 'The next one will be in the last week of the month — date to be announced.';
     }
-    var RESUME = lastSunday(2026, 8);          // Salons resume Sunday 27 September 2026
-    var now = Date.now(), d0 = new Date();
-    var t = lastSunday(d0.getUTCFullYear(), d0.getUTCMonth());
-    if (t < now) {
-      var nx = new Date(Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 1, 1));
-      t = lastSunday(nx.getUTCFullYear(), nx.getUTCMonth());
-    }
-    if (t < RESUME) t = RESUME;
-    var when = new Date(t);
-    nextEl.textContent = 'The next one is ' + when.toLocaleDateString('en-GB',
-      { timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long' }) + ', 5:30pm UK.';
   }
 
   // ---- The Door: chips, progressive reveal, Formspree ----
