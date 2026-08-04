@@ -9,7 +9,7 @@ Source tags:
 - `[MINE]` — I wrote it. Most worth your red pen.
 - `{{ computed }}` — generated at load. Value is automatic; the wording around it is yours.
 
-**What changed in v2:** most of my invented copy is gone, replaced by your own lines. The big additions are **the three invitations**, **"Curiosity Connects" as something you say out loud**, the **two-minute countdown**, and **random allocation**. Both posts describe Salons when they ran *weekly at 8pm UTC*; I've carried over everything except the cadence and time, which are now monthly / 5:30pm UK.
+**What changed in v2:** most of my invented copy is gone, replaced by your own lines. The big additions are **the three invitations**, **"Curiosity Connects" as something you say out loud**, the **two-minute countdown**, and **random allocation**. Both posts describe Salons when they ran *weekly at 8pm UTC*; I've carried over everything except the cadence and time, which are now monthly / 7pm UK.
 
 ---
 
@@ -46,7 +46,7 @@ Source tags:
 **Paragraph 4 (bold):** [SITE] Nothing to prepare, nothing to have figured out.
 
 **Side panel label:** The next one
-**Side panel date:** Wednesday 30 September, 5:30pm UK. After it passes, this becomes: "The next one will be in the last week of the month — date to be announced."
+**Side panel date:** Wednesday 30 September, 7pm UK. After it passes, this becomes: "The next one will be in the last week of the month — date to be announced."
 **Side panel local time:** {{ computed — shown only when it differs from UK }}
 
 ---
@@ -57,7 +57,7 @@ Source tags:
 |---|---|
 | Duration | [SITE] About two hours |
 | Rhythm | [SITE] Monthly |
-| Time | [SITE] 5:30pm UK |
+| Time | [SITE] 7pm UK |
 | Where | [SITE] Online, from anywhere |
 | Cost | [SITE] Pay what you can |
 

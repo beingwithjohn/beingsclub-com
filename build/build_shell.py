@@ -133,11 +133,14 @@ def convert(body, key):
         body = body.replace(cameras, '', 1)
         # The rhythm is monthly. Individual dates stay in the last week without
         # promising one weekday forever.
+        time = '>5:30pm UK<'
+        assert time in body, 'salons time line not found'
+        body = body.replace(time, '>7pm UK<', 1)
         # September is a deliberate Wednesday. The script below keeps this date
         # current, then falls back to the flexible monthly rhythm once it has passed.
         stale = 'The next one is Sunday 27 September, 5:30pm UK.'
         assert stale in body, 'salons next-date line not found'
-        next_salon = 'The next one is Wednesday 30 September, 5:30pm UK.'
+        next_salon = 'The next one is Wednesday 30 September, 7pm UK.'
         body = body.replace(stale, '<span id="bc-next-salon">' + next_salon + '</span>', 1)
 
     if key == 'about':
@@ -536,9 +539,9 @@ JS = r"""
       for (var i = 0; i < 3; i++) g = Date.UTC(y, m, d, hh, mm) - londonOffset(g);
       return g;
     }
-    var septemberSalon = ukToUTC(2026, 8, 30, 17, 30);
+    var septemberSalon = ukToUTC(2026, 8, 30, 19, 0);
     if (Date.now() < septemberSalon) {
-      nextEl.textContent = 'The next one is Wednesday 30 September, 5:30pm UK.';
+      nextEl.textContent = 'The next one is Wednesday 30 September, 7pm UK.';
     } else {
       nextEl.textContent = 'The next one will be in the last week of the month — date to be announced.';
     }
