@@ -90,8 +90,15 @@ def convert(body, key):
     body = body.replace('timelines wouldn\u2019t typically', "timelines wouldn't typically")
 
     if key == 'sits':
-        # "lab partner" is the term site-wide — the experiment framing is the point
-        body = body.replace('a different fellow sitter each week', 'a different lab partner each week')
+        # "lab partner" is the term site-wide — the experiment framing is the point,
+        # and the pairing is named by what it is for rather than by its frequency.
+        pair = 'a different fellow sitter each week'
+        assert pair in body, 'Sits lab-partner line not found'
+        body = body.replace(pair, 'a different lab partner to share the exploration with each week', 1)
+        # A principle is carried into the days, not endured for a week.
+        lens = 'as a lens to sit through, not an idea to believe'
+        assert lens in body, 'Sits lens line not found'
+        body = body.replace(lens, 'as a lens to bring into practice, not an idea to believe', 1)
         body = body.replace('>Ten<', '>Ten max<')
 
     if key == 'beyondbelief':
@@ -129,6 +136,24 @@ def convert(body, key):
 
         assert '16 Sep \u2013 21 Oct' in body, 'Sits run not found'
         body = body.replace('16 Sep \u2013 21 Oct', '15 Sep \u2013 20 Oct', 1)
+
+        # The intro opens on the Sit itself rather than on Salons, and the voice
+        # settles on John \u2014 he hosts and teaches, so it is his claim to make.
+        for old, new, what in [
+            ('Salons begin with meditation; Sits are for going deeper. A Sit runs',
+             'A Sit runs', 'lead \u2014 opening clause'),
+            ('knowing the others are sitting', 'knowing that others are sitting',
+             'lead \u2014 the others'),
+            # split before "won't" so no apostrophe, straight or curly, is matched
+            ('John hosts and introduces each one. The practices come out of contemplative traditions and we ',
+             'John hosts and teaches. The practices are rooted in contemplative traditions and he ',
+             'hosting line'),
+            ('No certification, nothing asked of you as belief.',
+             'Nothing asked of you as belief.', 'belief line'),
+            ('>Sceptics welcome.<', '>Sceptics welcome, but stay curious.<', 'sceptics line'),
+        ]:
+            assert old in body, 'Sits %s not found' % what
+            body = body.replace(old, new, 1)
 
     if key == 'salons':
         # John removed this line; the design source still carries it, so drop it on
