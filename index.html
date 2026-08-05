@@ -310,7 +310,7 @@ try{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!s
     <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Space to connect — to oneself, to each other, and to what is possible.</h1>
     <div style="display:grid;gap:16px;max-width:54ch;">
       <p style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">Every month we gather to take time for ourselves and to meet one another. Every Salon begins with meditation.</p>
-      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Following, members meet either 1:1 or in groups of three. There are no prompts, no themes, and nothing to do except stay curious.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Following, members meet one-to-one and in groups of three. There are no prompts, no themes, and nothing to do except stay curious.</p>
       <p style="margin:0;font-size:17px;line-height:1.8;font-weight:600;">Nothing to prepare, nothing to have figured out.</p>
     </div>
     </div>
@@ -338,21 +338,21 @@ try{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!s
         <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">01</span>
         <div style="flex:1;min-width:16rem;display:grid;gap:6px;">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">We sit together</h3>
-          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">About twenty minutes of meditation to open — individual practice, held in a shared field. Nothing has to be believed.</p>
+          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">About twenty minutes of meditation to open — individual practice, held in a shared field.</p>
         </div>
       </div>
       <div style="background:#FDFCF9;padding:22px 0;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;">
         <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">02</span>
         <div style="flex:1;min-width:16rem;display:grid;gap:6px;">
-          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Conversation rooms</h3>
-          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Randomly allocated, 1:1 or in threes. Three invitations are offered — to be addressed as you prefer, to begin without words, and to stay curious.</p>
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">We explore together</h3>
+          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Randomly allocated, one-to-one and in threes. Three invitations are offered — to be addressed as you prefer, to begin without words, and to stay curious.</p>
         </div>
       </div>
       <div style="background:#FDFCF9;padding:22px 0;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;">
         <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">03</span>
         <div style="flex:1;min-width:16rem;display:grid;gap:6px;">
           <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">We close together</h3>
-          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Everyone comes back into one room to land, share a little if you'd like to, and leave gently.</p>
+          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Everyone comes back into one room to land, share a little if you'd like to, and close the space together.</p>
         </div>
       </div>
     </div>
@@ -384,7 +384,7 @@ try{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!s
   </section>
 
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
-    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;"><span id="bc-next-salon">The next one is Wednesday 30 September, 7pm UK.</span></p>
+    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;"><span id="bc-next-salon">The next Salon is Wednesday, September 30th, 7pm UK.</span></p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
       <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="0">Come to the next one <span aria-hidden="true">→</span></a>
       <a href="/about/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Why this exists</a>
@@ -913,9 +913,9 @@ try{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!s
     }
     var septemberSalon = ukToUTC(2026, 8, 30, 19, 0);
     if (Date.now() < septemberSalon) {
-      nextEl.textContent = 'The next one is Wednesday 30 September, 7pm UK.';
+      nextEl.textContent = 'The next Salon is Wednesday, September 30th, 7pm UK.';
     } else {
-      nextEl.textContent = 'The next one will be in the last week of the month — date to be announced.';
+      nextEl.textContent = 'The next Salon will be in the last week of the month — date to be announced.';
     }
   }
 

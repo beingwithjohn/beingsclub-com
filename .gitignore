@@ -5,6 +5,10 @@
 # The canonical copy is in git history: git show f3f4497:index.html
 archive1.html
 
+# Local preview config for agent sessions (a static server on a spare port).
+# Useful on this machine, not part of the site.
+.claude/
+
 # Build artefacts and dependencies — never published, never committed.
 node_modules/
 .wrangler/

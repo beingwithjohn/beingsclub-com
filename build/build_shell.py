@@ -136,6 +136,29 @@ def convert(body, key):
         cameras = ' Cameras on, nothing recorded.'
         assert cameras in body, 'cameras line not found in Salons'
         body = body.replace(cameras, '', 1)
+        # "either 1:1 or" reads as scheduling shorthand and sets the two formats
+        # against each other. Both happen; the sentence should say so plainly.
+        pairs = 'members meet either 1:1 or in groups of three'
+        assert pairs in body, 'salons pairing line not found'
+        body = body.replace(pairs, 'members meet one-to-one and in groups of three', 1)
+        # Step 01 ends on the shared field. Sits already carries the belief
+        # disclaimer ("nothing asked of you as belief") and says it better.
+        belief = ' Nothing has to be believed.'
+        assert belief in body, 'salons step 01 belief line not found'
+        body = body.replace(belief, '', 1)
+        # Step 02 says the same thing as the lead, so it says it the same way.
+        rooms = 'Randomly allocated, 1:1 or in threes.'
+        assert rooms in body, 'salons step 02 allocation line not found'
+        body = body.replace(rooms, 'Randomly allocated, one-to-one and in threes.', 1)
+        # All three steps now open "We —": sit, explore, close. The middle one
+        # named a place while the others named an act.
+        heading = '>Conversation rooms</h3>'
+        assert heading in body, 'salons step 02 heading not found'
+        body = body.replace(heading, '>We explore together</h3>', 1)
+        # The Salon ends as a group, not as people leaving one at a time.
+        close = 'and leave gently.'
+        assert close in body, 'salons step 03 closing line not found'
+        body = body.replace(close, 'and close the space together.', 1)
         # The rhythm is monthly. Individual dates stay in the last week without
         # promising one weekday forever.
         time = '>5:30pm UK<'
@@ -145,7 +168,7 @@ def convert(body, key):
         # current, then falls back to the flexible monthly rhythm once it has passed.
         stale = 'The next one is Sunday 27 September, 5:30pm UK.'
         assert stale in body, 'salons next-date line not found'
-        next_salon = 'The next one is Wednesday 30 September, 7pm UK.'
+        next_salon = 'The next Salon is Wednesday, September 30th, 7pm UK.'
         body = body.replace(stale, '<span id="bc-next-salon">' + next_salon + '</span>', 1)
 
     if key == 'about':
@@ -546,9 +569,9 @@ JS = r"""
     }
     var septemberSalon = ukToUTC(2026, 8, 30, 19, 0);
     if (Date.now() < septemberSalon) {
-      nextEl.textContent = 'The next one is Wednesday 30 September, 7pm UK.';
+      nextEl.textContent = 'The next Salon is Wednesday, September 30th, 7pm UK.';
     } else {
-      nextEl.textContent = 'The next one will be in the last week of the month — date to be announced.';
+      nextEl.textContent = 'The next Salon will be in the last week of the month — date to be announced.';
     }
   }
 
