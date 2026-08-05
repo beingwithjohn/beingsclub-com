@@ -137,6 +137,9 @@ def convert(body, key):
              'befriending it. Over time, a sitting practice can shift the atmosphere of '
              'your experience into the qualities of friendship: gentleness, precision, '
              'and humour.', 'what it is for — sitting'),
+            # They are Tuesday meetings now, not evenings — the lead says so.
+            ('The evenings introduce a principle;', 'Each meeting introduces a principle;',
+             'why this long — 35 days card'),
             # "Why this long" answers with the span of days rather than the meetings.
             # No hyphen: "35 days" is a noun phrase here, not a compound adjective
             # the way "a 35-day experiment" is on Sits.
