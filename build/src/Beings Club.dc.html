@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;overflow:hidden;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  input,textarea,select,button{font-family:inherit;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  .bc-layer::-webkit-scrollbar{width:0;height:0;}
+</style>
+</helmet>
+
+<div style="position:relative;height:100svh;overflow:hidden;background:#F0EEE8;">
+  <div class="bc-layer" style="{{ layerHome }}"><dc-import name="Home" hint-size="100%,100%"></dc-import></div>
+  <div class="bc-layer" style="{{ layerAbout }}"><dc-import name="About" hint-size="100%,100%"></dc-import></div>
+  <div class="bc-layer" style="{{ layerSalons }}"><dc-import name="Salons" hint-size="100%,100%"></dc-import></div>
+  <div class="bc-layer" style="{{ layerSits }}"><dc-import name="Sits" hint-size="100%,100%"></dc-import></div>
+  <div class="bc-layer" style="{{ layerBeyondBelief }}"><dc-import name="BeyondBelief" hint-size="100%,100%"></dc-import></div>
+  <div class="bc-layer" style="{{ layerJoin }}"><dc-import name="Join" hint-size="100%,100%"></dc-import></div>
+
+  <div onClick="{{ skipIntro }}" style="{{ introStyle }}">
+    <div ref="{{ introRef }}" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:70vh;line-height:0;"></div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  screens = ['Home', 'About', 'Salons', 'Sits', 'BeyondBelief', 'Join'];
+  state = { screen: 'Home', mounted: { Home: true }, intro: true };
+
+  routeFromHash() {
+    const h = (location.hash || '').replace('#', '').toLowerCase();
+    const hit = this.screens.find(s => s.toLowerCase() === h);
+    return hit || 'Home';
+  }
+
+  introRef = React.createRef();
+
+  playIntro() {
+    const host = this.introRef.current;
+    const reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if (!host || reduced) return this.endIntro(0);
+    fetch('assets/beings-logo-outline.svg').then(r => r.text()).then(txt => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = txt;
+      const svg = wrap.querySelector('svg');
+      if (!svg) return this.endIntro(0);
+      svg.removeAttribute('width'); svg.removeAttribute('height');
+      svg.style.width = '100%'; svg.style.height = 'auto'; svg.style.display = 'block';
+      host.appendChild(svg);
+      const rings = Array.from(svg.querySelectorAll('[data-ring]'))
+        .sort((a, b) => (+a.getAttribute('data-ring')) - (+b.getAttribute('data-ring')));
+      const DUR = 1700, STEP = 150;
+      const anims = rings.map((p, i) => {
+        let len = 4000;
+        try { len = p.getTotalLength() || 4000; } catch (e) {}
+        p.style.strokeDasharray = len + ' ' + len;
+        p.style.strokeDashoffset = len;
+        return p.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          { duration: DUR, delay: i * STEP, easing: 'cubic-bezier(.32,.72,.3,1)', fill: 'forwards' }
+        );
+      });
+      Promise.all(anims.map(a => a.finished.catch(() => {})))
+        .then(() => this.settleIntoPlace(host))
+        .catch(() => this.endIntro(0));
+      this.endIntro(DUR + rings.length * STEP + 2200);
+    }).catch(() => this.endIntro(0));
+  }
+
+  // glide the drawn mark to exactly where the landing page's mark sits, then hand over
+  settleIntoPlace(host) {
+    const layer = document.querySelectorAll('.bc-layer')[0];
+    const target = layer && layer.querySelector('[role="img"][aria-label="Beings Club"]');
+    if (!target) return this.endIntro(320);
+    const a = host.getBoundingClientRect();
+    const b = target.getBoundingClientRect();
+    if (!b.width || !a.width) return this.endIntro(320);
+    const dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+    const dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+    const scale = b.width / a.width;
+    const move = host.animate(
+      [
+        { transform: 'translate(0px, 0px) scale(1)' },
+        { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + scale + ')' }
+      ],
+      { duration: 900, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }
+    );
+    move.finished.then(() => this.endIntro(120)).catch(() => this.endIntro(120));
+  }
+
+  endIntro(delay) {
+    clearTimeout(this._introTimer);
+    this._introTimer = setTimeout(() => this.setState({ intro: false }), Math.min(delay, 2600));
+  }
+
+  skipIntro = () => {
+    clearTimeout(this._introTimer);
+    this.setState({ intro: false });
+  };
+
+  componentDidMount() {
+    window.__BC_SHELL = true;
+    const seen = sessionStorage.getItem('bc-intro-seen') === '1';
+    if (seen) this.setState({ intro: false });
+    else { sessionStorage.setItem('bc-intro-seen', '1'); setTimeout(() => this.playIntro(), 60); }
+    const first = this.routeFromHash();
+    this.go(first, false);
+
+    // every internal link becomes an in-place screen change
+    this.onClick = (e) => {
+      const a = e.target.closest && e.target.closest('a');
+      if (!a) return;
+      const href = a.getAttribute('href') || '';
+      if (a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const m = href.match(/^([A-Za-z]+)\.dc\.html/);
+      if (!m) return;
+      const name = this.screens.find(s => s.toLowerCase() === m[1].toLowerCase());
+      if (!name) return;
+      e.preventDefault();
+      this.go(name, true);
+    };
+    document.addEventListener('click', this.onClick, true);
+
+    this.onPop = () => this.go(this.routeFromHash(), false);
+    addEventListener('popstate', this.onPop);
+
+    // mount the rest of the site once the first screen has settled
+    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 700));
+    idle(() => {
+      const all = {};
+      this.screens.forEach(s => { all[s] = true; });
+      this.setState({ mounted: all });
+    });
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.onClick, true);
+    removeEventListener('popstate', this.onPop);
+  }
+
+  go(name, push) {
+    if (push && name !== this.state.screen) {
+      history.pushState({ screen: name }, '', name === 'Home' ? '#' : '#' + name.toLowerCase());
+    }
+    this.setState(s => ({
+      screen: name,
+      mounted: Object.assign({}, s.mounted, { [name]: true })
+    }));
+    const layer = document.querySelectorAll('.bc-layer')[this.screens.indexOf(name)];
+    if (layer) layer.scrollTop = 0;
+  }
+
+  layer(name) {
+    const active = this.state.screen === name;
+    return {
+      position: 'absolute', inset: 0, overflowY: active ? 'auto' : 'hidden', overflowX: 'hidden',
+      WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none',
+      opacity: active ? 1 : 0,
+      visibility: active ? 'visible' : 'hidden',
+      pointerEvents: active ? 'auto' : 'none',
+      transition: active
+        ? 'opacity 1100ms cubic-bezier(.22,1,.36,1) 120ms'
+        : 'opacity 700ms cubic-bezier(.33,0,.67,1), visibility 0s linear 700ms'
+    };
+  }
+
+  renderVals() {
+    const v = {
+      introRef: this.introRef,
+      skipIntro: this.skipIntro,
+      introStyle: {
+        position: 'absolute', inset: 0, zIndex: 30, background: '#FDFCF9',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: this.state.intro ? 'pointer' : 'default',
+        opacity: this.state.intro ? 1 : 0,
+        visibility: this.state.intro ? 'visible' : 'hidden',
+        pointerEvents: this.state.intro ? 'auto' : 'none',
+        transition: 'opacity 550ms cubic-bezier(.22,1,.36,1), visibility 0s linear 550ms'
+      }
+    };
+    this.screens.forEach(s => { v['layer' + s] = this.layer(s); });
+    return v;
+  }
+}
+</script>
+</body>
+</html>

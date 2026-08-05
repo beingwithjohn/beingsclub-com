@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  @media (max-width:44rem){
+    [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(190px,32vh,260px)!important;}
+    [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
+    [data-splitcopy]{padding:32px 24px!important;}
+  }
+  @keyframes bc-fade-in{to{opacity:1;}}
+  body:not(:has(.bc-layer)){opacity:0;animation:bc-fade-in 420ms cubic-bezier(.22,1,.36,1) 60ms forwards;}
+  @media (prefers-reduced-motion:reduce){body:not(:has(.bc-layer)){opacity:1;animation:none;}}
+</style>
+<script src="page-transitions.js"></script>
+</helmet>
+
+<div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
+
+  <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="Home.dc.html" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
+      <a href="Sits.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
+      <a href="Salons.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
+      <a href="Join.dc.html" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">Take a place <span aria-hidden="true">→</span></a>
+    </div>
+  </nav>
+
+  <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;">A Sit · ten people · begins 16 September</span>
+    <h1 style="margin:0;max-width:24ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beyond Belief: the art of trusting yourself.</h1>
+    <div style="display:grid;gap:16px;max-width:54ch;">
+      <p style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">Thirty-five days of sitting, six Wednesday evenings, and nine other people doing it with you. No experience needed, and nothing you have to believe.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;">Hosted and introduced by John.<br>Pay what you can, online, 16 September – 21 October.</p>
+    </div>
+  </header>
+
+  <figure style="margin:0;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="eager" decoding="async" src="assets/img/bb-leap.jpg" alt="A figure leaping across a hillside, trailing a plume of colour" style="width:100%;height:clamp(220px,38vh,340px);background:#F0EEE8;object-fit:cover;object-position:center 75%;">
+  </figure>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="background:#F0EEE8;padding:18px clamp(24px,5vw,56px);"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Commitment</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">35 days</div></div>
+    <div style="background:#F0EEE8;padding:18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">We gather</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Six Wednesdays</div></div>
+    <div style="background:#F0EEE8;padding:18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Time</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">6:30pm UK</div></div>
+    <div style="background:#F0EEE8;padding:18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Places</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Ten</div></div>
+    <div style="background:#F0EEE8;padding:18px clamp(24px,5vw,56px) 18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Cost</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Pay what you can</div></div>
+  </div>
+
+  <section style="border-bottom:1px solid rgba(38,34,26,0.10);display:flex;flex-wrap:wrap;gap:clamp(24px,4vw,48px);align-items:stretch;">
+    <div data-splitcopy="1" style="flex:1 1 22rem;min-width:0;display:grid;gap:20px;align-content:start;padding:clamp(40px,7vh,72px) 0 clamp(40px,7vh,72px) clamp(24px,5vw,56px);">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">What it's for</span>
+    <h2 style="margin:0;max-width:24ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Make friends with experience.</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Trusting yourself isn't confidence that things will always go perfectly, and it isn't certainty about who you are. It's closer to a friendship — with yourself and life.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Sitting is a way to turn towards our experience. Attention can be placed, and when it wanders, you can return it — gently, precisely. Done often enough, this re-oxygenates the atmosphere of your experience with the qualities of friendship: gentleness, precision, and humour.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#171916;font-weight:600;text-wrap:pretty;">Beyond Belief is a guided exploration into your direct experience. You're invited to come along and see what you discover — perhaps it'll be a new kind of friendship.</p>
+    </div>
+    </div>
+    <figure data-sidefig="1" style="flex:0 0 auto;width:min(19rem,40%);margin:0;align-self:stretch;overflow:hidden;line-height:0;">
+      <img loading="eager" decoding="async" src="assets/img/bb-trust.jpg" alt="A face at rest, eyes closed, dissolving into rippling colour" style="width:100%;height:100%;background:#F0EEE8;object-fit:cover;object-position:center 40%;">
+    </figure>
+  </section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">Why this long</span>
+    <h2 style="margin:0;max-width:24ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Enough time for it to become yours.</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Each meeting is another chance to explore meditation practice with others, and the days that follow are where it becomes yours.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1px;background:rgba(38,34,26,0.10);border-top:1px solid rgba(38,34,26,0.10);">
+      <div style="background:#FDFCF9;padding:20px 0;display:grid;gap:6px;"><span style="font-size:28px;font-weight:600;letter-spacing:-0.03em;">35 days</span><span style="font-size:15.5px;line-height:1.7;color:#43403A;max-width:28ch;">The evenings introduce a principle; the daily practice makes it yours.</span></div>
+      <div style="background:#FDFCF9;padding:20px 0 20px 20px;display:grid;gap:6px;"><span style="font-size:28px;font-weight:600;letter-spacing:-0.03em;">10 people</span><span style="font-size:15.5px;line-height:1.7;color:#43403A;max-width:28ch;">Small enough to go deep and get into what meditation really is.</span></div>
+      <div style="background:#FDFCF9;padding:20px 0 20px 20px;display:grid;gap:6px;"><span style="font-size:28px;font-weight:600;letter-spacing:-0.03em;">5 lab partners</span><span style="font-size:15.5px;line-height:1.7;color:#43403A;max-width:28ch;">Someone new to meditate with and discuss the practice with each week.</span></div>
+    </div>
+  </section>
+
+  <figure style="margin:0;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="eager" decoding="async" src="assets/img/bb-glass.jpg" alt="Light refracting through a glass into bands of colour" style="width:100%;height:clamp(220px,38vh,340px);background:#F0EEE8;object-fit:cover;object-position:center 55%;">
+  </figure>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:24px;">
+    <div style="display:grid;gap:12px;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The shape of it</span>
+      <h2 style="margin:0;max-width:26ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Five ways of approaching, in an order that matters.</h2>
+      <p style="margin:0;max-width:50ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">These aren't five topics. They're how a friendship gets built — one quality at a time, each week making the next one possible.</p>
+    </div>
+    <div style="display:grid;gap:1px;background:rgba(38,34,26,0.10);border-top:1px solid rgba(38,34,26,0.10);">
+      <div style="background:#FDFCF9;padding:18px 0;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">01</span>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;min-width:8rem;">Curiosity</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;min-width:4.5rem;">16 Sep</span>
+        <span style="flex:1;min-width:16rem;font-size:16px;line-height:1.7;color:#43403A;max-width:52ch;">Opening toward what's actually here, and discovering it.</span>
+      </div>
+      <div style="background:#FDFCF9;padding:18px 0;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">02</span>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;min-width:8rem;">Care</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;min-width:4.5rem;">23 Sep</span>
+        <span style="flex:1;min-width:16rem;font-size:16px;line-height:1.7;color:#43403A;max-width:52ch;">Gentleness and warmth — turned toward yourself first, then outwards.</span>
+      </div>
+      <div style="background:#FDFCF9;padding:18px 0;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">03</span>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;min-width:8rem;">Responsibility</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;min-width:4.5rem;">30 Sep</span>
+        <span style="flex:1;min-width:16rem;font-size:16px;line-height:1.7;color:#43403A;max-width:52ch;">The ability to respond to what arises — and meet need.</span>
+      </div>
+      <div style="background:#FDFCF9;padding:18px 0;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;">
+        <span style="font-size: 12px; font-weight: 700; color: rgb(90, 75, 124); min-width: 26px;">04</span>
+        <span style="font-size: 19px; font-weight: 600; letter-spacing: -0.02em; min-width: 8rem;">Play</span>
+        <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(117, 114, 106); min-width: 4.5rem;">7 Oct</span>
+        <span style="flex: 1 1 0%; min-width: 16rem; font-size: 16px; line-height: 1.7; color: rgb(67, 64, 58); max-width: 52ch;">Giving yourself the generosity of "<i>no&nbsp;wrong way to do it</i>".</span>
+      </div>
+      <div style="background:#FDFCF9;padding:18px 0;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">05</span>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;min-width:8rem;">Rest</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;min-width:4.5rem;">14 Oct</span>
+        <span style="flex:1;min-width:16rem;font-size:16px;line-height:1.7;color:#43403A;max-width:52ch;">Pausing every striving, and recognising space uncontrived, and open.</span>
+      </div>
+      <div style="background:#FDFCF9;padding:18px 0;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">06</span>
+        <span style="font-size:19px;font-weight:600;letter-spacing:-0.02em;min-width:8rem;">The closing</span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;min-width:4.5rem;">21 Oct</span>
+        <span style="flex:1;min-width:16rem;font-size:16px;line-height:1.7;color:#43403A;max-width:52ch;">We look back over the thirty-five days together, and close.</span>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:24px;">
+    <div style="display:grid;gap:12px;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">Yours from the first day</span>
+      <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">Four things to support your practice.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));gap:28px 40px;">
+      <div style="display:grid;gap:8px;align-content:start;">
+        <h3 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.02em;">A written companion</h3>
+        <p style="margin:0;font-size:16px;line-height:1.75;color:#43403A;text-wrap:pretty;">A map for practice. Yours from day one, whether or not you finish.</p>
+      </div>
+      <div style="display:grid;gap:8px;align-content:start;">
+        <h3 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.02em;">A practice log</h3>
+        <p style="margin:0;font-size:16px;line-height:1.75;color:#43403A;text-wrap:pretty;">A way to remember the days, and a record of staying the course.</p>
+      </div>
+      <div style="display:grid;gap:8px;align-content:start;">
+        <h3 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.02em;">A different lab partner each week</h3>
+        <p style="margin:0;font-size:16px;line-height:1.75;color:#43403A;text-wrap:pretty;">Someone new to meet, practice with, and discuss your findings with each week.</p>
+      </div>
+      <div style="display:grid;gap:8px;align-content:start;">
+        <h3 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-0.02em;">A private line to John</h3>
+        <p style="margin:0;font-size:16px;line-height:1.75;color:#43403A;text-wrap:pretty;">Available via voice-message and text for the whole thirty-five days for questions, doubts, and guidance.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F8F6F1;display:grid;gap:24px;">
+    <div style="display:grid;gap:12px;max-width:54ch;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">In their words</span>
+      <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">What it's like to learn with John.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:20px;">
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“John has this rare capacity to make you feel at ease, accepted, and guided.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Laura F · Writer &amp; teacher</figcaption>
+      </figure>
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“John's words are clear, lucid, and deeply supportive.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Manansh S · Founder</figcaption>
+      </figure>
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“John's spiritual friendship changed how I experience life itself.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sean P · Founder</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
+    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Ten people. Thirty-five days. One practice.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
+      <a href="Join.dc.html" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" style-hover="background:#5A4B7C;color:#FDFCF9;">Take a place <span aria-hidden="true">→</span></a>
+      <a href="Sits.dc.html" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Back to Sits</a>
+    </div>
+  </section>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:16px clamp(24px,5vw,56px);background:#F8F6F1;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+  </footer>
+</div>
+
+</x-dc>
+</body>
+</html>

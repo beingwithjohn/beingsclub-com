@@ -5,7 +5,9 @@
 # The slug copies are GENERATED — never hand-edited — so they cannot drift.
 import re, io, os, json, shutil
 
-SRC  = "/Users/john/Downloads/design_handoff_beings_club 3"
+# Vendored into the repo: a path into ~/Downloads meant one cleared folder
+# would have made these six pages impossible to regenerate, ever.
+SRC  = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")
 SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
 
 # key, source file, slug (trailing-slash convention), title, description
@@ -20,7 +22,7 @@ SCREENS = [
      "/salons/", "Salons — where curiosity connects · Beings Club",
      "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."),
     ("sits", "Sits",
-     "/sits/", "Sits — for making meditation yours · Beings Club",
+     "/sits/", "Sits — meditation for the curious · Beings Club",
      "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
@@ -122,6 +124,9 @@ def convert(body, key):
             body = body.replace(old, new, 1)
 
     if key == 'sits':
+        assert 'For making meditation yours' in body, 'Sits line not found'
+        body = body.replace('For making meditation yours', 'Meditation for the curious')
+
         assert '16 Sep \u2013 21 Oct' in body, 'Sits run not found'
         body = body.replace('16 Sep \u2013 21 Oct', '15 Sep \u2013 20 Oct', 1)
 
@@ -161,7 +166,7 @@ def convert(body, key):
         # home doors reveal on hover — one phrase per destination, site-wide.
         for old, new, what in [
             ('>Monthly · last Sunday · 5:30pm UK<', '>Where curiosity connects<', 'salons door'),
-            ('>Beyond Belief · from 16 September<', '>For making meditation yours<', 'sits door'),
+            ('>Beyond Belief · from 16 September<', '>Meditation for the curious<', 'sits door'),
             ('>Join us · John writes back himself<', '>Join the club<', 'the door'),
         ]:
             assert old in body, 'About %s line not found' % what
@@ -473,7 +478,7 @@ JS = r"""
 
   // ---- the doors change the info line ----
   var line = document.getElementById('bc-line');
-  var DOOR = { salons: 'Where curiosity connects', sits: 'For making meditation yours',
+  var DOOR = { salons: 'Where curiosity connects', sits: 'Meditation for the curious',
                about: 'Why Beings Club exists', door: 'Join the club' };
   var REST = 'For the benefit of all beings';
   [].forEach.call(document.querySelectorAll('[data-door]'), function (a) {

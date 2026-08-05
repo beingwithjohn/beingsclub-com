@@ -7,8 +7,8 @@ Read this before changing anything. Most of it is here because something broke.
 **The six slug files are generated. Never hand-edit them.**
 
 `index.html`, `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/` are six copies of one
-document, produced by `build/build_shell.py` from design sources in
-`~/Downloads/design_handoff_beings_club 3/*.dc.html`. Edit the generator, run it, commit
+document, produced by `build/build_shell.py` from design sources vendored in
+`build/src/*.dc.html`. Edit the generator, run it, commit
 the result. If you edit a built file directly, the next build silently discards your work —
 and `verify.py` will fail with "built files match the generator" before that can ship.
 
@@ -123,10 +123,11 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
   John was considering: put an actual grid near the top, move the "if overwhelmed / if angry
   / if scattered" entry points up with it, cut nothing. Applies to `practice-map/`,
   `beyondbelief/companion/` and the Space to Be copy.
-- **Beyond Belief's start date is an assumption.** It moved from Wednesdays to Mondays;
-  16 September 2026 was a Wednesday, so it now starts **Monday 14 September** (the nearest
-  Monday). John has not explicitly confirmed that over Monday 21 September. Changing it means
-  re-deriving all six meeting dates, the 35-day range and the advertised run.
+- **Beyond Belief's day has moved twice.** It is currently **Tuesdays from 15 September 2026**.
+  Note that the weekday and the dates are coupled: 16 September 2026 was a Wednesday, so any
+  change of day re-derives all six meeting dates, the 35-day range and the advertised run.
+  The dates live in the `key == 'beyondbelief'` block of the generator, in the `sits` block,
+  and in both companions (hand-maintained).
 - **The Practice Log** (`docs/practice-log-spec.md`) has open decisions: cohort start date,
   Cloudflare + Resend confirmation, sending-domain DNS (beingsclub.com publishes
   `v=spf1 -all` and has no MX), and whether the Log is linked from the site at all.
@@ -137,3 +138,15 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
 - **No secrets in the repo, ever.** John runs `wrangler secret put` himself so no agent sees keys.
 - **Email links must never write anything.** Mail scanners follow GET links. A token in a link
   may only prime a page; the actual mark is a POST, and the token is stripped from the address bar.
+
+## Where the design sources live
+
+`build/src/` — vendored, not in Downloads. `build_shell.py` reads the seven `.dc.html`
+prototypes there; `MERGE.md` and `README.md` are the design bundle's own notes and are the
+authority for values like the realisationhouse gloss. `build/src/beyond-belief/` holds the
+Beyond Belief bundle (course page, both companions, the practice map, the Practice Log).
+
+Their `assets/` folders are deliberately **not** vendored: every file in them is already
+byte-identical to what `assets/` serves, so copying them would duplicate 2.2MB for nothing.
+The one exception is `course-cover.png` (7.9MB), which ships as the converted
+`assets/course-cover.jpg` instead.

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  @keyframes bc-fade-in{to{opacity:1;}}
+  body:not(:has(.bc-layer)){opacity:0;animation:bc-fade-in 420ms cubic-bezier(.22,1,.36,1) 60ms forwards;}
+  @media (prefers-reduced-motion:reduce){body:not(:has(.bc-layer)){opacity:1;animation:none;}}
+</style>
+<script src="page-transitions.js"></script>
+</helmet>
+
+<div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
+
+  <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="Home.dc.html" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
+      <a href="About.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
+      <a href="Sits.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
+      <a href="Join.dc.html" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
+    </div>
+  </nav>
+
+  <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
+    <div style="display:grid;gap:22px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">Salons</span>
+    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Space to connect — to oneself, to each other, and to what is possible.</h1>
+    <div style="display:grid;gap:16px;max-width:54ch;">
+      <p style="margin:0;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">Every month we gather to take time for ourselves and to meet one another. Every Salon begins with meditation.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Following, members meet either 1:1 or in groups of three. There are no prompts, no themes, and nothing to do except stay curious. Cameras on, nothing recorded.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;font-weight:600;">Nothing to prepare, nothing to have figured out.</p>
+    </div>
+    </div>
+  </header>
+
+  <figure style="margin:0;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="eager" decoding="async" src="assets/img/salons-rainbow-circle.jpg" alt="A circle of people seated on chairs on grass before a wall of colour" style="width:100%;height:clamp(220px,38vh,340px);background:#F0EEE8;object-fit:cover;object-position:center 72%;">
+  </figure>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:rgba(38,34,26,0.10);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="background:#F0EEE8;padding:18px clamp(24px,5vw,56px);"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Duration</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Two hours</div></div>
+    <div style="background:#F0EEE8;padding:18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Rhythm</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Monthly</div></div>
+    <div style="background:#F0EEE8;padding:18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Time</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">5:30pm UK</div></div>
+    <div style="background:#F0EEE8;padding:18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Where</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Online</div></div>
+    <div style="background:#F0EEE8;padding:18px clamp(24px,5vw,56px) 18px 20px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;margin-bottom:4px;">Cost</div><div style="font-weight:600;font-size:16px;letter-spacing:-0.01em;white-space:nowrap;">Pay what you can</div></div>
+  </div>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:26px;">
+    <div style="display:grid;gap:10px;">
+      <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">How a Salon unfolds</h2>
+      <p style="margin:0;max-width:46ch;font-size:17px;line-height:1.8;color:#43403A;">The form stays reliable so what happens inside it can be free.</p>
+    </div>
+    <div style="display:grid;gap:1px;background:rgba(38,34,26,0.10);">
+      <div style="background:#FDFCF9;padding:22px 0;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">01</span>
+        <div style="flex:1;min-width:16rem;display:grid;gap:6px;">
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">We sit together</h3>
+          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">About twenty minutes of meditation to open — individual practice, held in a shared field. Nothing has to be believed.</p>
+        </div>
+      </div>
+      <div style="background:#FDFCF9;padding:22px 0;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">02</span>
+        <div style="flex:1;min-width:16rem;display:grid;gap:6px;">
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">Conversation rooms</h3>
+          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Randomly allocated, 1:1 or in threes. Three invitations are offered — to be addressed as you prefer, to begin without words, and to stay curious.</p>
+        </div>
+      </div>
+      <div style="background:#FDFCF9;padding:22px 0;display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;color:#5A4B7C;min-width:26px;">03</span>
+        <div style="flex:1;min-width:16rem;display:grid;gap:6px;">
+          <h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;">We close together</h3>
+          <p style="margin:0;max-width:52ch;font-size:16.5px;line-height:1.75;color:#43403A;text-wrap:pretty;">Everyone comes back into one room to land, share a little if you'd like to, and leave gently.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:clamp(32px,5.5vh,56px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;">
+    <p style="margin:0;max-width:26ch;font-size:clamp(22px,3.2vw,30px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Curiosity connects.</p>
+  </section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F8F6F1;display:grid;gap:26px;">
+    <div style="display:grid;gap:12px;max-width:54ch;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">In their words</span>
+      <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">What it's like to be in a Salon.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:20px;">
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“Genuine encounters with people whose timelines wouldn’t typically intersect with mine.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Zak EF · Engineer-philosopher</figcaption>
+      </figure>
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“A space to slow down, reflect together, and make sense of things out loud.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Ana C · Designer</figcaption>
+      </figure>
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“I have had several experiences of being seen, heard, and held.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Manansh S · Founder</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
+    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">The next one is Sunday 27 September, 5:30pm UK.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
+      <a href="Join.dc.html" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" style-hover="background:#5A4B7C;color:#FDFCF9;">Come to the next one <span aria-hidden="true">→</span></a>
+      <a href="About.dc.html" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Why this exists</a>
+    </div>
+  </section>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:16px clamp(24px,5vw,56px);background:#F8F6F1;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+  </footer>
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  @media (max-width:44rem){
+    [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(190px,32vh,260px)!important;}
+    [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
+    [data-splitcopy]{padding:32px 24px!important;}
+  }
+  @keyframes bc-fade-in{to{opacity:1;}}
+  body:not(:has(.bc-layer)){opacity:0;animation:bc-fade-in 420ms cubic-bezier(.22,1,.36,1) 60ms forwards;}
+  @media (prefers-reduced-motion:reduce){body:not(:has(.bc-layer)){opacity:1;animation:none;}}
+</style>
+<script src="page-transitions.js"></script>
+</helmet>
+
+<div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
+
+  <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="Home.dc.html" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
+      <a href="Salons.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
+      <a href="Sits.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
+      <a href="Join.dc.html" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
+    </div>
+  </nav>
+
+  <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">About</span>
+    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a <span ref="{{ rhRef }}" role="button" tabindex="0" aria-label="realisationhouse, definition" onMouseEnter="{{ rhOn }}" onMouseLeave="{{ rhOff }}" onFocus="{{ rhOn }}" onBlur="{{ rhOff }}" onClick="{{ rhToggle }}" onKeyDown="{{ rhKey }}" style="position:relative;display:inline-block;cursor:help;color:transparent;-webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;" style-hover="color:#171916;" style-focus="color:#171916;">realisationhouse<span style="{{ rhTipStyle }}"><span style="display:block;"><strong style="font-weight:600;color:#171916;">realisationhouse</strong><span style="margin-left:8px;font-size:14px;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span><em style="margin-left:6px;font-weight:600;color:#5A4B7C;">n.</em></span><span style="display:block;margin-top:8px;color:#43403A;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span></span></span> for the curious.</h1>
+    <p style="margin:0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">We gather to realise what is possible — in ourselves, between us, and in the world. Two principles hold the room, and everything else is free to change.</p>
+  </header>
+
+  <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));border-bottom:1px solid rgba(38,34,26,0.10);">
+    <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;">
+      <img src="assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;margin-bottom:6px;">
+      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">We hold each other as precious</h2>
+      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care. Your own life is precious on the same terms.</p>
+    </div>
+    <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;border-left:1px solid rgba(38,34,26,0.10);">
+      <img src="assets/opart/stillness.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;margin-bottom:6px;">
+      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Curiosity connects</h2>
+      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">An orientation to experience that is open to discovery. Practised this way, it creates the conditions for connection — to ourselves, to each other, and to what is possible.</p>
+    </div>
+  </section>
+
+  <figure style="margin:0;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <img loading="eager" decoding="async" src="assets/img/field-rings.jpg" alt="A figure standing before concentric rings of light in a field" style="width:100%;height:clamp(220px,38vh,340px);background:#F0EEE8;object-fit:cover;object-position:center 62%;">
+  </figure>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:20px;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">Where it comes from</span>
+    <h2 style="margin:0;max-width:24ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">In the lineage of a tea house.</h2>
+    <div style="display:grid;gap:16px;max-width:56ch;">
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Beings Club exists because of a tea house at Plum Village, where I found myself in conversations over tea that expanded my sense of what is possible — free of any prescribed topic.</p>
+      <p style="margin:0;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">This is in the lineage of that atmosphere: a lineage of feeling, not a body of doctrine.</p>
+      <p style="margin:0;font-size:15px;font-weight:600;">— John</p>
+    </div>
+  </section>
+
+  <section style="border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:clamp(24px,4vw,48px);align-items:stretch;">
+    <div data-splitcopy="1" style="flex:1 1 22rem;min-width:0;display:grid;gap:20px;align-content:start;padding:clamp(40px,7vh,72px) 0 clamp(40px,7vh,72px) clamp(24px,5vw,56px);">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;">Why it matters</span>
+      <p style="margin:0;max-width:30ch;font-size:clamp(22px,3.2vw,30px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Creativity is only ever limited by our sense of what's possible — and that sense is not fixed.</p>
+      <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. When people hold each other as precious and stay curious, the edge of what feels possible starts to move. When we practice intentionally with the ways we meet experience, we find more openness, ease, and courage.</p>
+      <p style="margin:0;font-size:clamp(20px,2.6vw,25px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#5A4B7C;">We hope more realisationhouses will arise.</p>
+    </div>
+    <figure data-sidefig="1" style="flex:0 0 auto;width:min(19rem,40%);margin:0;align-self:stretch;overflow:hidden;line-height:0;">
+      <img loading="eager" decoding="async" src="assets/img/about-aura.jpg" alt="A seated figure haloed in bands of colour" style="width:100%;height:100%;background:#F0EEE8;object-fit:cover;object-position:center 40%;">
+    </figure>
+  </section>
+
+  <section style="padding:clamp(40px,7vh,72px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:26px;">
+    <div style="display:grid;gap:12px;max-width:54ch;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">In their words</span>
+      <h2 style="margin:0;font-size:clamp(24px,3.4vw,32px);font-weight:600;line-height:1.2;letter-spacing:-0.025em;">What it's like to be here.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:20px;">
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“A space to slow down, reflect together, and make sense of things out loud.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Ana C · Designer</figcaption>
+      </figure>
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“Genuine encounters with people whose timelines wouldn't typically intersect with mine.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Zak EF · Engineer-philosopher</figcaption>
+      </figure>
+      <figure style="margin:0;display:grid;gap:12px;grid-template-rows:1fr auto;height:100%;">
+        <blockquote style="margin:0;font-size:17px;line-height:1.6;letter-spacing:-0.01em;">“I leave every time feeling more human, more like a being.”</blockquote>
+        <figcaption style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">The Dude</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section style="display:flex;align-items:stretch;border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="Salons.dc.html" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;" style-hover="background:#F8F6F1;">
+      <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Salons</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Monthly · last Sunday · 5:30pm UK</span>
+    </a>
+    <a href="Sits.dc.html" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" style-hover="background:#F8F6F1;">
+      <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Sits</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Beyond Belief · from 16 September</span>
+    </a>
+    <a href="Join.dc.html" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" style-hover="background:#5A4B7C;color:#FDFCF9;">
+      <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">The Door</span>
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;opacity:0.62;">Join us · John writes back himself</span>
+    </a>
+  </section>
+
+  <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
+    <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Joining starts with a conversation.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
+      <a href="Join.dc.html" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" style-hover="background:#5A4B7C;color:#FDFCF9;">Leave us a note <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:16px clamp(24px,5vw,56px);background:#F8F6F1;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { rhOpen: false, rhLeft: 0 };
+  rhRef = React.createRef();
+
+  // the word sits mid-line, so a left-anchored tip can run off the right edge
+  place = () => {
+    const el = this.rhRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const m = 12;
+    const w = Math.min(23 * 16, window.innerWidth * 0.8);
+    let left = 0;
+    const over = (r.left + w) - (window.innerWidth - m);
+    if (over > 0) left = -over;
+    if (r.left + left < m) left = m - r.left;
+    left = Math.round(left);
+    if (left !== this.state.rhLeft) this.setState({ rhLeft: left });
+  };
+
+  open = () => { this.place(); this.setState({ rhOpen: true }); };
+  close = () => this.setState({ rhOpen: false });
+  toggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.place();
+    this.setState((s) => ({ rhOpen: !s.rhOpen }));
+  };
+  onKey = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.place(); this.setState((s) => ({ rhOpen: !s.rhOpen })); }
+    else if (e.key === 'Escape') { this.setState({ rhOpen: false }); if (e.currentTarget.blur) e.currentTarget.blur(); }
+  };
+
+  componentDidMount() {
+    this._away = () => this.setState({ rhOpen: false });
+    document.addEventListener('click', this._away);
+    window.addEventListener('resize', this.place);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('click', this._away);
+    window.removeEventListener('resize', this.place);
+  }
+
+  renderVals() {
+    const open = this.state.rhOpen;
+    return {
+      rhRef: this.rhRef,
+      rhOn: this.open,
+      rhOff: this.close,
+      rhToggle: this.toggle,
+      rhKey: this.onKey,
+      rhTipStyle: {
+        position: 'absolute',
+        left: this.state.rhLeft + 'px',
+        top: 'calc(100% + 10px)',
+        zIndex: 30,
+        width: 'min(23rem, 80vw)',
+        padding: '18px 20px',
+        background: '#F2ECFF',
+        border: '1px solid rgba(38,34,26,0.10)',
+        color: '#171916',
+        WebkitTextStroke: '0',
+        fontSize: '16px',
+        fontWeight: 400,
+        lineHeight: 1.6,
+        letterSpacing: 'normal',
+        textTransform: 'none',
+        textAlign: 'left',
+        whiteSpace: 'normal',
+        textWrap: 'pretty',
+        pointerEvents: open ? 'auto' : 'none',
+        opacity: open ? 1 : 0,
+        visibility: open ? 'visible' : 'hidden',
+        transform: open ? 'translateY(0)' : 'translateY(5px)',
+        transition: open
+          ? 'opacity 180ms ease, transform 180ms ease'
+          : 'opacity 180ms ease, transform 180ms ease, visibility 0s 180ms'
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

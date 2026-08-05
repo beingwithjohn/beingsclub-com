@@ -18,8 +18,8 @@ It is the **only surface on beingsclub.com that needs a backend**. Everything el
 static HTML.
 
 Design sources (authoritative, do not paraphrase the copy):
-- `~/Downloads/design_handoff_beyond_belief 2/Practice Log.dc.html` — 140KB, 12 phone frames + 4 desktop
-- `~/Downloads/design_handoff_beyond_belief 2/Practice Log - build notes.md` — 6KB, the product rules
+- `build/src/beyond-belief/Practice Log.dc.html` — 140KB, 12 phone frames + 4 desktop
+- `build/src/beyond-belief/Practice Log - build notes.md` — 6KB, the product rules
 
 A working **front-end prototype already exists** at `/log/` (see §4). It is single-user and
 local-only. It is a reference for look and flow, not a foundation to preserve.
@@ -107,7 +107,7 @@ python3 build/build_shell.py       # rewrites all six from the design sources
 Verified: re-running it produces **byte-identical** files (idempotent). If you hand-edit a
 slug file, the next run silently reverts you.
 
-⚠️ It currently reads the design bundle from `~/Downloads/design_handoff_beings_club/`
+⚠️ It currently reads the design bundle from `build/src/`
 (`SRC` at the top of the script). That path is a local absolute — **if the Log becomes a
 seventh screen, the bundle needs to move into the repo** or `SRC` must be parameterised.
 Flag this rather than working around it.

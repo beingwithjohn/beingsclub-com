@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5A4B7C;}
+  input,textarea,select,button{font-family:inherit;}
+  ::selection{background:#F2ECFF;color:#171916;}
+  @media (max-width:44rem){
+    #bc-door{height:auto!important;min-height:100svh;overflow:visible!important;}
+    #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
+    #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
+  }
+  @keyframes bc-fade-in{to{opacity:1;}}
+  body:not(:has(.bc-layer)){opacity:0;animation:bc-fade-in 420ms cubic-bezier(.22,1,.36,1) 60ms forwards;}
+  @media (prefers-reduced-motion:reduce){body:not(:has(.bc-layer)){opacity:1;animation:none;}}
+</style>
+<script src="page-transitions.js"></script>
+</helmet>
+
+<div id="bc-door" style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);height:100svh;display:flex;flex-direction:column;overflow:hidden;">
+
+  <nav style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);">
+    <a href="Home.dc.html" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
+    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
+      <a href="About.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">About</a>
+      <a href="Salons.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
+      <a href="Sits.dc.html" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
+    </div>
+  </nav>
+
+  <div style="flex:1;min-height:0;display:flex;flex-wrap:wrap;align-items:stretch;">
+
+    <form onSubmit="{{ submit }}" style="flex:1 1 30rem;min-width:0;min-height:0;background:#FFF7EE;padding:clamp(20px,4vh,56px) clamp(24px,4vw,48px);display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(10px,2vh,20px);overflow:hidden;">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>
+
+      <div style="display:grid;gap:clamp(6px,1.4vh,14px);align-content:center;min-height:0;max-width:34rem;font-size:clamp(17px,min(2.6vw,3.1vh),22px);line-height:1.6;letter-spacing:-0.012em;">
+        <p style="margin:0;">Hello John — my name is <input name="name" type="text" placeholder="your name" autocomplete="name" onInput="{{ onName }}" style="font-size:inherit;letter-spacing:inherit;border:0;border-bottom:1px solid #171916;background:transparent;padding:2px 6px;width:11ch;outline:none;color:#171916;">, and you can reach me at <input name="email" type="email" placeholder="you@somewhere" autocomplete="email" onInput="{{ onEmail }}" style="font-size:inherit;letter-spacing:inherit;border:0;border-bottom:1px solid #171916;background:transparent;padding:2px 6px;width:15ch;outline:none;color:#171916;">.</p>
+        <div style="{{ restStyle }}">
+          <p style="margin:0;">I'm curious about <span style="display:inline-flex;gap:8px;align-items:baseline;vertical-align:baseline;"><button type="button" onClick="{{ toggleSalons }}" style="{{ salonsStyle }}">Salons</button><span style="{{ andStyle }}">and</span><button type="button" onClick="{{ toggleSits }}" style="{{ sitsStyle }}">Sits</button></span>.</p>
+          <p style="margin:0;">I found Beings Club through <select name="found" style="font-size:inherit;letter-spacing:inherit;border:0;border-bottom:1px solid #171916;background:transparent;padding:2px 6px;outline:none;color:#171916;border-radius:0;"><option value="">choose one…</option><option>someone I know</option><option>Instagram</option><option>X</option><option>Wonderfool</option><option>Space to Be</option><option>a search</option><option>somewhere else</option></select>.</p>
+          <p style="margin:0;">What's drawing me toward this is</p>
+          <textarea name="drawn" rows="2" placeholder="a few lines, in your own words…" style="font-size:clamp(16px,min(2.2vw,2.7vh),19px);line-height:1.65;letter-spacing:-0.01em;border:0;border-bottom:1px solid #171916;background:transparent;padding:6px 4px;outline:none;resize:none;color:#171916;width:100%;"></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;">
+        <button type="submit" style="{{ sendStyle }}">Send it <span aria-hidden="true">→</span></button>
+        <p role="status" aria-live="polite" style="margin:0;font-size:clamp(13px,2vh,15px);line-height:1.5;color:#43403A;">{{ status }}</p>
+      </div>
+    </form>
+
+    <div data-next="1" style="flex:0 1 20rem;min-width:0;border-left:1px solid rgba(38,34,26,0.10);display:flex;flex-direction:column;">
+      <div style="padding:clamp(18px,3.4vh,32px) clamp(20px,3vw,36px);display:grid;gap:6px;align-content:start;border-bottom:1px solid rgba(38,34,26,0.10);">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">How joining works</span>
+      </div>
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+        <div style="flex:1;padding:clamp(14px,2.6vh,26px) clamp(20px,3vw,36px);display:grid;gap:6px;align-content:center;border-bottom:1px solid rgba(38,34,26,0.10);">
+          <span style="font-size:12px;font-weight:700;color:#5A4B7C;">01</span>
+          <p style="margin:0;max-width:30ch;font-size:clamp(14px,2.1vh,16px);line-height:1.6;color:#43403A;text-wrap:pretty;">You send a few lines about what's drawing you.</p>
+        </div>
+        <div style="flex:1;padding:clamp(14px,2.6vh,26px) clamp(20px,3vw,36px);display:grid;gap:6px;align-content:center;border-bottom:1px solid rgba(38,34,26,0.10);">
+          <span style="font-size:12px;font-weight:700;color:#5A4B7C;">02</span>
+          <p style="margin:0;max-width:30ch;font-size:clamp(14px,2.1vh,16px);line-height:1.6;color:#43403A;text-wrap:pretty;">John replies himself, usually within a few days, and suggests a conversation.</p>
+        </div>
+        <div style="flex:1;padding:clamp(14px,2.6vh,26px) clamp(20px,3vw,36px);display:grid;gap:6px;align-content:center;">
+          <span style="font-size:12px;font-weight:700;color:#5A4B7C;">03</span>
+          <p style="margin:0;max-width:30ch;font-size:clamp(14px,2.1vh,16px);line-height:1.6;color:#43403A;text-wrap:pretty;">If there's a mutual yes during the call, you'll start receiving the relevant invitations.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;padding:14px clamp(24px,5vw,56px);border-top:1px solid rgba(38,34,26,0.10);background:#F8F6F1;">
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
+    <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { salons: false, sits: false, status: '', sending: false, started: false };
+
+  chip(on) {
+    return {
+      fontSize: '0.68em', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+      border: '1px solid #171916', padding: '7px 14px', cursor: 'pointer',
+      background: on ? '#171916' : 'transparent', color: on ? '#FFF7EE' : '#171916'
+    };
+  }
+
+  begin = (e) => {
+    if (!this.state.started && e.target.value.trim()) this.setState({ started: true });
+  };
+
+  submit = (e) => {
+    e.preventDefault();
+    if (this.state.sending) return;
+    const form = e.target;
+    const val = (n) => { const f = form.querySelector('[name="' + n + '"]'); return f ? f.value.trim() : ''; };
+    const name = val('name'), email = val('email');
+    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return this.setState({ status: 'A name and a valid email, please.' });
+    const interest = [];
+    if (this.state.salons) interest.push('Salons');
+    if (this.state.sits) interest.push('Sits');
+    if (!interest.length) return this.setState({ status: 'Salons, Sits, or both — pick at least one.' });
+    this.setState({ sending: true, status: 'Sending…' });
+    fetch('https://formspree.io/f/xpqkbpyv', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'take part as a participant',
+        interest: interest.join(', '),
+        name: name, email: email,
+        drawn: val('drawn'),
+        found: val('found') || 'Not said'
+      })
+    }).then(r => {
+      if (r.ok) this.setState({ status: 'Received, with thanks. We’ll be in touch — until then, stay curious.' });
+      else this.setState({ sending: false, status: 'That didn’t send. Try again, or email john@spacetobe.xyz.' });
+    }).catch(() => this.setState({ sending: false, status: 'That didn’t send. Try again, or email john@spacetobe.xyz.' }));
+  };
+
+  renderVals() {
+    const on = this.state.started;
+    return {
+      submit: this.submit,
+      status: this.state.status,
+      onName: this.begin,
+      onEmail: this.begin,
+      andStyle: {
+        fontSize: '0.9em', color: '#43403A',
+        maxWidth: (this.state.salons && this.state.sits) ? '4em' : 0,
+        opacity: (this.state.salons && this.state.sits) ? 1 : 0,
+        overflow: 'hidden', whiteSpace: 'nowrap',
+        transition: 'opacity .4s ease, max-width .4s cubic-bezier(.22,1,.36,1)'
+      },
+      salonsStyle: this.chip(this.state.salons),
+      sitsStyle: this.chip(this.state.sits),
+      toggleSalons: () => this.setState(s => ({ salons: !s.salons })),
+      toggleSits: () => this.setState(s => ({ sits: !s.sits })),
+      restStyle: {
+        display: 'grid',
+        gap: 'clamp(6px,1.4vh,14px)',
+        opacity: on ? 1 : 0,
+        transform: on ? 'translateY(0)' : 'translateY(8px)',
+        pointerEvents: on ? 'auto' : 'none',
+        transition: 'opacity 1.8s cubic-bezier(.22,1,.36,1) .25s, transform 1.8s cubic-bezier(.22,1,.36,1) .25s'
+      },
+      sendStyle: {
+        display: 'inline-flex', alignItems: 'center', gap: '12px', fontWeight: 700,
+        fontSize: 'min(12px,1.9vh)', letterSpacing: '0.16em', textTransform: 'uppercase',
+        padding: 'clamp(12px,2.2vh,15px) 28px', background: '#5A4B7C', color: '#FDFCF9',
+        border: '1px solid #5A4B7C', cursor: 'pointer',
+        opacity: on ? 1 : 0.35,
+        transition: 'opacity .35s ease'
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

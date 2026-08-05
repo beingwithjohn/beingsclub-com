@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="design_doc_mode" content="canvas">
+<title>Practice Log — the whole experience · Beings Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#F3F1E9;color:#171916;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  img{display:block;max-width:100%;}
+  a{color:#171916;text-decoration:none;}
+  a:hover{color:#5a5c58;}
+  ::selection{background:#FFAD54;color:#171916;}
+  em{font-style:italic;}
+</style>
+</helmet>
+
+<section style="padding:clamp(1.25rem,5vw,4rem) clamp(1.25rem,5vw,4rem) 0;display:grid;gap:clamp(1.5rem,3vw,2.25rem);">
+  <div style="max-width:60rem;">
+    <div style="display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <span style="font-weight:800;font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+      <span style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Practice Log · the whole experience</span>
+    </div>
+    <h1 style="font-weight:800;font-size:clamp(2rem,5vw,3.4rem);line-height:.98;letter-spacing:-.03em;text-transform:uppercase;max-width:24ch;text-wrap:balance;">Practise. Tap. See the others. Leave.</h1>
+    <p style="margin-top:1.25rem;max-width:64ch;font-size:1.02rem;line-height:1.65;color:#5a5c58;">Everything a build needs: the seven emails, the sixteen mobile screens in the order a person meets them, the four desktop layouts, and the specs underneath — tokens, motion, states, and every line of copy the system can send. The grid is settled: days across, one dot per person, amber is you.</p>
+    <p style="margin-top:.75rem;max-width:64ch;font-size:.95rem;line-height:1.6;color:#9a9c97;">The run is Wednesday 16 September to Tuesday 20 October 2026, with a closing gathering on Wednesday 21 October — so weeks turn on Wednesdays, and so does the grid. Phones drawn at 390pt, desktop at 1152px, emails at 600px single column with no image dependency.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid #171916;">
+    <div style="background:#FDFCF8;padding:1.2rem 1.3rem;">
+      <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:.5rem;">One rule</div>
+      <div style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;margin-bottom:.5rem;">Nothing before the tap</div>
+      <p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">No cohort, no counts, no notes until you've said you practised. The reward is the room, not a number.</p>
+    </div>
+    <div style="background:#FDFCF8;padding:1.2rem 1.3rem;">
+      <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:.5rem;">One tap</div>
+      <div style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;margin-bottom:.5rem;">Everything else optional</div>
+      <p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">A note is offered, never required. The private line to John is always there, never in the path.</p>
+    </div>
+    <div style="background:#FBF4EA;padding:1.2rem 1.3rem;">
+      <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:.5rem;">Nothing to break</div>
+      <div style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;margin-bottom:.5rem;">No streaks, ever</div>
+      <p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">Missed days are days. The word "streak" appears nowhere in the product, nor any count of what you missed.</p>
+    </div>
+    <div style="background:#171916;color:#ffffff;padding:1.2rem 1.3rem;">
+      <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:.5rem;">Two rooms</div>
+      <div style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;margin-bottom:.5rem;">White is shared, black is John</div>
+      <p style="font-size:.9rem;line-height:1.6;color:rgba(255,255,255,.72);">Colour carries the privacy model, so it is felt before it is read. Black surfaces are never seen by the cohort.</p>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:.9rem;max-width:72rem;">
+    <div style="display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:1px solid #171916;padding-bottom:.7rem;">
+      <span style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">The loop</span>
+      <span style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;">Thirty seconds, once a day</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid rgba(23,25,22,.16);">
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#FFAD54;">01</span>
+        <span style="font-weight:700;font-size:.92rem;letter-spacing:-.02em;">Email lands</span>
+        <span style="font-size:.85rem;line-height:1.55;color:#5a5c58;">At your chosen hour, your local time.</span>
+      </div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#FFAD54;">02</span>
+        <span style="font-weight:700;font-size:.92rem;letter-spacing:-.02em;">You sit</span>
+        <span style="font-size:.85rem;line-height:1.55;color:#5a5c58;">The product is closed. Nothing is timed or tracked.</span>
+      </div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#FFAD54;">03</span>
+        <span style="font-weight:700;font-size:.92rem;letter-spacing:-.02em;">One tap</span>
+        <span style="font-size:.85rem;line-height:1.55;color:#5a5c58;">From the email or the page. Both land on the same square.</span>
+      </div>
+      <div style="background:#FBF4EA;padding:1rem 1.1rem;display:grid;gap:.35rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#FFAD54;">04</span>
+        <span style="font-weight:700;font-size:.92rem;letter-spacing:-.02em;">The others arrive</span>
+        <span style="font-size:.85rem;line-height:1.55;color:#5a5c58;">A beat alone, then the grid fades up beneath you.</span>
+      </div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#FFAD54;">05</span>
+        <span style="font-weight:700;font-size:.92rem;letter-spacing:-.02em;">You leave</span>
+        <span style="font-size:.85rem;line-height:1.55;color:#5a5c58;">No feed to scroll, no reason to stay. That is the design.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<sc-if value="{{ showEmails }}" hint-placeholder-val="{{ true }}">
+<section style="padding:clamp(1.5rem,4vw,3rem) clamp(1.25rem,5vw,4rem) 0;display:grid;gap:1.4rem;">
+  <div style="display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:1px solid #171916;padding-bottom:.7rem;max-width:72rem;">
+    <span style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Part one</span>
+    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;">Email — the seven things we send</span>
+    <span style="font-size:.9rem;color:#5a5c58;margin-left:auto;">600px, one column, plain-text fallback for every one</span>
+  </div>
+  <p style="max-width:64ch;font-size:.95rem;line-height:1.65;color:#5a5c58;">Email is the front door: most days a person taps from here and never opens the site. So every email carries the tap, and none of them carries group news — you learn how the cohort is doing by turning up, not by being told.</p>
+
+  <div style="display:flex;flex-wrap:wrap;gap:1.6rem;align-items:start;">
+
+    <div id="e1" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E1</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">You're in · at purchase</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(23,25,22,.14);background:#f4f4f2;display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:#9a9c97;">Beings Club &lt;practice@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">You're in. We start Wednesday.</div>
+        </div>
+        <div style="padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column;gap:1.15rem;">
+          <img src="assets/opart/ground.png" alt="" aria-hidden="true" style="width:60px;mix-blend-mode:multiply;">
+          <p style="font-size:1.1rem;font-weight:500;line-height:1.45;letter-spacing:-.02em;">Sam — you have a place.</p>
+          <p style="font-size:.95rem;line-height:1.62;color:#5a5c58;">Beyond Belief runs for thirty-five days, from Wednesday 16 September. Ten of us, practising daily, in five weeks of one principle each — and six Wednesday evenings together, 6:30–7:45pm UK.</p>
+          <div style="border-top:1px solid rgba(23,25,22,.14);padding-top:1rem;display:grid;gap:.6rem;">
+            <div style="display:grid;grid-template-columns:1.3rem 1fr;gap:.6rem;align-items:baseline;"><span style="font-weight:700;font-size:.78rem;color:#FFAD54;">1</span><p style="font-size:.9rem;line-height:1.58;color:#5a5c58;">Read the practice map before Wednesday. Ten minutes.</p></div>
+            <div style="display:grid;grid-template-columns:1.3rem 1fr;gap:.6rem;align-items:baseline;"><span style="font-weight:700;font-size:.78rem;color:#FFAD54;">2</span><p style="font-size:.9rem;line-height:1.58;color:#5a5c58;">Pick your hour. One email a day, at that hour.</p></div>
+            <div style="display:grid;grid-template-columns:1.3rem 1fr;gap:.6rem;align-items:baseline;"><span style="font-weight:700;font-size:.78rem;color:#FFAD54;">3</span><p style="font-size:.9rem;line-height:1.58;color:#5a5c58;">Find a place to sit and a time you can keep.</p></div>
+          </div>
+          <div style="background:#171916;color:#ffffff;text-align:center;padding:1rem;font-weight:700;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;">Set up my log</div>
+          <p style="font-size:.85rem;line-height:1.55;color:#9a9c97;">One link, no password. It's yours and it doesn't expire.</p>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.7rem;color:#9a9c97;">Beings Club · reply to this and John reads it</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The only email with instructions in it. Everything after this is one sentence and a button.</p>
+    </div>
+
+    <div id="e2" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E2</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Day one · we start</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(23,25,22,.14);background:#f4f4f2;display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:#9a9c97;">Beings Club &lt;practice@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">Day 1 · today we start</div>
+        </div>
+        <div style="padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;text-align:center;">
+          <img src="assets/opart/stillness.png" alt="" aria-hidden="true" style="width:64px;margin:0 auto;mix-blend-mode:multiply;">
+          <p style="font-size:1.15rem;font-weight:500;line-height:1.45;letter-spacing:-.02em;">It begins today, Sam.</p>
+          <p style="font-size:.96rem;line-height:1.6;color:#5a5c58;">This week we're with <em>curiosity</em> — sitting without needing anything to happen.</p>
+          <p style="font-size:.96rem;line-height:1.6;color:#5a5c58;">Twenty minutes is standard, and whatever you manage counts. Whenever you practise today, come and say so.</p>
+          <div style="background:#FFAD54;color:#171916;padding:1rem;font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;">I practised today</div>
+          <p style="font-size:.82rem;line-height:1.5;color:#9a9c97;">We meet tonight, 6:30pm UK. Nine others got this too, in nine other hours.</p>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.7rem;color:#9a9c97;">Change the time · stop these</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Same shape as every daily email from here on — so day one teaches the pattern.</p>
+    </div>
+
+    <div id="e3" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E3</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">The daily email · days 2–35</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(23,25,22,.14);background:#f4f4f2;display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:#9a9c97;">Beings Club &lt;practice@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">Day 18 · a quiet minute counts</div>
+        </div>
+        <div style="padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;text-align:center;">
+          <img src="assets/opart/stillness.png" alt="" aria-hidden="true" style="width:64px;margin:0 auto;mix-blend-mode:multiply;">
+          <p style="font-size:1.15rem;font-weight:500;line-height:1.45;letter-spacing:-.02em;">Good morning, Sam.</p>
+          <p style="font-size:.98rem;line-height:1.6;color:#5a5c58;">This week we're with <em>responsibility</em> — noticing thinking as thinking, and returning.</p>
+          <p style="font-size:.98rem;line-height:1.6;color:#5a5c58;">Whenever you practise today, long or short, come and say so.</p>
+          <div style="background:#FFAD54;color:#171916;padding:1rem;font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;">I practised today</div>
+          <p style="font-size:.82rem;line-height:1.5;color:#9a9c97;">Haven't yet? This will keep until you have.</p>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.7rem;color:#9a9c97;">Change the time · stop these</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">No group news, no counts, no "you haven't logged." An invitation, never a check-up. One line rotates with the week's principle; the rest is fixed.</p>
+    </div>
+
+    <div id="e4" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E4</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Wednesday · the week turns</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(23,25,22,.14);background:#f4f4f2;display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:#9a9c97;">John Kirby &lt;john@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">Week three · responsibility</div>
+        </div>
+        <div style="padding:1.8rem 1.5rem;flex:1;display:flex;flex-direction:column;gap:1.1rem;">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">From John · Wednesdays</div>
+          <h3 style="font-weight:800;font-size:1.5rem;line-height:1.08;letter-spacing:-.03em;text-transform:uppercase;max-width:14ch;">Responsibility</h3>
+          <p style="font-size:.95rem;line-height:1.62;color:#5a5c58;">Two weeks in, something usually shifts: sitting stops being an event and starts being a thing you do. This week we look at what you're actually responsible for — not your thoughts arriving, but what you do next.</p>
+          <div style="background:#171916;color:#ffffff;padding:1.1rem 1.2rem;display:grid;gap:.7rem;">
+            <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);">Listen · 6 min</div>
+            <div style="display:flex;align-items:center;gap:.9rem;">
+              <div style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:.66rem;">▶</span></div>
+              <div style="flex:1;height:3px;background:rgba(255,255,255,.25);"></div>
+            </div>
+          </div>
+          <p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">We meet tonight, 6:30–7:45pm UK. Nothing about the practice changes — same sit, same tap.</p>
+          <div style="border:1px solid #171916;text-align:center;padding:.9rem;font-weight:700;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;">Open the practice map</div>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.7rem;color:#9a9c97;">Reply and John reads it</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The only long email in the run, and it comes from John's name, not the club's. Five of them, one a week.</p>
+    </div>
+
+    <div id="e5" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E5</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">John answered you</span></div>
+      <div style="background:#171916;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;color:#ffffff;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.18);display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);">John Kirby &lt;john@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">An answer, just for you</div>
+        </div>
+        <div style="padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.2rem;">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);">You asked on Thursday</div>
+          <p style="font-size:.92rem;line-height:1.6;color:rgba(255,255,255,.55);border-left:2px solid #FFAD54;padding-left:.85rem;">“I've sat every day this week and felt nothing. Am I doing it wrong, or is that the point?”</p>
+          <div style="border:1px solid rgba(255,255,255,.35);padding:1.1rem;display:grid;gap:.85rem;">
+            <div style="display:flex;align-items:center;gap:.9rem;">
+              <div style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:.7rem;">▶</span></div>
+              <div style="flex:1;display:grid;gap:.35rem;">
+                <div style="height:3px;background:rgba(255,255,255,.25);"></div>
+                <span style="font-size:.72rem;color:rgba(255,255,255,.5);">2 min 41 sec · John's voice</span>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:.94rem;line-height:1.6;color:rgba(255,255,255,.72);">“Feeling nothing is not a failure of the practice — it's often the first honest thing…”</p>
+          <div style="background:#FFAD54;color:#171916;text-align:center;padding:.95rem;font-weight:700;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;">Listen · then log today</div>
+          <p style="font-size:.82rem;line-height:1.5;color:rgba(255,255,255,.45);">Nobody else received this. Ask him something else any time.</p>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The one dark email. Black in the inbox tells you which room it came from before you open it.</p>
+    </div>
+
+    <div id="e6" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E6</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Still here · once, if you're away</span></div>
+      <div style="background:#FDFCF8;border:1px solid #FFAD54;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(23,25,22,.14);background:#f4f4f2;display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:#9a9c97;">John Kirby &lt;john@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">Still here whenever you are</div>
+        </div>
+        <div style="padding:2rem 1.5rem;flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.25rem;">
+          <img src="assets/opart/spacious.png" alt="" aria-hidden="true" style="width:66px;mix-blend-mode:multiply;">
+          <p style="font-size:1.08rem;font-weight:500;line-height:1.45;letter-spacing:-.02em;">Sam — no news needed.</p>
+          <p style="font-size:.95rem;line-height:1.62;color:#5a5c58;">Life takes the days it takes. I'm not counting them and neither is the log.</p>
+          <p style="font-size:.95rem;line-height:1.62;color:#5a5c58;">The room is the same as you left it. There's today, and today is enough to come back on.</p>
+          <div style="background:#171916;color:#ffffff;text-align:center;padding:1rem;font-weight:700;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;">Practise with us today</div>
+          <p style="font-size:.85rem;line-height:1.55;color:#9a9c97;">If you'd rather stop, that's a fine answer too — <span style="border-bottom:1px solid rgba(23,25,22,.25);">tell me here</span> and the emails end.</p>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.7rem;color:#9a9c97;">Sent once per run · never twice</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Triggered at five consecutive quiet days, capped at one per person for the whole thirty-five. Never names the number of days missed. The daily email keeps going regardless.</p>
+    </div>
+
+    <div id="e7" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">E7</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Day 35 · that's the run</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:.9rem 1.1rem;border-bottom:1px solid rgba(23,25,22,.14);background:#f4f4f2;display:grid;gap:.25rem;">
+          <div style="font-size:.72rem;color:#9a9c97;">John Kirby &lt;john@beingsclub.com&gt;</div>
+          <div style="font-weight:700;font-size:.88rem;letter-spacing:-.01em;">Day 35 · the last one together</div>
+        </div>
+        <div style="padding:1.9rem 1.5rem;flex:1;display:flex;flex-direction:column;gap:1.1rem;">
+          <p style="font-size:1.1rem;font-weight:500;line-height:1.45;letter-spacing:-.02em;">Last day, Sam.</p>
+          <p style="font-size:.95rem;line-height:1.62;color:#5a5c58;">Practise today as you have. Tomorrow evening we gather one last time, 6:30pm UK — then the log stays open, unchanging, for as long as you want it: your thirty-five days, and the nine people who were in them.</p>
+          <div style="background:#FBF4EA;padding:1.1rem 1.2rem;display:grid;gap:.55rem;">
+            <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Your run</div>
+            <p style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;line-height:1.3;">Twenty-eight days marked. Seven not. Both true.</p>
+            <p style="font-size:.85rem;line-height:1.55;color:#5a5c58;">The only number we ever show you, and only now that it can't be chased.</p>
+          </div>
+          <div style="background:#FFAD54;color:#171916;text-align:center;padding:1rem;font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;">I practised today</div>
+          <p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">After the closing gathering there's no email. That's on purpose — what happens next should be yours, not ours.</p>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.7rem;color:#9a9c97;">Beings Club · your log stays at this link</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The single place a total appears, and it names the missed days in the same breath so it reads as a record rather than a score.</p>
+    </div>
+
+  </div>
+</section>
+</sc-if>
+
+<section style="padding:clamp(1.5rem,4vw,3rem) clamp(1.25rem,5vw,4rem) 0;display:grid;gap:1.4rem;">
+  <div style="display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:1px solid #171916;padding-bottom:.7rem;max-width:72rem;">
+    <span style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Part two</span>
+    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;">Mobile — sixteen screens, in order</span>
+    <span style="font-size:.9rem;color:#5a5c58;margin-left:auto;">390pt · the primary surface</span>
+  </div>
+  <p style="max-width:64ch;font-size:.95rem;line-height:1.65;color:#5a5c58;">A web app, not an app store app: opened from the email link, added to the home screen if you like. Full-width tap targets, nothing under 48pt, no gesture anyone has to learn.</p>
+
+  <div style="display:flex;flex-wrap:wrap;gap:1.6rem;align-items:start;">
+
+    <div id="m1" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M1</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">First run · welcome</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.5rem 1.5rem 0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:1rem;">
+          <div style="font-weight:700;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Beings Club · Beyond Belief</div>
+          <h3 style="font-weight:800;font-size:1.9rem;line-height:1.02;letter-spacing:-.03em;text-transform:uppercase;">Welcome, Sam.</h3>
+          <p style="font-size:.95rem;line-height:1.6;color:#5a5c58;">For the next thirty-five days, ten of us practise every day we can. This is where we each say we did.</p>
+          <div style="display:grid;gap:.7rem;border-top:1px solid rgba(23,25,22,.14);padding-top:1.1rem;">
+            <div style="display:grid;grid-template-columns:1.4rem 1fr;gap:.7rem;align-items:baseline;"><span style="font-weight:700;font-size:.8rem;color:#FFAD54;">1</span><p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">One tap a day. That's the whole tool.</p></div>
+            <div style="display:grid;grid-template-columns:1.4rem 1fr;gap:.7rem;align-items:baseline;"><span style="font-weight:700;font-size:.8rem;color:#FFAD54;">2</span><p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">You see the others only after you've tapped.</p></div>
+            <div style="display:grid;grid-template-columns:1.4rem 1fr;gap:.7rem;align-items:baseline;"><span style="font-weight:700;font-size:.8rem;color:#FFAD54;">3</span><p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">Twenty minutes is standard, with compassionate flexibility. No streaks, nothing to break — missed days are just days.</p></div>
+          </div>
+          <div style="background:#FBF4EA;padding:1rem 1.1rem;">
+            <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:.5rem;">When shall I nudge you?</div>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+              <span style="font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;">6:30am</span>
+              <span style="font-size:.8rem;font-weight:600;border:1px solid #171916;background:#171916;color:#ffffff;padding:.45rem .7rem;">7:00am</span>
+              <span style="font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;">9:00pm</span>
+              <span style="font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;">Other</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:1.5rem;">
+          <div style="background:#171916;color:#ffffff;text-align:center;padding:1rem;font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;">Begin</div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Three sentences of contract, one decision, one button. No tour, no carousel.</p>
+    </div>
+
+    <div id="m2" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M2</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Keep it to hand</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-size:.78rem;color:#9a9c97;">Skip</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;padding:2rem 1.5rem;">
+          <h3 style="font-weight:800;font-size:1.6rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:16ch;">Put it on your home screen.</h3>
+          <p style="font-size:.95rem;line-height:1.6;color:#5a5c58;">One square, no app store. It opens straight to today.</p>
+          <div style="border:1px solid rgba(23,25,22,.2);padding:1.1rem;display:flex;align-items:center;gap:1rem;">
+            <div style="width:52px;height:52px;background:#171916;color:#FFAD54;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;letter-spacing:-.03em;flex-shrink:0;">BC</div>
+            <div style="display:grid;gap:.2rem;">
+              <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Beings Club</span>
+              <span style="font-size:.82rem;color:#9a9c97;">Share → Add to Home Screen</span>
+            </div>
+          </div>
+          <div style="background:#FBF4EA;padding:1rem 1.1rem;display:grid;gap:.5rem;">
+            <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Or nudge me on the phone</div>
+            <p style="font-size:.88rem;line-height:1.58;color:#5a5c58;">One notification a day, the same words as the email. Off unless you ask.</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.2rem;">
+              <span style="font-size:.88rem;font-weight:600;">Daily notification</span>
+              <div style="width:44px;height:26px;background:rgba(23,25,22,.16);border-radius:13px;position:relative;flex-shrink:0;"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#FDFCF8;"></div></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:1.5rem;">
+          <div style="background:#171916;color:#ffffff;text-align:center;padding:1rem;font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;">Done</div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Shown once, skippable. Notifications default to off — the email is the contract we already have.</p>
+    </div>
+
+    <div id="m3" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M3</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Day one · empty</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 1 of 35</span>
+        </div>
+        <div style="padding:1.4rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);background:#FBF4EA;">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:.5rem;">Today</div>
+          <p style="font-weight:700;font-size:1.15rem;letter-spacing:-.02em;line-height:1.25;">You're the first one in.</p>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:1.5rem;padding:2rem 1.5rem;">
+          <img src="assets/opart/ground.png" alt="" aria-hidden="true" style="width:76px;mix-blend-mode:multiply;">
+          <div style="display:grid;grid-template-columns:repeat(2,9px);gap:4px;">
+            <div style="width:9px;height:9px;border-radius:50%;background:#FFAD54;box-shadow:0 0 0 3px rgba(255,173,84,.3);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div>
+          </div>
+          <p style="font-size:.95rem;line-height:1.6;color:#5a5c58;max-width:28ch;">Nine more will arrive through the day, in their own time zones and their own hours.</p>
+          <p style="font-size:.88rem;line-height:1.6;color:#9a9c97;max-width:28ch;">Come back tonight and the rest will have filled in without you watching.</p>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Being first reads as arriving early, not as an empty room.</p>
+    </div>
+
+    <div id="m4" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M4</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Log surface · before the tap</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 18 of 35</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:1.6rem;padding:2rem 1.5rem;">
+          <div style="font-weight:700;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Saturday 3 October</div>
+          <h3 style="font-weight:800;font-size:2.1rem;line-height:1;letter-spacing:-.04em;text-transform:uppercase;max-width:12ch;">Did you practise today?</h3>
+          <div style="width:100%;max-width:15rem;aspect-ratio:1;border:1px solid #171916;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:#FBF4EA;">
+            <span style="font-weight:800;font-size:1.1rem;letter-spacing:-.02em;text-transform:uppercase;">I practised</span>
+            <span style="font-size:.78rem;color:#5a5c58;">tap anywhere here</span>
+          </div>
+          <p style="font-size:.88rem;line-height:1.6;color:#9a9c97;max-width:26ch;">Twenty minutes is standard, and sitting daily matters far more than sitting long. Five minutes on a hard day is a real practice, not a failed one.</p>
+        </div>
+        <div style="padding:1.1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.78rem;color:#9a9c97;">Yesterday? <span style="color:#5a5c58;border-bottom:1px solid rgba(23,25,22,.25);">Add it</span></span>
+          <span style="font-size:.78rem;color:#9a9c97;">Settings</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Nobody else on screen — you're alone with your own day until you tap. The standard is named first, then the compassionate flexibility around it, always in that order.</p>
+    </div>
+
+    <div id="m5" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M5</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">The reveal · mid-transition</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;">Logged</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:1.4rem;padding:2rem 1.5rem;">
+          <div style="width:100%;max-width:15rem;aspect-ratio:1;background:#FFAD54;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;">
+            <span style="font-weight:800;font-size:1.3rem;letter-spacing:-.03em;text-transform:uppercase;">You practised.</span>
+            <span style="font-size:.82rem;color:rgba(23,25,22,.7);">Day 18</span>
+          </div>
+          <p style="font-size:1rem;line-height:1.6;color:#5a5c58;max-width:26ch;">Five others have practised so far today.</p>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(23,25,22,.25);"></span>
+            <span style="font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">bringing in the others</span>
+            <span style="width:5px;height:5px;border-radius:50%;background:rgba(23,25,22,.25);"></span>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">A moment on your own before the others arrive. The grid fades up underneath rather than cutting in.</p>
+    </div>
+
+    <div id="m6" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M6</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Add a note · offered once</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;">Logged</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.25rem;padding:2rem 1.5rem;">
+          <div style="display:flex;align-items:center;gap:.7rem;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#FFAD54;box-shadow:0 0 0 3px rgba(255,173,84,.3);"></span>
+            <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 18 · you practised</span>
+          </div>
+          <h3 style="font-weight:800;font-size:1.6rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:15ch;">Add a note?</h3>
+          <p style="font-size:.94rem;line-height:1.58;color:#5a5c58;">A line for the others. What it was like, or nothing at all.</p>
+          <div style="border:1px solid #171916;padding:.9rem 1rem;min-height:5.5rem;display:flex;flex-direction:column;justify-content:space-between;gap:.6rem;">
+            <span style="font-size:.95rem;line-height:1.5;color:#9a9c97;">Restless the whole way through. Sat anyway.</span>
+            <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;align-self:flex-end;">80 left</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#9a9c97;">
+            <span style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.3);"></span>
+            <span>The nine others will see this</span>
+          </div>
+          <div style="display:grid;gap:.6rem;margin-top:.4rem;">
+            <div style="background:#171916;color:#ffffff;text-align:center;padding:.95rem;font-weight:700;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;">Add it</div>
+            <div style="text-align:center;padding:.5rem;font-size:.85rem;color:#5a5c58;">Skip — no note today</div>
+          </div>
+        </div>
+        <div style="padding:1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);display:flex;justify-content:center;">
+          <span style="font-size:.8rem;color:#5a5c58;">Something just for John? <span style="border-bottom:1px solid rgba(23,25,22,.25);">Ask privately</span></span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Skippable in one tap, and the placeholder sets the tone — plain, unheroic, no insight required. Capped at 100 characters so nobody freezes in front of a journal.</p>
+    </div>
+
+    <div id="m7" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M7</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">The cohort · this week</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 18 of 35</span>
+        </div>
+        <div style="padding:1.4rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);background:#FBF4EA;">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;margin-bottom:.5rem;">Today</div>
+          <p style="font-weight:700;font-size:1.15rem;letter-spacing:-.02em;line-height:1.25;">You and five others have practised.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(23,25,22,.14);">
+          <div style="text-align:center;padding:.75rem;font-weight:700;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;background:#171916;color:#ffffff;border-right:1px solid rgba(23,25,22,.14);">This week</div>
+          <div style="text-align:center;padding:.75rem;font-weight:700;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">All 35 days</div>
+        </div>
+        <div style="padding:1.4rem 1.5rem;flex:1;display:grid;gap:1.3rem;align-content:start;">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;align-items:end;">
+            <div style="display:grid;gap:.4rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:700;color:#9a9c97;">W</span></div>
+            <div style="display:grid;gap:.4rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:700;color:#9a9c97;">T</span></div>
+            <div style="display:grid;gap:.4rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:700;color:#9a9c97;">F</span></div>
+            <div style="display:grid;gap:.4rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:#FFAD54;box-shadow:0 0 0 2px rgba(255,173,84,.3);"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:#171916;"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:800;color:#171916;">S</span></div>
+            <div style="display:grid;gap:.4rem;justify-items:center;opacity:.3;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:700;color:#9a9c97;">S</span></div>
+            <div style="display:grid;gap:.4rem;justify-items:center;opacity:.3;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:700;color:#9a9c97;">M</span></div>
+            <div style="display:grid;gap:.4rem;justify-items:center;opacity:.3;"><div style="display:grid;grid-template-columns:repeat(2,6px);gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:6px;height:6px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.56rem;font-weight:700;color:#9a9c97;">T</span></div>
+          </div>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+            <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:#5a5c58;"><span style="width:7px;height:7px;border-radius:50%;background:#FFAD54;"></span>You</span>
+            <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:#5a5c58;"><span style="width:7px;height:7px;border-radius:50%;background:#171916;"></span>Practised</span>
+            <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:#9a9c97;"><span style="width:7px;height:7px;border-radius:50%;background:rgba(23,25,22,.12);"></span>Not yet</span>
+          </div>
+          <div style="border-top:1px solid rgba(23,25,22,.14);padding-top:1.1rem;display:grid;gap:.75rem;">
+            <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Notes today</div>
+            <div style="display:grid;gap:.15rem;"><span style="font-weight:700;font-size:.8rem;">Priya</span><p style="font-size:.88rem;line-height:1.5;color:#5a5c58;">Ten minutes before the house woke up.</p></div>
+            <div style="display:grid;gap:.15rem;"><span style="font-weight:700;font-size:.8rem;">Marcus</span><p style="font-size:.88rem;line-height:1.5;color:#5a5c58;">Restless the whole way through. Sat anyway.</p></div>
+            <div style="display:grid;gap:.15rem;"><span style="font-weight:700;font-size:.8rem;">Ife</span><p style="font-size:.88rem;line-height:1.5;color:#5a5c58;">On the train. Eyes open.</p></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Days across, one dot per person, amber is you — no rows to compare, no names beside marks. Names appear only on notes, where a person chose to be seen.</p>
+    </div>
+
+    <div id="m8" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M8</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">All thirty-five days</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 18 of 35</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(23,25,22,.14);">
+          <div style="text-align:center;padding:.75rem;font-weight:700;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;border-right:1px solid rgba(23,25,22,.14);">This week</div>
+          <div style="text-align:center;padding:.75rem;font-weight:700;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;background:#171916;color:#ffffff;">All 35 days</div>
+        </div>
+        <div style="padding:1.3rem 1.5rem;flex:1;display:grid;gap:1rem;align-content:start;">
+          <div style="display:grid;gap:.45rem;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-weight:700;font-size:.72rem;letter-spacing:-.01em;">Curiosity</span>
+              <span style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9a9c97;">16 Sep</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.82);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.72);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.72);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.52);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:.45rem;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-weight:700;font-size:.72rem;letter-spacing:-.01em;">Care</span>
+              <span style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9a9c97;">23 Sep</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.72);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.52);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:.45rem;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-weight:700;font-size:.72rem;letter-spacing:-.01em;">Responsibility</span>
+              <span style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#FFAD54;">This week</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.52);outline:2px solid #171916;outline-offset:2px;position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></div></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:.45rem;opacity:.45;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-weight:700;font-size:.72rem;letter-spacing:-.01em;">Play</span>
+              <span style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9a9c97;">7 Oct</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:.45rem;opacity:.45;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-weight:700;font-size:.72rem;letter-spacing:-.01em;">Rest</span>
+              <span style="font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9a9c97;">14 Oct</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+            </div>
+          </div>
+          <div style="border-top:1px solid rgba(23,25,22,.14);padding-top:.9rem;display:grid;gap:.5rem;">
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+              <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:#5a5c58;"><span style="width:11px;height:11px;background:rgba(23,25,22,.05);position:relative;"><span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#FFAD54;"></span></span>You practised</span>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:#5a5c58;"><span style="width:11px;height:11px;background:rgba(23,25,22,.75);"></span>Darker, more of us</span>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:#5a5c58;"><span style="width:11px;height:11px;background:rgba(23,25,22,.3);outline:1.5px solid #171916;outline-offset:1.5px;"></span>Today</span>
+            </div>
+            <p style="font-size:.8rem;line-height:1.5;color:#9a9c97;">Tap any day to see who practised and what they wrote.</p>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">A day is one square: darkness is how many of us practised, the amber edge is you. Grouped by principle, so the shape of the run reads as five weeks, not thirty-five boxes.</p>
+    </div>
+
+    <div id="m9" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M9</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">One day, opened</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:.78rem;color:#5a5c58;">← All 35 days</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 14</span>
+        </div>
+        <div style="padding:1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:grid;gap:.7rem;">
+          <div style="font-weight:700;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Tuesday 29 September · care</div>
+          <p style="font-weight:700;font-size:1.3rem;letter-spacing:-.03em;line-height:1.15;">Seven of us practised.</p>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:11rem;">
+            <div style="aspect-ratio:1;background:#FFAD54;"></div><div style="aspect-ratio:1;background:#171916;"></div><div style="aspect-ratio:1;background:#171916;"></div><div style="aspect-ratio:1;background:#171916;"></div><div style="aspect-ratio:1;background:#171916;"></div>
+            <div style="aspect-ratio:1;background:#171916;"></div><div style="aspect-ratio:1;background:#171916;"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.12);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.12);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.12);"></div>
+          </div>
+        </div>
+        <div style="flex:1;display:grid;gap:1.1rem;padding:1.4rem 1.5rem;align-content:start;">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">What people wrote</div>
+          <div style="display:grid;gap:.15rem;"><span style="font-weight:700;font-size:.8rem;">Ana</span><p style="font-size:.9rem;line-height:1.55;color:#5a5c58;">Sat in the car outside work. Better than not.</p></div>
+          <div style="display:grid;gap:.15rem;"><span style="font-weight:700;font-size:.8rem;">Tomas</span><p style="font-size:.9rem;line-height:1.55;color:#5a5c58;">Fell asleep. Counting it.</p></div>
+          <div style="display:grid;gap:.15rem;"><span style="font-weight:700;font-size:.8rem;">You</span><p style="font-size:.9rem;line-height:1.55;color:#5a5c58;">Twenty minutes, easiest one yet.</p></div>
+          <p style="font-size:.82rem;line-height:1.55;color:#9a9c97;border-top:1px solid rgba(23,25,22,.14);padding-top:.9rem;">Who didn't practise isn't shown. Only what people chose to say.</p>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The one place the day is legible as ten people. Still no names on absence — the empty squares are anonymous by design.</p>
+    </div>
+
+    <div id="m10" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M10</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Ask John · private channel</span></div>
+      <div style="background:#171916;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;color:#ffffff;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.18);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Just to John</span>
+          <span style="font-size:.78rem;color:rgba(255,255,255,.5);">Close</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.25rem;padding:2rem 1.5rem;">
+          <h3 style="font-weight:800;font-size:1.6rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:16ch;">Nobody else sees this.</h3>
+          <p style="font-size:.94rem;line-height:1.58;color:rgba(255,255,255,.72);">Not the cohort, not your partner. Ask anything, or say how it's actually going.</p>
+          <div style="border:1px solid rgba(255,255,255,.35);padding:.9rem 1rem;min-height:9rem;display:flex;flex-direction:column;justify-content:space-between;gap:.6rem;">
+            <span style="font-size:.95rem;line-height:1.6;color:rgba(255,255,255,.45);">I've sat every day this week and felt nothing. Am I doing it wrong, or is that the point?</span>
+            <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4);align-self:flex-end;">No limit</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:rgba(255,255,255,.55);">
+            <span style="width:6px;height:6px;border-radius:50%;background:#FFAD54;"></span>
+            <span>Private for the thirty-five days</span>
+          </div>
+          <div style="background:#FFAD54;color:#171916;text-align:center;padding:.95rem;font-weight:700;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;margin-top:.4rem;">Send to John</div>
+          <p style="font-size:.82rem;line-height:1.5;color:rgba(255,255,255,.45);">He answers by voice, usually within a day or two. If an answer would help others, he'll re-ask it anonymously — never your words, never your name.</p>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Black, full screen, none of the usual furniture. You should feel the door shut behind you before you read a word.</p>
+    </div>
+
+    <div id="m11" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M11</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">John answered · waiting</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 19 of 35</span>
+        </div>
+        <div style="padding:1.3rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);background:#171916;color:#ffffff;">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:.5rem;">John replied · just to you</div>
+          <div style="display:flex;align-items:center;gap:.9rem;">
+            <div style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span style="font-size:.7rem;">▶</span>
+            </div>
+            <div style="flex:1;display:grid;gap:.35rem;">
+              <div style="height:3px;background:rgba(255,255,255,.25);position:relative;"><div style="position:absolute;inset:0 72% 0 0;background:#FFAD54;"></div></div>
+              <span style="font-size:.72rem;color:rgba(255,255,255,.5);">2 min 41 sec</span>
+            </div>
+          </div>
+          <p style="font-size:.88rem;line-height:1.6;color:rgba(255,255,255,.72);margin-top:.9rem;">“Feeling nothing is not a failure of the practice — it's often the first honest thing…”</p>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:1.3rem;padding:2rem 1.5rem;">
+          <div style="font-weight:700;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Sunday 4 October</div>
+          <h3 style="font-weight:800;font-size:1.9rem;line-height:1;letter-spacing:-.04em;text-transform:uppercase;max-width:12ch;">Did you practise today?</h3>
+          <div style="width:100%;max-width:13rem;aspect-ratio:1;border:1px solid #171916;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;background:#FBF4EA;">
+            <span style="font-weight:800;font-size:1.05rem;letter-spacing:-.02em;text-transform:uppercase;">I practised</span>
+            <span style="font-size:.76rem;color:#5a5c58;">tap anywhere here</span>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The reply sits above the log, still black — but it never blocks the tap. You're never made to read before you can log.</p>
+    </div>
+
+    <div id="m12" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M12</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Four days away</span></div>
+      <div style="background:#FDFCF8;border:1px solid #FFAD54;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Day 22 of 35</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;padding:2rem 1.5rem;text-align:center;align-items:center;">
+          <img src="assets/opart/spacious.png" alt="" aria-hidden="true" style="width:72px;mix-blend-mode:multiply;">
+          <h3 style="font-weight:800;font-size:1.75rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:14ch;">Good to see you.</h3>
+          <p style="font-size:.98rem;line-height:1.6;color:#5a5c58;max-width:32ch;">Nothing has been kept. Nothing needs explaining. There's just today, the same as it was.</p>
+          <div style="width:100%;max-width:15rem;aspect-ratio:1;border:1px solid #171916;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:#FBF4EA;">
+            <span style="font-weight:800;font-size:1.1rem;letter-spacing:-.02em;text-transform:uppercase;">I practised</span>
+            <span style="font-size:.78rem;color:#5a5c58;">tap anywhere here</span>
+          </div>
+          <p style="font-size:.86rem;line-height:1.6;color:#9a9c97;max-width:32ch;">Beginning again is not the failure. It <em>is</em> the practice — and everyone here has done it.</p>
+        </div>
+        <div style="padding:1.1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.8rem;color:#5a5c58;">Want to say something to John? <span style="border-bottom:1px solid rgba(23,25,22,.25);">Write privately</span></span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">No count of missed days, no grid on arrival, nothing to catch up on. The gap is never mentioned — and John is quietly told.</p>
+    </div>
+
+    <div id="m13" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M13</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Yesterday, added late</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:.78rem;color:#5a5c58;">← Today</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Yesterday</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;padding:2rem 1.5rem;">
+          <h3 style="font-weight:800;font-size:1.6rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:16ch;">Did you practise on Friday?</h3>
+          <p style="font-size:.94rem;line-height:1.6;color:#5a5c58;">Only yesterday can be added, and only until midnight tonight. After that a day is what it was.</p>
+          <div style="display:grid;gap:.6rem;">
+            <div style="border:1px solid #171916;background:#FBF4EA;padding:1rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Yes, I practised</span>
+              <span style="font-size:.78rem;color:#5a5c58;">Fri 2 Oct</span>
+            </div>
+            <div style="text-align:center;padding:.5rem;font-size:.85rem;color:#5a5c58;">No — leave it as it is</div>
+          </div>
+          <div style="background:#FBF4EA;padding:1rem 1.1rem;">
+            <p style="font-size:.85rem;line-height:1.58;color:#5a5c58;">It joins the grid without a mark saying it was late. Nobody is told the difference, because there isn't one.</p>
+          </div>
+        </div>
+        <div style="padding:1.1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.78rem;color:#9a9c97;">No notes on a late day — the moment has passed</span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">A one-day grace, honest rather than generous: enough for a late sit, not enough to rebuild a fortnight.</p>
+    </div>
+
+    <div id="m14" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M14</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Settings</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid #171916;display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Settings</span>
+          <span style="font-size:.78rem;color:#9a9c97;">Done</span>
+        </div>
+        <div style="flex:1;display:grid;align-content:start;">
+          <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+            <div><div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Daily nudge</div><p style="font-size:.82rem;color:#9a9c97;margin-top:.2rem;">One email, no cohort news in it</p></div>
+            <div style="width:44px;height:26px;background:#171916;border-radius:13px;position:relative;flex-shrink:0;"><div style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#FDFCF8;"></div></div>
+          </div>
+          <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);">
+            <div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;margin-bottom:.75rem;">Send it at</div>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+              <span style="font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;">6:30am</span>
+              <span style="font-size:.8rem;font-weight:600;border:1px solid #171916;background:#171916;color:#ffffff;padding:.45rem .7rem;">7:00am</span>
+              <span style="font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;">12:00pm</span>
+              <span style="font-size:.8rem;font-weight:600;border:1px solid rgba(23,25,22,.2);padding:.45rem .7rem;">9:00pm</span>
+            </div>
+            <p style="font-size:.82rem;color:#9a9c97;margin-top:.7rem;">Your local time — Europe/London</p>
+          </div>
+          <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+            <div><div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Notes</div><p style="font-size:.82rem;color:#9a9c97;margin-top:.2rem;">Offer a line after logging</p></div>
+            <div style="width:44px;height:26px;background:#171916;border-radius:13px;position:relative;flex-shrink:0;"><div style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#FDFCF8;"></div></div>
+          </div>
+          <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+            <div><div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Show me in the cohort as</div><p style="font-size:.82rem;color:#9a9c97;margin-top:.2rem;">The name on your notes</p></div>
+            <span style="font-size:.85rem;font-weight:600;border-bottom:1px solid rgba(23,25,22,.25);flex-shrink:0;">Sam</span>
+          </div>
+          <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);">
+            <div style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;margin-bottom:.3rem;">Sam Okafor</div>
+            <p style="font-size:.82rem;color:#9a9c97;">sam@example.com · Beyond Belief, Sep–Oct 2026</p>
+          </div>
+          <div style="padding:1.2rem 1.5rem;">
+            <p style="font-size:.85rem;line-height:1.6;color:#9a9c97;">No streaks are kept, and nothing here is scored. When the thirty-five days end, your grid stays yours.</p>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Five things, one of them a name. Nothing here can turn the log into a tracker.</p>
+    </div>
+
+    <div id="m15" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M15</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Day 35 · closing</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;">Day 35 · last</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:1.3rem;padding:2rem 1.5rem;">
+          <h3 style="font-weight:800;font-size:1.7rem;line-height:1.05;letter-spacing:-.03em;text-transform:uppercase;max-width:15ch;">That's thirty-five days.</h3>
+          <p style="font-size:.96rem;line-height:1.6;color:#5a5c58;">Ten people practised, mostly apart, mostly unseen. Here is the whole of it.</p>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">
+            <div style="aspect-ratio:1;background:rgba(23,25,22,.82);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div>
+            <div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div>
+            <div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div>
+            <div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div>
+            <div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:#FFAD54;"></div>
+          </div>
+          <div style="background:#FBF4EA;padding:1rem 1.1rem;display:grid;gap:.4rem;">
+            <p style="font-weight:700;font-size:1.02rem;letter-spacing:-.02em;line-height:1.3;">You marked twenty-eight of them.</p>
+            <p style="font-size:.85rem;line-height:1.55;color:#5a5c58;">And didn't mark seven. Both are part of the run.</p>
+          </div>
+          <p style="font-size:.9rem;line-height:1.6;color:#5a5c58;">One last gathering tomorrow evening, then the emails stop. The log stays here, unchanged, as long as you want it — what happens next is yours.</p>
+        </div>
+        <div style="padding:1.1rem 1.5rem;border-top:1px solid rgba(23,25,22,.14);text-align:center;">
+          <span style="font-size:.8rem;color:#5a5c58;">Say something to John before we close? <span style="border-bottom:1px solid rgba(23,25,22,.25);">Write privately</span></span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The run becomes an object you can look at. Total and missed shown together, once, at the only moment they can't be gamed.</p>
+    </div>
+
+    <div id="m16" style="display:grid;gap:.7rem;width:min(22rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">M16</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">When it can't reach us</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:min(40rem,148vw);display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 1.5rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-weight:800;font-size:.7rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;">Logged · offline</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:1.4rem;padding:2rem 1.5rem;">
+          <div style="width:100%;max-width:15rem;aspect-ratio:1;background:#FFAD54;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;">
+            <span style="font-weight:800;font-size:1.3rem;letter-spacing:-.03em;text-transform:uppercase;">You practised.</span>
+            <span style="font-size:.82rem;color:rgba(23,25,22,.7);">Day 18</span>
+          </div>
+          <div style="border:1px solid rgba(23,25,22,.2);padding:1rem 1.1rem;display:grid;gap:.4rem;">
+            <span style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Saved on this phone</span>
+            <p style="font-size:.9rem;line-height:1.58;color:#5a5c58;">No signal, so the others aren't here yet. Your day is kept and will go up on its own.</p>
+          </div>
+          <p style="font-size:.86rem;line-height:1.6;color:#9a9c97;max-width:30ch;">The tap always succeeds. Nothing you do is ever lost to a network.</p>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Optimistic and local-first: the mark is written on the device, then synced. The only failure state in the product, and it still says you practised.</p>
+    </div>
+
+  </div>
+</section>
+
+<sc-if value="{{ showDesktop }}" hint-placeholder-val="{{ true }}">
+<section style="padding:clamp(1.5rem,4vw,3rem) clamp(1.25rem,5vw,4rem) 0;display:grid;gap:1.4rem;">
+  <div style="display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:1px solid #171916;padding-bottom:.7rem;max-width:72rem;">
+    <span style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Part three</span>
+    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;">Desktop — the same thing, breathing</span>
+    <span style="font-size:.9rem;color:#5a5c58;margin-left:auto;">1152px · one breakpoint at 48rem</span>
+  </div>
+  <p style="max-width:64ch;font-size:.95rem;line-height:1.65;color:#5a5c58;">Desktop doesn't add features. It stops stacking: the tap square holds the centre, the week and the whole run sit side by side instead of behind tabs, and notes move to a rail. Content stays capped at 64rem so a wide monitor never turns this into a dashboard.</p>
+
+  <div style="display:grid;gap:1.8rem;">
+
+    <div id="d1" style="display:grid;gap:.7rem;width:min(72rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">D1</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Log surface · before the tap</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:34rem;display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 2rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;gap:2rem;">
+          <span style="font-weight:800;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Beyond Belief · Day 18 of 35</span>
+          <div style="display:flex;gap:1.4rem;align-items:center;margin-left:auto;">
+            <span style="font-size:.82rem;color:#5a5c58;">Practice map</span>
+            <span style="font-size:.82rem;color:#5a5c58;">Settings</span>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.8rem;padding:3.5rem 2rem;">
+          <div style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Saturday 3 October</div>
+          <h3 style="font-weight:800;font-size:3.4rem;line-height:.96;letter-spacing:-.04em;text-transform:uppercase;max-width:14ch;">Did you practise today?</h3>
+          <div style="width:17rem;aspect-ratio:1;border:1px solid #171916;background:#FBF4EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;">
+            <span style="font-weight:800;font-size:1.3rem;letter-spacing:-.02em;text-transform:uppercase;">I practised</span>
+            <span style="font-size:.82rem;color:#5a5c58;">click anywhere here</span>
+          </div>
+          <p style="font-size:.95rem;line-height:1.6;color:#9a9c97;max-width:36ch;">Twenty minutes is standard, and sitting daily matters far more than sitting long. Five minutes on a hard day is a real practice, not a failed one.</p>
+        </div>
+        <div style="padding:1.1rem 2rem;border-top:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.82rem;color:#9a9c97;">Practised yesterday and forgot? <span style="color:#5a5c58;border-bottom:1px solid rgba(23,25,22,.25);">Add it</span></span>
+          <span style="font-size:.82rem;color:#5a5c58;">Something just for John? <span style="border-bottom:1px solid rgba(23,25,22,.25);">Ask privately</span></span>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The square gets bigger, not the page busier. Still nothing about the cohort above the fold — or anywhere, until you've tapped.</p>
+    </div>
+
+    <div id="d2" style="display:grid;gap:.7rem;width:min(72rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">D2</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">After logging · week and notes together</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:34rem;display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 2rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;gap:2rem;">
+          <span style="font-weight:800;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;">Logged · Day 18</span>
+          <div style="display:flex;gap:1.4rem;align-items:center;margin-left:auto;">
+            <span style="font-size:.82rem;color:#5a5c58;">Practice map</span>
+            <span style="font-size:.82rem;color:#5a5c58;">Settings</span>
+          </div>
+        </div>
+        <div style="padding:1.6rem 2rem;border-bottom:1px solid rgba(23,25,22,.14);background:#FBF4EA;display:flex;justify-content:space-between;align-items:baseline;gap:2rem;flex-wrap:wrap;">
+          <p style="font-weight:700;font-size:1.5rem;letter-spacing:-.03em;line-height:1.2;">You and five others have practised.</p>
+          <span style="font-size:.85rem;color:#5a5c58;">Saturday 3 October · week three, responsibility</span>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:1.35fr 1fr;">
+          <div style="padding:2rem;display:grid;gap:1.6rem;align-content:start;border-right:1px solid rgba(23,25,22,.14);">
+            <div style="display:grid;gap:.9rem;">
+              <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">This week</div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:.6rem;align-items:end;">
+                <div style="display:grid;gap:.55rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:700;color:#9a9c97;">Wed</span></div>
+                <div style="display:grid;gap:.55rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:700;color:#9a9c97;">Thu</span></div>
+                <div style="display:grid;gap:.55rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:700;color:#9a9c97;">Fri</span></div>
+                <div style="display:grid;gap:.55rem;justify-items:center;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:#FFAD54;box-shadow:0 0 0 3px rgba(255,173,84,.3);"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:#171916;"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:800;color:#171916;">Sat</span></div>
+                <div style="display:grid;gap:.55rem;justify-items:center;opacity:.3;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:700;color:#9a9c97;">Sun</span></div>
+                <div style="display:grid;gap:.55rem;justify-items:center;opacity:.3;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:700;color:#9a9c97;">Mon</span></div>
+                <div style="display:grid;gap:.55rem;justify-items:center;opacity:.3;"><div style="display:grid;grid-template-columns:repeat(2,9px);gap:5px;"><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div><div style="width:9px;height:9px;border-radius:50%;background:rgba(23,25,22,.12);"></div></div><span style="font-size:.66rem;font-weight:700;color:#9a9c97;">Tue</span></div>
+              </div>
+              <div style="display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;">
+                <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:#5a5c58;"><span style="width:8px;height:8px;border-radius:50%;background:#FFAD54;"></span>You</span>
+                <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:#5a5c58;"><span style="width:8px;height:8px;border-radius:50%;background:#171916;"></span>Practised</span>
+                <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:#9a9c97;"><span style="width:8px;height:8px;border-radius:50%;background:rgba(23,25,22,.12);"></span>Not yet</span>
+              </div>
+            </div>
+            <div style="display:grid;gap:.9rem;border-top:1px solid rgba(23,25,22,.14);padding-top:1.5rem;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">All thirty-five days</div>
+                <span style="font-size:.78rem;color:#9a9c97;">Click a day to open it</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1.2rem;">
+                <div style="display:grid;gap:.5rem;">
+                  <span style="font-size:.68rem;font-weight:700;letter-spacing:-.01em;">Curiosity</span>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;">
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.82);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div>
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.52);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:transparent;"></div>
+                  </div>
+                </div>
+                <div style="display:grid;gap:.5rem;">
+                  <span style="font-size:.68rem;font-weight:700;letter-spacing:-.01em;">Care</span>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;">
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.72);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div>
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div><div style="aspect-ratio:1;background:transparent;"></div>
+                  </div>
+                </div>
+                <div style="display:grid;gap:.5rem;">
+                  <span style="font-size:.68rem;font-weight:700;letter-spacing:-.01em;color:#171916;">Responsibility</span>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;">
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.62);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div>
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.42);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);outline:2px solid #171916;outline-offset:2px;position:relative;"><div style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#FFAD54;"></div></div><div style="aspect-ratio:1;background:transparent;"></div>
+                  </div>
+                </div>
+                <div style="display:grid;gap:.5rem;opacity:.4;">
+                  <span style="font-size:.68rem;font-weight:700;letter-spacing:-.01em;">Play</span>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;">
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:transparent;"></div>
+                  </div>
+                </div>
+                <div style="display:grid;gap:.5rem;opacity:.4;">
+                  <span style="font-size:.68rem;font-weight:700;letter-spacing:-.01em;">Rest</span>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;">
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div>
+                    <div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.05);"></div><div style="aspect-ratio:1;background:transparent;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:2rem;display:grid;gap:1.2rem;align-content:start;">
+            <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Notes today</div>
+            <div style="display:grid;gap:.2rem;"><span style="font-weight:700;font-size:.85rem;">Priya</span><p style="font-size:.92rem;line-height:1.55;color:#5a5c58;">Ten minutes before the house woke up.</p></div>
+            <div style="display:grid;gap:.2rem;"><span style="font-weight:700;font-size:.85rem;">Marcus</span><p style="font-size:.92rem;line-height:1.55;color:#5a5c58;">Restless the whole way through. Sat anyway.</p></div>
+            <div style="display:grid;gap:.2rem;"><span style="font-weight:700;font-size:.85rem;">Ife</span><p style="font-size:.92rem;line-height:1.55;color:#5a5c58;">On the train. Eyes open.</p></div>
+            <div style="display:grid;gap:.2rem;"><span style="font-weight:700;font-size:.85rem;">You</span><p style="font-size:.92rem;line-height:1.55;color:#5a5c58;">Restless the whole way through. Sat anyway.</p></div>
+            <div style="border-top:1px solid rgba(23,25,22,.14);padding-top:1.2rem;display:grid;gap:.5rem;">
+              <p style="font-size:.82rem;line-height:1.55;color:#9a9c97;">Four of the six who practised wrote something. Notes never notify anyone.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">The two mobile tabs become one view — week above, whole run below, notes in the rail. Nothing new appears; the page just stops hiding things behind each other.</p>
+    </div>
+
+    <div id="d3" style="display:grid;gap:.7rem;width:min(72rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">D3</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Ask John · desktop</span></div>
+      <div style="background:#171916;border:1px solid #171916;min-height:26rem;display:grid;grid-template-columns:1fr 1fr;color:#ffffff;">
+        <div style="padding:2.5rem;display:grid;gap:1.2rem;align-content:center;border-right:1px solid rgba(255,255,255,.18);">
+          <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);">Just to John</div>
+          <h3 style="font-weight:800;font-size:2.4rem;line-height:1.02;letter-spacing:-.04em;text-transform:uppercase;max-width:14ch;">Nobody else sees this.</h3>
+          <p style="font-size:.98rem;line-height:1.6;color:rgba(255,255,255,.72);max-width:34ch;">Not the cohort, not your partner. Ask anything, or say how it's actually going.</p>
+          <p style="font-size:.88rem;line-height:1.6;color:rgba(255,255,255,.45);max-width:36ch;">He answers by voice, usually within a day or two. If an answer would help others, he'll re-ask it anonymously — never your words, never your name.</p>
+        </div>
+        <div style="padding:2.5rem;display:grid;gap:1.1rem;align-content:center;">
+          <div style="border:1px solid rgba(255,255,255,.35);padding:1.1rem 1.2rem;min-height:11rem;display:flex;flex-direction:column;justify-content:space-between;gap:.8rem;">
+            <span style="font-size:1rem;line-height:1.6;color:rgba(255,255,255,.45);">I've sat every day this week and felt nothing. Am I doing it wrong, or is that the point?</span>
+            <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.4);align-self:flex-end;">No limit</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:rgba(255,255,255,.55);">
+            <span style="width:6px;height:6px;border-radius:50%;background:#FFAD54;"></span>
+            <span>Private for the thirty-five days</span>
+          </div>
+          <div style="display:flex;gap:1rem;align-items:center;">
+            <div style="background:#FFAD54;color:#171916;text-align:center;padding:.95rem 2rem;font-weight:700;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;">Send to John</div>
+            <span style="font-size:.85rem;color:rgba(255,255,255,.5);">Cancel</span>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">A full-page takeover, not a modal on top of the grid — the cohort should not be visible behind the private door.</p>
+    </div>
+
+    <div id="d4" style="display:grid;gap:.7rem;width:min(72rem,100%);">
+      <div style="display:flex;align-items:baseline;gap:.6rem;"><span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">D4</span><span style="font-weight:700;font-size:.95rem;letter-spacing:-.02em;">Day 35 · closing</span></div>
+      <div style="background:#FDFCF8;border:1px solid #171916;min-height:28rem;display:flex;flex-direction:column;">
+        <div style="padding:1.1rem 2rem;border-bottom:1px solid rgba(23,25,22,.14);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-weight:800;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;">Beings Club</span>
+          <span style="font-weight:700;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:#FFAD54;">Day 35 · last one</span>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1.2fr;">
+          <div style="padding:2.5rem 2rem;display:grid;gap:1.2rem;align-content:center;border-right:1px solid rgba(23,25,22,.14);">
+            <h3 style="font-weight:800;font-size:2.6rem;line-height:1;letter-spacing:-.04em;text-transform:uppercase;max-width:13ch;">That's thirty-five days.</h3>
+            <p style="font-size:1rem;line-height:1.62;color:#5a5c58;max-width:38ch;">Ten people practised, mostly apart, mostly unseen. You marked twenty-eight days, and didn't mark seven. Both are part of the run.</p>
+            <p style="font-size:.9rem;line-height:1.6;color:#9a9c97;max-width:38ch;">One last gathering tomorrow evening, then the emails stop. The log stays at this link, unchanged, as long as you want it — what happens next is yours.</p>
+            <span style="font-size:.85rem;color:#5a5c58;">Say something to John before we close? <span style="border-bottom:1px solid rgba(23,25,22,.25);">Write privately</span></span>
+          </div>
+          <div style="padding:2.5rem 2rem;display:grid;gap:1rem;align-content:center;">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.82);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.32);"></div>
+              <div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.72);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.62);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.52);"></div><div style="aspect-ratio:1;background:rgba(23,25,22,.42);"></div><div style="aspect-ratio:1;background:#FFAD54;"></div>
+            </div>
+            <div style="display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center;">
+              <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:#5a5c58;"><span style="width:11px;height:11px;background:rgba(23,25,22,.75);"></span>Darker, more of us</span>
+              <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;color:#5a5c58;"><span style="width:11px;height:11px;background:#FFAD54;"></span>Today</span>
+              <span style="font-size:.75rem;color:#9a9c97;">Click a day to read it again</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;line-height:1.5;color:#9a9c97;">Five rows of seven, whole run in one look. No certificate, no share button, no next course sold on this page.</p>
+    </div>
+
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ showSpecs }}" hint-placeholder-val="{{ true }}">
+<section style="padding:clamp(1.5rem,4vw,3rem) clamp(1.25rem,5vw,4rem) clamp(2rem,5vw,4rem);display:grid;gap:1.6rem;">
+  <div style="display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;border-bottom:1px solid #171916;padding-bottom:.7rem;max-width:72rem;">
+    <span style="font-weight:700;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#9a9c97;">Part four</span>
+    <span style="font-weight:700;font-size:1.05rem;letter-spacing:-.02em;">What a builder needs</span>
+    <span style="font-size:.9rem;color:#5a5c58;margin-left:auto;">Tokens, motion, rules, states</span>
+  </div>
+
+  <div style="display:grid;gap:1rem;max-width:72rem;">
+    <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Tokens</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid rgba(23,25,22,.16);">
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#F3F1E9;border:1px solid rgba(23,25,22,.16);"></div><span style="font-weight:700;font-size:.78rem;">Paper</span><span style="font-size:.72rem;color:#9a9c97;">#F3F1E9 · page</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#FDFCF8;border:1px solid rgba(23,25,22,.16);"></div><span style="font-weight:700;font-size:.78rem;">Card</span><span style="font-size:.72rem;color:#9a9c97;">#FDFCF8 · surfaces</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#FBF4EA;border:1px solid rgba(23,25,22,.16);"></div><span style="font-weight:700;font-size:.78rem;">Warm</span><span style="font-size:.72rem;color:#9a9c97;">#FBF4EA · today, tap</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#171916;"></div><span style="font-weight:700;font-size:.78rem;">Ink</span><span style="font-size:.72rem;color:#9a9c97;">#171916 · text, John</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#FFAD54;"></div><span style="font-weight:700;font-size:.78rem;">Amber</span><span style="font-size:.72rem;color:#9a9c97;">#FFAD54 · you, today</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#5a5c58;"></div><span style="font-weight:700;font-size:.78rem;">Second</span><span style="font-size:.72rem;color:#9a9c97;">#5a5c58 · body</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:#9a9c97;"></div><span style="font-weight:700;font-size:.78rem;">Quiet</span><span style="font-size:.72rem;color:#9a9c97;">#9a9c97 · labels</span></div>
+      <div style="background:#FDFCF8;padding:1rem;display:grid;gap:.5rem;"><div style="height:2.5rem;background:rgba(23,25,22,.14);"></div><span style="font-weight:700;font-size:.78rem;">Hairline</span><span style="font-size:.72rem;color:#9a9c97;">ink @ 14% · 1px</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid rgba(23,25,22,.16);">
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.85rem;letter-spacing:-.01em;">Type</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">Host Grotesk throughout. Headings 800, uppercase, tracking −.03em. Body 400/500 at 1.6. Labels 700, .56–.62rem, tracking .16em, uppercase. Nothing italic except a principle name.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.85rem;letter-spacing:-.01em;">Space &amp; shape</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">4px steps. Screen padding 24px mobile / 32px desktop. No border radius anywhere. No shadows — depth is hairlines and colour only. Amber focus rings are the one glow.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.85rem;letter-spacing:-.01em;">Targets</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">Tap square 240px mobile / 272px desktop. Buttons full-width, 48px minimum. Dots are 6–9px but never interactive; the whole day column is the hit area.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.85rem;letter-spacing:-.01em;">Breakpoint</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">One, at 48rem. Below: single column, tabs for week / all days. Above: side-by-side, no tabs, content capped at 64rem and centred.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:1rem;max-width:72rem;">
+    <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Motion · the anatomy of one tap</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid #171916;">
+      <div style="background:#FBF4EA;padding:1.1rem 1.2rem;display:grid;gap:.45rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#9a9c97;">0 ms</span>
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Press</span>
+        <p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">Square dips to 98%, 90ms. One soft haptic. Nothing else moves.</p>
+      </div>
+      <div style="background:#FFAD54;padding:1.1rem 1.2rem;display:grid;gap:.45rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:rgba(23,25,22,.6);">120 ms</span>
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Amber lands</span>
+        <p style="font-size:.84rem;line-height:1.55;color:rgba(23,25,22,.75);">Fill crosses to amber, "You practised." set inside it. Committed, offline or not.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.45rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#9a9c97;">400–1400 ms</span>
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Alone</span>
+        <p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">One second of your own day. The count of others fades in at 700ms.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.45rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#9a9c97;">1400 ms</span>
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">The others</span>
+        <p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">Grid fades up over 600ms, dots in day order, 40ms apart. No bounce.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.45rem;">
+        <span style="font-weight:800;font-size:.62rem;letter-spacing:.16em;color:#9a9c97;">2000 ms</span>
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Note offered</span>
+        <p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">Rises from the bottom, 300ms. Dismiss and it doesn't come back today.</p>
+      </div>
+    </div>
+    <p style="max-width:64ch;font-size:.85rem;line-height:1.6;color:#9a9c97;">Everything eases out, nothing eases in and out. No spring, no scale-up, no confetti. Under <em>prefers-reduced-motion</em> all of it becomes a 200ms crossfade and the timings collapse to zero.</p>
+  </div>
+
+  <div style="display:grid;gap:1rem;max-width:72rem;">
+    <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">States the build must handle</div>
+    <div style="border:1px solid #171916;display:grid;">
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;background:#171916;color:#ffffff;">
+        <div style="padding:.7rem 1.1rem;font-weight:700;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;">Situation</div>
+        <div style="padding:.7rem 1.1rem;font-weight:700;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;">What happens</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">Already logged today</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">Opening goes straight to the cohort view. The tap square is gone, not disabled — nothing to press twice.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">Midnight, local</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">The day rolls in your own timezone. A sit at 1am counts for the night you were awake — yesterday remains addable until the following midnight.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">Cohort of six, not ten</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">Dot columns render the actual cohort size; layout is unaffected. Copy says "five others", never "5/10".</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">Someone leaves mid-run</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">Their past marks and notes stay; their column simply stops. Nobody is told, and no gap is labelled.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">Nobody has practised yet today</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">"You're the first one in." Never "0 of 10".</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">A note is unkind</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">John can remove any note; the person's mark stays. No reporting UI in Phase 1 — ten people who paid, one host who reads everything.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">Link opened on someone else's phone</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">The magic link is the session; it's long-lived and revocable from Settings. No passwords, ever.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(10rem,1fr) 2fr;border-top:1px solid rgba(23,25,22,.14);">
+        <div style="padding:.85rem 1.1rem;font-weight:600;font-size:.88rem;">After day 35</div>
+        <div style="padding:.85rem 1.1rem;font-size:.88rem;line-height:1.55;color:#5a5c58;">After the closing gathering on Wednesday 21 October the log freezes and stays readable at the same link. No emails, no new taps, no upsell on the page.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:1rem;max-width:72rem;">
+    <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Words we don't use</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid rgba(23,25,22,.16);">
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;"><span style="font-weight:700;font-size:.85rem;">Streak · day 6 in a row</span><p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">Nothing is counted forward, so nothing can be lost.</p></div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;"><span style="font-weight:700;font-size:.85rem;">You missed · don't break it</span><p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">Absence is never addressed, in app or email.</p></div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;"><span style="font-weight:700;font-size:.85rem;">6/10 · 60% · average</span><p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">Counts of people, in words. No denominators, no percentages.</p></div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;"><span style="font-weight:700;font-size:.85rem;">Session · minutes · progress</span><p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">A sit isn’t timed and goes nowhere. We say "practised".</p></div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;"><span style="font-weight:700;font-size:.85rem;">Community · members · users</span><p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">"The others", "the nine others", names on notes.</p></div>
+      <div style="background:#FDFCF8;padding:1rem 1.1rem;display:grid;gap:.35rem;"><span style="font-weight:700;font-size:.85rem;">Well done · congratulations</span><p style="font-size:.84rem;line-height:1.55;color:#5a5c58;">The product states what happened. It doesn't praise.</p></div>
+    </div>
+  </div>
+
+  <p style="max-width:64ch;font-size:.85rem;line-height:1.6;color:#9a9c97;">The phrase we <em>do</em> use is <strong style="color:#5a5c58;font-weight:600;">compassionate flexibility</strong>: twenty minutes is standard, and any honest practice counts. Say the standard first and the flexibility second — never the flexibility alone, or the standard quietly disappears.</p>
+
+  <div style="display:grid;gap:1rem;max-width:72rem;">
+    <div style="font-weight:700;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:#9a9c97;">Phase 1 build surface</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1px;background:rgba(23,25,22,.16);border:1px solid #171916;">
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Data</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">Four tables: person, day-mark, note, private message. A mark is a person, a date, a timestamp. Nothing else is stored about a day.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Send</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">One scheduled daily send per timezone bucket, one Wednesday letter, transactional replies from John. Every email carries a one-tap log link.</p>
+      </div>
+      <div style="background:#FDFCF8;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">Client</span>
+        <p style="font-size:.85rem;line-height:1.6;color:#5a5c58;">One page, local-first write, queue and sync. No realtime — the grid is fresh on load, and that's honest.</p>
+      </div>
+      <div style="background:#171916;color:#ffffff;padding:1.1rem 1.2rem;display:grid;gap:.4rem;">
+        <span style="font-weight:700;font-size:.9rem;letter-spacing:-.02em;">John's side</span>
+        <p style="font-size:.85rem;line-height:1.6;color:rgba(255,255,255,.72);">A private inbox: questions, voice replies, quiet-day flags, note removal. Not designed here — a plain list is enough for ten people.</p>
+      </div>
+    </div>
+    <p style="max-width:64ch;font-size:.85rem;line-height:1.6;color:#9a9c97;">Everything in this document is Phase 1 except John's inbox. Partners, cohorts beyond ten, and anything social beyond a note are deliberately out.</p>
+  </div>
+</section>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showEmails&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showDesktop&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;},&quot;showSpecs&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sections&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showEmails: this.props.showEmails ?? true,
+      showDesktop: this.props.showDesktop ?? true,
+      showSpecs: this.props.showSpecs ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>
