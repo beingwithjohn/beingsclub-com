@@ -137,6 +137,8 @@ def convert(body, key):
              'befriending it. Over time, a sitting practice can shift the atmosphere of '
              'your experience into the qualities of friendship: gentleness, precision, '
              'and humour.', 'what it is for — sitting'),
+            ('A map for practice. Yours from day one, whether or not you finish.',
+             'A map for practice. Yours from day one.', 'companion card'),
             # They are Tuesday meetings now, not evenings — the lead says so.
             ('The evenings introduce a principle;', 'Each meeting introduces a principle;',
              'why this long — 35 days card'),
