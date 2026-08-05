@@ -109,6 +109,7 @@ def convert(body, key):
              'and a group of other people doing it with you', 'lead'),
             ('six Wednesday evenings, and a group',
              'six Tuesday meetings, and a group', 'lead — meetings'),
+            ('Hosted and introduced by John.', 'Hosted by John.', 'hosting line'),
             ('>Six Wednesdays<', '>Six Tuesdays<', 'stat'),
             ('Pay what you can, online, 16 September \u2013 21 October.',
              'Pay what you can, online, 15 September \u2013 20 October.', 'price line'),
@@ -126,6 +127,29 @@ def convert(body, key):
             ('>Ten<', '>Ten max<', 'places chip'),
             ('Pausing every striving, and recognising space uncontrived, and open.',
              'Pausing every striving, and recognising space uncontrived and open.', 'rest row'),
+            # "What it's for" says befriending three times over rather than
+            # explaining the mechanics of attention.
+            ('Sitting is a way to turn towards our experience. Attention can be placed, '
+             'and when it wanders, you can return it — gently, precisely. Done often '
+             'enough, this re-oxygenates the atmosphere of your experience with the '
+             'qualities of friendship: gentleness, precision, and humour.',
+             'Meditation (sitting) is a way of turning towards our experience and '
+             'befriending it. Over time, a sitting practice can shift the atmosphere of '
+             'your experience into the qualities of friendship: gentleness, precision, '
+             'and humour.', 'what it is for — sitting'),
+            # "Why this long" answers with the span of days rather than the meetings.
+            # No hyphen: "35 days" is a noun phrase here, not a compound adjective
+            # the way "a 35-day experiment" is on Sits.
+            ('Each meeting is another chance to explore meditation practice with others, '
+             'and the days that follow are where it becomes yours.',
+             'Over 35 days there is time to grow in confidence with the practice of '
+             'sitting and find your own ways of making it yours.', 'why this long'),
+            ('Beyond Belief is a guided exploration into your direct experience. '
+             "You're invited to come along and see what you discover — perhaps "
+             "it'll be a new kind of friendship.",
+             'Beyond Belief is a guided exploration into befriending your direct '
+             "experience. You're invited to come along and see what you discover.",
+             'what it is for — invitation'),
         ]:
             assert old in body, 'BB %s not found' % what
             body = body.replace(old, new, 1)
