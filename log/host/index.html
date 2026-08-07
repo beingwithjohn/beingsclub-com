@@ -454,10 +454,55 @@ main { flex: 1; display: flex; flex-direction: column; }
   }
 
   // -------------------------------------------------------------------------
+  // The mutual yes, made into a link. Creates the row but not the person: they
+  // are not one of the ten, not on the roster and cannot sign in until they
+  // accept. The link comes back either way, so it can be sent by hand instead.
+  function inviteForm() {
+    var box = h('<div style="display:grid;gap:10px;">' +
+      '<div class="caps">Invite someone</div>' +
+      '<input class="field" id="iname" placeholder="Their name" autocomplete="off">' +
+      '<input class="field" id="imail" placeholder="Their email" autocomplete="off" inputmode="email">' +
+      '<label style="display:flex;align-items:center;gap:10px;" class="small">' +
+        '<input type="checkbox" id="isend" checked> Email the invitation from me' +
+      '</label>' +
+      '<button class="btn" id="isubmit">Send the invitation</button>' +
+      '<p class="small" id="imsg" aria-live="polite"></p></div>');
+
+    box.querySelector('#isubmit').addEventListener('click', function () {
+      var name = box.querySelector('#iname').value.trim();
+      var email = box.querySelector('#imail').value.trim();
+      var send = box.querySelector('#isend').checked;
+      var msg = box.querySelector('#imsg');
+
+      if (!name || !email) { msg.textContent = 'Both a name and an email.'; return; }
+      this.disabled = true;
+      msg.textContent = 'Sending…';
+
+      api('/api/host/invite', { method: 'POST', body: { name: name, email: email, send: send } })
+        .then(function (r) {
+          box.querySelector('#isubmit').disabled = false;
+          if (r.full) { msg.textContent = r.message; return; }
+          box.querySelector('#iname').value = '';
+          box.querySelector('#imail').value = '';
+          // Shown whether or not it was emailed — an invitation that bounced
+          // is still an invitation, and John can paste it into his own note.
+          msg.innerHTML = (r.mailed ? 'Sent. ' : 'Not emailed. ') +
+            'Their link: <span style="word-break:break-all;">' + esc(r.url) + '</span>';
+          render();
+        })
+        .catch(function (e) {
+          box.querySelector('#isubmit').disabled = false;
+          msg.textContent = e.message;
+        });
+    });
+    return box;
+  }
+
   function people() {
     return api('/api/host/people').then(function (d) {
       var wrap = h('<div class="rows" style="flex:1;"></div>');
       wrap.appendChild(h('<div><div class="caps">' + esc(d.run.name) + ' · ' + esc(d.run.mode) + '</div></div>'));
+      wrap.appendChild(inviteForm());
 
       d.people.forEach(function (p) {
         var bits = [p.email, p.timezone, 'joined ' + p.joined_on];
