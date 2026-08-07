@@ -11,7 +11,7 @@ crons = ["0,30 * * * *"]
 binding = "DB"
 database_name = "practice-log"
 # `wrangler d1 create practice-log` prints this. Paste it here; it is not a secret.
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "8cf3af32-666c-48fb-a943-9c38c393d24c"
 
 [vars]
 # The app's own origin. The API only accepts browser calls from here.
