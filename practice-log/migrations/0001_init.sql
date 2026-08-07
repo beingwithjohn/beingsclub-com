@@ -49,9 +49,11 @@ CREATE TABLE IF NOT EXISTS run (
   -- "Wednesdays, 6:30–7:45pm UK" — a Sit meets live once a week.
   meets         TEXT,
 
-  -- Money is never a gate here. This is only what the contribution page
-  -- suggests, in the smallest currency unit; NULL suggests nothing at all.
-  suggested_amount INTEGER,
+  -- Money is never a gate here. The contribution page offers no figure at all
+  -- by default; a range is available behind "Need a suggestion?" for anyone
+  -- who wants one. Both in the smallest currency unit, both NULL for no range.
+  suggest_low      INTEGER,
+  suggest_high     INTEGER,
   currency         TEXT NOT NULL DEFAULT 'gbp',
 
   created_at    INTEGER NOT NULL DEFAULT (unixepoch()),

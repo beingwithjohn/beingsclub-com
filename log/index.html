@@ -856,9 +856,10 @@ main { flex: 1; display: flex; flex-direction: column; }
   // contributing
   // -------------------------------------------------------------------------
   function viewContribute() {
-    var suggested = S.run.suggested_amount;
+    var lo = S.run.suggest_low, hi = S.run.suggest_high;
     var cur = (S.run.currency || 'gbp').toUpperCase();
     var sym = cur === 'GBP' ? '£' : cur === 'EUR' ? '€' : cur === 'USD' ? '$' : '';
+    var money = function (n) { return sym + (n / 100).toFixed(0); };
 
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;' +
       'justify-content:center;gap:22px;max-width:36rem;">' +
@@ -867,9 +868,12 @@ main { flex: 1; display: flex; flex-direction: column; }
       'if you want to give anything.</p>' +
       '<p class="body">Your place is yours either way. Nobody is told what anyone contributed, ' +
       'and nothing in the log changes because of it.</p>' +
-      (suggested ? '<div class="frame"><span class="caps">Suggested</span>' +
-        '<p class="body">' + sym + (suggested / 100).toFixed(0) + '. Type over it with anything ' +
-        'you like on the next page.</p></div>' : '') +
+      // The range is offered, never shown. A figure on screen is an expectation
+      // however gently it is worded, so it waits behind a question and only
+      // arrives for someone who asked it.
+      (lo && hi ? '<div><button class="ul" id="ask">Need a suggestion?</button>' +
+        '<p class="body" id="range" hidden style="margin-top:12px;">' +
+        money(lo) + ' to ' + money(hi) + '. Anything is welcome, and so is nothing.</p></div>' : '') +
       '<div style="display:grid;gap:10px;">' +
         '<button class="btn" id="go">Continue</button>' +
         '<button class="quiet" id="back">Not now</button></div>' +
@@ -883,6 +887,12 @@ main { flex: 1; display: flex; flex-direction: column; }
 
     document.getElementById('close').addEventListener('click', function () { go(null); });
     inner.querySelector('#back').addEventListener('click', function () { go(null); });
+
+    var ask = inner.querySelector('#ask');
+    if (ask) ask.addEventListener('click', function () {
+      inner.querySelector('#range').hidden = false;
+      ask.remove();          // asked and answered; it does not need asking twice
+    });
 
     inner.querySelector('#go').addEventListener('click', function () {
       var msg = inner.querySelector('#msg');

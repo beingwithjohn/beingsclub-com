@@ -46,7 +46,7 @@ function scheme(request, word) {
 
 const PERSON_COLUMNS = `p.*, r.slug AS run_slug, r.name AS run_name, r.mode,
   r.starts_on, r.length_days, r.week_labels, r.standfirst,
-  r.places, r.blurb, r.meets, r.suggested_amount, r.currency`;
+  r.places, r.blurb, r.meets, r.suggest_low, r.suggest_high, r.currency`;
 
 function shape(row) {
   return {
@@ -62,7 +62,7 @@ function shape(row) {
       starts_on: row.starts_on, length_days: row.length_days,
       week_labels: row.week_labels ? JSON.parse(row.week_labels) : null,
       standfirst: row.standfirst, places: row.places, blurb: row.blurb,
-      meets: row.meets, suggested_amount: row.suggested_amount,
+      meets: row.meets, suggest_low: row.suggest_low, suggest_high: row.suggest_high,
       currency: row.currency,
     },
   };

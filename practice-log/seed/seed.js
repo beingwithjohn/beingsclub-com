@@ -54,7 +54,9 @@ const standfirst = one('standfirst');
 const places = one('places');
 const blurb = one('blurb', DEFAULT_BLURB());
 const meets = one('meets');
-const suggested = one('suggested');   // in pounds/euros; converted below
+// A range, not a figure: --suggest 150-300. Offered only if someone asks.
+const suggest = one('suggest');
+const suggestPair = suggest ? suggest.split('-').map(function (n) { return Math.round(Number(n.trim()) * 100); }) : [];
 
 function DEFAULT_BLURB() {
   // John's own words for what a Sit is. Overridable per run with --blurb.
@@ -79,17 +81,17 @@ const lines = [
   'PRAGMA foreign_keys = ON;',
   '',
   `INSERT INTO run (slug, name, mode, starts_on, length_days, week_labels, standfirst,`,
-  `                 places, blurb, meets, suggested_amount)`,
+  `                 places, blurb, meets, suggest_low, suggest_high)`,
   `VALUES (${q(slug)}, ${q(name)}, ${q(evergreen ? 'evergreen' : 'fixed')}, ` +
     `${startsOn ? q(startsOn) : 'NULL'}, ${days || 'NULL'}, ` +
     `${weeks ? q(JSON.stringify(weeks.split(',').map((s) => s.trim()).filter(Boolean))) : 'NULL'}, ` +
     `${q(standfirst)}, ${places ? Number(places) : 'NULL'}, ${q(blurb)}, ${q(meets)}, ` +
-    `${suggested ? Math.round(Number(suggested) * 100) : 'NULL'})`,
+    `${suggestPair[0] || 'NULL'}, ${suggestPair[1] || 'NULL'})`,
   `ON CONFLICT (slug) DO UPDATE SET name = excluded.name, mode = excluded.mode,`,
   `  starts_on = excluded.starts_on, length_days = excluded.length_days,`,
   `  week_labels = excluded.week_labels, standfirst = excluded.standfirst,`,
   `  places = excluded.places, blurb = excluded.blurb, meets = excluded.meets,`,
-  `  suggested_amount = excluded.suggested_amount;`,
+  `  suggest_low = excluded.suggest_low, suggest_high = excluded.suggest_high;`,
   '',
 ];
 

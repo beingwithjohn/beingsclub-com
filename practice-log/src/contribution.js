@@ -25,18 +25,16 @@ export async function postContribution(env, { person, run }, body) {
 
   const currency = (run.currency || 'gbp').toLowerCase();
 
-  // The amount is the person's to choose. A suggestion is offered and can be
-  // typed over; it is a default, never a floor beyond Stripe's own.
-  const suggested = Number.isInteger(run.suggested_amount) ? run.suggested_amount : null;
-  const preset = Math.max(MINIMUM, suggested || MINIMUM);
-
+  // No preset. The box arrives empty, because a figure sitting in it is an
+  // expectation however it is worded, and this is the person's number to pick.
+  // A range exists for anyone who asks for one, and it lives on the page
+  // before this — behind "Need a suggestion?" — never here.
   const form = new URLSearchParams({
     mode: 'payment',
     'line_items[0][quantity]': '1',
     'line_items[0][price_data][currency]': currency,
     'line_items[0][price_data][product_data][name]': `${run.name} — a contribution`,
     'line_items[0][price_data][custom_unit_amount][enabled]': 'true',
-    'line_items[0][price_data][custom_unit_amount][preset]': String(preset),
     'line_items[0][price_data][custom_unit_amount][minimum]': String(MINIMUM),
     client_reference_id: String(person.id),
     'metadata[person_id]': String(person.id),
