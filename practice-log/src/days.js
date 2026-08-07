@@ -149,16 +149,21 @@ export function notYetOpen(run, date) {
 /**
  * Which of a run's three phases `date` falls in.
  *
- *   gathering  people are taking their places; there is nothing to practise yet
+ *   room       people are taking their places; there is nothing to practise yet
  *   running    the days themselves
  *   closed     it happened, and stays readable
  *
- * An evergreen run has no gathering: there is no cohort to assemble and no
+ * The room is a place as well as a phase. Before day one it is the whole
+ * surface, because who is here is all there is. Once the run starts it stays
+ * open behind the tap, so a Sit keeps somewhere to be a group rather than
+ * thirty-five days of people marking squares alone.
+ *
+ * An evergreen run has no room phase: there is no cohort to assemble and no
  * start to wait for, so the day you join is day one and it runs from then on.
  */
 export function phaseOf(run, date) {
   if (run.mode !== 'fixed') return 'running';
-  if (notYetOpen(run, date)) return 'gathering';
+  if (notYetOpen(run, date)) return 'room';
   return isClosed(run, date) ? 'closed' : 'running';
 }
 

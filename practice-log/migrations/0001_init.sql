@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS run (
   -- One line under the log's title. No cohort news, no counts.
   standfirst    TEXT,
 
-  -- ---- the gathering ------------------------------------------------------
+  -- ---- the room ---------------------------------------------------------
   --
   -- A fixed run has a third phase before the two above: the stretch between
   -- the first invitation and day one, while people are taking their places.

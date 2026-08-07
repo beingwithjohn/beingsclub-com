@@ -581,10 +581,11 @@ main { flex: 1; display: flex; flex-direction: column; }
     if (!S.person.setup_at) return viewFirstRun();
 
     if (view === 'contribute') return viewContribute();
+    if (view === 'room') return viewRoom();
 
     // Before day one there is nothing to practise. The room is who is in it.
-    if (S.run.phase === 'gathering' && view !== 'settings' && view !== 'john') {
-      return viewGathering();
+    if (S.run.phase === 'room' && view !== 'settings' && view !== 'john') {
+      return viewRoom();
     }
 
     if (view === 'john') return viewJohn();
@@ -754,14 +755,19 @@ main { flex: 1; display: flex; flex-direction: column; }
   }
 
   // -------------------------------------------------------------------------
-  // the gathering — after taking a place, before day one
+  // the room — after taking a place, before day one
   // -------------------------------------------------------------------------
-  function viewGathering() {
+  function viewRoom() {
     var r = S.run, ros = S.roster || { people: [], places_left: null };
+    var before = r.phase === 'room';
     var inner = h('<div style="flex:1;display:flex;flex-direction:column;"></div>');
 
-    inner.appendChild(h('<div class="band"><div class="caps" style="margin-bottom:8px;">Your place is held</div>' +
-      '<p>' + esc(startsLine()) + '</p></div>'));
+    // Before day one the band counts down. Once the run is going it says what
+    // this room is, since the countdown has nothing left to count.
+    inner.appendChild(h('<div class="band">' +
+      '<div class="caps" style="margin-bottom:8px;">' +
+        (before ? 'Your place is held' : 'The room') + '</div>' +
+      '<p>' + esc(before ? startsLine() : 'The people sitting the same days as you.') + '</p></div>'));
 
     var body = h('<div class="pad" style="display:grid;gap:26px;"></div>');
 
@@ -771,9 +777,12 @@ main { flex: 1; display: flex; flex-direction: column; }
       L.thanks = false; save();
     }
 
-    // Who is here. The point of the gathering.
+    // Who is here. The point of the room.
+    // Places left matters while people are still arriving. Once the run has
+    // begun it is just an empty chair being counted, so it goes.
     var list = h('<div style="display:grid;gap:16px;"><div class="caps">Who’s here' +
-      (ros.places_left != null ? ' · ' + esc(placesLine(ros.places_left).replace(/\.$/, '')) : '') + '</div>' +
+      (before && ros.places_left != null
+        ? ' · ' + esc(placesLine(ros.places_left).replace(/\.$/, '')) : '') + '</div>' +
       '<div class="notes"></div></div>');
     var notes = list.querySelector('.notes');
     if (!ros.people.length) {
@@ -800,10 +809,16 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<span>Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
 
     shell(inner, {
-      right: '<span class="barlab">' + esc(r.name) + '</span>',
+      // During the run the room is somewhere you went, so it needs a way back.
+      left: before
+        ? '<span class="brand">Beings Club</span>'
+        : '<button class="barlink" id="back">← Today</button>',
+      right: '<span class="barlab">' + esc(before ? r.name : 'The room') + '</span>',
       above: answerStrip(),
       foot: foot
     });
+    var back = document.getElementById('back');
+    if (back) back.addEventListener('click', function () { go('cohort'); });
     document.getElementById('setl').addEventListener('click', function () { go('settings'); });
     document.getElementById('jl').addEventListener('click', function () { go('john'); });
   }
@@ -1048,8 +1063,11 @@ main { flex: 1; display: flex; flex-direction: column; }
       tap.classList.add('done');
       tap.querySelector('b').textContent = 'You practised.';
       tap.querySelector('i').textContent = dayLabel().split(' ·')[0];
-      var lab = document.querySelector('.barlab');
-      if (lab) { lab.textContent = offline ? 'Logged · offline' : 'Logged'; lab.classList.add('on'); }
+      var label = document.querySelector('.barlab');
+      if (label) {
+        label.textContent = offline ? 'Logged · offline' : 'Logged';
+        label.classList.add('on');
+      }
       // The rest of the screen steps back so the square is alone.
       [].forEach.call(document.querySelectorAll('.centre > *'), function (el) {
         if (el !== tap) { el.style.transition = 'opacity .4s ease-out'; el.style.opacity = '0'; }
@@ -1180,7 +1198,11 @@ main { flex: 1; display: flex; flex-direction: column; }
     }
     inner.appendChild(body);
 
-    var foot = h('<div class="foot"><button class="ul" id="setl">Settings</button>' +
+    // The way into the room during the run. It sits with the tap already made,
+    // so it is behind the same threshold as the rest of the room.
+    var foot = h('<div class="foot">' +
+      '<span><button class="ul" id="setl">Settings</button>' +
+      (S.roster ? ' &nbsp;·&nbsp; <button class="ul" id="room">The room</button>' : '') + '</span>' +
       '<span>Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
 
     shell(inner, {
@@ -1193,6 +1215,8 @@ main { flex: 1; display: flex; flex-direction: column; }
     document.getElementById('ta').addEventListener('click', function () { tab = 'all'; render(); });
     document.getElementById('setl').addEventListener('click', function () { go('settings'); });
     document.getElementById('jl').addEventListener('click', function () { go('john'); });
+    var room = document.getElementById('room');
+    if (room) room.addEventListener('click', function () { go('room'); });
   }
 
   function allTabLabel() {

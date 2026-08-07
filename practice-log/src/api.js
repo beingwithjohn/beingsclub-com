@@ -121,11 +121,11 @@ export async function getState(env, { person, run }) {
   // The roster — who has taken a place, and the line they wrote.
   //
   // Before day one this is the whole surface: there is nothing to practise
-  // yet, and seeing the others arrive is the point of the gathering. Once the
+  // yet, and seeing the others arrive is the point of the room. Once the
   // run starts it goes behind the tap with everything else, because from then
   // on the room is something you earn each day rather than something you look
   // at. Same rule, moved to the right threshold.
-  if (state.run.phase === 'gathering' || canSeeShared) {
+  if (state.run.phase === 'room' || canSeeShared) {
     state.roster = await roster(env, run, person);
   }
 

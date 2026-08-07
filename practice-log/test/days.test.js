@@ -136,8 +136,8 @@ test('an evergreen run never closes', () => {
 // the three phases
 // ---------------------------------------------------------------------------
 test('a Sit gathers, runs, then closes', () => {
-  assert.equal(phaseOf(BEYOND, '2026-08-01'), 'gathering');  // invites are out
-  assert.equal(phaseOf(BEYOND, '2026-09-15'), 'gathering');  // the night before
+  assert.equal(phaseOf(BEYOND, '2026-08-01'), 'room');  // invites are out
+  assert.equal(phaseOf(BEYOND, '2026-09-15'), 'room');  // the night before
   assert.equal(phaseOf(BEYOND, '2026-09-16'), 'running');    // day one
   assert.equal(phaseOf(BEYOND, '2026-10-20'), 'running');    // day thirty-five
   assert.equal(phaseOf(BEYOND, '2026-10-21'), 'closed');

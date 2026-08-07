@@ -48,7 +48,7 @@ const days = Number(one('days', '0'));
 const weeks = one('weeks');
 const standfirst = one('standfirst');
 
-// The gathering: how many places, what people are joining, when it meets, and
+// The room: how many places, what people are joining, when it meets, and
 // what the contribution page suggests. All optional; a run with no places has
 // no limit and no roster arithmetic.
 const places = one('places');
