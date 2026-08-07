@@ -8,7 +8,7 @@
 //
 // Exits non-zero on the first failure, so it can gate a deploy.
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -300,6 +300,14 @@ check(14, 'nothing secret is in anything served', () => {
   // canaries above. Nothing else here is exempt.
   const self = 'practice-log/test/checks.js';
   const scanned = tracked.filter((f) => f !== self);
+
+  // A tracked path that is not a regular file is a symlink or a directory that
+  // slipped past .gitignore. `node_modules/` with a trailing slash does not
+  // match a symlink pointing at one, and such a link arrives broken — or
+  // pointing somewhere unexpected — on anybody else's machine.
+  for (const f of scanned) {
+    ok(statSync(join(repo, f)).isFile(), `${f} is tracked but is not a regular file`);
+  }
 
   for (const f of scanned) {
     const src = read(f);

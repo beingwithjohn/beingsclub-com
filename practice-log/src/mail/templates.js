@@ -121,6 +121,47 @@ const STANDARD = 'Twenty minutes is standard, and sitting daily matters far more
 // ---------------------------------------------------------------------------
 // E1 · you're in
 // ---------------------------------------------------------------------------
+// E0 · the invitation — sent after a yes, before there is anyone to be.
+// What a Sit is, said plainly, and one link. Following the link takes no
+// place: it opens the threshold, and a tap there does the taking.
+export function invitation({ person, run, url }) {
+  const when = run.starts_on
+    ? `${words(run.length_days)} days from ${longDate(run.starts_on)}`
+    : 'for as long as you want it';
+
+  const sit = 'A Sit runs as a shared experiment over a set stretch of days. We each sit in our '
+    + 'own lives, knowing that others are sitting the same days'
+    + (run.meets ? `, and meet live once a week — ${run.meets}.` : '.');
+
+  const lineage = 'John hosts and teaches. The practices are rooted in contemplative traditions '
+    + 'and he won’t pretend otherwise — but this is a lineage of feeling, not a body of doctrine. '
+    + 'Nothing is asked of you as belief.';
+
+  const blocks = [
+    eyebrow('A place is yours if you want it'),
+    heading(`${esc(first(person.name))} — there’s a place for you.`),
+    para(`<strong>${esc(run.name)}</strong> runs ${esc(when)}.`),
+    para(esc(sit)),
+    para(esc(lineage)),
+    band('Take your place, and you’ll see who else is here.'),
+    button(url, 'Take my place'),
+    small('One link, no password. Nothing is charged to be here — there’s a way to contribute '
+      + 'if and when you want to, and skipping it changes nothing at all.'),
+    gap(),
+  ].join('');
+
+  return {
+    subject: `A place for you on ${run.name}`,
+    html: layout({ preheader: 'A place is yours if you want it.', blocks, footer: FOOT_CLUB }),
+    text: [
+      `${first(person.name)} — there’s a place for you.`, '',
+      `${run.name} runs ${when}.`, '', sit, '', lineage, '',
+      `Take my place: ${url}`, '',
+      'One link, no password. Nothing is charged to be here.',
+    ].join('\n'),
+  };
+}
+
 export function welcome({ person, run, url, mapUrl }) {
   const fixed = run.mode === 'fixed';
   const opening = fixed

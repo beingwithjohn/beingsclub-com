@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   localDate, localTime, addDays, diffDays, weekday, isDate,
   anchorOf, dayIndex, weekIndex, weekStart, weekDates,
-  isClosed, lastDay, notYetOpen, markableDates,
+  isClosed, lastDay, notYetOpen, markableDates, phaseOf, daysUntil,
   nudgeDue, minutesOf, quietDays, validTimezone,
 } from '../src/days.js';
 
@@ -130,6 +130,31 @@ test('an evergreen run never closes', () => {
   assert.equal(lastDay(EVERGREEN), null);
   assert.ok(!isClosed(EVERGREEN, '2026-08-01'));
   assert.ok(!isClosed(EVERGREEN, '2099-01-01'));
+});
+
+// ---------------------------------------------------------------------------
+// the three phases
+// ---------------------------------------------------------------------------
+test('a Sit gathers, runs, then closes', () => {
+  assert.equal(phaseOf(BEYOND, '2026-08-01'), 'gathering');  // invites are out
+  assert.equal(phaseOf(BEYOND, '2026-09-15'), 'gathering');  // the night before
+  assert.equal(phaseOf(BEYOND, '2026-09-16'), 'running');    // day one
+  assert.equal(phaseOf(BEYOND, '2026-10-20'), 'running');    // day thirty-five
+  assert.equal(phaseOf(BEYOND, '2026-10-21'), 'closed');
+});
+
+test('an evergreen run is only ever running', () => {
+  // Nothing to assemble and no start to wait for: the day you join is day one.
+  assert.equal(phaseOf(EVERGREEN, '2020-01-01'), 'running');
+  assert.equal(phaseOf(EVERGREEN, '2099-01-01'), 'running');
+});
+
+test('the countdown to day one', () => {
+  assert.equal(daysUntil(BEYOND, '2026-09-15'), 1);
+  assert.equal(daysUntil(BEYOND, '2026-09-09'), 7);
+  assert.equal(daysUntil(BEYOND, '2026-09-16'), 0);
+  assert.equal(daysUntil(BEYOND, '2026-10-01'), 0);   // never counts backwards
+  assert.equal(daysUntil(EVERGREEN, '2026-09-16'), null);
 });
 
 test('nothing can be marked before a fixed run opens', () => {

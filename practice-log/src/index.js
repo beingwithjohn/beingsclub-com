@@ -3,13 +3,14 @@
 // Everything the log cannot do as a static page: hold shared state, know who
 // the visitor is, and send mail on a schedule. Nothing else.
 
-import { identify } from './auth.js';
+import { identify, identifyInvite } from './auth.js';
 import {
   json, bad, getState, getDay, postMark, postNote, postMessage,
-  patchSettings, postRevoke,
+  patchSettings, postRevoke, getInvite, postPlace,
 } from './api.js';
 import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
+import { postContribution, stripeWebhook } from './contribution.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -47,6 +48,24 @@ async function route(request, env, ctx, url) {
 
   if (path === '/api/health' && method === 'GET') return json({ ok: true });
 
+  // Stripe calls this, not a browser. It carries no session and proves itself
+  // with a signature instead.
+  if (path === '/api/stripe/webhook' && method === 'POST') return stripeWebhook(env, request);
+
+  // The invitation: a weaker credential reaching exactly two endpoints, one
+  // that reads the threshold and one that accepts it. Nothing else takes it.
+  if (path === '/api/invite' || path === '/api/place') {
+    const invited = await identifyInvite(env, request);
+    if (!invited) return bad(401, 'no');
+    if (path === '/api/invite' && method === 'GET') return getInvite(env, invited);
+    if (path === '/api/place' && method === 'POST') {
+      const body = await readJson(request);
+      if (body === undefined) return bad(400, 'bad json');
+      return postPlace(env, invited, body);
+    }
+    return bad(405, 'method');
+  }
+
   const who = await identify(env, request);
   if (!who) return bad(401, 'no');
 
@@ -72,6 +91,7 @@ async function route(request, env, ctx, url) {
     if (path === '/api/message' && method === 'POST') return postMessage(env, who, body);
     if (path === '/api/settings' && method === 'PATCH') return patchSettings(env, who, body);
     if (path === '/api/settings/revoke' && method === 'POST') return postRevoke(env, who);
+    if (path === '/api/contribution' && method === 'POST') return postContribution(env, who, body);
   }
 
   return bad(404, 'not found');

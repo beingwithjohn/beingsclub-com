@@ -10,8 +10,8 @@ archive1.html
 .claude/
 
 # Build artefacts and dependencies — never published, never committed.
-node_modules/
-.wrangler/
+node_modules
+.wrangler
 .dev.vars
 dist/
 

@@ -147,6 +147,28 @@ export function notYetOpen(run, date) {
 }
 
 /**
+ * Which of a run's three phases `date` falls in.
+ *
+ *   gathering  people are taking their places; there is nothing to practise yet
+ *   running    the days themselves
+ *   closed     it happened, and stays readable
+ *
+ * An evergreen run has no gathering: there is no cohort to assemble and no
+ * start to wait for, so the day you join is day one and it runs from then on.
+ */
+export function phaseOf(run, date) {
+  if (run.mode !== 'fixed') return 'running';
+  if (notYetOpen(run, date)) return 'gathering';
+  return isClosed(run, date) ? 'closed' : 'running';
+}
+
+/** How many days until a fixed run begins. 0 on the day itself, null if evergreen. */
+export function daysUntil(run, date) {
+  if (run.mode !== 'fixed') return null;
+  return Math.max(0, diffDays(date, run.starts_on));
+}
+
+/**
  * Which dates this person may mark, given their local today.
  *
  * Today, plus yesterday until the following midnight — once, and the API will

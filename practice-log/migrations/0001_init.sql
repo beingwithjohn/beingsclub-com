@@ -35,6 +35,25 @@ CREATE TABLE IF NOT EXISTS run (
   -- One line under the log's title. No cohort news, no counts.
   standfirst    TEXT,
 
+  -- ---- the gathering ------------------------------------------------------
+  --
+  -- A fixed run has a third phase before the two above: the stretch between
+  -- the first invitation and day one, while people are taking their places.
+  -- It needs no dates of its own — it is simply "before starts_on" — but it
+  -- does need to know how many places there are, and what people are joining.
+
+  places        INTEGER,              -- ten, for a Sit. NULL means no limit.
+
+  -- What a Sit is, shown on the threshold before anyone has committed.
+  blurb         TEXT,
+  -- "Wednesdays, 6:30–7:45pm UK" — a Sit meets live once a week.
+  meets         TEXT,
+
+  -- Money is never a gate here. This is only what the contribution page
+  -- suggests, in the smallest currency unit; NULL suggests nothing at all.
+  suggested_amount INTEGER,
+  currency         TEXT NOT NULL DEFAULT 'gbp',
+
   created_at    INTEGER NOT NULL DEFAULT (unixepoch()),
 
   CHECK (mode = 'evergreen' OR (starts_on IS NOT NULL AND length_days IS NOT NULL))
@@ -76,6 +95,23 @@ CREATE TABLE IF NOT EXISTS person (
   -- First run is shown once, on the server's say-so rather than the device's,
   -- so opening the link on a second phone does not ask them to set up again.
   setup_at        INTEGER,
+
+  -- ---- taking a place -----------------------------------------------------
+  --
+  -- Joining takes a conversation and a mutual yes. The yes is John sending an
+  -- invite; the place is theirs once they accept it. Until then the row exists
+  -- but is not one of the ten, is not on the roster, and cannot sign in.
+  --
+  -- The invite is one-time and separate from the session token: it is handed
+  -- out before there is anyone to be, and is spent on the way in.
+  invite_hash     TEXT UNIQUE,
+  invite_sent_at  INTEGER,
+  took_place_at   INTEGER,            -- NULL until they accept
+
+  -- One line, written once at joining. Why you're here. Shown beside your name
+  -- to the others who have taken a place, and to nobody else. Capped like a
+  -- note, so nobody freezes in front of a blank page.
+  line            TEXT CHECK (line IS NULL OR length(line) <= 100),
 
   last_seen_at    INTEGER,
   created_at      INTEGER NOT NULL DEFAULT (unixepoch()),
@@ -142,6 +178,32 @@ CREATE INDEX IF NOT EXISTS message_unanswered ON private_message (created_at) WH
 -- ---------------------------------------------------------------------------
 -- scope is the local date for a daily send, or the literal 'run' for the ones
 -- capped at one per person for the whole run (E1, E6, E7).
+-- ---------------------------------------------------------------------------
+-- contribution — never a gate, only ever a thank you
+-- ---------------------------------------------------------------------------
+-- A place is not bought. Money is decoupled from access entirely: someone can
+-- take their place, practise all thirty-five days and contribute nothing, and
+-- nothing in the product will treat them differently or mention it. This table
+-- exists so John can see what came in, and so a person can see their own.
+--
+-- Repeatable on purpose — "a first contribution" implies there may be others.
+CREATE TABLE IF NOT EXISTS contribution (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  person_id     INTEGER NOT NULL REFERENCES person(id) ON DELETE CASCADE,
+
+  amount        INTEGER NOT NULL,     -- smallest currency unit, as Stripe sends it
+  currency      TEXT NOT NULL,
+
+  -- Stripe's own id, so a webhook delivered twice records one contribution.
+  stripe_ref    TEXT NOT NULL UNIQUE,
+  created_at    INTEGER NOT NULL DEFAULT (unixepoch())
+);
+
+CREATE INDEX IF NOT EXISTS contribution_by_person ON contribution (person_id);
+
+-- ---------------------------------------------------------------------------
+-- send_log
+-- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS send_log (
   person_id  INTEGER NOT NULL REFERENCES person(id) ON DELETE CASCADE,
   kind       TEXT NOT NULL,           -- 'welcome'|'day_one'|'daily'|'week'|'answer'|'still_here'|'last_day'

@@ -77,6 +77,12 @@ export async function sendDaily(env, person, run, url, dayNumber, principle) {
   return post(env, { to: person.email, from: club(env), ...mail });
 }
 
+/** The invitation. From John, because a yes comes from a person. */
+export async function sendInvitation(env, person, run, url) {
+  const mail = T.invitation({ person, run, url });
+  return post(env, { to: person.email, from: john(env), ...mail });
+}
+
 // From John's name, not the club's.
 export async function sendWeekLetter(env, person, run, url, opts) {
   const mail = T.weekLetter({ person, run, url, ...opts });

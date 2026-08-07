@@ -31,3 +31,7 @@ MAIL_REPLY_TO = "john@spacetobe.xyz"
 #   LINK_KEY         32 random bytes, base64. Seals the magic links at rest, so
 #                    a copy of the database is not a set of live logins.
 #                    Generate: openssl rand -base64 32
+#   STRIPE_SECRET_KEY      optional. Without it the contribution page says so
+#                          politely and nothing else changes — a place has
+#                          never depended on money and never will.
+#   STRIPE_WEBHOOK_SECRET  from the Stripe dashboard, for /api/stripe/webhook

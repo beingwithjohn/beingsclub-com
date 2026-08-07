@@ -13,11 +13,13 @@ import {
   localDate, isDate, addDays, diffDays, validTimezone,
   anchorOf, dayIndex, weekIndex, weekDates, weekStart,
   isClosed, lastDay, notYetOpen, markableDates, minutesOf,
+  phaseOf, daysUntil,
 } from './days.js';
-import { mintToken, logUrl } from './auth.js';
+import { mintToken, logUrl, unseal } from './auth.js';
 import { sendWelcomeBack } from './mail/send.js';
 
 const NOTE_MAX = 100;
+const LINE_MAX = 100;
 const MESSAGE_MAX = 4000;
 const NAME_MAX = 40;
 
@@ -57,6 +59,7 @@ export async function getState(env, { person, run }) {
       is_host: person.is_host,
       joined_on: person.joined_on,
       setup_at: person.setup_at,
+      line: person.line,
     },
     run: {
       slug: run.slug,
@@ -64,11 +67,18 @@ export async function getState(env, { person, run }) {
       mode: run.mode,
       week_labels: run.week_labels,
       standfirst: run.standfirst,
+      blurb: run.blurb,
+      meets: run.meets,
       anchor,
+      starts_on: run.starts_on,
       length_days: run.mode === 'fixed' ? run.length_days : null,
       last_day: lastDay(run),
       closed,
       not_yet_open: notYetOpen(run, today),
+      phase: phaseOf(run, today),
+      days_until: daysUntil(run, today),
+      suggested_amount: run.suggested_amount,
+      currency: run.currency,
     },
     today: {
       date: today,
@@ -89,6 +99,10 @@ export async function getState(env, { person, run }) {
     // and it is not the cohort — but it never blocks the tap.
     answers: await answersFor(env, person.id),
     shared: null,
+    roster: null,
+    // Your own contributions, so the page can say thank you and offer another.
+    // Nobody else's are ever visible, and nothing anywhere is ranked by them.
+    contributions: await contributionsFor(env, person.id),
   };
 
   // Nothing before the tap.
@@ -104,7 +118,52 @@ export async function getState(env, { person, run }) {
     state.shared = await sharedView(env, { person, run }, anchor, today, mine);
   }
 
+  // The roster — who has taken a place, and the line they wrote.
+  //
+  // Before day one this is the whole surface: there is nothing to practise
+  // yet, and seeing the others arrive is the point of the gathering. Once the
+  // run starts it goes behind the tap with everything else, because from then
+  // on the room is something you earn each day rather than something you look
+  // at. Same rule, moved to the right threshold.
+  if (state.run.phase === 'gathering' || canSeeShared) {
+    state.roster = await roster(env, run, person);
+  }
+
   return json(state);
+}
+
+/**
+ * Who is in. Names and lines only — never a mark, never a count of days, and
+ * never who has contributed. The order is the order people arrived, which is
+ * the one ordering that ranks nobody.
+ */
+async function roster(env, run, person) {
+  const rows = await env.DB.prepare(
+    `SELECT id, name, line, took_place_at FROM person
+      WHERE run_id = ?1 AND is_host = 0 AND took_place_at IS NOT NULL AND left_at IS NULL
+      ORDER BY took_place_at`,
+  ).bind(run.id).all();
+
+  const people = (rows.results || []).map((r) => ({
+    name: r.id === person.id ? 'You' : r.name,
+    line: r.line,
+    mine: r.id === person.id,
+  }));
+
+  return {
+    people,
+    places: run.places,
+    // "Four places left", never "six of ten".
+    places_left: run.places ? Math.max(0, run.places - people.length) : null,
+  };
+}
+
+async function contributionsFor(env, personId) {
+  const rows = await env.DB.prepare(
+    `SELECT amount, currency, created_at FROM contribution
+      WHERE person_id = ?1 ORDER BY created_at DESC`,
+  ).bind(personId).all();
+  return rows.results || [];
 }
 
 /** This person's own marks and notes across the window. */
@@ -199,6 +258,91 @@ async function answersFor(env, personId) {
     id: r.id, on_date: r.on_date, question: r.body,
     answer: r.answer_body, audio: r.answer_url, answered_at: r.answered_at,
   }));
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/invite  —  what the threshold shows before anyone has committed
+// ---------------------------------------------------------------------------
+// A GET, and it writes nothing: following the link from an email must never
+// take a place on someone's behalf. The names and the lines are not here,
+// because they belong to the people who have already committed.
+export async function getInvite(env, { person, run }) {
+  const today = localDate(Date.now(), person.timezone);
+
+  const taken = await env.DB.prepare(
+    `SELECT COUNT(*) AS n FROM person
+      WHERE run_id = ?1 AND is_host = 0 AND took_place_at IS NOT NULL AND left_at IS NULL`,
+  ).bind(run.id).first();
+
+  const count = taken?.n || 0;
+
+  return json({
+    run: {
+      name: run.name,
+      blurb: run.blurb,
+      meets: run.meets,
+      standfirst: run.standfirst,
+      starts_on: run.starts_on,
+      length_days: run.length_days,
+      week_labels: run.week_labels,
+      days_until: daysUntil(run, today),
+      places: run.places,
+      places_left: run.places ? Math.max(0, run.places - count) : null,
+      suggested_amount: run.suggested_amount,
+      currency: run.currency,
+    },
+    person: { name: person.name, email: person.email, line: person.line },
+    // Clicking the link a second time should simply let them back in.
+    taken: person.took_place_at != null,
+    full: run.places ? count >= run.places && person.took_place_at == null : false,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/place  —  taking it. The one write the invite can perform.
+// ---------------------------------------------------------------------------
+export async function postPlace(env, { person, run }, body) {
+  // Already in: hand back the session they already have rather than making a
+  // second click look like a failure.
+  if (person.took_place_at != null) {
+    const row = await env.DB.prepare(`SELECT token_enc FROM person WHERE id = ?1`)
+      .bind(person.id).first();
+    return json({ token: await unseal(env, row.token_enc), already: true });
+  }
+
+  if (run.places) {
+    const taken = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM person
+        WHERE run_id = ?1 AND is_host = 0 AND took_place_at IS NOT NULL AND left_at IS NULL`,
+    ).bind(run.id).first();
+    if ((taken?.n || 0) >= run.places) return bad(409, 'full');
+  }
+
+  const name = String(body?.name ?? person.name).trim().slice(0, NAME_MAX);
+  if (!name) return bad(400, 'name');
+
+  const line = String(body?.line ?? '').trim().slice(0, LINE_MAX) || null;
+
+  const timezone = typeof body?.timezone === 'string' && validTimezone(body.timezone)
+    ? body.timezone : person.timezone;
+  const nudgeHour = typeof body?.nudge_hour === 'string' && minutesOf(body.nudge_hour) != null
+    ? body.nudge_hour : person.nudge_hour;
+
+  // A fresh session, so the invite is genuinely spent rather than doubling as
+  // a login for ever.
+  const { token, token_hash, token_enc } = await mintToken(env);
+  const joinedOn = localDate(Date.now(), timezone);
+
+  await env.DB.prepare(
+    `UPDATE person
+        SET took_place_at = unixepoch(), setup_at = unixepoch(),
+            name = ?1, line = ?2, timezone = ?3, nudge_hour = ?4,
+            joined_on = CASE WHEN ?5 = 'fixed' THEN joined_on ELSE ?6 END,
+            token_hash = ?7, token_enc = ?8, token_issued_at = unixepoch()
+      WHERE id = ?9`,
+  ).bind(name, line, timezone, nudgeHour, run.mode, joinedOn, token_hash, token_enc, person.id).run();
+
+  return json({ token, already: false });
 }
 
 // ---------------------------------------------------------------------------
@@ -335,6 +479,12 @@ export async function patchSettings(env, ctx, body) {
   if (typeof body?.timezone === 'string') {
     if (!validTimezone(body.timezone)) return bad(400, 'timezone');
     sets.push(`timezone = ?${sets.length + 1}`); binds.push(body.timezone);
+  }
+  // Why you're here. Written once at joining, changeable after — people arrive
+  // meaning one thing and find they meant another.
+  if (typeof body?.line === 'string') {
+    const line = body.line.trim().slice(0, LINE_MAX);
+    sets.push(`line = ?${sets.length + 1}`); binds.push(line || null);
   }
   if (typeof body?.nudge_hour === 'string') {
     if (minutesOf(body.nudge_hour) == null) return bad(400, 'nudge_hour');

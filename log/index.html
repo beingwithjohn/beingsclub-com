@@ -366,6 +366,7 @@ main { flex: 1; display: flex; flex-direction: column; }
   var busy = false;
   var offline = false;
   var unreachable = false;   // reached the end of the road with nothing cached
+  var INV = null;            // the threshold, read with an invitation
   var root = document.getElementById('root');
 
   // -------------------------------------------------------------------------
@@ -376,12 +377,23 @@ main { flex: 1; display: flex; flex-direction: column; }
   // that recorded a practice would log practices nobody did. The token only
   // says who this is. The mark is a POST, made by a tap on this page.
   (function () {
-    var m = location.search.match(/[?&]t=([^&#]+)/);
-    if (!m) return;
-    L.token = decodeURIComponent(m[1]);
-    save();
-    // Keep it out of the address bar, the history and any shared screenshot.
-    try { history.replaceState({}, '', location.pathname); } catch (e) {}
+    var t = location.search.match(/[?&]t=([^&#]+)/);
+    if (t) L.token = decodeURIComponent(t[1]);
+
+    // The invitation is a second, weaker credential and lives in ?i=. Same
+    // rule applies to it: following it takes no place. A tap does that.
+    var i = location.search.match(/[?&]i=([^&#]+)/);
+    if (i) L.invite = decodeURIComponent(i[1]);
+
+    // Coming back from a contribution. Nothing is granted by it; the page says
+    // thank you once and then never mentions it again.
+    if (/[?&]thanks=1/.test(location.search)) L.thanks = true;
+
+    if (t || i || L.thanks) {
+      save();
+      // Keep it out of the address bar, the history and any shared screenshot.
+      try { history.replaceState({}, '', location.pathname); } catch (e) {}
+    }
   })();
 
   function load() {
@@ -398,7 +410,9 @@ main { flex: 1; display: flex; flex-direction: column; }
   // -------------------------------------------------------------------------
   function api(path, opts) {
     opts = opts || {};
-    var headers = { authorization: 'Bearer ' + (L.token || '') };
+    var headers = opts.invite
+      ? { authorization: 'Invite ' + (L.invite || '') }
+      : { authorization: 'Bearer ' + (L.token || '') };
     if (opts.body !== undefined) headers['content-type'] = 'application/json';
     return fetch(API + path, {
       method: opts.method || 'GET',
@@ -410,6 +424,19 @@ main { flex: 1; display: flex; flex-direction: column; }
         var e = new Error(j.error || ('http ' + r.status)); e.status = r.status; throw e;
       });
       return r.json();
+    });
+  }
+
+  // The threshold. Read with the invitation, before there is a session.
+  function pullInvite() {
+    return api('/api/invite', { invite: true }).then(function (d) {
+      INV = d;
+      // Clicking the link a second time should let them straight back in
+      // rather than showing them a door they have already walked through.
+      if (d.taken) return takePlace(null, true);
+      render();
+    }).catch(function () {
+      L.invite = null; save(); unreachable = !L.token; render();
     });
   }
 
@@ -491,7 +518,19 @@ main { flex: 1; display: flex; flex-direction: column; }
     'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five',
     'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one',
     'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five'];
-  function word(n) { return WORDS[n] !== undefined ? WORDS[n] : String(n); }
+  var TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+  // Counts are said in words, never as figures — a figure invites comparison
+  // and this product never compares anybody. The list above stops at
+  // thirty-five because a run does; a countdown to day one can run further.
+  function word(n) {
+    if (WORDS[n] !== undefined) return WORDS[n];
+    if (n > 35 && n < 100) {
+      var t = TENS[Math.floor(n / 10)], u = n % 10;
+      return u ? t + '-' + WORDS[u] : t;
+    }
+    return String(n);
+  }
   function cap(s) { return String(s).charAt(0).toUpperCase() + String(s).slice(1); }
 
   function esc(s) {
@@ -535,9 +574,18 @@ main { flex: 1; display: flex; flex-direction: column; }
   // render
   // -------------------------------------------------------------------------
   function render() {
+    // Invited but not yet in: the threshold is the whole of it.
+    if (!L.token && L.invite) return INV ? viewThreshold() : viewLoading();
     if (!L.token) return viewNoLink();
     if (!S) return unreachable ? viewUnreachable() : viewLoading();
     if (!S.person.setup_at) return viewFirstRun();
+
+    if (view === 'contribute') return viewContribute();
+
+    // Before day one there is nothing to practise. The room is who is in it.
+    if (S.run.phase === 'gathering' && view !== 'settings' && view !== 'john') {
+      return viewGathering();
+    }
 
     if (view === 'john') return viewJohn();
     if (view === 'settings') return viewSettings();
@@ -600,6 +648,239 @@ main { flex: 1; display: flex; flex-direction: column; }
       unreachable = false;
       render();
       pull();
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // the threshold — what a Sit is, and taking your place in one
+  // -------------------------------------------------------------------------
+  // Nothing of the room is here. Names and lines belong to the people who have
+  // already committed, and this is the page where you have not yet.
+  function viewThreshold() {
+    var r = INV.run;
+    var zone = tz();
+    var chosen = '07:00';
+
+    if (INV.full) {
+      return shell(h('<div class="centre">' +
+        '<div class="eyebrow">' + esc(r.name) + '</div>' +
+        '<h1 class="h1" style="max-width:16ch;">Every place is taken.</h1>' +
+        '<p class="body" style="max-width:34ch;">This one filled up. Write to John and he will ' +
+        'tell you when the next Sit opens.</p></div>'), { right: '<span class="barlab">Full</span>' });
+    }
+
+    var when = r.starts_on
+      ? cap(word(r.length_days)) + ' days from ' + fmt(r.starts_on)
+      : 'For as long as you want it';
+
+    var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;' +
+      'justify-content:center;gap:24px;max-width:38rem;">' +
+      '<div class="eyebrow">A place is yours if you want it</div>' +
+      '<h1 class="h1" style="max-width:17ch;">' + esc(INV.person.name ? firstOf(INV.person.name) : 'You') +
+        ' — there’s a place for you.</h1>' +
+      '<p class="lead">' + esc(r.name) + '. ' + esc(when) + '.</p>' +
+      (r.blurb ? r.blurb.split(/\n{2,}/).map(function (p) {
+        return '<p class="body">' + esc(p) + '</p>';
+      }).join('') : '') +
+      (r.meets ? '<div class="frame"><span class="caps">We meet</span>' +
+        '<p class="body">' + esc(r.meets) + '</p></div>' : '') +
+      '<div><div class="caps" style="margin-bottom:12px;">Why you’re here</div>' +
+        '<textarea class="field" id="ln" rows="2" maxlength="100" ' +
+          'aria-label="One line, why you are here" ' +
+          'placeholder="One line. The others will see it."></textarea>' +
+        '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
+          '<span class="small">Optional. You can change it later.</span>' +
+          '<span class="count" id="left">100 left</span></div></div>' +
+      '<div><div class="caps" style="margin-bottom:12px;">A daily nudge at</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="hrs"></div>' +
+        (zone ? '<p class="small" style="margin-top:12px;">Your local time — ' + esc(zone) + '</p>' : '') +
+      '</div>' +
+      '<button class="btn" id="take">Take my place</button>' +
+      '<p class="small">' + placesLine(r.places_left) +
+        ' Nothing is charged to be here.</p>' +
+    '</div>');
+
+    shell(inner, { right: '<span class="barlab">' + esc(r.name) + '</span>' });
+
+    var box = inner.querySelector('#hrs');
+    HOURS.forEach(function (pair) {
+      var b = h('<button class="chip' + (pair[0] === chosen ? ' sel' : '') + '">' + pair[1] + '</button>');
+      b.addEventListener('click', function () {
+        chosen = pair[0];
+        [].forEach.call(box.children, function (c) { c.classList.remove('sel'); });
+        b.classList.add('sel');
+      });
+      box.appendChild(b);
+    });
+
+    var ta = inner.querySelector('#ln'), left = inner.querySelector('#left');
+    ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
+
+    inner.querySelector('#take').addEventListener('click', function () {
+      this.disabled = true;
+      this.textContent = 'Taking it…';
+      takePlace({
+        name: INV.person.name,
+        line: ta.value.trim(),
+        timezone: zone || undefined,
+        nudge_hour: chosen
+      });
+    });
+  }
+
+  function firstOf(n) { return String(n || '').trim().split(/\s+/)[0]; }
+
+  function placesLine(left) {
+    if (left == null) return '';
+    if (left <= 0) return 'This was the last place.';
+    return cap(word(left)) + (left === 1 ? ' place left.' : ' places left.');
+  }
+
+  function takePlace(body, quiet) {
+    return api('/api/place', { method: 'POST', invite: true, body: body || {} })
+      .then(function (r) {
+        L.token = r.token;
+        L.invite = null;      // spent
+        save();
+        return pull();
+      })
+      .catch(function () {
+        if (!quiet) {
+          var b = document.getElementById('take');
+          if (b) { b.disabled = false; b.textContent = 'Take my place'; }
+        }
+        L.invite = null; save(); unreachable = !L.token; render();
+      });
+  }
+
+  // -------------------------------------------------------------------------
+  // the gathering — after taking a place, before day one
+  // -------------------------------------------------------------------------
+  function viewGathering() {
+    var r = S.run, ros = S.roster || { people: [], places_left: null };
+    var inner = h('<div style="flex:1;display:flex;flex-direction:column;"></div>');
+
+    inner.appendChild(h('<div class="band"><div class="caps" style="margin-bottom:8px;">Your place is held</div>' +
+      '<p>' + esc(startsLine()) + '</p></div>'));
+
+    var body = h('<div class="pad" style="display:grid;gap:26px;"></div>');
+
+    if (L.thanks) {
+      body.appendChild(h('<div class="frame"><span class="caps">Thank you</span>' +
+        '<p class="body">That came through. It is not recorded anywhere anyone else can see.</p></div>'));
+      L.thanks = false; save();
+    }
+
+    // Who is here. The point of the gathering.
+    var list = h('<div style="display:grid;gap:16px;"><div class="caps">Who’s here' +
+      (ros.places_left != null ? ' · ' + esc(placesLine(ros.places_left).replace(/\.$/, '')) : '') + '</div>' +
+      '<div class="notes"></div></div>');
+    var notes = list.querySelector('.notes');
+    if (!ros.people.length) {
+      notes.appendChild(h('<p class="body">You’re the first one in.</p>'));
+    }
+    ros.people.forEach(function (p) {
+      notes.appendChild(h('<div class="noterow"><b>' + esc(p.name) + '</b>' +
+        (p.line ? '<p>' + esc(p.line) + '</p>' : '<p style="color:var(--muted);">—</p>') + '</div>'));
+    });
+    body.appendChild(list);
+
+    if (r.meets) {
+      body.appendChild(h('<div class="frame"><span class="caps">We meet</span>' +
+        '<p class="body">' + esc(r.meets) + '</p></div>'));
+    }
+
+    // The invitation to contribute. Never a gate, never a nag, and skipping it
+    // is not a lesser answer.
+    body.appendChild(contributeBlock());
+
+    inner.appendChild(body);
+
+    var foot = h('<div class="foot"><button class="ul" id="setl">Settings</button>' +
+      '<span>Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
+
+    shell(inner, {
+      right: '<span class="barlab">' + esc(r.name) + '</span>',
+      above: answerStrip(),
+      foot: foot
+    });
+    document.getElementById('setl').addEventListener('click', function () { go('settings'); });
+    document.getElementById('jl').addEventListener('click', function () { go('john'); });
+  }
+
+  function startsLine() {
+    var n = S.run.days_until;
+    if (n === 0) return 'We begin today.';
+    if (n === 1) return 'We begin tomorrow.';
+    return 'We begin in ' + word(n) + ' days, on ' + fmt(S.run.starts_on) + '.';
+  }
+
+  function contributeBlock() {
+    var given = (S.contributions || []).length;
+    var box = h('<div class="frame">' +
+      '<span class="caps">' + (given ? 'You’ve contributed' : 'Pay what you want') + '</span>' +
+      '<p class="body">' + (given
+        ? 'Thank you. You can add to it whenever you like, and never need to.'
+        : 'Your place does not depend on this and never will. John’s work costs something, ' +
+          'and if you want to meet some of that, you can — now, later, or not at all.') + '</p>' +
+      '<div style="display:grid;gap:10px;margin-top:6px;">' +
+        '<button class="btn" id="give">' + (given ? 'Contribute again' : 'Contribute') + '</button>' +
+        (given ? '' : '<button class="quiet" id="later">Skip for now</button>') +
+      '</div><p class="small" id="gmsg" aria-live="polite"></p></div>');
+
+    box.querySelector('#give').addEventListener('click', function () { go('contribute'); });
+    var later = box.querySelector('#later');
+    if (later) later.addEventListener('click', function () {
+      box.querySelector('#gmsg').textContent = 'Of course. It won’t be asked again.';
+      L.dismissed['contribute'] = 1; save();
+    });
+    return box;
+  }
+
+  // -------------------------------------------------------------------------
+  // contributing
+  // -------------------------------------------------------------------------
+  function viewContribute() {
+    var suggested = S.run.suggested_amount;
+    var cur = (S.run.currency || 'gbp').toUpperCase();
+    var sym = cur === 'GBP' ? '£' : cur === 'EUR' ? '€' : cur === 'USD' ? '$' : '';
+
+    var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;' +
+      'justify-content:center;gap:22px;max-width:36rem;">' +
+      '<h2 class="h2" style="max-width:18ch;">Pay what you want.</h2>' +
+      '<p class="body">Not what it’s worth, and not what someone else paid. What you want to give, ' +
+      'if you want to give anything.</p>' +
+      '<p class="body">Your place is yours either way. Nobody is told what anyone contributed, ' +
+      'and nothing in the log changes because of it.</p>' +
+      (suggested ? '<div class="frame"><span class="caps">Suggested</span>' +
+        '<p class="body">' + sym + (suggested / 100).toFixed(0) + '. Type over it with anything ' +
+        'you like on the next page.</p></div>' : '') +
+      '<div style="display:grid;gap:10px;">' +
+        '<button class="btn" id="go">Continue</button>' +
+        '<button class="quiet" id="back">Not now</button></div>' +
+      '<p class="small" id="msg" aria-live="polite"></p>' +
+    '</div>');
+
+    shell(inner, {
+      left: '<button class="barlink" id="close">← Back</button>',
+      right: '<span class="barlab">Contribute</span>'
+    });
+
+    document.getElementById('close').addEventListener('click', function () { go(null); });
+    inner.querySelector('#back').addEventListener('click', function () { go(null); });
+
+    inner.querySelector('#go').addEventListener('click', function () {
+      var msg = inner.querySelector('#msg');
+      this.disabled = true;
+      msg.textContent = 'Opening…';
+      api('/api/contribution', { method: 'POST', body: {} }).then(function (r) {
+        location.href = r.url;
+      }).catch(function (e) {
+        inner.querySelector('#go').disabled = false;
+        msg.textContent = e.status === 503
+          ? 'Contributions aren’t switched on yet. Nothing is owed in the meantime.'
+          : 'That didn’t open. Try again in a moment.';
+      });
     });
   }
 
@@ -1208,6 +1489,8 @@ main { flex: 1; display: flex; flex-direction: column; }
     inner.appendChild(toggle('Notes', 'Offer a line after logging', 'notes_on'));
 
     inner.appendChild(nameRow());
+    inner.appendChild(lineRow());
+    inner.appendChild(contributeRow());
 
     inner.appendChild(h('<div><b style="font-size:17px;font-weight:600;color:var(--ink);">' +
       esc(S.person.name) + '</b>' +
@@ -1264,6 +1547,29 @@ main { flex: 1; display: flex; flex-direction: column; }
       var v = prompt('The name on your notes', S.person.name || '');
       if (v && v.trim()) patch({ name: v.trim() });
     });
+    return r;
+  }
+
+  function lineRow() {
+    var r = h('<div class="rowflex"><div><b>Why you’re here</b>' +
+      '<p>' + esc(S.person.line || 'Nothing written') + '</p></div>' +
+      '<button class="ul" id="ln" style="flex:none;">Change</button></div>');
+    r.querySelector('#ln').addEventListener('click', function () {
+      var v = prompt('One line. The others see it.', S.person.line || '');
+      if (v !== null) patch({ line: v.trim().slice(0, NOTE_MAX) });
+    });
+    return r;
+  }
+
+  function contributeRow() {
+    var given = (S.contributions || []).length;
+    var r = h('<div class="rowflex"><div><b>Contribute</b>' +
+      '<p>' + (given
+        ? 'You have. Thank you. You can again whenever you like.'
+        : 'Pay what you want, whenever you want. Your place never depends on it.') +
+      '</p></div><button class="ul" id="cg" style="flex:none;">' +
+      (given ? 'Again' : 'Open') + '</button></div>');
+    r.querySelector('#cg').addEventListener('click', function () { go('contribute'); });
     return r;
   }
 
@@ -1330,6 +1636,7 @@ main { flex: 1; display: flex; flex-direction: column; }
   // -------------------------------------------------------------------------
   render();
   if (L.token) flush().then(pull);
+  else if (L.invite) pullInvite();
 })();
 </script>
 </body>

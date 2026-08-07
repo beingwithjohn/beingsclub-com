@@ -9,8 +9,8 @@
 
 import { json, bad } from './api.js';
 import { localDate, addDays, diffDays, anchorOf, quietDays } from './days.js';
-import { unseal, logUrl } from './auth.js';
-import { sendAnswered, sendWeekLetter, claim } from './mail/send.js';
+import { unseal, logUrl, inviteUrl, mintToken } from './auth.js';
+import { sendAnswered, sendWeekLetter, sendInvitation, claim } from './mail/send.js';
 
 export async function hostRoute(env, request, url, who) {
   const path = url.pathname;
@@ -25,9 +25,57 @@ export async function hostRoute(env, request, url, who) {
     if (path === '/api/host/answer') return answer(env, who, body);
     if (path === '/api/host/note/remove') return removeNote(env, who, body);
     if (path === '/api/host/week') return weekLetter(env, who, body);
+    if (path === '/api/host/invite') return invite(env, who, body);
   }
 
   return bad(404, 'not found');
+}
+
+// ---------------------------------------------------------------------------
+// inviting someone — the mutual yes, made into a link
+// ---------------------------------------------------------------------------
+// This is the yes. It creates the row but not yet the person: until they
+// accept, they are not one of the ten, not on the roster, and cannot sign in.
+async function invite(env, { run }, body) {
+  const name = String(body.name || '').trim().slice(0, 40);
+  const email = String(body.email || '').trim().toLowerCase();
+  if (!name) return bad(400, 'name');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return bad(400, 'email');
+
+  // Inviting past the last place is allowed — people say no, and John may want
+  // one in hand — but he is told rather than finding out afterwards.
+  if (run.places && body.force !== true) {
+    const taken = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM person
+        WHERE run_id = ?1 AND is_host = 0 AND took_place_at IS NOT NULL AND left_at IS NULL`,
+    ).bind(run.id).first();
+    if ((taken?.n || 0) >= run.places) {
+      return json({ ok: false, full: true, message: 'Every place is taken. Send force:true to invite anyway.' });
+    }
+  }
+
+  const invited = await mintToken(env);
+  const session = await mintToken(env);
+  const joinedOn = run.mode === 'fixed'
+    ? run.starts_on
+    : localDate(Date.now(), 'Europe/London');
+
+  await env.DB.prepare(
+    `INSERT INTO person (run_id, name, email, token_hash, token_enc,
+                         invite_hash, invite_sent_at, joined_on)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, unixepoch(), ?7)
+     ON CONFLICT (run_id, email) DO UPDATE SET
+       name = excluded.name,
+       invite_hash = excluded.invite_hash,
+       invite_sent_at = unixepoch()`,
+  ).bind(run.id, name, email, session.token_hash, session.token_enc,
+    invited.token_hash, joinedOn).run();
+
+  const url = inviteUrl(env, invited.token);
+  // The link comes back either way, so John can send it in his own words.
+  const mailed = body.send === false ? false : await sendInvitation(env, { name, email }, run, url);
+
+  return json({ ok: true, url, mailed });
 }
 
 // ---------------------------------------------------------------------------
