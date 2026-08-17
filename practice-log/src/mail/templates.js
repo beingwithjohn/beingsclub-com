@@ -380,6 +380,40 @@ export function lastDay({ person, run, url, marked }) {
 }
 
 // ---------------------------------------------------------------------------
+// the way back in — asked for by anyone who has lost the link
+// ---------------------------------------------------------------------------
+// Sent only to the address typed, and only if it is already someone's. It
+// grants nothing new: the same long-lived link they already had, posted again.
+export function yourLinks({ person, runs }) {
+  const many = runs.length > 1;
+  const blocks = [
+    eyebrow('The way back in'),
+    heading(`Here you are, ${esc(first(person.name))}.`),
+    para(many
+      ? 'You are in more than one, so here is each of them.'
+      : 'The same link you already had. It does not expire.'),
+    runs.map((r) => `
+      <tr><td style="padding:22px 40px 0;">
+        <div style="font-family:${FONT};font-size:11px;font-weight:600;letter-spacing:0.18em;
+          text-transform:uppercase;color:${T.muted};">${esc(r.name)}</div>
+      </td></tr>` + button(r.url, 'Open my log')).join(''),
+    small('If you did not ask for this, nothing has changed and you can ignore it. '
+      + 'The link is the same one you have always had.'),
+    gap(),
+  ].join('');
+
+  return {
+    subject: 'Your practice log',
+    html: layout({ preheader: 'The way back in.', blocks, footer: FOOT_LINK }),
+    text: [
+      `Here you are, ${first(person.name)}.`, '',
+      ...runs.map((r) => `${r.name}: ${r.url}`), '',
+      'If you did not ask for this, nothing has changed and you can ignore it.',
+    ].join('\n'),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // a new link, after revoking from Settings
 // ---------------------------------------------------------------------------
 export function newLink({ person, url }) {

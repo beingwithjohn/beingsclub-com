@@ -104,6 +104,12 @@ export async function sendLastDay(env, person, run, url, marked) {
   return post(env, { to: person.email, from: john(env), ...mail });
 }
 
+/** Someone asked for their link back. Goes only to the address they typed. */
+export async function sendYourLinks(env, person, runs) {
+  const mail = T.yourLinks({ person, runs });
+  return post(env, { to: person.email, from: club(env), ...mail });
+}
+
 /** After revoking from Settings. The new link is emailed, never returned. */
 export async function sendWelcomeBack(env, person, url) {
   const mail = T.newLink({ person, url });

@@ -117,6 +117,29 @@ h1, h2, h3 { font-weight: 600; color: var(--ink); text-wrap: pretty; }
 .barlink { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 .barlink:hover { color: var(--you); }
 
+/* ------------------------------------------------------------- combobox --- */
+/* Searchable timezone. A native select type-aheads on the label only, so
+   "UTC" could never find Europe/London — and the offset is the thing most
+   people actually know about where they are. */
+
+.combo { position: relative; }
+.combo-list {
+  position: absolute; left: 0; right: 0; top: calc(100% - 1px); z-index: 5;
+  max-height: min(21rem, 44vh); overflow-y: auto;
+  background: var(--paper); border: 1px solid var(--ink);
+  list-style: none; margin: 0; padding: 0;
+}
+.combo-list li {
+  padding: 11px 16px; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  font-size: 16px; color: var(--ink); border-bottom: 1px solid var(--hair);
+}
+.combo-list li:last-child { border-bottom: 0; }
+.combo-list li em { font-style: normal; color: var(--muted); font-size: 15px; white-space: nowrap; }
+.combo-list li[aria-selected="true"], .combo-list li:hover { background: var(--lilac); }
+.combo-list .none { color: var(--muted); cursor: default; }
+.combo-list .none:hover { background: none; }
+
 /* ---------------------------------------------------------------- menu ---- */
 /* Everywhere you can go, in one place, reachable from every screen and in the
    way of none — which is what the private line to John was always meant to be. */

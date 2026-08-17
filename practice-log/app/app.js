@@ -403,14 +403,44 @@
   // -------------------------------------------------------------------------
   // no link / loading
   // -------------------------------------------------------------------------
+  // No link, and a way to get one. There is no password to reset, because
+  // there is no password — this posts the same long-lived link back to the
+  // address it already belongs to.
   function viewNoLink() {
-    shell(h('<div class="centre">' +
+    var inner = h('<div class="centre">' +
       '<div class="eyebrow">Practice log</div>' +
       '<h1 class="h1" style="max-width:16ch;">This opens from your email.</h1>' +
       '<p class="body" style="max-width:38ch;">Every email carries the link, and the link is the way in. ' +
       'There is no password to remember and nothing to sign into.</p>' +
-      '<p class="small" style="max-width:38ch;">Lost it? Reply to any email from us and John will send another.</p>' +
-      '</div>'), { right: '<span class="barlab">Practice log</span>' });
+      '<div style="display:grid;gap:10px;width:100%;max-width:22rem;">' +
+        '<input class="field" id="em" type="email" autocomplete="email" ' +
+          'aria-label="The email address you joined with" placeholder="you@example.com">' +
+        '<button class="btn" id="send">Send me my link</button>' +
+        '<p class="small" id="msg" aria-live="polite"></p>' +
+      '</div></div>');
+
+    shell(inner, { right: '<span class="barlab">Practice log</span>', noMenu: true });
+
+    var em = inner.querySelector('#em');
+    var msg = inner.querySelector('#msg');
+
+    inner.querySelector('#send').addEventListener('click', function () {
+      var v = em.value.trim();
+      if (!v) { msg.textContent = 'An email address first.'; return; }
+      this.disabled = true;
+      msg.textContent = 'Sending…';
+      api('/api/login', { method: 'POST', body: { email: v } })
+        .then(function () {
+          // Deliberately says the same thing whether or not that address is
+          // anybody's. Whether someone is in a Sit is not this page's to tell.
+          msg.textContent = 'If that address is in a Sit, the link is on its way to it. '
+            + 'It is the same link as before.';
+        })
+        .catch(function () {
+          inner.querySelector('#send').disabled = false;
+          msg.textContent = 'That did not go through. Try again in a moment.';
+        });
+    });
   }
 
   function viewLoading() {
@@ -519,7 +549,12 @@
   function timeFields(zone) {
     return '<div style="display:grid;gap:22px;">' +
       '<div><div class="caps" style="margin-bottom:12px;">Where you are</div>' +
-        '<select class="field" id="tz" aria-label="Your timezone"></select>' +
+        '<div class="combo">' +
+          '<input class="field" id="tz" role="combobox" aria-expanded="false" ' +
+            'aria-autocomplete="list" aria-label="Your timezone" autocomplete="off" ' +
+            'placeholder="A city, or UTC, GMT, EST…">' +
+          '<ul class="combo-list" id="tzlist" role="listbox" hidden></ul>' +
+        '</div>' +
         '<p class="small" style="margin-top:8px;">Your day turns at your own midnight, ' +
         'so a late sit counts for the night you were awake.</p></div>' +
       '<div><div class="caps" style="margin-bottom:12px;">Send the daily email at</div>' +
@@ -532,15 +567,7 @@
 
   /** Fill the two fields in and wire the shortcuts. Returns a reader. */
   function wireTimeFields(root, zone, hour) {
-    var sel = root.querySelector('#tz');
-    var list = zoneList();
-    if (zone && list.indexOf(zone) === -1) list = [zone].concat(list);
-    list.forEach(function (z) {
-      var o = document.createElement('option');
-      o.value = z; o.textContent = z.replace(/_/g, ' ');
-      if (z === zone) o.selected = true;
-      sel.appendChild(o);
-    });
+    var chosen = wireZone(root, zone);
 
     var input = root.querySelector('#hh');
     input.value = hour || '07:00';
@@ -576,9 +603,272 @@
     return (hh < 10 ? '0' : '') + hh + ':' + (mm ? '30' : '00');
   }
 
+  // The timezone field, searchable.
+  //
+  // Searchable because the label is the one thing people are least sure of.
+  // Most know their offset, or the three letters the clock on their wall says,
+  // so the index carries the city, the region, the abbreviation and the offset
+  // written both ways — GMT+05:30 and UTC+05:30 — and any of them will find it.
+  var ZONES = null;
+
+  function zoneIndex() {
+    if (ZONES) return ZONES;
+    var now = new Date();
+
+    function part(z, style, when, loc) {
+      try {
+        var p = new Intl.DateTimeFormat(loc || 'en-GB', { timeZone: z, timeZoneName: style })
+          .formatToParts(when || now);
+        for (var i = 0; i < p.length; i++) if (p[i].type === 'timeZoneName') return p[i].value;
+      } catch (e) {}
+      return '';
+    }
+
+    // Both halves of the year. The browser reports whichever abbreviation is
+    // current, so in August "EST" would find nothing and in January "BST"
+    // would — and people think in these letters all year round.
+    var jan = new Date(Date.UTC(now.getUTCFullYear(), 0, 15));
+    var jul = new Date(Date.UTC(now.getUTCFullYear(), 6, 15));
+
+    ZONES = zoneList().map(function (z) {
+      var abbr = part(z, 'short');            // BST, EDT, or GMT+5:30
+      var off = part(z, 'longOffset') || '';  // GMT+05:30
+      var utc = off.replace(/^GMT/, 'UTC');
+      var label = z.replace(/_/g, ' ');
+      var city = label.split('/').pop();
+      var named = abbr && !/^GMT|^UTC/.test(abbr);
+
+      // Words, not a blob. Matching a substring anywhere once made "EST" find
+      // America/Creston, which is the sort of thing nobody reports and
+      // everybody quietly distrusts.
+      var words = z.toLowerCase().split(/[/_]/);
+      (ALIASES[z] || []).forEach(function (a) {
+        words = words.concat(a.toLowerCase().split(/\s+/));
+      });
+
+      // Both seasons and both locales. en-GB knows BST but calls New York
+      // "GMT-5"; en-US knows EST and EDT but calls London "GMT+1". Between
+      // them they cover the letters people actually type.
+      var abbrs = [
+        abbr,
+        part(z, 'short', jan), part(z, 'short', jul),
+        part(z, 'short', jan, 'en-US'), part(z, 'short', jul, 'en-US')
+      ]
+        .concat(offsetMinutes(off) === 0 ? ['UTC', 'GMT'] : [])
+        .map(function (a) { return (a || '').toLowerCase(); })
+        // "gmt+5:30" is an offset, not an abbreviation, and the offset search
+        // already answers it. Left in, it would make every zone match "gmt".
+        .filter(function (a) { return a && !/^(gmt|utc)[+-]/.test(a); })
+        .filter(function (a, i, arr) { return arr.indexOf(a) === i; });
+
+      return {
+        zone: z,
+        label: label,
+        city: city,
+        note: (named ? abbr + ' · ' : '') + (utc || 'UTC'),
+        mins: offsetMinutes(off),
+        words: words,
+        abbrs: abbrs,
+        // UTC is the canonical answer to both "UTC" and "GMT", and would
+        // otherwise lose alphabetically to Africa/Abidjan, which is also on it.
+        // A nudge for the zones people actually mean. "EST" is true of Cancun
+        // and of New York; only one of them is what was meant.
+        boost: (z === 'UTC' ? 15 : 0) + (ALIASES[z] ? 5 : 0),
+        offsets: (off + ' ' + utc).toLowerCase()
+      };
+    }).sort(function (a, b) {
+      return a.mins - b.mins || a.label.localeCompare(b.label);
+    });
+
+    return ZONES;
+  }
+
+  // The browser reports canonical names, so someone in Kolkata is offered
+  // "Asia/Calcutta" and finds nothing when they type where they live. These are
+  // the renames and the everyday words people actually reach for. Not a
+  // geography database — just the ones that would otherwise fail silently.
+  var ALIASES = {
+    'Asia/Calcutta': ['Kolkata', 'India', 'Delhi', 'Mumbai', 'Bombay'],
+    'Asia/Kolkata': ['Calcutta', 'India', 'Delhi', 'Mumbai', 'Bombay'],
+    'Europe/Kiev': ['Kyiv', 'Ukraine'],
+    'Europe/Kyiv': ['Kiev', 'Ukraine'],
+    'Asia/Saigon': ['Ho Chi Minh', 'Vietnam'],
+    'Asia/Ho_Chi_Minh': ['Saigon', 'Vietnam'],
+    'Asia/Rangoon': ['Yangon', 'Myanmar', 'Burma'],
+    'Asia/Yangon': ['Rangoon', 'Myanmar', 'Burma'],
+    'Europe/London': ['UK', 'Britain', 'England', 'Scotland', 'Wales', 'GB'],
+    'Europe/Dublin': ['Ireland', 'Eire'],
+    'Europe/Lisbon': ['Portugal'],
+    'Europe/Madrid': ['Spain'],
+    'Europe/Paris': ['France'],
+    'Europe/Berlin': ['Germany'],
+    'Europe/Rome': ['Italy'],
+    'Europe/Amsterdam': ['Netherlands', 'Holland'],
+    'Europe/Athens': ['Greece'],
+    'Europe/Istanbul': ['Turkey', 'Turkiye'],
+    'America/New_York': ['USA', 'US', 'East Coast', 'Eastern'],
+    'America/Chicago': ['USA', 'US', 'Central'],
+    'America/Denver': ['USA', 'US', 'Mountain'],
+    'America/Los_Angeles': ['USA', 'US', 'California', 'West Coast', 'Pacific'],
+    'America/Toronto': ['Canada'],
+    'America/Sao_Paulo': ['Brazil', 'Brasil'],
+    'America/Mexico_City': ['Mexico'],
+    'Asia/Shanghai': ['China', 'Beijing', 'Peking'],
+    'Asia/Tokyo': ['Japan'],
+    'Asia/Seoul': ['Korea'],
+    'Asia/Dubai': ['UAE', 'Emirates'],
+    'Asia/Jerusalem': ['Israel'],
+    'Asia/Karachi': ['Pakistan'],
+    'Asia/Dhaka': ['Bangladesh'],
+    'Asia/Bangkok': ['Thailand'],
+    'Asia/Jakarta': ['Indonesia'],
+    'Asia/Manila': ['Philippines'],
+    'Australia/Sydney': ['Australia', 'NSW'],
+    'Australia/Melbourne': ['Australia', 'Victoria'],
+    'Australia/Perth': ['Australia'],
+    'Pacific/Auckland': ['New Zealand', 'NZ', 'Aotearoa'],
+    'Africa/Johannesburg': ['South Africa'],
+    'Africa/Lagos': ['Nigeria'],
+    'Africa/Nairobi': ['Kenya'],
+    'Africa/Cairo': ['Egypt'],
+    UTC: ['GMT', 'Zulu', 'Universal']
+  };
+
+  /**
+   * How well a zone answers what was typed. Zero means it does not.
+   *
+   * A needle with a digit or a sign is about an offset; anything else is about
+   * a name or an abbreviation. That split is what lets "UTC" mean the zone
+   * rather than every zone on earth, since all of them carry "UTC+…".
+   */
+  function scoreZone(z, needle) {
+    if (/[\d+\-:]/.test(needle)) return z.offsets.indexOf(needle) > -1 ? 50 : 0;
+
+    // "new york" and "south africa" are two words about one place, so every
+    // term has to land somewhere — otherwise a space means no match at all.
+    var terms = needle.split(/\s+/).filter(Boolean);
+    if (!terms.length) return 0;
+
+    var total = 0;
+    for (var t = 0; t < terms.length; t++) {
+      var term = terms[t];
+      var best = 0;
+
+      if (z.zone.toLowerCase() === term) best = 110;
+
+      for (var a = 0; a < z.abbrs.length; a++) {
+        if (z.abbrs[a] === term) best = Math.max(best, 100);
+        else if (z.abbrs[a].indexOf(term) === 0) best = Math.max(best, 80);
+      }
+
+      for (var i = 0; i < z.words.length; i++) {
+        var w = z.words[i];
+        if (w === term) best = Math.max(best, 90);
+        else if (w.indexOf(term) === 0) best = Math.max(best, 70);
+      }
+
+      if (!best) return 0;
+      total += best;
+    }
+
+    return Math.round(total / terms.length) + z.boost;
+  }
+
+  function offsetMinutes(off) {
+    var m = /([+-])(\d{2}):(\d{2})/.exec(off || '');
+    if (!m) return 0;
+    return (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3]));
+  }
+
+  function wireZone(root, zone) {
+    var input = root.querySelector('#tz');
+    var list = root.querySelector('#tzlist');
+    var all = zoneIndex();
+    var chosen = zone;
+    var active = -1;
+
+    var current = all.filter(function (z) { return z.zone === zone; })[0];
+    input.value = current ? current.label : (zone || '');
+
+    function close() {
+      list.hidden = true; list.innerHTML = '';
+      input.setAttribute('aria-expanded', 'false');
+      active = -1;
+      // Typing something unrecognised and walking away should not silently
+      // change where you are.
+      var c = all.filter(function (z) { return z.zone === chosen; })[0];
+      input.value = c ? c.label : chosen;
+    }
+
+    function choose(z) { chosen = z.zone; input.value = z.label; close(); }
+
+    function open(q) {
+      var needle = String(q || '').toLowerCase().replace(/[_/]/g, ' ').trim();
+      var hits;
+      if (!needle) {
+        hits = all.slice();
+      } else {
+        hits = all.map(function (z) { return { z: z, s: scoreZone(z, needle) }; })
+          .filter(function (r) { return r.s > 0; })
+          .sort(function (a, b) { return b.s - a.s || a.z.mins - b.z.mins; })
+          .map(function (r) { return r.z; });
+      }
+
+      list.innerHTML = '';
+      if (!hits.length) {
+        list.appendChild(h('<li class="none">Nothing matches that.</li>'));
+      } else {
+        hits.slice(0, 60).forEach(function (z, i) {
+          var li = h('<li role="option"><span>' + esc(z.label) + '</span>' +
+            '<em>' + esc(z.note) + '</em></li>');
+          if (z.zone === chosen) li.setAttribute('aria-selected', 'true');
+          li.addEventListener('mousedown', function (e) { e.preventDefault(); choose(z); });
+          list.appendChild(li);
+        });
+      }
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      active = -1;
+    }
+
+    input.addEventListener('focus', function () { input.select(); open(''); });
+    input.addEventListener('input', function () { open(input.value); });
+    input.addEventListener('blur', function () { setTimeout(close, 120); });
+
+    input.addEventListener('keydown', function (e) {
+      var items = list.querySelectorAll('li[role="option"]');
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (list.hidden) { open(input.value); return; }
+        e.preventDefault();
+        active += e.key === 'ArrowDown' ? 1 : -1;
+        if (active < 0) active = items.length - 1;
+        if (active >= items.length) active = 0;
+        [].forEach.call(items, function (li, i) {
+          li.setAttribute('aria-selected', i === active ? 'true' : 'false');
+          if (i === active) li.scrollIntoView({ block: 'nearest' });
+        });
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // No arrow keys used: take the single best match, so typing "UTC" and
+        // pressing enter does the obvious thing.
+        var pick = active > -1 ? active : (items.length ? 0 : -1);
+        if (pick > -1) items[pick].dispatchEvent(new MouseEvent('mousedown'));
+      }
+    });
+
+    return function () { return chosen; };
+  }
+
   function zoneList() {
     try {
-      if (typeof Intl.supportedValuesOf === 'function') return Intl.supportedValuesOf('timeZone');
+      if (typeof Intl.supportedValuesOf === 'function') {
+        var l = Intl.supportedValuesOf('timeZone');
+        // Not every runtime lists UTC itself, and it is the one people type.
+        return l.indexOf('UTC') > -1 ? l : ['UTC'].concat(l);
+      }
     } catch (e) {}
     // Older browsers get a short list rather than nothing. Anyone missing can
     // still be set by hand from the host side.

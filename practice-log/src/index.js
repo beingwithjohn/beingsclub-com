@@ -11,6 +11,7 @@ import {
 import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
 import { postContribution, stripeWebhook } from './contribution.js';
+import { postLogin } from './login.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -51,6 +52,15 @@ async function route(request, env, ctx, url) {
   // Stripe calls this, not a browser. It carries no session and proves itself
   // with a signature instead.
   if (path === '/api/stripe/webhook' && method === 'POST') return stripeWebhook(env, request);
+
+  // Anybody can ask for their link back. It posts the same link they already
+  // had to the address it already belongs to, so it grants nothing — and it
+  // answers identically whether or not the address is anybody's.
+  if (path === '/api/login' && method === 'POST') {
+    const body = await readJson(request);
+    if (body === undefined) return bad(400, 'bad json');
+    return postLogin(env, body);
+  }
 
   // The invitation: a weaker credential reaching exactly two endpoints, one
   // that reads the threshold and one that accepts it. Nothing else takes it.
