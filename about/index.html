@@ -107,7 +107,8 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   html[data-layout="float"] .bc-floats{display:block;position:absolute!important;inset:0;z-index:0!important;
     overflow:hidden;pointer-events:none;opacity:1;transition:opacity 650ms ease;}
   html[data-layout="float"] .bc-float{position:absolute;margin:0;overflow:hidden;mix-blend-mode:multiply;
-    filter:saturate(.82) contrast(.9);will-change:transform;}
+    filter:saturate(.82) contrast(.9);will-change:transform;
+    transition:opacity 1.65s cubic-bezier(.22,1,.36,1);}
   html[data-layout="float"] .bc-float img{width:100%;height:100%;object-fit:cover;}
   html[data-layout="float"] [data-float="centre"]{left:50%;top:3%;width:min(570px,48vw);height:57%;opacity:.56;
     transform:translateX(-50%);animation:bc-float-centre 22s ease-in-out infinite;
@@ -129,6 +130,12 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     animation:bc-float-low-right 29s ease-in-out infinite;
     -webkit-mask-image:radial-gradient(ellipse 60% 58% at 52% 55%,#000 0%,rgba(0,0,0,.84) 38%,transparent 82%);
     mask-image:radial-gradient(ellipse 60% 58% at 52% 55%,#000 0%,rgba(0,0,0,.84) 38%,transparent 82%);}
+  html[data-layout="float"] [data-float="centre"]{transition-delay:.12s;}
+  html[data-layout="float"] [data-float="left"]{transition-delay:.34s;}
+  html[data-layout="float"] [data-float="right"]{transition-delay:.5s;}
+  html[data-layout="float"] [data-float="low-left"]{transition-delay:.68s;}
+  html[data-layout="float"] [data-float="low-right"]{transition-delay:.82s;}
+  html[data-layout="float"][data-intro="1"] .bc-float{opacity:0!important;}
   html[data-layout="float"] #bc-logo{z-index:2;mix-blend-mode:multiply;}
   html[data-layout="float"] #bc-logo + div{z-index:3;text-shadow:0 1px 14px #FDFCF9,0 0 30px #FDFCF9;}
   html[data-layout="float"] [data-home-stage][data-home-view] .bc-floats{opacity:.38;}
@@ -212,7 +219,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     .bc-home-field{transition:none;}
     html[data-layout="ribbon"] .bc-ribbon{overflow-x:auto;}
     .bc-ribbon-track{animation:none;transform:none;}
-    .bc-float{animation:none!important;will-change:auto!important;}
+    .bc-float{animation:none!important;transition:none!important;will-change:auto!important;}
   }
 
   @media (max-width:44rem){
