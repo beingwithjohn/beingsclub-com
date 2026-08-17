@@ -83,14 +83,6 @@ def convert(body, key):
       <div class="bc-home-field" data-home-field="door"></div>
     </div>'''
         body = body.replace(stage, stage[:-1] + ' data-home-stage="1">\n    ' + fields, 1)
-        tagline_tail = '</p>\n    </div>\n  </div>\n\n  <div onMouseLeave="{{ leave }}">'
-        assert tagline_tail in body, 'Home tagline tail not found'
-        now = '''<div class="bc-now" role="group" aria-label="Happening now">
-        <a href="/beyondbelief/">Beyond Belief <span aria-hidden="true">·</span> 15 Sep–20 Oct</a>
-        <span class="bc-now-sep" aria-hidden="true">·</span>
-        <a href="/salons/">Next Salon <span aria-hidden="true">·</span> 30 Sep</a>
-      </div>'''
-        body = body.replace(tagline_tail, '</p>\n      ' + now + '\n    </div>\n  </div>\n\n  <div onMouseLeave="{{ leave }}">', 1)
         # "The Door" is the longest label and wraps the door row to two lines on a
         # phone; the article is dropped there so the four cells sit level.
         body = body.replace('>The Door</a>', '><span class="bc-the">The </span>Door</a>')
@@ -353,18 +345,52 @@ CSS = """
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
 
-  /* The home mark is never perfectly still: its four contours move on a long,
-     quiet breath. Door previews bring the inner pages' colour into the room. */
+  /* Motion studies for the home mark. Pulse is the default; query-string variants
+     keep the alternatives available for local comparison. */
   #bc-logo svg{overflow:visible;}
   #bc-logo [data-ring]{transform-box:fill-box;transform-origin:center;will-change:transform;}
-  #bc-logo [data-ring="0"]{animation:bc-ring-breathe-in 13s cubic-bezier(.45,0,.55,1) infinite;}
-  #bc-logo [data-ring="16"]{animation:bc-ring-breathe-soft 13s cubic-bezier(.45,0,.55,1) -1.1s infinite;}
-  #bc-logo [data-ring="30"]{animation:bc-ring-breathe-mid 13s cubic-bezier(.45,0,.55,1) -2.2s infinite;}
-  #bc-logo [data-ring="44"]{animation:bc-ring-breathe-out 13s cubic-bezier(.45,0,.55,1) -4.4s infinite;}
+  html[data-motion="breath"] #bc-logo [data-ring="0"]{animation:bc-ring-breathe-in 13s cubic-bezier(.45,0,.55,1) infinite;}
+  html[data-motion="breath"] #bc-logo [data-ring="16"]{animation:bc-ring-breathe-soft 13s cubic-bezier(.45,0,.55,1) -1.1s infinite;}
+  html[data-motion="breath"] #bc-logo [data-ring="30"]{animation:bc-ring-breathe-mid 13s cubic-bezier(.45,0,.55,1) -2.2s infinite;}
+  html[data-motion="breath"] #bc-logo [data-ring="44"]{animation:bc-ring-breathe-out 13s cubic-bezier(.45,0,.55,1) -4.4s infinite;}
   @keyframes bc-ring-breathe-in{0%,100%{transform:scale(1)}50%{transform:scale(.997)}}
   @keyframes bc-ring-breathe-soft{0%,100%{transform:scale(1)}50%{transform:scale(1.001)}}
   @keyframes bc-ring-breathe-mid{0%,100%{transform:scale(1)}50%{transform:scale(1.003)}}
   @keyframes bc-ring-breathe-out{0%,100%{transform:scale(1)}50%{transform:scale(1.006)}}
+
+  /* Pulse: a 24-second living rhythm. Uneven intervals and amplitudes keep it in
+     motion; the final two seconds are the only true rest before the phrase turns. */
+  html:not([data-motion]) #bc-logo [data-ring="0"],html[data-motion="pulse"] #bc-logo [data-ring="0"]{animation:bc-ring-pulse-in 24s cubic-bezier(.45,0,.55,1) infinite;}
+  html:not([data-motion]) #bc-logo [data-ring="16"],html[data-motion="pulse"] #bc-logo [data-ring="16"]{animation:bc-ring-pulse-soft 24s cubic-bezier(.45,0,.55,1) infinite;}
+  html:not([data-motion]) #bc-logo [data-ring="30"],html[data-motion="pulse"] #bc-logo [data-ring="30"]{animation:bc-ring-pulse-mid 24s cubic-bezier(.45,0,.55,1) infinite;}
+  html:not([data-motion]) #bc-logo [data-ring="44"],html[data-motion="pulse"] #bc-logo [data-ring="44"]{animation:bc-ring-pulse-out 24s cubic-bezier(.45,0,.55,1) infinite;}
+  @keyframes bc-ring-pulse-in{0%,14%,23%,36%,53%,62%,69%,83%,92%,100%{transform:scale(1)}8%{transform:scale(.997)}19%{transform:scale(.9945)}29%{transform:scale(.996)}45%{transform:scale(.993)}58%{transform:scale(.995)}65.5%{transform:scale(.997)}76%{transform:scale(.994)}88%{transform:scale(.996)}}
+  @keyframes bc-ring-pulse-soft{0%,14%,23%,36%,53%,62%,69%,83%,92%,100%{transform:scale(1)}8%{transform:scale(1.001)}19%{transform:scale(1.002)}29%{transform:scale(1.001)}45%{transform:scale(1.0025)}58%{transform:scale(1.0015)}65.5%{transform:scale(1.0008)}76%{transform:scale(1.002)}88%{transform:scale(1.0012)}}
+  @keyframes bc-ring-pulse-mid{0%,14%,23%,36%,53%,62%,69%,83%,92%,100%{transform:scale(1)}8%{transform:scale(1.004)}19%{transform:scale(1.007)}29%{transform:scale(1.0045)}45%{transform:scale(1.008)}58%{transform:scale(1.006)}65.5%{transform:scale(1.0035)}76%{transform:scale(1.007)}88%{transform:scale(1.005)}}
+  @keyframes bc-ring-pulse-out{0%,14%,23%,36%,53%,62%,69%,83%,92%,100%{transform:scale(1)}8%{transform:scale(1.008)}19%{transform:scale(1.013)}29%{transform:scale(1.009)}45%{transform:scale(1.015)}58%{transform:scale(1.011)}65.5%{transform:scale(1.007)}76%{transform:scale(1.013)}88%{transform:scale(1.0095)}}
+
+  /* Ripple: one expansion travels from the inner contour to the outer. */
+  html[data-motion="ripple"] #bc-logo [data-ring]{animation:bc-ring-ripple 8.8s cubic-bezier(.45,0,.55,1) infinite;}
+  html[data-motion="ripple"] #bc-logo [data-ring="0"]{animation-delay:-1.65s;}
+  html[data-motion="ripple"] #bc-logo [data-ring="16"]{animation-delay:-1.1s;}
+  html[data-motion="ripple"] #bc-logo [data-ring="30"]{animation-delay:-.55s;}
+  @keyframes bc-ring-ripple{0%,32%,72%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+
+  /* Drift: the contours follow different slow paths, like layers in a current. */
+  html[data-motion="drift"] #bc-logo [data-ring="0"]{animation:bc-ring-drift-a 11.8s ease-in-out infinite;}
+  html[data-motion="drift"] #bc-logo [data-ring="16"]{animation:bc-ring-drift-b 14.3s ease-in-out -3s infinite;}
+  html[data-motion="drift"] #bc-logo [data-ring="30"]{animation:bc-ring-drift-a 16.5s ease-in-out -7s infinite reverse;}
+  html[data-motion="drift"] #bc-logo [data-ring="44"]{animation:bc-ring-drift-b 19.2s ease-in-out -11s infinite reverse;}
+  @keyframes bc-ring-drift-a{0%,100%{transform:translate(0,0) rotate(0)}33%{transform:translate(2.5px,-1.5px) rotate(.08deg)}66%{transform:translate(-1.5px,2px) rotate(-.06deg)}}
+  @keyframes bc-ring-drift-b{0%,100%{transform:translate(0,0) rotate(0)}33%{transform:translate(-2px,1.5px) rotate(-.07deg)}66%{transform:translate(2px,-1px) rotate(.05deg)}}
+
+  /* Current: a violet signal passes through the contours in sequence. */
+  html[data-motion="current"] #bc-logo [data-ring]{animation:bc-ring-current 8s ease-in-out infinite;}
+  html[data-motion="current"] #bc-logo [data-ring="16"]{animation-delay:.55s;}
+  html[data-motion="current"] #bc-logo [data-ring="30"]{animation-delay:1.1s;}
+  html[data-motion="current"] #bc-logo [data-ring="44"]{animation-delay:1.65s;}
+  html[data-motion="current"] #bc-logo:hover [data-ring]{animation:none;}
+  @keyframes bc-ring-current{0%,28%,100%{stroke:#171916;stroke-width:2.6;opacity:1}12%{stroke:#5A4B7C;stroke-width:4.1;opacity:.86}}
   [data-home-stage]{position:relative;isolation:isolate;}
   [data-home-stage] > :not(.bc-home-fields){position:relative;z-index:1;}
   .bc-home-fields{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
@@ -382,18 +408,9 @@ CSS = """
   [data-home-stage][data-home-view="sits"] [data-home-field="sits"],
   [data-home-stage][data-home-view="about"] [data-home-field="about"],
   [data-home-stage][data-home-view="door"] [data-home-field="door"]{opacity:.22;transform:scale(1);}
-  .bc-now{margin-top:4px;padding-top:13px;border-top:1px solid rgba(38,34,26,.12);
-    display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 12px;
-    font-size:10px;font-weight:650;line-height:1.2;letter-spacing:.11em;text-transform:uppercase;color:#75726A;}
-  .bc-now a{color:#5A4B7C;border-bottom:1px solid rgba(90,75,124,.28);transition:border-color 180ms ease,color 180ms ease;}
-  .bc-now a:hover,.bc-now a:focus-visible{color:#171916;border-color:#171916;}
   @media (prefers-reduced-motion:reduce){
     #bc-logo [data-ring]{animation:none;will-change:auto;}
     .bc-home-field{transition:none;}
-  }
-  @media (max-width:640px){
-    .bc-now{max-width:330px;margin-top:2px;padding-top:11px;gap:6px 9px;font-size:9px;letter-spacing:.08em;}
-    .bc-now-sep{display:none;}
   }
 
   @media (max-width:44rem){
@@ -502,6 +519,10 @@ JS = r"""
   function keyFor(path) { return ROUTES[norm(path)] || null; }
 
   var current = document.documentElement.getAttribute('data-screen') || 'home';
+  var motionStudy = document.documentElement.getAttribute('data-motion');
+  if (motionStudy && current === 'home') {
+    document.title = motionStudy.charAt(0).toUpperCase() + motionStudy.slice(1) + ' motion — Beings Club';
+  }
 
   function show(key, push, path) {
     if (!layers[key]) return;
@@ -833,7 +854,7 @@ BODY = ('<div class="bc-shell" id="bc-shell">\n'
         + '</div>')
 
 # Runs before anything paints, so the page is never shown and then covered.
-ARM_INTRO = ('<script>/* Decide the first-visit intro before anything paints. If this fails,\n   the intro simply never shows and the page is visible — which is the safe way round. */\ntry{var d=document.documentElement;if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>\n')
+ARM_INTRO = ('<script>/* Decide the first-visit intro and local motion study before anything paints. If this fails,\n   the intro simply never shows and the page is visible — which is the safe way round. */\ntry{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drift|current)(?:&|$)/.exec(location.search);if(m){d.setAttribute("data-motion",m[1]);}if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>\n')
 
 # Screens that share better with their own artwork than with the house card.
 # 1200x630, because both cards here are summary_large_image and anything squarer
