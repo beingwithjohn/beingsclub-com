@@ -117,6 +117,7 @@ reaches exactly two endpoints.
 
 ```
 GET    /api/health
+POST   /api/login       {email}    unauthenticated; posts the link back
 GET    /api/state                  everything the app renders
 GET    /api/day?date=YYYY-MM-DD    one day, gated on today being marked
 POST   /api/mark        {date?}    the only thing that records a practice
@@ -138,6 +139,24 @@ POST   /api/host/note/remove {person_id, date}
 POST   /api/host/week    {confirm:true, week_number, ...}
 ```
 
+### `POST /api/login` — three properties, all load-bearing
+
+The one endpoint anybody on the internet can call. It grants nothing new: it
+posts the *same* long-lived link back to the address it already belongs to.
+That is what makes it safer than a password reset — no new credential exists,
+so there is nothing an attacker gains by triggering it. Keep it that way. If
+you find yourself minting a token here, stop.
+
+1. **It answers identically whether or not the address is anybody's.** Always
+   `{ok:true}`, 200, for a member, a stranger and a malformed string alike.
+   Otherwise it becomes a way to ask "is this person in the Sit?", which is a
+   question about ten named people that nobody outside is owed an answer to.
+   Do not add "no account found" however helpful it feels.
+2. **One send per person per hour**, claimed through `send_log`. Without it,
+   anyone could use it to fill somebody else's inbox.
+3. **One email however many runs they are in.** Asking once should not produce
+   three messages.
+
 **Every write is a POST or PATCH, and this is load-bearing.** A link in an email
 must never write: mail scanners, link-preview bots and "safe links" services
 follow every GET they see, and a one-tap URL that recorded a practice would log
@@ -147,6 +166,13 @@ from the page. Do not add a GET that writes, ever.
 ## 6. Connecting Notion
 
 Nothing here forbids it. These are the places it fits and the places it does not.
+
+**Start from this:** identity never needs Notion. Everything required to know
+who somebody is and to let them back in — the address, the sealed token, the
+run they belong to — is already in D1, and `POST /api/login` rebuilds the link
+from it. Notion can be a mirror of what happened. It must not become the place
+the system looks to decide who someone is, or an outage at Notion becomes a
+locked door here.
 
 ### Safe to mirror
 
