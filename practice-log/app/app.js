@@ -277,15 +277,118 @@
     opts = opts || {};
     root.innerHTML = '';
     var app = h('<div class="' + (opts.dark ? 'dark' : 'app') + '"></div>');
-    app.appendChild(h('<div class="bar">' +
+
+    // The menu rides on every screen except the ones there is nowhere to go
+    // from — the threshold, and a log nobody has signed into.
+    var withMenu = S && S.person && !opts.noMenu;
+
+    var bar = h('<div class="bar">' +
       (opts.left || '<span class="brand">Beings Club</span>') +
-      (opts.right || '') + '</div>'));
+      '<span style="display:flex;align-items:center;gap:16px;">' +
+        (opts.right || '') +
+        (withMenu ? '<button class="menu-btn" id="menu" aria-label="Menu" ' +
+          'aria-haspopup="dialog"><span></span><span></span><span></span></button>' : '') +
+      '</span></div>');
+    app.appendChild(bar);
+
     var main = h('<main></main>');
     if (opts.above) main.appendChild(opts.above);
     main.appendChild(inner);
     app.appendChild(main);
     if (opts.foot) app.appendChild(opts.foot);
     root.appendChild(app);
+
+    var btn = document.getElementById('menu');
+    if (btn) btn.addEventListener('click', openMenu);
+  }
+
+  // -------------------------------------------------------------------------
+  // the menu
+  // -------------------------------------------------------------------------
+  // Everywhere you can go, in one place. What is *not* here matters as much:
+  // the room only appears once there is a room to see, so the drawer cannot
+  // become the way around the rule that you tap before you look.
+  function openMenu() {
+    closeMenu();
+
+    var items = [];
+    var phase = S.run.phase;
+
+    if (phase === 'running' || phase === 'closed') {
+      items.push({ id: 'today', label: 'Today', sub: todaySub(), view: null });
+    }
+    if (S.roster) {
+      items.push({
+        id: 'room',
+        label: 'The room',
+        sub: phase === 'room' ? 'Who has taken a place' : 'The people sitting the same days as you',
+        view: 'room'
+      });
+    }
+    items.push({ id: 'settings', label: 'Settings', sub: 'Your hour, your timezone, your line', view: 'settings' });
+    items.push({
+      id: 'contribute',
+      label: 'Contribute',
+      sub: (S.contributions || []).length ? 'You have, thank you' : 'Pay what you want, whenever',
+      view: 'contribute'
+    });
+
+    var drawer = h('<div class="drawer" role="dialog" aria-modal="true" aria-label="Menu">' +
+      '<div class="head"><span class="brand">' + esc(S.run.name) + '</span>' +
+        '<button class="barlink" id="mclose">Close</button></div>' +
+      items.map(function (it) {
+        return '<button class="item" id="m-' + it.id + '"' +
+          (sameView(it.view) ? ' aria-current="page"' : '') + '>' +
+          esc(it.label) + '<small>' + esc(it.sub) + '</small></button>';
+      }).join('') +
+      // Set apart and on ink, because it is the one thing nobody else reads.
+      '<button class="item ink" id="m-john">Something just for John' +
+        '<small>Private, and never in anyone else’s view</small></button>' +
+      '<div class="tail"><p class="small">Nothing here is scored. ' +
+      'Nothing counts forward, so nothing can be lost.</p></div>' +
+    '</div>');
+
+    var scrim = h('<div class="scrim"></div>');
+    document.body.appendChild(scrim);
+    document.body.appendChild(drawer);
+    requestAnimationFrame(function () { scrim.classList.add('in'); drawer.classList.add('in'); });
+
+    scrim.addEventListener('click', closeMenu);
+    drawer.querySelector('#mclose').addEventListener('click', closeMenu);
+    items.forEach(function (it) {
+      drawer.querySelector('#m-' + it.id).addEventListener('click', function () {
+        closeMenu(); go(it.view);
+      });
+    });
+    drawer.querySelector('#m-john').addEventListener('click', function () {
+      closeMenu(); go('john');
+    });
+
+    document.addEventListener('keydown', onMenuKey);
+    try { drawer.querySelector('.item').focus(); } catch (e) {}
+  }
+
+  function sameView(v) {
+    if (v === null) return view === null || view === 'cohort';
+    return view === v;
+  }
+
+  function todaySub() {
+    if (!S.today) return '';
+    if (S.today.marked) return 'You practised';
+    return 'Not yet';
+  }
+
+  function onMenuKey(e) { if (e.key === 'Escape') closeMenu(); }
+
+  function closeMenu() {
+    document.removeEventListener('keydown', onMenuKey);
+    [].forEach.call(document.querySelectorAll('.drawer, .scrim'), function (el) {
+      el.classList.remove('in');
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, reduced ? 0 : 300);
+    });
+    var btn = document.getElementById('menu');
+    if (btn) { try { btn.focus(); } catch (e) {} }
   }
 
   // -------------------------------------------------------------------------
@@ -553,9 +656,6 @@
 
     inner.appendChild(body);
 
-    var foot = h('<div class="foot"><button class="ul" id="setl">Settings</button>' +
-      '<span>Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
-
     shell(inner, {
       // During the run the room is somewhere you went, so it needs a way back.
       left: before
@@ -567,8 +667,6 @@
     });
     var back = document.getElementById('back');
     if (back) back.addEventListener('click', function () { go('cohort'); });
-    document.getElementById('setl').addEventListener('click', function () { go('settings'); });
-    document.getElementById('jl').addEventListener('click', function () { go('john'); });
   }
 
   function startsLine() {
@@ -688,7 +786,7 @@
       '<button class="btn" id="begin">Begin</button>' +
     '</div>');
 
-    shell(inner, { right: '<span class="barlab">Set up</span>' });
+    shell(inner, { right: '<span class="barlab">Set up</span>', noMenu: true });
 
     var readTime = wireTimeFields(inner, zone, S.person.nudge_hour);
 
@@ -761,7 +859,7 @@
     foot.appendChild(S.yesterday.markable
       ? h('<span>Practised yesterday? <button class="ul" id="yday">Add it</button></span>')
       : h('<span></span>'));
-    foot.appendChild(h('<button class="ul" id="setl">Settings</button>'));
+    foot.appendChild(h('<span></span>'));
 
     shell(inner, {
       right: '<span class="barlab">' + esc(dayLabel()) + '</span>',
@@ -772,7 +870,6 @@
     tap.addEventListener('click', function () { doTap(tap); });
     var y = document.getElementById('yday');
     if (y) y.addEventListener('click', function () { go('yesterday'); });
-    document.getElementById('setl').addEventListener('click', function () { go('settings'); });
   }
 
   // Someone arriving after a stretch away. Read from their own marks, never
@@ -893,11 +990,8 @@
         '<button class="quiet" id="skip">Skip — no note today</button></div>' +
     '</div>');
 
-    var foot = h('<div class="foot" style="justify-content:center;">' +
-      '<span>Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
-
     if (!reduced) inner.classList.add('rise');
-    shell(inner, { right: '<span class="barlab on">Logged</span>', foot: foot });
+    shell(inner, { right: '<span class="barlab on">Logged</span>' });
     requestAnimationFrame(function () { inner.classList.add('in'); });
 
     var ta = inner.querySelector('#nt'), left = inner.querySelector('#left');
@@ -915,7 +1009,6 @@
       go('cohort');
     });
     inner.querySelector('#skip').addEventListener('click', function () { go('cohort'); });
-    document.getElementById('jl').addEventListener('click', function () { go('john'); });
   }
 
   // -------------------------------------------------------------------------
@@ -962,13 +1055,6 @@
     }
     inner.appendChild(body);
 
-    // The way into the room during the run. It sits with the tap already made,
-    // so it is behind the same threshold as the rest of the room.
-    var foot = h('<div class="foot">' +
-      '<span><button class="ul" id="setl">Settings</button>' +
-      (S.roster ? ' &nbsp;·&nbsp; <button class="ul" id="room">The room</button>' : '') + '</span>' +
-      '<span>Something just for John? <button class="ul" id="jl">Ask privately</button></span></div>');
-
     shell(inner, {
       right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>',
       above: answerStrip(),
@@ -977,10 +1063,7 @@
 
     document.getElementById('tw').addEventListener('click', function () { tab = 'week'; render(); });
     document.getElementById('ta').addEventListener('click', function () { tab = 'all'; render(); });
-    document.getElementById('setl').addEventListener('click', function () { go('settings'); });
-    document.getElementById('jl').addEventListener('click', function () { go('john'); });
-    var room = document.getElementById('room');
-    if (room) room.addEventListener('click', function () { go('room'); });
+
   }
 
   function allTabLabel() {
@@ -1241,8 +1324,10 @@
       'If an answer would help others, he will re-ask it anonymously — never your words, never your name.</p>' +
     '</div>');
 
+    // A full-page takeover, so none of the usual furniture — including the
+    // menu. The door shuts behind you.
     shell(inner, {
-      dark: true,
+      dark: true, noMenu: true,
       left: '<span class="brand">Just to John</span>',
       right: '<button class="barlink" id="close">Close</button>'
     });

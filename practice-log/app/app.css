@@ -117,6 +117,63 @@ h1, h2, h3 { font-weight: 600; color: var(--ink); text-wrap: pretty; }
 .barlink { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 .barlink:hover { color: var(--you); }
 
+/* ---------------------------------------------------------------- menu ---- */
+/* Everywhere you can go, in one place, reachable from every screen and in the
+   way of none — which is what the private line to John was always meant to be. */
+
+.menu-btn {
+  display: inline-flex; flex-direction: column; justify-content: center; gap: 4px;
+  width: 26px; height: 18px; flex: none; padding: 0;
+}
+.menu-btn span { display: block; height: 1px; width: 100%; background: var(--ink); transition: background .15s; }
+.menu-btn:hover span { background: var(--you); }
+.dark .menu-btn span { background: var(--paper); }
+
+.scrim {
+  position: fixed; inset: 0; background: rgba(23, 25, 22, 0.34);
+  opacity: 0; transition: opacity .22s ease-out; z-index: 40;
+}
+.scrim.in { opacity: 1; }
+
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 41;
+  width: min(21rem, 86vw);
+  background: var(--paper); border-left: 1px solid var(--hair-2);
+  display: flex; flex-direction: column; overflow-y: auto;
+  transform: translateX(101%);
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+}
+.drawer.in { transform: none; }
+
+.drawer .head {
+  padding: 16px var(--pad); border-bottom: 1px solid var(--hair);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+}
+.drawer .item {
+  display: block; width: 100%; text-align: left;
+  padding: 18px var(--pad); border-bottom: 1px solid var(--hair);
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink);
+  transition: background .15s;
+}
+.drawer .item small {
+  display: block; font-size: 15px; font-weight: 400; color: var(--muted);
+  letter-spacing: 0; margin-top: 2px;
+}
+.drawer .item:hover { background: var(--lilac); }
+.drawer .item[aria-current="page"] { color: var(--you); }
+
+/* Black is John, even here. The one item on ink is the one only he reads. */
+.drawer .item.ink { background: var(--ink); color: var(--paper); border-bottom-color: var(--ink); }
+.drawer .item.ink small { color: rgba(253, 252, 249, 0.6); }
+.drawer .item.ink:hover { background: #22241f; }
+
+.drawer .tail { margin-top: auto; padding: var(--pad) var(--pad) calc(var(--pad) + 8px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer { transition-duration: .01ms; }
+  .scrim { transition-duration: .01ms; }
+}
+
 main { flex: 1; display: flex; flex-direction: column; }
 
 .centre {
