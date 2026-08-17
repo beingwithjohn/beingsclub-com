@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>/* Decide the first-visit intro and local motion study before anything paints. If this fails,
+<script>/* Decide first-visit intro and local design studies before anything paints. If this fails,
    the intro simply never shows and the page is visible — which is the safe way round. */
-try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drift|current)(?:&|$)/.exec(location.search);if(m){d.setAttribute("data-motion",m[1]);}if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>
+try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drift|current)(?:&|$)/.exec(location.search),l=/(?:^|[?&])layout=(ribbon|float)(?:&|$)/.exec(location.search);if(m){d.setAttribute("data-motion",m[1]);}if(d.getAttribute("data-screen")==="home"){d.setAttribute("data-layout",l?l[1]:"float");}if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>
 <title>About — why Beings Club exists · Beings Club</title>
 <meta name="description" content="Two principles hold the room, and everything else is free to change. Where Beings Club came from, and why it matters.">
 <link rel="canonical" href="https://beingsclub.com/about/">
@@ -55,6 +55,94 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   #s-home a:not([data-vh]):hover{color:#171916;}
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
+
+  /* Ribbon study: the reference's image shelf, oversized editorial statement and
+     floating paper panel, translated into the existing Beings Club language. */
+  .bc-ribbon{display:none;}
+  html[data-layout="ribbon"] #s-home{display:flex;align-items:center;justify-content:center;padding:24px;background:#DEDCD7;}
+  html[data-layout="ribbon"] #s-home > div{width:min(1160px,calc(100vw - 48px));height:min(790px,calc(100svh - 48px))!important;min-height:600px;
+    border-radius:18px;overflow:hidden;box-shadow:0 22px 70px rgba(23,25,22,.08);}
+  html[data-layout="ribbon"] [data-home-stage]{align-items:stretch!important;justify-content:flex-start!important;gap:0!important;padding:0!important;}
+  html[data-layout="ribbon"] .bc-home-fields{display:none;}
+  html[data-layout="ribbon"] .bc-ribbon{--ribbon-travel:-12%;display:block;position:relative;width:100%;height:clamp(104px,16vh,138px);flex:0 0 auto;
+    overflow:hidden;border-bottom:1px solid rgba(38,34,26,.1);background:#F0EEE8;}
+  .bc-ribbon-track{height:100%;display:flex;width:max-content;transform:translateX(0);
+    animation:bc-ribbon-drift 34s cubic-bezier(.45,0,.55,1) infinite alternate;}
+  .bc-ribbon:hover .bc-ribbon-track,.bc-ribbon:focus-within .bc-ribbon-track{animation-play-state:paused;}
+  .bc-ribbon-card{position:relative;display:block;flex:0 0 clamp(96px,11vw,138px);height:100%;overflow:hidden;
+    border-right:1px solid rgba(253,252,249,.68);color:#FDFCF9;isolation:isolate;}
+  .bc-ribbon-card img{width:100%;height:100%;object-fit:cover;filter:saturate(.92) contrast(.94);
+    transition:transform 850ms cubic-bezier(.22,1,.36,1),filter 450ms ease;}
+  .bc-ribbon-card:nth-child(1) img{object-position:center 72%;}
+  .bc-ribbon-card:nth-child(3) img{object-position:center 56%;}
+  .bc-ribbon-card:nth-child(4) img{object-position:center 43%;}
+  .bc-ribbon-card span{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;padding:4px 6px;
+    background:rgba(23,25,22,.82);color:#FDFCF9;font-size:9px;font-weight:700;line-height:1.15;
+    letter-spacing:.12em;text-transform:uppercase;text-align:center;opacity:0;transform:translateY(5px);
+    transition:opacity 220ms ease,transform 320ms cubic-bezier(.22,1,.36,1);}
+  .bc-ribbon-card:hover img,.bc-ribbon-card:focus-visible img{transform:scale(1.075);filter:saturate(1.06) contrast(1);}
+  .bc-ribbon-card:hover span,.bc-ribbon-card:focus-visible span{opacity:1;transform:translateY(0);}
+  .bc-ribbon-card:focus-visible{outline:3px solid #5A4B7C;outline-offset:-3px;}
+  @keyframes bc-ribbon-drift{from{transform:translateX(0)}to{transform:translateX(var(--ribbon-travel))}}
+  html[data-layout="ribbon"] #bc-logo{width:min(500px,68vw)!important;max-height:clamp(100px,17vh,145px)!important;
+    flex:0 1 145px!important;margin:clamp(18px,3.5vh,32px) auto 0;padding:0 20px;}
+  html[data-layout="ribbon"] #bc-logo + div{display:flex!important;flex:1 1 auto;min-height:0;flex-direction:column;align-items:center;
+    justify-content:flex-start;gap:clamp(10px,2vh,18px)!important;padding:clamp(10px,2vh,18px) 28px 20px;}
+  html[data-layout="ribbon"] #bc-logo + div > p:first-child{max-width:15ch!important;font-size:clamp(42px,6.25vw,78px)!important;
+    font-weight:720!important;line-height:.92!important;letter-spacing:-.062em!important;text-wrap:balance!important;}
+  html[data-layout="ribbon"] #bc-tagline{max-width:52ch;white-space:normal;font-size:clamp(14px,1.55vw,17px)!important;color:#5E5B54!important;}
+  @media (max-width:640px){
+    html[data-layout="ribbon"] #s-home{padding:0;}
+    html[data-layout="ribbon"] #s-home > div{width:100%;height:100svh!important;min-height:620px;border-radius:0;box-shadow:none;}
+    html[data-layout="ribbon"] .bc-ribbon{--ribbon-travel:-52%;height:108px;}
+    html[data-layout="ribbon"] #bc-logo{width:min(390px,78vw)!important;max-height:112px!important;flex-basis:112px!important;margin-top:18px;}
+    html[data-layout="ribbon"] #bc-logo + div{padding:10px 20px 16px;}
+    html[data-layout="ribbon"] #bc-logo + div > p:first-child{font-size:clamp(38px,11.5vw,54px)!important;max-width:12ch!important;}
+    html[data-layout="ribbon"] #bc-tagline{max-width:31ch;font-size:14px!important;line-height:1.4!important;}
+  }
+
+  /* Floating-image study: preserve the live composition and let a few feathered
+     images move behind the open-outline wordmark. Copy stays in the quiet centre. */
+  .bc-floats{display:none;}
+  html[data-layout="float"] .bc-floats{display:block;position:absolute!important;inset:0;z-index:0!important;
+    overflow:hidden;pointer-events:none;opacity:1;transition:opacity 650ms ease;}
+  html[data-layout="float"] .bc-float{position:absolute;margin:0;overflow:hidden;mix-blend-mode:multiply;
+    filter:saturate(.82) contrast(.9);will-change:transform;}
+  html[data-layout="float"] .bc-float img{width:100%;height:100%;object-fit:cover;}
+  html[data-layout="float"] [data-float="centre"]{left:50%;top:3%;width:min(570px,48vw);height:57%;opacity:.56;
+    transform:translateX(-50%);animation:bc-float-centre 22s ease-in-out infinite;
+    -webkit-mask-image:radial-gradient(ellipse 58% 62% at 50% 42%,#000 0%,rgba(0,0,0,.92) 42%,transparent 84%);
+    mask-image:radial-gradient(ellipse 58% 62% at 50% 42%,#000 0%,rgba(0,0,0,.92) 42%,transparent 84%);}
+  html[data-layout="float"] [data-float="left"]{left:1.5%;top:12%;width:clamp(120px,16vw,220px);height:31%;opacity:.3;
+    animation:bc-float-left 27s ease-in-out infinite;
+    -webkit-mask-image:radial-gradient(ellipse 58% 61% at 48% 48%,#000 0%,rgba(0,0,0,.88) 42%,transparent 84%);
+    mask-image:radial-gradient(ellipse 58% 61% at 48% 48%,#000 0%,rgba(0,0,0,.88) 42%,transparent 84%);}
+  html[data-layout="float"] [data-float="right"]{right:1.5%;top:10%;width:clamp(118px,15vw,205px);height:29%;opacity:.32;
+    animation:bc-float-right 24s ease-in-out infinite;
+    -webkit-mask-image:radial-gradient(ellipse 60% 62% at 52% 46%,#000 0%,rgba(0,0,0,.9) 40%,transparent 84%);
+    mask-image:radial-gradient(ellipse 60% 62% at 52% 46%,#000 0%,rgba(0,0,0,.9) 40%,transparent 84%);}
+  html[data-layout="float"] [data-float="low-left"]{left:7%;bottom:2%;width:clamp(105px,13vw,175px);height:23%;opacity:.18;
+    animation:bc-float-low-left 31s ease-in-out infinite;
+    -webkit-mask-image:radial-gradient(ellipse 60% 58% at 48% 54%,#000 0%,rgba(0,0,0,.84) 38%,transparent 82%);
+    mask-image:radial-gradient(ellipse 60% 58% at 48% 54%,#000 0%,rgba(0,0,0,.84) 38%,transparent 82%);}
+  html[data-layout="float"] [data-float="low-right"]{right:7%;bottom:1%;width:clamp(110px,14vw,190px);height:24%;opacity:.2;
+    animation:bc-float-low-right 29s ease-in-out infinite;
+    -webkit-mask-image:radial-gradient(ellipse 60% 58% at 52% 55%,#000 0%,rgba(0,0,0,.84) 38%,transparent 82%);
+    mask-image:radial-gradient(ellipse 60% 58% at 52% 55%,#000 0%,rgba(0,0,0,.84) 38%,transparent 82%);}
+  html[data-layout="float"] #bc-logo{z-index:2;mix-blend-mode:multiply;}
+  html[data-layout="float"] #bc-logo + div{z-index:3;text-shadow:0 1px 14px #FDFCF9,0 0 30px #FDFCF9;}
+  html[data-layout="float"] [data-home-stage][data-home-view] .bc-floats{opacity:.38;}
+  @keyframes bc-float-centre{0%,100%{transform:translateX(-50%) translate3d(0,0,0) scale(1)}48%{transform:translateX(-50%) translate3d(8px,-7px,0) scale(1.025)}76%{transform:translateX(-50%) translate3d(-6px,4px,0) scale(1.012)}}
+  @keyframes bc-float-left{0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}50%{transform:translate3d(10px,-12px,0) rotate(.8deg)}}
+  @keyframes bc-float-right{0%,100%{transform:translate3d(0,0,0) rotate(1.6deg)}55%{transform:translate3d(-9px,11px,0) rotate(-.6deg)}}
+  @keyframes bc-float-low-left{0%,100%{transform:translate3d(0,0,0) rotate(1deg)}45%{transform:translate3d(7px,-8px,0) rotate(-1.2deg)}}
+  @keyframes bc-float-low-right{0%,100%{transform:translate3d(0,0,0) rotate(-1.4deg)}52%{transform:translate3d(-8px,-10px,0) rotate(.7deg)}}
+  @media (max-width:640px){
+    html[data-layout="float"] [data-float="centre"]{top:8%;width:92vw;height:45%;opacity:.38;}
+    html[data-layout="float"] [data-float="left"]{left:-13%;top:17%;width:42vw;height:25%;opacity:.24;}
+    html[data-layout="float"] [data-float="right"]{right:-12%;top:16%;width:40vw;height:24%;opacity:.26;}
+    html[data-layout="float"] [data-float="low-left"],html[data-layout="float"] [data-float="low-right"]{display:none;}
+  }
 
   /* Motion studies for the home mark. Pulse is the default; query-string variants
      keep the alternatives available for local comparison. */
@@ -122,6 +210,9 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   @media (prefers-reduced-motion:reduce){
     #bc-logo [data-ring]{animation:none;will-change:auto;}
     .bc-home-field{transition:none;}
+    html[data-layout="ribbon"] .bc-ribbon{overflow-x:auto;}
+    .bc-ribbon-track{animation:none;transform:none;}
+    .bc-float{animation:none!important;will-change:auto!important;}
   }
 
   @media (max-width:44rem){
@@ -231,6 +322,27 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       <div class="bc-home-field" data-home-field="sits"></div>
       <div class="bc-home-field" data-home-field="about"></div>
       <div class="bc-home-field" data-home-field="door"></div>
+    </div>
+    <div class="bc-floats" aria-hidden="true">
+      <figure class="bc-float" data-float="centre"><img loading="eager" fetchpriority="high" decoding="async" src="/assets/img/salons-rainbow-circle.jpg" alt=""></figure>
+      <figure class="bc-float" data-float="left"><img loading="lazy" decoding="async" src="/assets/img/about-aura.jpg" alt=""></figure>
+      <figure class="bc-float" data-float="right"><img loading="lazy" decoding="async" src="/assets/img/water-arch.jpg" alt=""></figure>
+      <figure class="bc-float" data-float="low-left"><img loading="lazy" decoding="async" src="/assets/img/field-rings.jpg" alt=""></figure>
+      <figure class="bc-float" data-float="low-right"><img loading="lazy" decoding="async" src="/assets/img/bb-leap.jpg" alt=""></figure>
+    </div>
+    <div class="bc-ribbon" aria-label="Explore Beings Club through images">
+      <div class="bc-ribbon-track">
+        <a class="bc-ribbon-card" href="/salons/" aria-label="Salons"><img loading="lazy" decoding="async" src="/assets/img/salons-rainbow-circle.jpg" alt=""><span>Salons</span></a>
+        <a class="bc-ribbon-card" href="/sits/" aria-label="Sits"><img loading="lazy" decoding="async" src="/assets/img/sits-shapes.jpg" alt=""><span>Sits</span></a>
+        <a class="bc-ribbon-card" href="/about/" aria-label="About"><img loading="lazy" decoding="async" src="/assets/img/about-aura.jpg" alt=""><span>About</span></a>
+        <a class="bc-ribbon-card" href="/join/" aria-label="The Door"><img loading="lazy" decoding="async" src="/assets/img/water-arch.jpg" alt=""><span>The Door</span></a>
+        <a class="bc-ribbon-card" href="/about/" aria-label="The field"><img loading="lazy" decoding="async" src="/assets/img/field-rings.jpg" alt=""><span>The field</span></a>
+        <a class="bc-ribbon-card" href="/salons/" aria-label="Gather"><img loading="lazy" decoding="async" src="/assets/img/tree-gathering.jpg" alt=""><span>Gather</span></a>
+        <a class="bc-ribbon-card" href="/sits/" aria-label="Practice"><img loading="lazy" decoding="async" src="/assets/img/ripples.jpg" alt=""><span>Practice</span></a>
+        <a class="bc-ribbon-card" href="/beyondbelief/" aria-label="Beyond Belief"><img loading="lazy" decoding="async" src="/assets/img/beyond-belief-cover.jpg" alt=""><span>Beyond Belief</span></a>
+        <a class="bc-ribbon-card" href="/beyondbelief/" aria-label="Take the leap"><img loading="lazy" decoding="async" src="/assets/img/bb-leap.jpg" alt=""><span>Take the leap</span></a>
+        <a class="bc-ribbon-card" href="/join/" aria-label="Enter"><img loading="lazy" decoding="async" src="/assets/img/vessel.jpg" alt=""><span>Enter</span></a>
+      </div>
     </div>
     <div id="bc-logo" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:100%;display:flex;align-items:center;justify-content:center;line-height:0;flex:0 1 auto;min-height:0;"><img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;max-height:100%;object-fit:contain;"></div>
     <div style="display:grid;gap:10px;justify-items:center;text-align:center;flex:0 0 auto;max-width:100%;">
@@ -809,6 +921,13 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   var motionStudy = document.documentElement.getAttribute('data-motion');
   if (motionStudy && current === 'home') {
     document.title = motionStudy.charAt(0).toUpperCase() + motionStudy.slice(1) + ' motion — Beings Club';
+  }
+  var layoutStudy = document.documentElement.getAttribute('data-layout');
+  if (layoutStudy === 'ribbon' && current === 'home') {
+    document.title = 'Image ribbon study — Beings Club';
+  }
+  if (layoutStudy === 'float' && current === 'home' && /(?:^|[?&])layout=float(?:&|$)/.test(location.search)) {
+    document.title = 'Floating images study — Beings Club';
   }
 
   function show(key, push, path) {
