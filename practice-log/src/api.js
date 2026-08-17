@@ -236,7 +236,10 @@ async function sharedView(env, { person, run }, anchor, today, mine) {
   }
 
   return {
-    size: sizeRow?.n || 1,
+    // Honestly zero when nobody else is in the run. `|| 1` here once invented
+    // a cohort of one, which made a log kept alone announce that its keeper
+    // was "the first one in". Every division guards itself instead.
+    size: sizeRow?.n ?? 0,
     from,
     today_count: byDate.get(today) || 0,
     days,

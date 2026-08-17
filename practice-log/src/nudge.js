@@ -23,7 +23,11 @@ export async function runNudges(env, at) {
     `SELECT p.*, r.slug AS run_slug, r.name AS run_name, r.mode, r.starts_on,
             r.length_days, r.week_labels
        FROM person p JOIN run r ON r.id = p.run_id
-      WHERE p.left_at IS NULL AND p.nudge_on = 1 AND p.is_host = 0`,
+      -- The host is not excluded. He practises like everyone else and gets the
+      -- same invitation to say so; what makes him the host is that he is not
+      -- one of the ten, not on the roster, and not in their counts. If he does
+      -- not want the daily he turns it off in Settings, the same as anyone.
+      WHERE p.left_at IS NULL AND p.nudge_on = 1`,
   ).all();
 
   let sent = 0;

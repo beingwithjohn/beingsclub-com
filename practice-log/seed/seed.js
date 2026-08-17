@@ -23,7 +23,6 @@
 // will not be the links printed here.
 
 import { mintToken } from '../src/auth.js';
-import { addDays, diffDays } from '../src/days.js';
 
 const args = process.argv.slice(2);
 const one = (name, fallback = null) => {
@@ -55,11 +54,6 @@ const standfirst = one('standfirst');
 const places = one('places');
 const blurb = one('blurb', DEFAULT_BLURB());
 const meets = one('meets');
-// --demo fills a run with invented history so the whole thing can be walked
-// before a real one starts. Only ever for a rehearsal run: it writes marks and
-// notes nobody made.
-const demo = flag('demo');
-
 // A range, not a figure: --suggest 150-300. Offered only if someone asks.
 const suggest = one('suggest');
 const suggestPair = suggest ? suggest.split('-').map(function (n) { return Math.round(Number(n.trim()) * 100); }) : [];
@@ -112,23 +106,6 @@ const entries = [
 
 if (!entries.length) console.error('note: no --person given, so this makes an empty run');
 
-const DEMO_NOTES = [
-  'Restless the whole way through. Sat anyway.',
-  'Ten minutes before the house woke up.',
-  'On the train. Eyes open.',
-  'Fell asleep. Counting it.',
-  'Sat in the car outside work. Better than not.',
-  'Easiest one yet.',
-];
-
-const DEMO_LINES = [
-  'Sceptical, but I keep coming back to it.',
-  'I want to stop starting over.',
-  'Curious what happens if I actually do it daily.',
-  'Something to hold on to this autumn.',
-  'A friend said it changed her year.',
-];
-
 const links = [];
 for (const entry of entries) {
   const m = /^(.*?)<([^>]+)>\s*(\S+)?\s*(\d{4}-\d{2}-\d{2})?\s*$/.exec(entry.raw);
@@ -158,59 +135,7 @@ for (const entry of entries) {
 
   links.push(`${entry.host ? '[host] ' : ''}${personName} <${email}>  ${tz}\n  ${appUrl}?t=${encodeURIComponent(token)}`);
 
-  // ---- invented history, for a rehearsal ----------------------------------
-  //
-  // The first person listed is the one walking through, so their today is
-  // deliberately left unmarked — they should arrive at the question, not past
-  // it. Everyone else has a today, so the room has somebody in it.
-  if (demo && !entry.host) {
-    const first = entries.filter((e) => !e.host)[0] === entry;
-    for (const [d, on] of demoDays(entry.raw)) {
-      if (first && on === today()) continue;
-      lines.push(
-        `INSERT INTO day_mark (person_id, on_date) SELECT p.id, ${q(on)} FROM person p ` +
-        `JOIN run r ON r.id = p.run_id WHERE r.slug = ${q(slug)} AND p.email = ${q(email)} ` +
-        `ON CONFLICT DO NOTHING;`,
-      );
-      const note = DEMO_NOTES[(seed(email + d) >>> 3) % DEMO_NOTES.length];
-      if (!first && seed(email + on) % 5 === 0) {
-        lines.push(
-          `INSERT INTO note (person_id, on_date, body) SELECT p.id, ${q(on)}, ${q(note)} FROM person p ` +
-          `JOIN run r ON r.id = p.run_id WHERE r.slug = ${q(slug)} AND p.email = ${q(email)} ` +
-          `ON CONFLICT DO NOTHING;`,
-        );
-      }
-    }
-    // Set up already, so a rehearsal room is populated rather than a row of
-    // strangers who have never opened it.
-    lines.push(
-      `UPDATE person SET setup_at = unixepoch(), line = ${q(DEMO_LINES[seed(email) % DEMO_LINES.length])} ` +
-      `WHERE email = ${q(email)} AND run_id = (SELECT id FROM run WHERE slug = ${q(slug)});`,
-      '',
-    );
-  }
 }
-
-// Deterministic, so re-running produces the same history rather than a new
-// invented past every time.
-function seed(s) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return h >>> 0;
-}
-
-/** [dayIndex, date] pairs this person "practised", from the start until today. */
-function demoDays(who) {
-  const from = startsOn;
-  const elapsed = Math.min(diffDays(from, today()), (days || 1) - 1);
-  const out = [];
-  for (let d = 0; d <= elapsed; d++) {
-    // Around three days in four, unevenly, with real gaps.
-    if (seed(who + ':' + d) % 100 < 74) out.push([d, addDays(from, d)]);
-  }
-  return out;
-}
-
 
 console.log(lines.join('\n'));
 

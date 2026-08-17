@@ -326,6 +326,13 @@
       });
     }
     items.push({ id: 'settings', label: 'Settings', sub: 'Your hour, your timezone, your line', view: 'settings' });
+
+    // The host practises like everyone else — his own marks, his own grid,
+    // and he is deliberately not one of the ten, so he never shows in their
+    // counts or on the roster. The other chair is a page, not a second login.
+    if (S.person.is_host) {
+      items.push({ id: 'host', label: 'Hosting', sub: 'What people asked, and who is in', href: 'host/' });
+    }
     items.push({
       id: 'contribute',
       label: 'Contribute',
@@ -357,7 +364,9 @@
     drawer.querySelector('#mclose').addEventListener('click', closeMenu);
     items.forEach(function (it) {
       drawer.querySelector('#m-' + it.id).addEventListener('click', function () {
-        closeMenu(); go(it.view);
+        closeMenu();
+        if (it.href) { location.href = it.href; return; }
+        go(it.view);
       });
     });
     drawer.querySelector('#m-john').addEventListener('click', function () {
@@ -662,8 +671,7 @@
         ? '<span class="brand">Beings Club</span>'
         : '<button class="barlink" id="back">← Today</button>',
       right: '<span class="barlab">' + esc(before ? r.name : 'The room') + '</span>',
-      above: answerStrip(),
-      foot: foot
+      above: answerStrip()
     });
     var back = document.getElementById('back');
     if (back) back.addEventListener('click', function () { go('cohort'); });
@@ -947,10 +955,23 @@
     setTimeout(afterTap, 2000);
   }
 
+  // How many people other than you practised today.
+  //
+  // The host is not one of the ten and is not in these counts, so subtracting
+  // yourself is right for a participant and wrong for him — his own mark was
+  // never in the total to begin with.
+  function othersToday() {
+    if (!S.shared) return 0;
+    return S.shared.today_count - (S.person.is_host ? 0 : 1);
+  }
+
+  /** True when there is no cohort at all — a log being kept alone. */
+  function alone() { return !S.shared || S.shared.size === 0; }
+
   function revealLine() {
-    if (offline) return 'Your day is in.';
-    if (!S.shared) return 'Your day is in.';
-    var others = S.shared.today_count - 1;
+    if (offline || !S.shared) return 'Your day is in.';
+    if (alone()) return 'Your day is in.';
+    var others = othersToday();
     if (others <= 0) return 'You’re the first one in.';
     return cap(word(others)) + ' other' + (others === 1 ? '' : 's') +
       (others === 1 ? ' has' : ' have') + ' practised so far today.';
@@ -1057,8 +1078,7 @@
 
     shell(inner, {
       right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>',
-      above: answerStrip(),
-      foot: foot
+      above: answerStrip()
     });
 
     document.getElementById('tw').addEventListener('click', function () { tab = 'week'; render(); });
@@ -1076,8 +1096,9 @@
   }
 
   function todayLine() {
-    if (!S.shared) return 'You practised today.';
-    var others = S.shared.today_count - 1;
+    // A log kept alone says so, rather than inventing a room to be first in.
+    if (alone()) return 'You practised today.';
+    var others = othersToday();
     if (others <= 0) return 'You’re the first one in.';
     return 'You and ' + word(others) + ' other' + (others === 1 ? '' : 's') + ' have practised.';
   }
@@ -1192,7 +1213,7 @@
 
     box.appendChild(h('<div style="border-top:1px solid var(--hair);padding-top:16px;display:grid;gap:10px;">' +
       '<div class="legend">' +
-        '<span><span style="width:11px;height:11px;background:var(--dim);position:relative;display:inline-block;">' +
+        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.55);position:relative;display:inline-block;">' +
           '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--you-edge);"></span></span>You practised</span>' +
         '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.75);display:inline-block;"></span>Darker, more of us</span>' +
         '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.3);outline:1.5px solid var(--ink);outline-offset:1.5px;display:inline-block;"></span>Today</span>' +

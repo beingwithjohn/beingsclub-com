@@ -54,7 +54,9 @@
   function shell(inner) {
     root.innerHTML = '';
     var app = h('<div class="app"></div>');
-    app.appendChild(h('<div class="bar"><span class="brand">Beings Club · host</span>' +
+    // One link, two chairs. The way back to your own practice is always here.
+    app.appendChild(h('<div class="bar">' +
+      '<a class="barlink" href="../" style="border:0;">← Your log</a>' +
       '<span class="barlab" id="tabs"></span></div>'));
     var main = h('<main></main>');
     main.appendChild(inner);
