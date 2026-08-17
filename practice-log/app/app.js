@@ -356,17 +356,19 @@
       }).join('') : '') +
       (r.meets ? '<div class="frame"><span class="caps">We meet</span>' +
         '<p class="body">' + esc(r.meets) + '</p></div>' : '') +
-      '<div><div class="caps" style="margin-bottom:12px;">Why you’re here</div>' +
+      // The one human thing asked at the door, and the first field for that
+      // reason. Still optional — leading someone to say why is different from
+      // making them.
+      '<div><div class="caps" style="margin-bottom:12px;">Why are you here?</div>' +
+        '<p class="body" style="margin-bottom:12px;">One line, in your own words. ' +
+        'The others who take a place will see it, and you will see theirs.</p>' +
         '<textarea class="field" id="ln" rows="2" maxlength="100" ' +
           'aria-label="One line, why you are here" ' +
-          'placeholder="One line. The others will see it."></textarea>' +
+          'placeholder="Sceptical, but I keep coming back to it."></textarea>' +
         '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
-          '<span class="small">Optional. You can change it later.</span>' +
+          '<span class="small">You can change it later, or leave it blank.</span>' +
           '<span class="count" id="left">100 left</span></div></div>' +
-      '<div><div class="caps" style="margin-bottom:12px;">A daily nudge at</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="hrs"></div>' +
-        (zone ? '<p class="small" style="margin-top:12px;">Your local time — ' + esc(zone) + '</p>' : '') +
-      '</div>' +
+      timeFields(zone) +
       '<button class="btn" id="take">Take my place</button>' +
       '<p class="small">' + placesLine(r.places_left) +
         ' Nothing is charged to be here.</p>' +
@@ -374,33 +376,108 @@
 
     shell(inner, { right: '<span class="barlab">' + esc(r.name) + '</span>' });
 
-    var box = inner.querySelector('#hrs');
-    HOURS.forEach(function (pair) {
-      var b = h('<button class="chip' + (pair[0] === chosen ? ' sel' : '') + '">' + pair[1] + '</button>');
-      b.addEventListener('click', function () {
-        chosen = pair[0];
-        [].forEach.call(box.children, function (c) { c.classList.remove('sel'); });
-        b.classList.add('sel');
-      });
-      box.appendChild(b);
-    });
+    var readTime = wireTimeFields(inner, zone || 'Europe/London', '07:00');
 
     var ta = inner.querySelector('#ln'), left = inner.querySelector('#left');
     ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
 
     inner.querySelector('#take').addEventListener('click', function () {
+      var when = readTime();
       this.disabled = true;
       this.textContent = 'Taking it…';
       takePlace({
         name: INV.person.name,
         line: ta.value.trim(),
-        timezone: zone || undefined,
-        nudge_hour: chosen
+        timezone: when.timezone,
+        nudge_hour: when.nudge_hour
       });
     });
   }
 
   function firstOf(n) { return String(n || '').trim().split(/\s+/)[0]; }
+
+  // -------------------------------------------------------------------------
+  // where you are, and when to be nudged
+  // -------------------------------------------------------------------------
+  // Both are chosen rather than guessed. A detected timezone is right most of
+  // the time and silently wrong for anyone travelling, or whose laptop
+  // disagrees with their life — and this is the setting that decides when a
+  // day turns, so being quietly wrong about it moves someone's whole practice
+  // to the wrong date.
+  function timeFields(zone) {
+    return '<div style="display:grid;gap:22px;">' +
+      '<div><div class="caps" style="margin-bottom:12px;">Where you are</div>' +
+        '<select class="field" id="tz" aria-label="Your timezone"></select>' +
+        '<p class="small" style="margin-top:8px;">Your day turns at your own midnight, ' +
+        'so a late sit counts for the night you were awake.</p></div>' +
+      '<div><div class="caps" style="margin-bottom:12px;">Send the daily email at</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" id="hrs"></div>' +
+        '<input class="field" type="time" id="hh" step="1800" style="max-width:11rem;" ' +
+          'aria-label="What time to send the daily email">' +
+        '<p class="small" style="margin-top:8px;">Any time you like, on the hour or the half hour.</p>' +
+      '</div></div>';
+  }
+
+  /** Fill the two fields in and wire the shortcuts. Returns a reader. */
+  function wireTimeFields(root, zone, hour) {
+    var sel = root.querySelector('#tz');
+    var list = zoneList();
+    if (zone && list.indexOf(zone) === -1) list = [zone].concat(list);
+    list.forEach(function (z) {
+      var o = document.createElement('option');
+      o.value = z; o.textContent = z.replace(/_/g, ' ');
+      if (z === zone) o.selected = true;
+      sel.appendChild(o);
+    });
+
+    var input = root.querySelector('#hh');
+    input.value = hour || '07:00';
+
+    var box = root.querySelector('#hrs');
+    HOURS.forEach(function (pair) {
+      var b = h('<button class="chip">' + pair[1] + '</button>');
+      b.addEventListener('click', function () { input.value = pair[0]; mark(); });
+      box.appendChild(b);
+    });
+
+    function mark() {
+      [].forEach.call(box.children, function (c, i) {
+        c.classList.toggle('sel', HOURS[i][0] === input.value);
+      });
+    }
+    input.addEventListener('input', mark);
+    mark();
+
+    return function () {
+      return { timezone: sel.value, nudge_hour: roundToHalf(input.value) };
+    };
+  }
+
+  // The cron ticks on the hour and the half hour, so anything between would be
+  // delivered late by up to thirty minutes. Rounding is honest about that
+  // rather than promising a time it cannot keep.
+  function roundToHalf(v) {
+    var p = String(v || '07:00').split(':');
+    var hh = Math.min(23, Math.max(0, parseInt(p[0], 10) || 0));
+    var mm = Math.min(59, Math.max(0, parseInt(p[1], 10) || 0));
+    if (mm >= 45) { hh = (hh + 1) % 24; mm = 0; } else if (mm >= 15) { mm = 30; } else { mm = 0; }
+    return (hh < 10 ? '0' : '') + hh + ':' + (mm ? '30' : '00');
+  }
+
+  function zoneList() {
+    try {
+      if (typeof Intl.supportedValuesOf === 'function') return Intl.supportedValuesOf('timeZone');
+    } catch (e) {}
+    // Older browsers get a short list rather than nothing. Anyone missing can
+    // still be set by hand from the host side.
+    return ['UTC', 'Europe/London', 'Europe/Dublin', 'Europe/Lisbon', 'Europe/Madrid',
+      'Europe/Paris', 'Europe/Berlin', 'Europe/Rome', 'Europe/Athens', 'Europe/Istanbul',
+      'Africa/Lagos', 'Africa/Nairobi', 'Africa/Johannesburg', 'Asia/Jerusalem',
+      'Asia/Dubai', 'Asia/Karachi', 'Asia/Kolkata', 'Asia/Kathmandu', 'Asia/Bangkok',
+      'Asia/Singapore', 'Asia/Hong_Kong', 'Asia/Tokyo', 'Australia/Perth',
+      'Australia/Sydney', 'Pacific/Auckland', 'America/Sao_Paulo', 'America/New_York',
+      'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'America/Anchorage'];
+  }
 
   function placesLine(left) {
     if (left == null) return '';
@@ -585,47 +662,53 @@
   // -------------------------------------------------------------------------
   // Three sentences of contract, one decision, one button. No tour.
   function viewFirstRun() {
-    var zone = tz();
-    var chosen = S.person.nudge_hour;
+    var zone = tz() || S.person.timezone;
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;max-width:38rem;">' +
       '<div class="eyebrow">' + esc(S.run.name) + '</div>' +
       '<h1 class="h1" style="max-width:16ch;">Welcome, ' + esc(firstName()) + '.</h1>' +
       '<p class="lead">' + esc(S.run.standfirst ||
-        'This is where you say you practised, and see the others who did.') + '</p>' +
+        'This is the practice log. This is where you can log your practice and see who’s sitting with you.') + '</p>' +
       '<div style="display:grid;gap:14px;">' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;One tap a day. That is the whole tool.</p>' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see the others only after you have tapped.</p>' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Twenty minutes is standard, and sitting daily matters far more than sitting long. Nothing counts forward, so nothing can be lost.</p>' +
       '</div>' +
-      '<div><div class="caps" style="margin-bottom:12px;">When shall I nudge you?</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="hrs"></div>' +
-        (zone ? '<p class="small" style="margin-top:12px;">Your local time — ' + esc(zone) + '</p>' : '') +
-      '</div>' +
       '<div><div class="caps" style="margin-bottom:12px;">The name on your notes</div>' +
         '<input class="field" id="nm" autocomplete="given-name"></div>' +
+      '<div><div class="caps" style="margin-bottom:12px;">Why are you here?</div>' +
+        '<p class="body" style="margin-bottom:12px;">One line, in your own words. ' +
+        'The others will see it, and you will see theirs.</p>' +
+        '<textarea class="field" id="ln" rows="2" maxlength="100" ' +
+          'aria-label="One line, why you are here" ' +
+          'placeholder="Sceptical, but I keep coming back to it."></textarea>' +
+        '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
+          '<span class="small">You can change it later, or leave it blank.</span>' +
+          '<span class="count" id="left">100 left</span></div></div>' +
+      timeFields(zone) +
       '<button class="btn" id="begin">Begin</button>' +
     '</div>');
 
     shell(inner, { right: '<span class="barlab">Set up</span>' });
 
-    var hrs = inner.querySelector('#hrs');
-    HOURS.forEach(function (pair) {
-      var b = h('<button class="chip' + (pair[0] === chosen ? ' sel' : '') + '">' + pair[1] + '</button>');
-      b.addEventListener('click', function () {
-        chosen = pair[0];
-        [].forEach.call(hrs.children, function (c) { c.classList.remove('sel'); });
-        b.classList.add('sel');
-      });
-      hrs.appendChild(b);
-    });
+    var readTime = wireTimeFields(inner, zone, S.person.nudge_hour);
+
+    var ta = inner.querySelector('#ln'), left = inner.querySelector('#left');
+    ta.value = S.person.line || '';
+    left.textContent = (100 - ta.value.length) + ' left';
+    ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
 
     var nm = inner.querySelector('#nm');
     nm.value = S.person.name || '';
     inner.querySelector('#begin').addEventListener('click', function () {
-      var body = { nudge_hour: chosen, setup: true };
+      var when = readTime();
+      var body = {
+        setup: true,
+        nudge_hour: when.nudge_hour,
+        timezone: when.timezone,
+        line: ta.value.trim()
+      };
       var name = (nm.value || '').trim();
       if (name) body.name = name;
-      if (zone && zone !== S.person.timezone) body.timezone = zone;
       this.disabled = true;
       api('/api/settings', { method: 'PATCH', body: body }).then(adopt).catch(function () {
         inner.querySelector('#begin').disabled = false;
@@ -1186,10 +1269,12 @@
 
     inner.appendChild(toggle('Daily nudge', 'One email, no cohort news in it', 'nudge_on'));
 
-    var hrs = h('<div><div class="rowflex" style="margin-bottom:12px;"><div><b>Send it at</b></div></div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;" id="hrs"></div>' +
-      '<p class="small" style="margin-top:12px;">Your local time — ' + esc(S.person.timezone) + '</p></div>');
-    inner.appendChild(hrs);
+    // Both changeable, and both saved together — moving timezone without
+    // moving the hour is how someone ends up nudged at four in the morning.
+    var when = h('<div>' + timeFields(S.person.timezone) +
+      '<button class="btn" id="savewhen" style="margin-top:18px;">Save</button>' +
+      '<p class="small" id="whenmsg" aria-live="polite" style="margin-top:10px;"></p></div>');
+    inner.appendChild(when);
 
     inner.appendChild(toggle('Notes', 'Offer a line after logging', 'notes_on'));
 
@@ -1217,11 +1302,18 @@
 
     document.getElementById('done').addEventListener('click', function () { go(null); });
 
-    var box = inner.querySelector('#hrs');
-    HOURS.forEach(function (pair) {
-      var b = h('<button class="chip' + (pair[0] === S.person.nudge_hour ? ' sel' : '') + '">' + pair[1] + '</button>');
-      b.addEventListener('click', function () { patch({ nudge_hour: pair[0] }); });
-      box.appendChild(b);
+    var readTime = wireTimeFields(inner, S.person.timezone, S.person.nudge_hour);
+    inner.querySelector('#savewhen').addEventListener('click', function () {
+      var v = readTime();
+      var msg = inner.querySelector('#whenmsg');
+      msg.textContent = 'Saving…';
+      api('/api/settings', { method: 'PATCH', body: v }).then(function (state) {
+        adopt(state);
+        // render() has replaced the node this handler is attached to, so
+        // find the fresh one rather than the captured one.
+        var m = document.getElementById('whenmsg');
+        if (m) m.textContent = 'Saved. ' + hourLabel(v.nudge_hour) + ', ' + v.timezone.replace(/_/g, ' ') + '.';
+      }).catch(function () { msg.textContent = 'That did not save. Try again in a moment.'; });
     });
 
     inner.querySelector('#revoke').addEventListener('click', function () {
