@@ -74,6 +74,23 @@ def convert(body, key):
 
     if key == 'home':
         body = body.replace('ref="{{ logoRef }}"', 'id="bc-logo"')
+        stage = '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(22px,4vh,48px);padding:clamp(28px,6vh,72px) clamp(24px,8vw,120px);min-height:0;overflow:hidden;">'
+        assert stage in body, 'Home stage not found'
+        fields = '''<div class="bc-home-fields" aria-hidden="true">
+      <div class="bc-home-field" data-home-field="salons"></div>
+      <div class="bc-home-field" data-home-field="sits"></div>
+      <div class="bc-home-field" data-home-field="about"></div>
+      <div class="bc-home-field" data-home-field="door"></div>
+    </div>'''
+        body = body.replace(stage, stage[:-1] + ' data-home-stage="1">\n    ' + fields, 1)
+        tagline_tail = '</p>\n    </div>\n  </div>\n\n  <div onMouseLeave="{{ leave }}">'
+        assert tagline_tail in body, 'Home tagline tail not found'
+        now = '''<div class="bc-now" role="group" aria-label="Happening now">
+        <a href="/beyondbelief/">Beyond Belief <span aria-hidden="true">·</span> 15 Sep–20 Oct</a>
+        <span class="bc-now-sep" aria-hidden="true">·</span>
+        <a href="/salons/">Next Salon <span aria-hidden="true">·</span> 30 Sep</a>
+      </div>'''
+        body = body.replace(tagline_tail, '</p>\n      ' + now + '\n    </div>\n  </div>\n\n  <div onMouseLeave="{{ leave }}">', 1)
         # "The Door" is the longest label and wraps the door row to two lines on a
         # phone; the article is dropped there so the four cells sit level.
         body = body.replace('>The Door</a>', '><span class="bc-the">The </span>Door</a>')
@@ -336,6 +353,49 @@ CSS = """
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
 
+  /* The home mark is never perfectly still: its four contours move on a long,
+     quiet breath. Door previews bring the inner pages' colour into the room. */
+  #bc-logo svg{overflow:visible;}
+  #bc-logo [data-ring]{transform-box:fill-box;transform-origin:center;will-change:transform;}
+  #bc-logo [data-ring="0"]{animation:bc-ring-breathe-in 13s cubic-bezier(.45,0,.55,1) infinite;}
+  #bc-logo [data-ring="16"]{animation:bc-ring-breathe-soft 13s cubic-bezier(.45,0,.55,1) -1.1s infinite;}
+  #bc-logo [data-ring="30"]{animation:bc-ring-breathe-mid 13s cubic-bezier(.45,0,.55,1) -2.2s infinite;}
+  #bc-logo [data-ring="44"]{animation:bc-ring-breathe-out 13s cubic-bezier(.45,0,.55,1) -4.4s infinite;}
+  @keyframes bc-ring-breathe-in{0%,100%{transform:scale(1)}50%{transform:scale(.997)}}
+  @keyframes bc-ring-breathe-soft{0%,100%{transform:scale(1)}50%{transform:scale(1.001)}}
+  @keyframes bc-ring-breathe-mid{0%,100%{transform:scale(1)}50%{transform:scale(1.003)}}
+  @keyframes bc-ring-breathe-out{0%,100%{transform:scale(1)}50%{transform:scale(1.006)}}
+  [data-home-stage]{position:relative;isolation:isolate;}
+  [data-home-stage] > :not(.bc-home-fields){position:relative;z-index:1;}
+  .bc-home-fields{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .bc-home-field{position:absolute;inset:-3%;opacity:0;transform:scale(1.035);
+    background-position:center;background-repeat:no-repeat;background-size:cover;
+    filter:saturate(.9) contrast(.88);
+    -webkit-mask-image:radial-gradient(ellipse 74% 82% at 50% 48%,#000 0%,rgba(0,0,0,.96) 38%,transparent 84%);
+    mask-image:radial-gradient(ellipse 74% 82% at 50% 48%,#000 0%,rgba(0,0,0,.96) 38%,transparent 84%);
+    transition:opacity 850ms cubic-bezier(.22,1,.36,1),transform 1200ms cubic-bezier(.22,1,.36,1);}
+  [data-home-field="salons"]{background-image:linear-gradient(rgba(253,252,249,.22),rgba(253,252,249,.48)),url('/assets/img/salons-rainbow-circle.jpg');background-position:center 72%;}
+  [data-home-field="sits"]{background-image:linear-gradient(rgba(253,252,249,.18),rgba(253,252,249,.45)),url('/assets/img/sits-shapes.jpg');}
+  [data-home-field="about"]{background-image:linear-gradient(rgba(253,252,249,.18),rgba(253,252,249,.48)),url('/assets/img/about-aura.jpg');background-position:center 55%;}
+  [data-home-field="door"]{background-image:linear-gradient(rgba(253,252,249,.12),rgba(253,252,249,.42)),url('/assets/img/water-arch.jpg');background-position:center 46%;}
+  [data-home-stage][data-home-view="salons"] [data-home-field="salons"],
+  [data-home-stage][data-home-view="sits"] [data-home-field="sits"],
+  [data-home-stage][data-home-view="about"] [data-home-field="about"],
+  [data-home-stage][data-home-view="door"] [data-home-field="door"]{opacity:.22;transform:scale(1);}
+  .bc-now{margin-top:4px;padding-top:13px;border-top:1px solid rgba(38,34,26,.12);
+    display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 12px;
+    font-size:10px;font-weight:650;line-height:1.2;letter-spacing:.11em;text-transform:uppercase;color:#75726A;}
+  .bc-now a{color:#5A4B7C;border-bottom:1px solid rgba(90,75,124,.28);transition:border-color 180ms ease,color 180ms ease;}
+  .bc-now a:hover,.bc-now a:focus-visible{color:#171916;border-color:#171916;}
+  @media (prefers-reduced-motion:reduce){
+    #bc-logo [data-ring]{animation:none;will-change:auto;}
+    .bc-home-field{transition:none;}
+  }
+  @media (max-width:640px){
+    .bc-now{max-width:330px;margin-top:2px;padding-top:11px;gap:6px 9px;font-size:9px;letter-spacing:.08em;}
+    .bc-now-sep{display:none;}
+  }
+
   @media (max-width:44rem){
     [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(190px,32vh,260px)!important;}
     [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
@@ -555,14 +615,25 @@ JS = r"""
 
   // ---- the doors change the info line ----
   var line = document.getElementById('bc-line');
+  var homeStage = document.querySelector('[data-home-stage]');
   var DOOR = { salons: 'Where curiosity connects', sits: 'Meditation for the curious',
                about: 'Why Beings Club exists', door: 'Join the club' };
   var REST = 'For the benefit of all beings';
+  function doorState(a) {
+    var key = a && a.getAttribute('data-door');
+    if (line) line.textContent = DOOR[key] || REST;
+    if (homeStage) {
+      if (key) homeStage.setAttribute('data-home-view', key);
+      else homeStage.removeAttribute('data-home-view');
+    }
+  }
   [].forEach.call(document.querySelectorAll('[data-door]'), function (a) {
-    a.addEventListener('mouseenter', function () { if (line) line.textContent = DOOR[a.getAttribute('data-door')] || REST; });
+    a.addEventListener('mouseenter', function () { doorState(a); });
+    a.addEventListener('focus', function () { doorState(a); });
+    a.addEventListener('blur', function () { doorState(null); });
   });
   var doors = document.querySelector('[data-doors]');
-  if (doors) doors.addEventListener('mouseleave', function () { if (line) line.textContent = REST; });
+  if (doors) doors.addEventListener('mouseleave', function () { doorState(null); });
 
   // ---- realisationhouse gloss: hover/focus, tap, keyboard ----
   var rh = document.getElementById('bc-rh'), rhTip = document.getElementById('bc-rh-tip');
