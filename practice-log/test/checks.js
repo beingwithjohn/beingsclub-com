@@ -357,6 +357,16 @@ check(16, 'one public log, with course-bounded access to John', () => {
   return 'open log, course door bounded, no invitation copy on the public path';
 });
 
+check(17, 'setup can read its timezone and reports a failed save', () => {
+  ok(/var readZone = wireZone\(root, zone\)/.test(log),
+    'the setup form does not retain the timezone reader');
+  ok(/timezone: readZone\(\)/.test(log),
+    'Begin reads an undefined timezone value');
+  ok(/id="setup-msg"/.test(log) && /That did not save\. Try again\./.test(log),
+    'setup failures are invisible');
+  return 'timezone reader called, failure shown';
+});
+
 // ---------------------------------------------------------------------------
 
 const width = Math.max(...results.map(([, , t]) => t.length));

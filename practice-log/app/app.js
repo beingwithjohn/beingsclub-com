@@ -570,7 +570,7 @@
 
   /** Fill the two fields in and wire the shortcuts. Returns a reader. */
   function wireTimeFields(root, zone, hour) {
-    var chosen = wireZone(root, zone);
+    var readZone = wireZone(root, zone);
 
     var input = root.querySelector('#hh');
     input.value = hour || '07:00';
@@ -591,7 +591,7 @@
     mark();
 
     return function () {
-      return { timezone: sel.value, nudge_hour: roundToHalf(input.value) };
+      return { timezone: readZone(), nudge_hour: roundToHalf(input.value) };
     };
   }
 
@@ -1085,6 +1085,7 @@
           '<span class="count" id="left">100 left</span></div></div>' +
       timeFields(zone) +
       '<button class="btn" id="begin">Begin</button>' +
+      '<p class="small" id="setup-msg" aria-live="polite"></p>' +
     '</div>');
 
     shell(inner, { right: '<span class="barlab">Set up</span>', noMenu: true });
@@ -1099,6 +1100,8 @@
     var nm = inner.querySelector('#nm');
     nm.value = S.person.name || '';
     inner.querySelector('#begin').addEventListener('click', function () {
+      var button = this;
+      var msg = inner.querySelector('#setup-msg');
       var when = readTime();
       var body = {
         setup: true,
@@ -1108,9 +1111,11 @@
       };
       var name = (nm.value || '').trim();
       if (name) body.name = name;
-      this.disabled = true;
+      button.disabled = true;
+      msg.textContent = 'Opening your log…';
       api('/api/settings', { method: 'PATCH', body: body }).then(adopt).catch(function () {
-        inner.querySelector('#begin').disabled = false;
+        button.disabled = false;
+        msg.textContent = 'That did not save. Try again.';
       });
     });
   }
