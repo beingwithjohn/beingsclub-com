@@ -584,7 +584,10 @@ main { flex: 1; display: flex; flex-direction: column; }
     return api('/api/host/people').then(function (d) {
       var wrap = h('<div class="rows" style="flex:1;"></div>');
       wrap.appendChild(h('<div><div class="caps">' + esc(d.run.name) + ' · ' + esc(d.run.mode) + '</div></div>'));
-      wrap.appendChild(inviteForm());
+      // The main log has its own public front door. Invitations remain only
+      // for old private runs; showing one here would recreate the course-copy
+      // model the public log replaced.
+      if (!d.run.public_join) wrap.appendChild(inviteForm());
 
       d.people.forEach(function (p) {
         var bits = [p.email, p.timezone, 'joined ' + p.joined_on];

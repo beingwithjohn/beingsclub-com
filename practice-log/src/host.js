@@ -140,7 +140,10 @@ async function people(env, { run }) {
     });
   }
 
-  return json({ run: { slug: run.slug, name: run.name, mode: run.mode }, people: out });
+  return json({
+    run: { slug: run.slug, name: run.name, mode: run.mode, public_join: run.public_join },
+    people: out,
+  });
 }
 
 // ---------------------------------------------------------------------------

@@ -220,20 +220,18 @@ Three defects found this way and fixed, each now covered by a check:
 3. **A first load with no reachable API sat on "Opening your log…" for ever.**
    It now says so and offers to retry.
 
-Not yet verified, because it needs your accounts: real delivery through Resend,
-and the DNS below. Also not yet seen in a browser: the fixed-run screens (the
-five principle weeks, a day opened, the closing view). The data behind them is
-verified above; only the pixels are unseen.
+Real delivery through Resend is proven: the retired rehearsal sent successfully
+to John. Fixed-run pixels are no longer operationally relevant because courses
+now use the public evergreen log.
 
 ---
 
 ## Open, and needing you
 
-**Sending domain.** `beingsclub.com` publishes `v=spf1 -all` and has no MX, so
-it cannot send or receive. Before the first send it needs Resend's SPF and DKIM
-records at Squarespace Domains, and the deny-all replaced. Every email already
-carries `reply-to: john@spacetobe.xyz`, so replies work without an MX. Both
-addresses are `[vars]` in `wrangler.toml`, not constants.
+**Sending domain.** Real sends are working. DMARC remains at `p=none` while SPF
+and DKIM alignment are observed, then should move to `p=reject`. Every email
+carries `reply-to: john@spacetobe.xyz`; both addresses are `[vars]` in
+`wrangler.toml`, not constants.
 
 **The accent.** The log's own bundle made amber `#FFAD54` the colour that means
 *you*. The site has no amber; its accent is violet `#5A4B7C` with lilac `#F2ECFF`
@@ -246,8 +244,8 @@ lines at the top of `app/app.css`:
 --you-ring: rgba(255,173,84,.30);
 ```
 
-**Is the log linked from the site at all?** Nothing links to it today. It is
-reachable only from an email, which is how it is meant to be used.
+**Site navigation.** Nothing in the marketing shell links to the log today.
+Anyone with `beingsclub.com/log/` can begin, and every email returns them there.
 
 **A backup.** D1 has no automatic export on the free plan.
 `npx wrangler d1 export practice-log --remote --output backup.sql` is the whole

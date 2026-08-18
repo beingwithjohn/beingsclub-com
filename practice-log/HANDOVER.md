@@ -253,7 +253,7 @@ safe place to work; `seed/bootstrap.sh` creates runs and prints the magic links.
   else works.
 - DMARC is at `p=none` while sending is proven, and should be tightened to
   `p=reject` once a real send is confirmed to pass SPF and DKIM aligned.
-- `COPY.md` is a working document for a copy pass that has not happened yet.
-  Expect the wording to change.
-- The public evergreen log is now the course-independent home. Fixed runs are
-  retained for old data and rehearsals, not as the default course model.
+- `COPY.md` records the completed public-evergreen copy pass. Fixed invitation
+  copy remains there only as legacy reference.
+- The public evergreen log is now the course-independent home. Both fixed runs
+  are retired; their records and the code path remain for historical reference.

@@ -170,30 +170,47 @@ export function welcome({ person, run, url, mapUrl }) {
     : `${esc(run.name)} has no start date and no end. People join on the day they arrive, `
       + `practise as they can, and see the others who did.`;
 
+  const welcomeHeading = fixed
+    ? `${esc(first(person.name))} — you have a place.`
+    : `${esc(first(person.name))} — your log is ready.`;
+  const welcomeSteps = fixed
+    ? [
+        mapUrl ? `Read ${link(mapUrl, 'the practice map')} before you begin. Ten minutes.` : 'Find ten quiet minutes to read before you begin.',
+        'Pick your hour. One email a day, at that hour.',
+        'Find a place to sit and a time you can keep.',
+      ]
+    : [
+        'Choose the name that appears beside anything you write.',
+        'Pick your hour. One email a day, at that hour.',
+        'Find a place to sit and a time you can keep.',
+      ];
+
   const blocks = [
     eyebrow(fixed ? "You're in" : 'Welcome'),
-    heading(`${esc(first(person.name))} — you have a place.`),
+    heading(welcomeHeading),
     para(opening),
-    steps([
-      mapUrl ? `Read ${link(mapUrl, 'the practice map')} before you begin. Ten minutes.` : 'Find ten quiet minutes to read before you begin.',
-      'Pick your hour. One email a day, at that hour.',
-      'Find a place to sit and a time you can keep.',
-    ]),
-    button(url, 'Set up my log'),
+    steps(welcomeSteps),
+    button(url, fixed ? 'Set up my log' : 'Open my log'),
     small('One link, no password. It’s yours and it doesn’t expire.'),
     gap(),
   ].join('');
 
   return {
-    subject: fixed ? `You’re in. We start ${weekdayName(run.starts_on)}.` : 'You’re in.',
-    html: layout({ preheader: 'Your place is held. Set up your log.', blocks, footer: FOOT_CLUB }),
+    subject: fixed ? `You’re in. We start ${weekdayName(run.starts_on)}.` : 'Your practice log is ready.',
+    html: layout({
+      preheader: fixed ? 'Your place is held. Set up your log.' : 'Your practice log is ready.',
+      blocks,
+      footer: FOOT_CLUB,
+    }),
     text: [
-      `${first(person.name)} — you have a place.`, '',
+      fixed ? `${first(person.name)} — you have a place.` : `${first(person.name)} — your log is ready.`, '',
       strip(opening), '',
-      '1. Read the practice map before you begin. Ten minutes.',
+      fixed
+        ? '1. Read the practice map before you begin. Ten minutes.'
+        : '1. Choose the name that appears beside anything you write.',
       '2. Pick your hour. One email a day, at that hour.',
       '3. Find a place to sit and a time you can keep.', '',
-      `Set up my log: ${url}`, '',
+      `${fixed ? 'Set up my log' : 'Open my log'}: ${url}`, '',
       'One link, no password. It’s yours and it doesn’t expire.', '',
       'Beings Club · reply to this and John reads it',
     ].join('\n'),

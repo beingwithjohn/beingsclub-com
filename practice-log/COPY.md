@@ -1,19 +1,75 @@
-# Copy — a working document
+# Copy — the public Practice Log
 
-Every line of text you haven't already written yourself, in one place, for a
-pass before anyone is invited.
+Copy pass completed 18 August 2026 when the product moved from one log per
+course to one public evergreen log. The implemented source remains
+`app/app.js` and `src/mail/templates.js`; this file records the decisions.
 
-**How to use it:** edit the text under each heading directly in this file. Cross
-things out, rewrite in the margin, leave notes in `[square brackets]` — I'll
-read it and apply. Don't worry about matching the format; write it how you'd
-say it.
+The fixed-run invitation, threshold and room copy is retained below as legacy
+reference. It is not part of the public entry path and both live fixed runs are
+retired.
 
 **What's *not* here, on purpose:** the log screens themselves — the tap, the
 note, the week grid, the whole-run grid, the private channel, day thirty-five.
 That copy is yours already, transcribed from the design bundle. It's in
 `app/app.js` if you want it, but it's been through your hands once.
 
-Everything below is mine, and unreviewed by you.
+---
+
+## 0. The public path — current
+
+**Opening `/log/` without a working link**
+> PRACTICE LOG
+>
+> A simple record of showing up.
+>
+> The log is open to anyone. Give it an email address and it will send your
+> private link. There is no password.
+>
+> Your name / you@example.com
+>
+> BEGIN OR OPEN MY LOG
+
+**The email sent to someone new**
+> Subject: Your practice log is ready.
+>
+> Welcome
+>
+> John — your log is ready.
+>
+> The Practice Log has no start date and no end. People join on the day they
+> arrive, practise as they can, and see the others who did.
+>
+> 1. Choose the name that appears beside anything you write.
+> 2. Pick your hour. One email a day, at that hour.
+> 3. Find a place to sit and a time you can keep.
+>
+> OPEN MY LOG
+
+**First opening**
+> Welcome, John.
+>
+> This is where you record your practice and, once you have, see who else
+> practised that day.
+
+The three-rule contract, name, line, timezone and email hour follow. The
+scheduled email behaviour and wording remain unchanged.
+
+**Course access**
+
+The private line to John is absent by default. John grants it for an inclusive
+date range from the host page. During those dates the menu says:
+
+> Something just for John
+> Private, and open while your course is running
+
+After the final date the door closes; replies already received remain theirs.
+
+**Contributions**
+
+The neutral phrase is “Using the log does not depend on this” and “The log is
+yours either way.” “Your place” belongs only to a fixed invitation.
+
+---
 
 **Two rules I've been holding to**, so you know what the constraints were:
 counts are said in words, never figures ("seven places left", never "3/10"), and
@@ -24,7 +80,7 @@ your rules, not laws.
 
 ---
 
-## 1. The invitation email
+## 1. Legacy fixed run — the invitation email
 
 The highest-stakes text here. Ten people read it once, and it can't be recalled.
 Comes from your name, not the club's.
@@ -67,7 +123,7 @@ everything after is mine.*
 
 ---
 
-## 2. The threshold — what they see when they follow the invitation
+## 2. Legacy fixed run — the invitation threshold
 
 No names, no lines, nothing of the room. They haven't committed yet.
 
@@ -113,7 +169,7 @@ handle it.
 
 ---
 
-## 3. The room, before day one
+## 3. Legacy fixed run — the room before day one
 
 **Band eyebrow**
 > YOUR PLACE IS HELD
@@ -139,7 +195,7 @@ dash. If you're first:
 
 ---
 
-## 4. The room, during the run
+## 4. Legacy fixed run — the room during the run
 
 Reached from the log after the day is marked.
 
@@ -209,11 +265,7 @@ Same roster below. The places-left count disappears once the run has started.
 
 ## 6. Three states you'll rarely see
 
-**Opened with no link at all**
-> This opens from your email.
-> Every email carries the link, and the link is the way in. There is no
-> password to remember and nothing to sign into.
-> Lost it? Reply to any email from us and John will send another.
+**Opened with no link at all** — see the current public path in §0.
 
 **Nothing cached and nothing reachable**
 > The log cannot be reached.
@@ -247,11 +299,14 @@ Same roster below. The places-left count disappears once the run has started.
 
 Only you see this. Plainer than the rest on purpose.
 
-**Invite someone**
+**Invite someone — legacy private runs only**
 > Their name / Their email
 > ☑ Email the invitation from me
 > SEND THE INVITATION
 > *after:* Sent. Their link: https://…
+
+The public evergreen host page does not show this form. People enter through
+`/log/`; the host page is for messages, course-access dates and records.
 
 **The roster** shows each person's email, timezone, when they joined, how many
 days they've marked, and a violet **QUIET 5D** flag after three or more quiet

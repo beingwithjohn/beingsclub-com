@@ -1392,7 +1392,7 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<span class="caps">' + (given ? 'You’ve contributed' : 'Pay what you want') + '</span>' +
       '<p class="body">' + (given
         ? 'Thank you. You can add to it whenever you like, and never need to.'
-        : 'Your place does not depend on this and never will. John’s work costs something, ' +
+        : 'Using the log does not depend on this and never will. John’s work costs something, ' +
           'and if you want to meet some of that, you can — now, later, or not at all.') + '</p>' +
       '<div style="display:grid;gap:10px;margin-top:6px;">' +
         '<button class="btn" id="give">' + (given ? 'Contribute again' : 'Contribute') + '</button>' +
@@ -1422,7 +1422,7 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<h2 class="h2" style="max-width:18ch;">Pay what you want.</h2>' +
       '<p class="body">Not what it’s worth, and not what someone else paid. What you want to give, ' +
       'if you want to give anything.</p>' +
-      '<p class="body">Your place is yours either way. Nobody is told what anyone contributed, ' +
+      '<p class="body">The log is yours either way. Nobody is told what anyone contributed, ' +
       'and nothing in the log changes because of it.</p>' +
       // The range is offered, never shown. A figure on screen is an expectation
       // however gently it is worded, so it waits behind a question and only
@@ -1475,7 +1475,7 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<div class="eyebrow">' + esc(S.run.name) + '</div>' +
       '<h1 class="h1" style="max-width:16ch;">Welcome, ' + esc(firstName()) + '.</h1>' +
       '<p class="lead">' + esc(S.run.standfirst ||
-        'This is the practice log. This is where you can log your practice and see who’s sitting with you.') + '</p>' +
+        'This is where you record your practice and, once you have, see who else practised that day.') + '</p>' +
       '<div style="display:grid;gap:14px;">' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;One tap a day. That is the whole tool.</p>' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see the others only after you have tapped.</p>' +
@@ -2180,7 +2180,7 @@ main { flex: 1; display: flex; flex-direction: column; }
     var r = h('<div class="rowflex"><div><b>Contribute</b>' +
       '<p>' + (given
         ? 'You have. Thank you. You can again whenever you like.'
-        : 'Pay what you want, whenever you want. Your place never depends on it.') +
+        : 'Pay what you want, whenever you want. Using the log never depends on it.') +
       '</p></div><button class="ul" id="cg" style="flex:none;">' +
       (given ? 'Again' : 'Open') + '</button></div>');
     r.querySelector('#cg').addEventListener('click', function () { go('contribute'); });

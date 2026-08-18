@@ -341,6 +341,7 @@ check(16, 'one public log, with course-bounded access to John', () => {
   const api = read('practice-log', 'src', 'api.js');
   const access = read('practice-log', 'src', 'access.js');
   const host_ = read('practice-log', 'src', 'host.js');
+  const mail = read('practice-log', 'src', 'mail', 'templates.js');
 
   ok(/path === '\/api\/join' && method === 'POST'/.test(idx), 'the public front door is not POST-only');
   ok(/public_join = 1 AND mode = 'evergreen'/.test(join), 'self-service entry is not confined to the public evergreen log');
@@ -349,7 +350,11 @@ check(16, 'one public log, with course-bounded access to John', () => {
   ok(/from <= today/.test(access) && /today <= until/.test(access), 'course access is not bounded at both ends');
   ok(/message-access/.test(host_), 'the host cannot grant or clear course access');
   ok(/message_access && S\.person\.message_access\.active/.test(log), 'the private line is shown outside active course access');
-  return 'open log, private line opens only for its dates';
+  ok(/if \(!d\.run\.public_join\) wrap\.appendChild\(inviteForm\(\)\)/.test(host),
+    'the public host page still offers private invitations');
+  ok(/Your practice log is ready/.test(mail) && /your log is ready/.test(mail),
+    'the evergreen welcome still reads like a course place');
+  return 'open log, course door bounded, no invitation copy on the public path';
 });
 
 // ---------------------------------------------------------------------------

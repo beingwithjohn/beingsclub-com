@@ -130,7 +130,7 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
   and in both companions (hand-maintained).
 - **The Practice Log** is one public evergreen tool. Courses grant the private line to John
   for a date window; they do not need separate runs. The remaining operational work is
-  Stripe, the copy pass, and tightening DMARC after aligned delivery is confirmed.
+  Stripe, a D1 backup habit, and tightening DMARC after aligned delivery is confirmed.
 - **The 82MB blob in git history** (see #4).
 
 ## Security constraints John has set
