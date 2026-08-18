@@ -54,6 +54,10 @@ That copy is yours already, transcribed from the design bundle. It's in
 The three-rule contract, name, line, timezone and email hour follow. The
 scheduled email behaviour and wording remain unchanged.
 
+The public interface never calls the people using it a “cohort.” Settings says
+“The name beside your notes,” and the daily-email setting says only that it
+contains nothing about anyone else’s practice.
+
 **Course access**
 
 The private line to John is absent by default. John grants it for an inclusive

@@ -1641,7 +1641,7 @@
     }
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:38rem;">' +
       '<h2 class="h2">Nobody else sees this.</h2>' +
-      '<p class="body">Not the cohort, not your partner. Ask anything, or say how it is actually going.</p>' +
+      '<p class="body">Ask anything, or say how it is actually going.</p>' +
       '<textarea class="field" id="q" aria-label="What you want to say to John, privately" rows="5" placeholder="I have sat every day this week and felt nothing. ' +
         'Am I doing it wrong, or is that the point?"></textarea>' +
       '<div style="display:flex;align-items:center;gap:8px;" class="small">' +
@@ -1680,7 +1680,7 @@
   function viewSettings() {
     var inner = h('<div class="rows" style="flex:1;"></div>');
 
-    inner.appendChild(toggle('Daily nudge', 'One email, no cohort news in it', 'nudge_on'));
+    inner.appendChild(toggle('Daily nudge', 'One email, nothing about anyone else’s practice', 'nudge_on'));
 
     // Both changeable, and both saved together — moving timezone without
     // moving the hour is how someone ends up nudged at four in the morning.
@@ -1750,8 +1750,8 @@
   }
 
   function nameRow() {
-    var r = h('<div class="rowflex"><div><b>Show me in the cohort as</b>' +
-      '<p>The name on your notes</p></div>' +
+    var r = h('<div class="rowflex"><div><b>The name beside your notes</b>' +
+      '<p>Visible when you choose to write</p></div>' +
       '<button class="ul" id="nm" style="flex:none;">' + esc(S.person.name) + '</button></div>');
     r.querySelector('#nm').addEventListener('click', function () {
       var v = prompt('The name on your notes', S.person.name || '');

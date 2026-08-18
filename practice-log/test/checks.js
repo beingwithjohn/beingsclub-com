@@ -367,6 +367,13 @@ check(17, 'setup can read its timezone and reports a failed save', () => {
   return 'timezone reader called, failure shown';
 });
 
+check(18, 'the public interface does not call people a cohort', () => {
+  const prose = visibleText(log);
+  ok(!/Not the cohort|cohort news|Show me in the cohort/i.test(prose),
+    'course-era cohort wording remains visible');
+  return 'people and notes described directly';
+});
+
 // ---------------------------------------------------------------------------
 
 const width = Math.max(...results.map(([, , t]) => t.length));
