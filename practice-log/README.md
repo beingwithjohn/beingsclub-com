@@ -1,9 +1,12 @@
 # The Practice Log
 
-One question a day — *did you practise?* — and, once answered, the others who
-answered it too. The main Practice Log is one evergreen tool that anyone can
-begin from `/log/`; a course grants the private line to John for its dates
-rather than creating another copy of the log.
+One question a day — *did you practise?* — and, once answered, a seven-day view
+of how many others answered it too, plus the notes people chose to write that
+day. The main Practice Log is one evergreen tool that anyone can begin from
+`/log/`; it has no participant directory. A course grants the private line to
+John for its dates rather than creating another copy of the log. An optional
+five, ten, or twenty-minute timer ends with a gentle bell but never records the
+practice; the person still taps for themselves.
 
 Built to two shapes at once:
 

@@ -264,6 +264,30 @@ main { flex: 1; display: flex; flex-direction: column; }
 .tap.done i { color: rgba(253, 252, 249, 0.72); }
 @media (min-width: 48rem) { .tap { max-width: 272px; } }
 
+.practice-now {
+  padding: 3px 0 2px; color: var(--body); font-size: 16px;
+  border-bottom: 1px solid var(--hair-2);
+}
+.practice-now:hover { color: var(--you); border-bottom-color: var(--you); }
+
+.timer-panel {
+  min-height: calc(100svh - 54px); max-width: 38rem;
+  display: flex; flex-direction: column; justify-content: center; gap: 26px;
+}
+.timer-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.timer-choices .chip { text-align: center; padding-inline: 8px; }
+.timer-choices small {
+  display: block; margin-top: 2px; font-size: 10px; line-height: 1.3;
+  letter-spacing: .14em; text-transform: uppercase; opacity: .72;
+}
+.timer-sound { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding-block: 18px; }
+.timer-running { min-height: calc(100svh - 54px); }
+.timer-clock {
+  font-size: clamp(64px, 16vw, 116px); font-weight: 500; line-height: 1;
+  letter-spacing: -.055em; color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.timer-actions { display: grid; gap: 8px; width: min(100%, 22rem); }
+
 .fade { opacity: 0; transition: opacity .6s ease-out; }
 .fade.in { opacity: 1; }
 .rise { transform: translateY(14px); opacity: 0; transition: transform .3s ease-out, opacity .3s ease-out; }
@@ -277,10 +301,18 @@ main { flex: 1; display: flex; flex-direction: column; }
 .dot.did { background: var(--ink); }
 .dot.me  { background: var(--you); box-shadow: 0 0 0 2px var(--you-ring); }
 
-.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; }
-.daycol { display: grid; gap: 8px; justify-items: center; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: stretch; }
+.daycol {
+  min-width: 0; display: grid; grid-template-rows: 24px 68px 18px 8px;
+  gap: 5px; justify-items: center; align-items: end;
+}
 .daycol.future { opacity: .3; }
 .dots { display: grid; gap: 3px; justify-content: center; }
+.wcount { font-size: 15px; font-weight: 600; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.wax-track { width: min(28px, 72%); height: 68px; display: flex; align-items: end; background: var(--warm); }
+.wax-track i { display: block; width: 100%; min-height: 3px; background: var(--ink); }
+.mine-day { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+.mine-day.on { background: var(--you); box-shadow: 0 0 0 2px var(--you-ring); }
 .dlab { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .dlab.today { color: var(--ink); }
 

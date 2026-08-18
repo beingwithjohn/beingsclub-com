@@ -84,19 +84,24 @@ itself failing.
 
 **1 · Nothing before the tap.** No cohort, no counts, no notes until the person
 has recorded today. Enforced in `api.js`: `state.shared` is *omitted*, not
-hidden, until `markedToday`; `GET /api/day` 404s. The menu hides "The room" for
-the same reason.
+hidden, until `markedToday`; `GET /api/day` 404s. The public evergreen log has
+no participant roster at all. Its shared surface is the aggregate seven-day
+shape and the daily notes people chose to write. Legacy private fixed runs may
+still have their own room.
 
 **2 · One tap, everything else optional.** The note is offered once a day. The
-private line to John appears only inside an active course-access window and is
-in the path of none.
+five, ten, or twenty-minute timer is an aid and never records practice; after
+its optional bell the same tap remains. The private line to John appears only
+inside an active course-access window and is in the path of none.
 
 **3 · No streaks, ever.** Nothing counts forward, so nothing can be lost. Days
 that were not marked are drawn exactly like days that have not arrived, and are
 never named. Banned vocabulary, checked automatically against the built app:
 *streak · in a row · you missed · don't break it · 6/10 · 60% · average ·
 session · minutes · progress · community · members · users · well done ·
-congratulations*. Counts are said in words — "seven places left", never "3/10".
+congratulations*. Prose counts are said in words and never as a denominator.
+The one deliberate numeral is the aggregate count above each day in the
+seven-day shape, so growth and fading can be seen without exposing identities.
 
 **4 · White is shared, black is John.** Colour carries the privacy model.
 Anything on ink is read by John alone. `private_message` is read by no handler a
@@ -226,8 +231,9 @@ allows five, and the sweep is already timezone-aware.
   can arrive hours after the day it belongs to. Key on `on_date`, never on
   arrival time.
 - **`is_host`.** John practises like everyone else but is deliberately *not*
-  one of the ten: excluded from counts, from the roster, from "the others". Any
-  aggregate you build should exclude hosts the same way.
+  one of the participant count: excluded from aggregates, from any legacy
+  fixed-run roster, and from "the others". Any aggregate you build should
+  exclude hosts the same way.
 
 ## 7. Verifying you have not broken it
 

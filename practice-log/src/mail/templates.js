@@ -168,7 +168,7 @@ export function welcome({ person, run, url, mapUrl }) {
     ? `${esc(run.name)} runs for ${words(run.length_days)} days, from ${longDate(run.starts_on)}. `
       + `Ten of us, practising daily.`
     : `${esc(run.name)} has no start date and no end. People join on the day they arrive, `
-      + `practise as they can, and see the others who did.`;
+      + `practise as they can, and see how many others did.`;
 
   const welcomeHeading = fixed
     ? `${esc(first(person.name))} — you have a place.`
@@ -346,8 +346,8 @@ export function stillHere({ person, url, stopUrl }) {
     eyebrow('Still here whenever you are'),
     heading(`${esc(first(person.name))} — no news needed.`),
     para('Life takes the days it takes. I’m not counting them and neither is the log.'),
-    para('The room is the same as you left it. There’s today, and today is enough to come back on.'),
-    button(url, 'Practise with us today'),
+    para('The log is the same as you left it. There’s today, and today is enough to come back on.'),
+    button(url, 'Practise today'),
     small(`If you’d rather stop, that’s a fine answer too — ${link(stopUrl || url, 'tell me here')} and the emails end.`),
     gap(),
   ].join('');
@@ -358,8 +358,8 @@ export function stillHere({ person, url, stopUrl }) {
     text: [
       `${first(person.name)} — no news needed.`, '',
       'Life takes the days it takes. I’m not counting them and neither is the log.', '',
-      'The room is the same as you left it. There’s today, and today is enough to come back on.', '',
-      `Practise with us today: ${url}`, '',
+      'The log is the same as you left it. There’s today, and today is enough to come back on.', '',
+      `Practise today: ${url}`, '',
       'If you’d rather stop, that’s a fine answer too — reply and the emails end.',
     ].join('\n'),
   };

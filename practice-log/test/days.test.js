@@ -169,6 +169,11 @@ test('yesterday is markable, the day before is not', () => {
   assert.deepEqual(markableDates(BEYOND, '2026-10-03'), ['2026-10-03', '2026-10-02']);
 });
 
+test('day one of an evergreen log cannot reach back before joining', () => {
+  assert.deepEqual(markableDates(EVERGREEN, '2026-08-18', '2026-08-18'), ['2026-08-18']);
+  assert.deepEqual(markableDates(EVERGREEN, '2026-08-19', '2026-08-18'), ['2026-08-19', '2026-08-18']);
+});
+
 test('the day after a fixed run ends, only the last day is still addable', () => {
   // 21 October: the run is closed, but yesterday was day 35 and the grace holds.
   assert.deepEqual(markableDates(BEYOND, '2026-10-21'), ['2026-10-20']);

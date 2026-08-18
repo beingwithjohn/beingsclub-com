@@ -37,7 +37,7 @@ That copy is yours already, transcribed from the design bundle. It's in
 > John — your log is ready.
 >
 > The Practice Log has no start date and no end. People join on the day they
-> arrive, practise as they can, and see the others who did.
+> arrive, practise as they can, and see how many others did.
 >
 > 1. Choose the name that appears beside anything you write.
 > 2. Pick your hour. One email a day, at that hour.
@@ -48,11 +48,23 @@ That copy is yours already, transcribed from the design bundle. It's in
 **First opening**
 > Welcome, John.
 >
-> This is where you record your practice and, once you have, see who else
-> practised that day.
+> This is where you record your practice and, once you have, see how many
+> others practised that day.
 
-The three-rule contract, name, line, timezone and email hour follow. The
-scheduled email behaviour and wording remain unchanged.
+The three-rule contract, name, timezone and email hour follow. The public log
+has no persistent roster and does not ask why someone is here. Names appear
+only beside a daily note someone chooses to write. The scheduled email
+behaviour and wording remain unchanged.
+
+After recording today, the week shows one aggregate column per day and says
+the number of other people who practised. That is the intended sense of shared
+movement: enough to see participation wax and wane, never a person-by-person
+history.
+
+Before recording, “I want to practise now” opens an optional timer: five, ten,
+or twenty minutes, with twenty marked standard. A gentle end bell is on by
+default and can be turned off. The timer never records a practice; the ordinary
+“I practised” tap remains after it ends.
 
 The public interface never calls the people using it a “cohort.” Settings says
 “The name beside your notes,” and the daily-email setting says only that it
@@ -76,7 +88,9 @@ yours either way.” “Your place” belongs only to a fixed invitation.
 ---
 
 **Two rules I've been holding to**, so you know what the constraints were:
-counts are said in words, never figures ("seven places left", never "3/10"), and
+counts are said in words in prose, never as denominators ("seven places left",
+never "3/10"). The seven-day aggregate uses a small numeral so its shape can
+be read at a glance. The other standing rule is that
 the banned list is *streak · in a row · you missed · don't break it · 6/10 ·
 60% · average · session · minutes · progress · community · members · users ·
 well done · congratulations*. If you want to break either, say so — they're

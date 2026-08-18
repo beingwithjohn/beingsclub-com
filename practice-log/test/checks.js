@@ -321,7 +321,7 @@ check(15, 'a fixed run freezes, and an evergreen one does not', () => {
   ok(/if \(run\.mode !== 'fixed'\) return false;/.test(days), 'isClosed does not exempt evergreen');
   ok(/markableDates/.test(days), 'there is no markable-dates gate');
   const api = read('practice-log', 'src', 'api.js');
-  ok(/const allowed = markableDates\(run, today\)/.test(api),
+  ok(/const allowed = markableDates\(run, today, anchorOf\(run, person\)\)/.test(api),
     'the mark endpoint does not check the date is markable');
 
   // Freezing must not mean disappearing. After the last day there is no today
@@ -372,6 +372,39 @@ check(18, 'the public interface does not call people a cohort', () => {
   ok(!/Not the cohort|cohort news|Show me in the cohort/i.test(prose),
     'course-era cohort wording remains visible');
   return 'people and notes described directly';
+});
+
+check(19, 'the public log has no persistent people room', () => {
+  const api = read('practice-log', 'src', 'api.js');
+  ok(/if \(!run\.public_join && \(state\.run\.phase === 'room' \|\| canSeeShared\)\)/.test(api),
+    'the public API still sends a persistent roster');
+  ok(/if \(S\.roster && !S\.run\.public_join\)/.test(log),
+    'the public menu still offers the fixed-run room');
+  ok(/if \(!S\.run\.public_join\) inner\.appendChild\(lineRow\(\)\)/.test(log),
+    'public settings still offer the old profile line');
+  ok(/var lineSetup = S\.run\.public_join \? ''/.test(log),
+    'public setup still asks why someone is here');
+  return 'daily aggregates and chosen notes only';
+});
+
+check(20, 'the week says how many others practised', () => {
+  ok(/function othersForDay\(d\)/.test(log), 'the week does not calculate other people separately');
+  ok(/Number of others/.test(log), 'the weekly aggregate is not explained');
+  ok(/weekDayReading/.test(log) && /no others/.test(log),
+    'daily aggregate counts are visual only');
+  return 'seven daily aggregate columns, counts said explicitly';
+});
+
+check(21, 'the timer remains separate from recording practice', () => {
+  ok(/data-minutes=\\?"5\\?"/.test(log) && /data-minutes=\\?"10\\?"/.test(log) &&
+    /data-minutes=\\?"20\\?"/.test(log), 'the agreed timer lengths are not all offered');
+  ok(/Sound at the end/.test(log) && /One gentle bell/.test(log),
+    'the timer has no visible sound choice');
+  const timer = /function viewTimer\(\)[\s\S]*?function quietArrival\(\)/.exec(log)?.[0] || '';
+  ok(timer && !/\/api\/mark/.test(timer), 'finishing the timer records practice');
+  ok(/L\.timerEnded = S\.today\.date/.test(timer) && /Did you practise today\?/.test(log),
+    'the timer does not return to the existing practice tap');
+  return '5, 10, 20; optional bell; no automatic mark';
 });
 
 // ---------------------------------------------------------------------------

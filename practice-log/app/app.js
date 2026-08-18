@@ -32,9 +32,11 @@
   var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
   var L = load();
   var S = L.cache || null;       // the last state the server sent
-  var view = null;
+  var view = L.timer && L.timer.started ? 'timer' : null;
   var tab = 'week';
   var openDate = null;
+  var timerTick = null;
+  var timerAudio = null;
   var busy = false;
   var offline = false;
   var unreachable = false;   // reached the end of the road with nothing cached
@@ -73,6 +75,7 @@
     try { d = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
     if (!d.queue) d.queue = [];
     if (!d.dismissed) d.dismissed = {};
+    if (d.timerSound === undefined) d.timerSound = true;
     return d;
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(L)); } catch (e) {} }
@@ -255,7 +258,8 @@
     if (!S.person.setup_at) return viewFirstRun();
 
     if (view === 'contribute') return viewContribute();
-    if (view === 'room') return viewRoom();
+    if (view === 'timer') return viewTimer();
+    if (view === 'room' && !S.run.public_join) return viewRoom();
 
     // Before day one there is nothing to practise. The room is who is in it.
     if (S.run.phase === 'room' && view !== 'settings' && view !== 'john') {
@@ -309,7 +313,7 @@
   // the menu
   // -------------------------------------------------------------------------
   // Everywhere you can go, in one place. What is *not* here matters as much:
-  // the room only appears once there is a room to see, so the drawer cannot
+    // a private fixed-run room appears only once there is one to see, so the drawer cannot
   // become the way around the rule that you tap before you look.
   function openMenu() {
     closeMenu();
@@ -320,7 +324,7 @@
     if (phase === 'running' || phase === 'closed') {
       items.push({ id: 'today', label: 'Today', sub: todaySub(), view: null });
     }
-    if (S.roster) {
+    if (S.roster && !S.run.public_join) {
       items.push({
         id: 'room',
         label: 'The room',
@@ -328,7 +332,7 @@
         view: 'room'
       });
     }
-    items.push({ id: 'settings', label: 'Settings', sub: 'Your hour, your timezone, your line', view: 'settings' });
+    items.push({ id: 'settings', label: 'Settings', sub: 'Your email, timezone and notes', view: 'settings' });
 
     // The host practises like everyone else — his own marks, his own grid,
     // and he is deliberately not one of the ten, so he never shows in their
@@ -1062,18 +1066,7 @@
   // Three sentences of contract, one decision, one button. No tour.
   function viewFirstRun() {
     var zone = tz() || S.person.timezone;
-    var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;max-width:38rem;">' +
-      '<div class="eyebrow">' + esc(S.run.name) + '</div>' +
-      '<h1 class="h1" style="max-width:16ch;">Welcome, ' + esc(firstName()) + '.</h1>' +
-      '<p class="lead">' + esc(S.run.standfirst ||
-        'This is where you record your practice and, once you have, see who else practised that day.') + '</p>' +
-      '<div style="display:grid;gap:14px;">' +
-        '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;One tap a day. That is the whole tool.</p>' +
-        '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see the others only after you have tapped.</p>' +
-        '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Twenty minutes is standard, and sitting daily matters far more than sitting long. Nothing counts forward, so nothing can be lost.</p>' +
-      '</div>' +
-      '<div><div class="caps" style="margin-bottom:12px;">The name on your notes</div>' +
-        '<input class="field" id="nm" autocomplete="given-name"></div>' +
+    var lineSetup = S.run.public_join ? '' :
       '<div><div class="caps" style="margin-bottom:12px;">Why are you here?</div>' +
         '<p class="body" style="margin-bottom:12px;">One line, in your own words. ' +
         'The others will see it, and you will see theirs.</p>' +
@@ -1082,7 +1075,20 @@
           'placeholder="Sceptical, but I keep coming back to it."></textarea>' +
         '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
           '<span class="small">You can change it later, or leave it blank.</span>' +
-          '<span class="count" id="left">100 left</span></div></div>' +
+          '<span class="count" id="left">100 left</span></div></div>';
+    var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;max-width:38rem;">' +
+      '<div class="eyebrow">' + esc(S.run.name) + '</div>' +
+      '<h1 class="h1" style="max-width:16ch;">Welcome, ' + esc(firstName()) + '.</h1>' +
+      '<p class="lead">' + esc(S.run.standfirst ||
+        'This is where you record your practice and, once you have, see how many others practised that day.') + '</p>' +
+      '<div style="display:grid;gap:14px;">' +
+        '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;One tap a day. That is the whole tool.</p>' +
+        '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see the others only after you have tapped.</p>' +
+        '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Twenty minutes is standard, and sitting daily matters far more than sitting long. Nothing counts forward, so nothing can be lost.</p>' +
+      '</div>' +
+      '<div><div class="caps" style="margin-bottom:12px;">The name on your notes</div>' +
+        '<input class="field" id="nm" autocomplete="given-name"></div>' +
+      lineSetup +
       timeFields(zone) +
       '<button class="btn" id="begin">Begin</button>' +
       '<p class="small" id="setup-msg" aria-live="polite"></p>' +
@@ -1093,9 +1099,11 @@
     var readTime = wireTimeFields(inner, zone, S.person.nudge_hour);
 
     var ta = inner.querySelector('#ln'), left = inner.querySelector('#left');
-    ta.value = S.person.line || '';
-    left.textContent = (100 - ta.value.length) + ' left';
-    ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
+    if (ta) {
+      ta.value = S.person.line || '';
+      left.textContent = (100 - ta.value.length) + ' left';
+      ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
+    }
 
     var nm = inner.querySelector('#nm');
     nm.value = S.person.name || '';
@@ -1106,9 +1114,9 @@
       var body = {
         setup: true,
         nudge_hour: when.nudge_hour,
-        timezone: when.timezone,
-        line: ta.value.trim()
+        timezone: when.timezone
       };
+      if (ta) body.line = ta.value.trim();
       var name = (nm.value || '').trim();
       if (name) body.name = name;
       button.disabled = true;
@@ -1149,12 +1157,14 @@
       inner.appendChild(h('<p class="body" style="max-width:34ch;">Nothing has been kept. ' +
         'Nothing needs explaining. There is just today, the same as it was.</p>'));
     } else {
-      inner.appendChild(h('<div class="eyebrow">' + esc(fmt(S.today.date)) + '</div>'));
+      inner.appendChild(h('<div class="eyebrow">' +
+        esc(L.timerEnded === S.today.date ? 'Timer ended' : fmt(S.today.date)) + '</div>'));
       inner.appendChild(h('<h1 class="ask">Did you practise today?</h1>'));
     }
 
     var tap = h('<button class="tap" id="tap"><b>I practised</b><i>tap anywhere here</i></button>');
     inner.appendChild(tap);
+    inner.appendChild(h('<button class="practice-now" id="practise-now">I want to practise now</button>'));
 
     inner.appendChild(h('<p class="small" style="max-width:34ch;">' + (away
       ? 'Beginning again is not the failure. It <em>is</em> the practice.'
@@ -1174,8 +1184,165 @@
     });
 
     tap.addEventListener('click', function () { doTap(tap); });
+    inner.querySelector('#practise-now').addEventListener('click', function () { go('timer'); });
     var y = document.getElementById('yday');
     if (y) y.addEventListener('click', function () { go('yesterday'); });
+  }
+
+  // -------------------------------------------------------------------------
+  // the optional timer — an aid, never a mark
+  // -------------------------------------------------------------------------
+  function timerState() {
+    if (!L.timer) L.timer = { minutes: 20, running: false, remaining: 20 * 60000 };
+    if ([5, 10, 20].indexOf(L.timer.minutes) < 0) L.timer.minutes = 20;
+    if (!Number.isFinite(L.timer.remaining) || L.timer.remaining <= 0) {
+      L.timer.remaining = L.timer.minutes * 60000;
+    }
+    return L.timer;
+  }
+
+  function viewTimer() {
+    var t = timerState();
+    if (t.running && t.ends_at <= Date.now()) return finishTimer();
+
+    var inner;
+    if (!t.started) {
+      inner = h('<div class="pad narrow timer-panel">' +
+        '<div class="eyebrow">Practise now</div>' +
+        '<h1 class="h1" style="max-width:14ch;">Choose a length.</h1>' +
+        '<p class="body">Twenty minutes is standard. Five on a hard day is a real practice.</p>' +
+        '<div class="timer-choices" role="group" aria-label="Timer length">' +
+          '<button class="chip" data-minutes="5">5 minutes</button>' +
+          '<button class="chip" data-minutes="10">10 minutes</button>' +
+          '<button class="chip" data-minutes="20">20 minutes <small>standard</small></button>' +
+        '</div>' +
+        '<div class="rowflex timer-sound"><div><b>Sound at the end</b><p>One gentle bell</p></div>' +
+          '<button class="sw' + (L.timerSound ? ' on' : '') + '" id="timer-sound" ' +
+          'aria-label="Sound at the end" aria-pressed="' + !!L.timerSound + '"><i></i></button></div>' +
+        '<button class="btn" id="timer-start">Start ' + esc(String(t.minutes)) + ' minutes</button>' +
+      '</div>');
+      shell(inner, {
+        left: '<button class="barlink" id="timer-close">← Today</button>',
+        right: '<span class="barlab">Timer</span>', noMenu: true
+      });
+
+      [].forEach.call(inner.querySelectorAll('[data-minutes]'), function (button) {
+        var minutes = Number(button.getAttribute('data-minutes'));
+        button.classList.toggle('sel', minutes === t.minutes);
+        button.addEventListener('click', function () {
+          t.minutes = minutes;
+          t.remaining = minutes * 60000;
+          save(); render();
+        });
+      });
+      inner.querySelector('#timer-sound').addEventListener('click', function () {
+        L.timerSound = !L.timerSound; save(); render();
+      });
+      inner.querySelector('#timer-start').addEventListener('click', function () {
+        unlockBell();
+        t.started = true;
+        t.running = true;
+        t.remaining = t.minutes * 60000;
+        t.ends_at = Date.now() + t.remaining;
+        save(); render();
+      });
+    } else {
+      inner = h('<div class="centre timer-running">' +
+        '<div class="eyebrow">Practising</div>' +
+        '<div class="timer-clock" id="timer-clock" aria-label="Time remaining">' +
+          esc(clock(timerRemaining(t))) + '</div>' +
+        '<p class="small">' + esc(String(t.minutes)) + ' minutes' +
+          (L.timerSound ? ' · bell on' : ' · silent') + '</p>' +
+        '<div class="timer-actions">' +
+          '<button class="btn" id="timer-pause">' + (t.running ? 'Pause' : 'Continue') + '</button>' +
+          '<button class="quiet" id="timer-end">End timer</button>' +
+        '</div>' +
+      '</div>');
+      shell(inner, {
+        left: '<button class="barlink" id="timer-close">← Today</button>',
+        right: '<span class="barlab">Timer</span>', noMenu: true
+      });
+
+      inner.querySelector('#timer-pause').addEventListener('click', function () {
+        if (t.running) {
+          t.remaining = timerRemaining(t);
+          t.running = false;
+          delete t.ends_at;
+        } else {
+          unlockBell();
+          t.running = true;
+          t.ends_at = Date.now() + t.remaining;
+        }
+        save(); render();
+      });
+      inner.querySelector('#timer-end').addEventListener('click', cancelTimer);
+      if (t.running) runTimerClock();
+    }
+
+    document.getElementById('timer-close').addEventListener('click', cancelTimer);
+  }
+
+  function timerRemaining(t) {
+    return t.running ? Math.max(0, t.ends_at - Date.now()) : Math.max(0, t.remaining);
+  }
+
+  function clock(ms) {
+    var seconds = Math.ceil(ms / 1000);
+    var minutes = Math.floor(seconds / 60);
+    return String(minutes).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+  }
+
+  function runTimerClock() {
+    clearInterval(timerTick);
+    timerTick = setInterval(function () {
+      var t = L.timer;
+      if (!t || !t.running) return clearInterval(timerTick);
+      var left = timerRemaining(t);
+      var el = document.getElementById('timer-clock');
+      if (el) el.textContent = clock(left);
+      if (left <= 0) finishTimer();
+    }, 250);
+  }
+
+  function cancelTimer() {
+    clearInterval(timerTick);
+    L.timer = null;
+    save(); go(null);
+  }
+
+  function finishTimer() {
+    clearInterval(timerTick);
+    L.timer = null;
+    L.timerEnded = S.today.date;
+    save();
+    if (L.timerSound) ringBell();
+    view = null;
+    render();
+  }
+
+  function unlockBell() {
+    if (!L.timerSound) return;
+    try {
+      if (!timerAudio) timerAudio = new (window.AudioContext || window.webkitAudioContext)();
+      if (timerAudio.state === 'suspended') timerAudio.resume();
+    } catch (e) {}
+  }
+
+  function ringBell() {
+    try {
+      unlockBell();
+      if (!timerAudio) return;
+      var now = timerAudio.currentTime;
+      [660, 990].forEach(function (frequency, i) {
+        var osc = timerAudio.createOscillator();
+        var gain = timerAudio.createGain();
+        osc.type = 'sine'; osc.frequency.value = frequency;
+        gain.gain.setValueAtTime(i ? 0.055 : 0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+        osc.connect(gain); gain.connect(timerAudio.destination);
+        osc.start(now); osc.stop(now + 1.8);
+      });
+    } catch (e) {}
   }
 
   // Someone arriving after a stretch away. Read from their own marks, never
@@ -1414,51 +1581,50 @@
   function weekBlock() {
     var box = h('<div style="display:grid;gap:22px;align-content:start;"></div>');
     var row = h('<div class="week"></div>');
-    var size = S.shared ? S.shared.size : 1;
-    var big = size > 12;   // past a dozen, dots stop being countable
+    var weekDays = S.today.week.map(function (date) { return dayFor(date); });
+    var maximum = Math.max.apply(Math, weekDays.map(othersForDay).concat([1]));
 
-    S.today.week.forEach(function (date) {
-      var d = dayFor(date);
+    S.today.week.forEach(function (date, index) {
+      var d = weekDays[index];
       var future = date > S.today.date;
       var col = h('<div class="daycol' + (future ? ' future' : '') + '"></div>');
+      var others = future ? 0 : othersForDay(d);
+      var height = others ? Math.max(10, Math.round((others / maximum) * 64)) : 3;
 
-      if (big) {
-        var frac = d && d.count ? d.count / size : 0;
-        var sq = h('<div style="width:100%;aspect-ratio:1;background:' +
-          (frac ? 'rgba(23,25,22,' + (0.28 + frac * 0.54).toFixed(2) + ')' : 'var(--dim)') + ';"></div>');
-        if (d && d.mine) sq.appendChild(h('<span class="mine" style="position:absolute;"></span>'));
-        col.appendChild(sq);
-      } else {
-        var dots = h('<div class="dots" style="grid-template-columns:repeat(' +
-          Math.min(2, Math.max(1, size)) + ',7px);"></div>');
-        var mine = !!(d && d.mine);
-        var others = Math.max(0, (d ? d.count : 0) - (mine ? 1 : 0));
-        // Yours first, then one ink dot per other person who practised, then
-        // the rest empty. Counts only — there is no order to follow.
-        dots.appendChild(h('<div class="dot' + (mine ? ' me' : '') + '"></div>'));
-        for (var k = 1; k < size; k++) {
-          dots.appendChild(h('<div class="dot' + (k <= others ? ' did' : '') + '"></div>'));
-        }
-        col.appendChild(dots);
-      }
+      col.appendChild(h('<span class="wcount" aria-hidden="true">' +
+        (future ? '—' : esc(String(others))) + '</span>'));
+      col.appendChild(h('<span class="wax-track" aria-hidden="true"><i style="height:' +
+        height + 'px;"></i></span>'));
 
       col.appendChild(h('<span class="dlab' + (date === S.today.date ? ' today' : '') + '" aria-hidden="true">' +
         esc(fmt(date, { weekday: 'narrow' })) + '</span>'));
+      col.appendChild(h('<span class="mine-day' + (d && d.mine ? ' on' : '') + '" aria-hidden="true"></span>'));
 
-      // The dots are a picture of a number. Say the number, and let the dots
-      // themselves be decoration rather than a list of nothing.
+      // The columns are a picture of the aggregate. Say the count too, so the
+      // rise and fall never relies on colour or height alone.
       col.setAttribute('aria-hidden', 'false');
       col.setAttribute('role', 'img');
-      col.setAttribute('aria-label', dayReading(date, d, future));
+      col.setAttribute('aria-label', weekDayReading(date, d, future));
       row.appendChild(col);
     });
 
     box.appendChild(row);
     box.appendChild(h('<div class="legend">' +
-      '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You</span>' +
-      '<span><span class="key" style="background:var(--ink);"></span>Practised</span>' +
-      '<span><span class="key" style="background:var(--dim);"></span>Not yet</span></div>'));
+      '<span><span class="key" style="background:var(--ink);"></span>Number of others</span>' +
+      '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You practised</span></div>'));
     return box;
+  }
+
+  function othersForDay(d) {
+    if (!d) return 0;
+    return Math.max(0, d.count - (S.person.is_host ? 0 : (d.mine ? 1 : 0)));
+  }
+
+  function weekDayReading(date, d, future) {
+    if (future) return fmt(date) + ', not yet';
+    var others = othersForDay(d);
+    var count = others === 0 ? 'no others' : word(others) + ' other' + (others === 1 ? '' : 's');
+    return fmt(date) + ', ' + count + ' practised' + (d && d.mine ? ', and you practised' : '');
   }
 
   // A day is one square: darkness is how many of us practised, the violet edge
@@ -1692,7 +1858,7 @@
     inner.appendChild(toggle('Notes', 'Offer a line after logging', 'notes_on'));
 
     inner.appendChild(nameRow());
-    inner.appendChild(lineRow());
+    if (!S.run.public_join) inner.appendChild(lineRow());
     inner.appendChild(contributeRow());
 
     inner.appendChild(h('<div><b style="font-size:17px;font-weight:600;color:var(--ink);">' +

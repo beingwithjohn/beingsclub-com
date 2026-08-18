@@ -180,10 +180,13 @@ export function daysUntil(run, date) {
  * not take a note on it. Enough for a late sit, not enough to rebuild a
  * fortnight. Neither can fall outside the run.
  */
-export function markableDates(run, today) {
+export function markableDates(run, today, anchor = null) {
   const out = [];
   for (const d of [today, addDays(today, -1)]) {
     if (notYetOpen(run, d)) continue;
+    // An evergreen log begins on the day this person joins. The one-day grace
+    // must not manufacture a day before their log existed.
+    if (anchor && diffDays(anchor, d) < 0) continue;
     if (run.mode === 'fixed' && diffDays(run.starts_on, d) >= run.length_days) continue;
     out.push(d);
   }

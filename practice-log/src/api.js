@@ -47,7 +47,7 @@ export async function getState(env, { person, run }) {
   const mine = await minePastYear(env, person, anchor, today);
   const markedToday = mine.marks.has(today);
 
-  const markable = markableDates(run, today).filter((d) => !mine.marks.has(d));
+  const markable = markableDates(run, today, anchor).filter((d) => !mine.marks.has(d));
   const messages = messageAccess(person, today);
 
   const state = {
@@ -83,6 +83,7 @@ export async function getState(env, { person, run }) {
       suggest_low: run.suggest_low,
       suggest_high: run.suggest_high,
       currency: run.currency,
+      public_join: !!run.public_join,
     },
     today: {
       date: today,
@@ -129,7 +130,7 @@ export async function getState(env, { person, run }) {
   // run starts it goes behind the tap with everything else, because from then
   // on the room is something you earn each day rather than something you look
   // at. Same rule, moved to the right threshold.
-  if (state.run.phase === 'room' || canSeeShared) {
+  if (!run.public_join && (state.run.phase === 'room' || canSeeShared)) {
     state.roster = await roster(env, run, person);
   }
 
@@ -412,7 +413,7 @@ export async function postMark(env, { person, run }, body) {
   const date = body?.date || today;
   if (!isDate(date)) return bad(400, 'bad date');
 
-  const allowed = markableDates(run, today);
+  const allowed = markableDates(run, today, anchorOf(run, person));
   if (!allowed.includes(date)) return bad(409, 'not markable');
 
   const late = date !== today ? 1 : 0;
