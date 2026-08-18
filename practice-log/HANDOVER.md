@@ -11,8 +11,10 @@ build — "mirror it all into a database" — breaks three of them at once.
 
 ## 1. What it is
 
-A daily check-in for the people in a Sit. It asks one question a day — *did you
-practise?* — and, once answered, shows the others who answered it too.
+A daily check-in anyone can begin. It asks one question a day — *did you
+practise?* — and, once answered, shows the others who answered it too. Courses
+do not get separate instances: John grants their participants the private line
+to him for the dates the course is running.
 
 Live now:
 
@@ -51,11 +53,11 @@ Beyond Belief is a fixed run: 2026-09-16, 35 days, 10 places.
 `migrations/0001_init.sql` is the whole thing and is commented. In brief:
 
 ```
-run              slug, name, mode, starts_on, length_days, week_labels,
+  run              slug, name, mode, public_join, starts_on, length_days, week_labels,
                  places, blurb, meets, suggest_low, suggest_high, currency
 person           run_id, name, email, timezone, nudge_hour, nudge_on, notes_on,
                  token_hash, token_enc, invite_hash, is_host, joined_on,
-                 took_place_at, setup_at, line, left_at
+                 took_place_at, setup_at, line, left_at, message_from, message_until
 day_mark         (person_id, on_date) PK, marked_at, late
 note             (person_id, on_date) PK, body ≤100, removed_at
 private_message  person_id, on_date, body, answer_body, answer_url, answered_at
@@ -86,7 +88,8 @@ hidden, until `markedToday`; `GET /api/day` 404s. The menu hides "The room" for
 the same reason.
 
 **2 · One tap, everything else optional.** The note is offered once a day. The
-private line to John is on every screen and in the path of none.
+private line to John appears only inside an active course-access window and is
+in the path of none.
 
 **3 · No streaks, ever.** Nothing counts forward, so nothing can be lost. Days
 that were not marked are drawn exactly like days that have not arrived, and are
@@ -117,6 +120,7 @@ reaches exactly two endpoints.
 
 ```
 GET    /api/health
+POST   /api/join        {name?, email, timezone?}  public evergreen entry; emails the link
 POST   /api/login       {email}    unauthenticated; posts the link back
 GET    /api/state                  everything the app renders
 GET    /api/day?date=YYYY-MM-DD    one day, gated on today being marked
@@ -134,6 +138,7 @@ POST   /api/place       {name?, line?, timezone?, nudge_hour?}  → {token}
 GET    /api/host/inbox             is_host only; 404 otherwise, never 403
 GET    /api/host/people
 POST   /api/host/invite  {name, email, send?, force?}
+POST   /api/host/message-access {person_id, from, until}  dates or both null
 POST   /api/host/answer  {id, body?, audio?}
 POST   /api/host/note/remove {person_id, date}
 POST   /api/host/week    {confirm:true, week_number, ...}
@@ -228,9 +233,9 @@ allows five, and the sweep is already timezone-aware.
 
 ```bash
 cd practice-log
-npm test              # 34 unit tests: day maths across timezones, DST, leap
+npm test              # 36 unit tests: day maths across timezones, DST, leap
                       # years, both run shapes, the nudge window, CORS matching
-node test/checks.js   # 13 checks against the built app
+node test/checks.js   # 14 checks against the built app
 ```
 
 `checks.js` is the one that matters for a change like this. It fails the build
@@ -250,3 +255,5 @@ safe place to work; `seed/bootstrap.sh` creates runs and prints the magic links.
   `p=reject` once a real send is confirmed to pass SPF and DKIM aligned.
 - `COPY.md` is a working document for a copy pass that has not happened yet.
   Expect the wording to change.
+- The public evergreen log is now the course-independent home. Fixed runs are
+  retained for old data and rehearsals, not as the default course model.

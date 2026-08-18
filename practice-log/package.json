@@ -10,8 +10,8 @@
     "check": "node test/checks.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:local": "wrangler d1 execute practice-log --local --file=migrations/0001_init.sql",
-    "db:remote": "wrangler d1 execute practice-log --remote --file=migrations/0001_init.sql"
+    "db:local": "wrangler d1 migrations apply practice-log --local",
+    "db:remote": "wrangler d1 migrations apply practice-log --remote"
   },
   "devDependencies": {
     "wrangler": "^3.90.0"

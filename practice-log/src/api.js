@@ -17,6 +17,7 @@ import {
 } from './days.js';
 import { mintToken, logUrl, unseal } from './auth.js';
 import { sendWelcomeBack } from './mail/send.js';
+import { messageAccess } from './access.js';
 
 const NOTE_MAX = 100;
 const LINE_MAX = 100;
@@ -47,6 +48,7 @@ export async function getState(env, { person, run }) {
   const markedToday = mine.marks.has(today);
 
   const markable = markableDates(run, today).filter((d) => !mine.marks.has(d));
+  const messages = messageAccess(person, today);
 
   const state = {
     person: {
@@ -60,6 +62,7 @@ export async function getState(env, { person, run }) {
       joined_on: person.joined_on,
       setup_at: person.setup_at,
       line: person.line,
+      message_access: messages,
     },
     run: {
       slug: run.slug,
@@ -96,8 +99,8 @@ export async function getState(env, { person, run }) {
       marked: mine.marks.has(addDays(today, -1)),
       markable: markable.includes(addDays(today, -1)),
     },
-    // Your own private thread. Available before the tap, because it is yours
-    // and it is not the cohort — but it never blocks the tap.
+    // Your answered private thread remains yours after a course ends. Starting
+    // a new message is a separate, date-bounded course entitlement.
     answers: await answersFor(env, person.id),
     shared: null,
     roster: null,
@@ -461,6 +464,7 @@ export async function postMessage(env, { person, run }, body) {
   if (text.length > MESSAGE_MAX) return bad(400, 'too long');
 
   const today = localDate(Date.now(), person.timezone);
+  if (!messageAccess(person, today).active) return bad(409, 'not available');
   await env.DB.prepare(
     `INSERT INTO private_message (person_id, on_date, body) VALUES (?1, ?2, ?3)`,
   ).bind(person.id, today, text).run();

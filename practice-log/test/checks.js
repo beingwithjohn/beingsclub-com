@@ -232,7 +232,7 @@ check(8, 'a link in an email cannot write anything', () => {
   const idx = read('practice-log', 'src', 'index.js');
   // Every write is behind POST or PATCH. If a GET ever routed to one of them,
   // a mail scanner following links would log practices nobody did.
-  const writes = ['/api/mark', '/api/note', '/api/message', '/api/settings/revoke'];
+  const writes = ['/api/join', '/api/mark', '/api/note', '/api/message', '/api/settings/revoke'];
   for (const w of writes) {
     const line = idx.split('\n').find((l) => l.includes(`'${w}'`) && l.includes('path ==='));
     ok(line, `${w} is not routed`);
@@ -333,6 +333,23 @@ check(15, 'a fixed run freezes, and an evergreen one does not', () => {
     'a closed run keeps counting days past its last one');
 
   return 'freezes, stays readable, stops at the last day';
+});
+
+check(16, 'one public log, with course-bounded access to John', () => {
+  const idx = read('practice-log', 'src', 'index.js');
+  const join = read('practice-log', 'src', 'join.js');
+  const api = read('practice-log', 'src', 'api.js');
+  const access = read('practice-log', 'src', 'access.js');
+  const host_ = read('practice-log', 'src', 'host.js');
+
+  ok(/path === '\/api\/join' && method === 'POST'/.test(idx), 'the public front door is not POST-only');
+  ok(/public_join = 1 AND mode = 'evergreen'/.test(join), 'self-service entry is not confined to the public evergreen log');
+  ok(!/json\(\{[^}]*token/.test(join), 'public entry returns a credential to the browser');
+  ok(/messageAccess\(person, today\)\.active/.test(api), 'the message endpoint is not gated by course dates');
+  ok(/from <= today/.test(access) && /today <= until/.test(access), 'course access is not bounded at both ends');
+  ok(/message-access/.test(host_), 'the host cannot grant or clear course access');
+  ok(/message_access && S\.person\.message_access\.active/.test(log), 'the private line is shown outside active course access');
+  return 'open log, private line opens only for its dates';
 });
 
 // ---------------------------------------------------------------------------

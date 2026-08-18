@@ -419,8 +419,9 @@ main { flex: 1; display: flex; flex-direction: column; }
  *                                file could not show the cohort early if it
  *                                tried.
  *   2  One tap, everything else optional. The note is offered once a day and
- *                                remembers being dismissed. The line to John is
- *                                on every screen and in the path of none.
+ *                                remembers being dismissed. During a course,
+ *                                the line to John is available but in the path
+ *                                of none.
  *   3  No streaks, ever.         Nothing counts forward. Days that were not
  *                                marked are drawn the same as days not yet
  *                                arrived, and are never named.
@@ -490,7 +491,9 @@ main { flex: 1; display: flex; flex-direction: column; }
   // -------------------------------------------------------------------------
   function api(path, opts) {
     opts = opts || {};
-    var headers = opts.invite
+    var headers = opts.public
+      ? {}
+      : opts.invite
       ? { authorization: 'Invite ' + (L.invite || '') }
       : { authorization: 'Bearer ' + (L.token || '') };
     if (opts.body !== undefined) headers['content-type'] = 'application/json';
@@ -758,8 +761,10 @@ main { flex: 1; display: flex; flex-direction: column; }
           esc(it.label) + '<small>' + esc(it.sub) + '</small></button>';
       }).join('') +
       // Set apart and on ink, because it is the one thing nobody else reads.
-      '<button class="item ink" id="m-john">Something just for John' +
-        '<small>Private, and never in anyone else’s view</small></button>' +
+      (S.person.message_access && S.person.message_access.active
+        ? '<button class="item ink" id="m-john">Something just for John' +
+          '<small>Private, and open while your course is running</small></button>'
+        : '') +
       '<div class="tail"><p class="small">Nothing here is scored. ' +
       'Nothing counts forward, so nothing can be lost.</p></div>' +
     '</div>');
@@ -778,9 +783,8 @@ main { flex: 1; display: flex; flex-direction: column; }
         go(it.view);
       });
     });
-    drawer.querySelector('#m-john').addEventListener('click', function () {
-      closeMenu(); go('john');
-    });
+    var john = drawer.querySelector('#m-john');
+    if (john) john.addEventListener('click', function () { closeMenu(); go('john'); });
 
     document.addEventListener('keydown', onMenuKey);
     try { drawer.querySelector('.item').focus(); } catch (e) {}
@@ -812,25 +816,27 @@ main { flex: 1; display: flex; flex-direction: column; }
   // -------------------------------------------------------------------------
   // no link / loading
   // -------------------------------------------------------------------------
-  // No link, and a way to get one. There is no password to reset, because
-  // there is no password — this posts the same long-lived link back to the
-  // address it already belongs to.
+  // No link, and the public front door. A first request creates a place in the
+  // evergreen log; a later one sends the same long-lived link back. Neither
+  // returns a credential to the browser.
   function viewNoLink() {
     var inner = h('<div class="centre">' +
       '<div class="eyebrow">Practice log</div>' +
-      '<h1 class="h1" style="max-width:16ch;">This opens from your email.</h1>' +
-      '<p class="body" style="max-width:38ch;">Every email carries the link, and the link is the way in. ' +
-      'There is no password to remember and nothing to sign into.</p>' +
+      '<h1 class="h1" style="max-width:16ch;">A simple record of showing up.</h1>' +
+      '<p class="body" style="max-width:38ch;">The log is open to anyone. Give it an email address ' +
+      'and it will send your private link. There is no password.</p>' +
       '<div style="display:grid;gap:10px;width:100%;max-width:22rem;">' +
+        '<input class="field" id="jn" autocomplete="name" aria-label="Your name" placeholder="Your name">' +
         '<input class="field" id="em" type="email" autocomplete="email" ' +
-          'aria-label="The email address you joined with" placeholder="you@example.com">' +
-        '<button class="btn" id="send">Send me my link</button>' +
+          'aria-label="Your email address" placeholder="you@example.com">' +
+        '<button class="btn" id="send">Begin or open my log</button>' +
         '<p class="small" id="msg" aria-live="polite"></p>' +
       '</div></div>');
 
     shell(inner, { right: '<span class="barlab">Practice log</span>', noMenu: true });
 
     var em = inner.querySelector('#em');
+    var jn = inner.querySelector('#jn');
     var msg = inner.querySelector('#msg');
 
     inner.querySelector('#send').addEventListener('click', function () {
@@ -838,12 +844,9 @@ main { flex: 1; display: flex; flex-direction: column; }
       if (!v) { msg.textContent = 'An email address first.'; return; }
       this.disabled = true;
       msg.textContent = 'Sending…';
-      api('/api/login', { method: 'POST', body: { email: v } })
+      api('/api/join', { method: 'POST', public: true, body: { name: jn.value.trim(), email: v, timezone: tz() } })
         .then(function () {
-          // Deliberately says the same thing whether or not that address is
-          // anybody's. Whether someone is in a Sit is not this page's to tell.
-          msg.textContent = 'If that address is in a Sit, the link is on its way to it. '
-            + 'It is the same link as before.';
+          msg.textContent = 'The link is on its way. If you already had a log, it is the same link as before.';
         })
         .catch(function () {
           inner.querySelector('#send').disabled = false;
@@ -2031,6 +2034,15 @@ main { flex: 1; display: flex; flex-direction: column; }
   // A full-page takeover, never a modal over the grid — the cohort should not
   // be visible behind the private door.
   function viewJohn() {
+    if (!S.person.message_access || !S.person.message_access.active) {
+      var unavailable = h('<div class="centre"><h1 class="h1" style="max-width:17ch;">This line opens during a course.</h1>' +
+        '<p class="body" style="max-width:38ch;">The practice log itself remains yours before and after. ' +
+        'When you are taking a course with John, you can write to him here and receive a private reply.</p>' +
+        '<button class="btn" id="back">Back to the log</button></div>');
+      shell(unavailable, {});
+      unavailable.querySelector('#back').addEventListener('click', function () { go(null); });
+      return;
+    }
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:38rem;">' +
       '<h2 class="h2">Nobody else sees this.</h2>' +
       '<p class="body">Not the cohort, not your partner. Ask anything, or say how it is actually going.</p>' +
@@ -2038,7 +2050,7 @@ main { flex: 1; display: flex; flex-direction: column; }
         'Am I doing it wrong, or is that the point?"></textarea>' +
       '<div style="display:flex;align-items:center;gap:8px;" class="small">' +
         '<span style="width:6px;height:6px;border-radius:50%;background:var(--lilac);"></span>' +
-        '<span>Private, for as long as this log exists</span></div>' +
+        '<span>Private, while your course is running</span></div>' +
       '<button class="btn on-ink" id="send">Send to John</button>' +
       '<p class="small" id="msg" aria-live="polite">He answers by voice, usually within a day or two. ' +
       'If an answer would help others, he will re-ask it anonymously — never your words, never your name.</p>' +

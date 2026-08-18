@@ -1,5 +1,10 @@
 # Practice Log — build spec
 
+> **Direction updated 18 August 2026.** The build below explains the original
+> fixed-course brief. The implemented product is now one public evergreen log
+> anyone can begin, with date-bounded access to message John granted to people
+> while their course is running. `practice-log/HANDOVER.md` is authoritative.
+
 For whoever builds the Practice Log as a separate piece of work, then hands it back to be
 hooked into beingsclub.com.
 

@@ -56,6 +56,7 @@ function shape(row) {
       nudge_on: !!row.nudge_on, notes_on: !!row.notes_on,
       is_host: !!row.is_host, joined_on: row.joined_on, left_at: row.left_at,
       setup_at: row.setup_at, took_place_at: row.took_place_at, line: row.line,
+      message_from: row.message_from, message_until: row.message_until,
     },
     run: {
       id: row.run_id, slug: row.run_slug, name: row.run_name, mode: row.mode,

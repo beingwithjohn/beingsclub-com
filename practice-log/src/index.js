@@ -12,6 +12,7 @@ import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
 import { postContribution, stripeWebhook } from './contribution.js';
 import { postLogin } from './login.js';
+import { postJoin } from './join.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -48,6 +49,14 @@ async function route(request, env, ctx, url) {
   const method = request.method;
 
   if (path === '/api/health' && method === 'GET') return json({ ok: true });
+
+  // The one evergreen log is open to anyone. This never returns a credential:
+  // it sends the long-lived link to the address that will own it.
+  if (path === '/api/join' && method === 'POST') {
+    const body = await readJson(request);
+    if (body === undefined) return bad(400, 'bad json');
+    return postJoin(env, body);
+  }
 
   // Stripe calls this, not a browser. It carries no session and proves itself
   // with a signature instead.

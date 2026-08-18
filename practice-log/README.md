@@ -1,7 +1,9 @@
 # The Practice Log
 
 One question a day — *did you practise?* — and, once answered, the others who
-answered it too.
+answered it too. The main Practice Log is one evergreen tool that anyone can
+begin from `/log/`; a course grants the private line to John for its dates
+rather than creating another copy of the log.
 
 Built to two shapes at once:
 
@@ -10,8 +12,9 @@ Built to two shapes at once:
 | **evergreen** | joinable any day, year round, no end. Your day one is the day you joined, so "day 18" means eighteen days for you. This is the default. |
 | **fixed** | a cohort with a start date and a length. Everyone is on the same day number, and it freezes on the last day. Beyond Belief is one of these: 2026-09-16, thirty-five days. |
 
-They are the same code. The only difference is what a day index counts from,
-and whether there is a last day. See `anchorOf` in `src/days.js`.
+They are the same code. Fixed runs remain supported for existing records and
+rehearsals, but new courses use the public evergreen log plus date-bounded
+message access. See `anchorOf` in `src/days.js` and `src/access.js`.
 
 ---
 
@@ -25,6 +28,8 @@ practice-log/
     days.js                  every date decision in the system
     auth.js                  magic links — hashed for lookup, sealed for sending
     api.js                   the participant API
+    join.js                  public entry to the one evergreen log
+    access.js                date-bounded course access to John
     host.js                  John's API
     nudge.js                 the half-hourly send sweep
     mail/templates.js        the seven emails
@@ -63,7 +68,7 @@ npx wrangler d1 create practice-log
 Paste the printed `database_id` into `wrangler.toml`. It is not a secret.
 
 ```bash
-npm run db:remote      # applies migrations/0001_init.sql
+npm run db:remote      # applies every unapplied migration, in order
 ```
 
 **2 · the secrets**
@@ -92,18 +97,18 @@ Note the origin it prints. If it is not
 node app/build.js --api https://your-worker-origin
 ```
 
-**4 · the run, and the people in it**
+**4 · the public run, and the host**
 
 ```bash
 export LINK_KEY="…the same value…"
 
-# evergreen, joinable any day
+# evergreen, joinable by anyone from /log/
 node seed/seed.js --run practice --name "The Practice Log" --evergreen \
   --host "John <john@spacetobe.xyz> Europe/Lisbon" \
   --person "Ana <ana@example.com> Europe/Lisbon" \
   > /tmp/seed.sql
 
-# or the fixed cohort
+# Fixed runs are retained for rehearsals and old records, not required by a course.
 node seed/seed.js --run beyond-belief --name "Beyond Belief" \
   --fixed 2026-09-16 --days 35 \
   --weeks "Curiosity,Care,Responsibility,Play,Rest" \
@@ -119,10 +124,10 @@ piping the SQL. **Each link is a login.** Send each one to its own person and
 nowhere else. Re-running the seed for someone replaces their token and the old
 link stops working.
 
-**5 · commit the built app**
+**5 · publish the built app**
 
 ```bash
-cd .. && node practice-log/app/build.js && git add log && git commit && git push
+cd .. && ./build/deploy.sh "Open the Practice Log"
 ```
 
 ---
@@ -130,7 +135,7 @@ cd .. && node practice-log/app/build.js && git add log && git commit && git push
 ## Working on it
 
 ```bash
-npm test                       # the day maths and CORS — 31 tests
+npm test                       # day maths, CORS, and course access — 36 tests
 node test/checks.js            # the §7 checks against the built app
 node app/build.js --api http://localhost:8787
 npx wrangler dev --local --test-scheduled --port 8787
@@ -156,8 +161,8 @@ template is a rule one refactor away from being gone.
    entirely until today is marked, and `GET /api/day` 404s. The client cannot
    show the cohort early because it is not sent it.
 2. **One tap, everything else optional.** The note is offered once a day and
-   remembers being dismissed. The line to John is on every screen and in the
-   path of none.
+   remembers being dismissed. The line to John appears only during the dates
+   John grants for a course, and remains in the path of none.
 3. **No streaks, ever.** Nothing counts forward. Unmarked days are drawn exactly
    like days that have not arrived. `test/checks.js` fails the build if any of
    twelve scoring words reaches the built app.

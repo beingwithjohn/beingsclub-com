@@ -128,9 +128,9 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
   change of day re-derives all six meeting dates, the 35-day range and the advertised run.
   The dates live in the `key == 'beyondbelief'` block of the generator, in the `sits` block,
   and in both companions (hand-maintained).
-- **The Practice Log** (`docs/practice-log-spec.md`) has open decisions: cohort start date,
-  Cloudflare + Resend confirmation, sending-domain DNS (beingsclub.com publishes
-  `v=spf1 -all` and has no MX), and whether the Log is linked from the site at all.
+- **The Practice Log** is one public evergreen tool. Courses grant the private line to John
+  for a date window; they do not need separate runs. The remaining operational work is
+  Stripe, the copy pass, and tightening DMARC after aligned delivery is confirmed.
 - **The 82MB blob in git history** (see #4).
 
 ## Security constraints John has set

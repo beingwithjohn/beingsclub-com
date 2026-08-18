@@ -1,8 +1,8 @@
 /* John's side. A plain list, on purpose.
  *
  * Ten people do not need an inbox with features: what is here is what only he
- * can do — read what people asked privately, answer it, see who has gone quiet,
- * and remove a note. Nothing here is shown to anybody else, and the quiet-day
+ * can do — read what people asked privately, answer it, grant the private line
+ * for a course, see who has gone quiet, and remove a note. Nothing here is shown to anybody else, and the quiet-day
  * count in particular exists so he can reach out as a person, never so the
  * product can.
  */
@@ -182,6 +182,7 @@
         if (p.is_host) bits.push('host');
         if (p.left_at) bits.push('left ' + p.left_at);
         if (!p.nudge_on) bits.push('nudges off');
+        if (p.message_from && p.message_until) bits.push('John line ' + p.message_from + ' to ' + p.message_until);
 
         var row = h('<div class="rowflex"><div>' +
           '<b>' + esc(p.name) + '</b>' +
@@ -209,6 +210,41 @@
             .catch(function (e) { say.textContent = e.message; });
         });
         row.appendChild(rm);
+
+        if (!p.is_host) {
+          var access = h('<div style="display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--hair);">' +
+            '<div class="caps">Private line during a course</div>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+              '<input class="field afrom" type="date" style="max-width:11rem;padding:8px 10px;font-size:15px;" aria-label="Course access starts">' +
+              '<span class="small">to</span>' +
+              '<input class="field auntil" type="date" style="max-width:11rem;padding:8px 10px;font-size:15px;" aria-label="Course access ends">' +
+              '<button class="ul asave">Save access</button>' +
+              '<button class="ul aclear">Clear</button>' +
+              '<span class="small amsg" aria-live="polite"></span>' +
+            '</div></div>');
+          var from = access.querySelector('.afrom');
+          var until = access.querySelector('.auntil');
+          var amsg = access.querySelector('.amsg');
+          from.value = p.message_from || '';
+          until.value = p.message_until || '';
+
+          access.querySelector('.asave').addEventListener('click', function () {
+            if (!from.value || !until.value) { amsg.textContent = 'Both dates.'; return; }
+            this.disabled = true;
+            api('/api/host/message-access', {
+              method: 'POST', body: { person_id: p.id, from: from.value, until: until.value }
+            }).then(function () { amsg.textContent = 'Saved.'; render(); })
+              .catch(function (e) { amsg.textContent = e.message; });
+          });
+          access.querySelector('.aclear').addEventListener('click', function () {
+            this.disabled = true;
+            api('/api/host/message-access', {
+              method: 'POST', body: { person_id: p.id, from: null, until: null }
+            }).then(function () { amsg.textContent = 'Cleared.'; render(); })
+              .catch(function (e) { amsg.textContent = e.message; });
+          });
+          row.appendChild(access);
+        }
         wrap.appendChild(row);
       });
 

@@ -8,7 +8,7 @@
 // 403: the surface does not announce itself to someone who cannot use it.
 
 import { json, bad } from './api.js';
-import { localDate, addDays, diffDays, anchorOf, quietDays } from './days.js';
+import { localDate, addDays, diffDays, anchorOf, quietDays, isDate } from './days.js';
 import { unseal, logUrl, inviteUrl, mintToken } from './auth.js';
 import { sendAnswered, sendWeekLetter, sendInvitation, claim } from './mail/send.js';
 
@@ -26,6 +26,7 @@ export async function hostRoute(env, request, url, who) {
     if (path === '/api/host/note/remove') return removeNote(env, who, body);
     if (path === '/api/host/week') return weekLetter(env, who, body);
     if (path === '/api/host/invite') return invite(env, who, body);
+    if (path === '/api/host/message-access') return setMessageAccess(env, who, body);
   }
 
   return bad(404, 'not found');
@@ -109,6 +110,7 @@ async function inbox(env, { run }) {
 async function people(env, { run }) {
   const rows = await env.DB.prepare(
     `SELECT p.id, p.name, p.email, p.timezone, p.nudge_hour, p.nudge_on, p.notes_on,
+            p.message_from, p.message_until,
             p.joined_on, p.left_at, p.is_host,
             (SELECT COUNT(*) FROM day_mark d WHERE d.person_id = p.id) AS marks,
             (SELECT MAX(d.on_date) FROM day_mark d WHERE d.person_id = p.id) AS last_mark
@@ -132,12 +134,38 @@ async function people(env, { run }) {
     out.push({
       id: r.id, name: r.name, email: r.email, timezone: r.timezone,
       nudge_hour: r.nudge_hour, nudge_on: !!r.nudge_on, notes_on: !!r.notes_on,
+      message_from: r.message_from, message_until: r.message_until,
       joined_on: r.joined_on, left_at: r.left_at, is_host: !!r.is_host,
       marks: r.marks, last_mark: r.last_mark, quiet_days: quiet, today,
     });
   }
 
   return json({ run: { slug: run.slug, name: run.name, mode: run.mode }, people: out });
+}
+
+// ---------------------------------------------------------------------------
+// the private line to John — granted only while a course is running
+// ---------------------------------------------------------------------------
+async function setMessageAccess(env, { run }, body) {
+  const personId = Number(body.person_id);
+  if (!Number.isInteger(personId)) return bad(400, 'person_id');
+
+  const clear = body.from == null && body.until == null;
+  const from = clear ? null : String(body.from || '');
+  const until = clear ? null : String(body.until || '');
+  if (!clear && (!isDate(from) || !isDate(until) || from > until)) {
+    return bad(400, 'dates');
+  }
+
+  const owner = await env.DB.prepare(
+    `SELECT 1 FROM person WHERE id = ?1 AND run_id = ?2 AND is_host = 0`,
+  ).bind(personId, run.id).first();
+  if (!owner) return bad(404, 'not found');
+
+  await env.DB.prepare(
+    `UPDATE person SET message_from = ?1, message_until = ?2 WHERE id = ?3`,
+  ).bind(from, until, personId).run();
+  return json({ ok: true, message_from: from, message_until: until });
 }
 
 // ---------------------------------------------------------------------------
