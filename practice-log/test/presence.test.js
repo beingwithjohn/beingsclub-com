@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sharedView, patchSettings } from '../src/api.js';
+import { sharedView, patchSettings, getDay } from '../src/api.js';
+import { addDays, localDate } from '../src/days.js';
 
 function presenceDb() {
   return {
@@ -52,6 +53,20 @@ test('first-time setup requires a name before touching storage', async () => {
     { DB: { prepare() { throw new Error('database must not be reached'); } } },
     { person: { id: 1 }, run: {} },
     { setup: true, name: '   ' },
+  );
+  assert.equal(response.status, 400);
+});
+
+test('participant day details stop at the visible week', async () => {
+  const today = localDate(Date.now(), 'UTC');
+  const oldDate = addDays(today, -7);
+  const response = await getDay(
+    { DB: { prepare() { throw new Error('database must not be reached'); } } },
+    {
+      person: { id: 1, timezone: 'UTC', joined_on: addDays(today, -40) },
+      run: { id: 7, mode: 'evergreen' },
+    },
+    new URL('https://example.com/api/day?date=' + oldDate),
   );
   assert.equal(response.status, 400);
 });

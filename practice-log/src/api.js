@@ -26,10 +26,6 @@ const NAME_MAX = 40;
 const PROFILE_IMAGE_MAX = 70000;
 const PROFILE_IMAGE = /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i;
 
-// An evergreen log that has been running for years should not send its whole
-// history on every load. Two years of squares is already more than anyone reads.
-const WINDOW_DAYS = 731;
-
 export const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
     status,
@@ -46,7 +42,9 @@ export async function getState(env, { person, run }) {
   const anchor = anchorOf(run, person);
   const closed = isClosed(run, today);
 
-  const mine = await minePastYear(env, person, anchor, today);
+  const visibleUntil = closed ? lastDay(run) : today;
+  const visibleFrom = weekStart(visibleUntil, anchor);
+  const mine = await mineThisWeek(env, person, visibleFrom, visibleUntil);
   const markedToday = mine.marks.has(today);
 
   const markable = markableDates(run, today, anchor).filter((d) => !mine.marks.has(d));
@@ -125,28 +123,22 @@ export async function getState(env, { person, run }) {
   return json(state);
 }
 
-/** This person's own marks and notes across the window. */
-async function minePastYear(env, person, anchor, today) {
-  const from = windowStart(anchor, today);
+/** This person's own marks and notes in the one participant-visible week. */
+async function mineThisWeek(env, person, from, until) {
   const [marks, notes] = await Promise.all([
     env.DB.prepare(
       `SELECT on_date FROM day_mark WHERE person_id = ?1 AND on_date >= ?2 AND on_date <= ?3`,
-    ).bind(person.id, from, today).all(),
+    ).bind(person.id, from, until).all(),
     env.DB.prepare(
       `SELECT on_date, body FROM note
         WHERE person_id = ?1 AND removed_at IS NULL AND on_date >= ?2 AND on_date <= ?3`,
-    ).bind(person.id, from, today).all(),
+    ).bind(person.id, from, until).all(),
   ]);
   return {
     from,
     marks: new Set((marks.results || []).map((r) => r.on_date)),
     notes: new Map((notes.results || []).map((r) => [r.on_date, r.body])),
   };
-}
-
-function windowStart(anchor, today) {
-  const earliest = addDays(today, -(WINDOW_DAYS - 1));
-  return diffDays(anchor, earliest) > 0 ? earliest : anchor;
 }
 
 /**
@@ -326,7 +318,11 @@ export async function getDay(env, { person, run }, url) {
   if (!isDate(date)) return bad(400, 'bad date');
 
   const today = localDate(Date.now(), person.timezone);
-  if (diffDays(date, today) < 0) return bad(400, 'not yet');
+  const anchor = anchorOf(run, person);
+  const until = isClosed(run, today) ? lastDay(run) : today;
+  const from = weekStart(until, anchor);
+  if (diffDays(date, until) < 0) return bad(400, 'not yet');
+  if (diffDays(from, date) < 0) return bad(400, 'outside the visible week');
 
   // Nothing before the tap — including a past day. After a run closes, the
   // same substitution as in getState: having been in it stands in for today.
@@ -341,7 +337,6 @@ export async function getDay(env, { person, run }, url) {
     if (!ever) return bad(404, 'not yet');
   }
 
-  const anchor = anchorOf(run, person);
   const [people, notes, mineRow] = await Promise.all([
     env.DB.prepare(
       `SELECT p.id AS pid, p.name, p.line, p.profile_image

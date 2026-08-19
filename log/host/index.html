@@ -322,6 +322,8 @@ main { flex: 1; display: flex; flex-direction: column; }
 .presence-dot:hover, .presence-dot:focus-visible { outline: 2px solid var(--you); outline-offset: 3px; }
 .dlab { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .dlab.today { color: var(--ink); }
+.day-open { background: none; border: 0; padding: 3px 6px; margin: -3px -6px; cursor: pointer; }
+.day-open:hover, .day-open:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
 .presence-card {
   position: fixed; z-index: 80; width: min(17rem, calc(100vw - 24px));
@@ -343,18 +345,6 @@ main { flex: 1; display: flex; flex-direction: column; }
 .legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; color: var(--muted); }
 .key { width: 8px; height: 8px; border-radius: 50%; }
-
-/* --------------------------------------------------------- the whole run -- */
-
-.sq { aspect-ratio: 1; background: var(--dim); position: relative; }
-.sq .mine { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--you-edge); }
-.sq.today { outline: 2px solid var(--ink); outline-offset: 2px; }
-.sq:hover { outline: 2px solid var(--you); outline-offset: 2px; }
-.wkrow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.wkhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 2px; }
-.wkhead b { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
-.wkhead span { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-.wkhead span.now { color: var(--you); }
 
 /* --------------------------------------------------------------- forms ---- */
 
@@ -435,24 +425,14 @@ main { flex: 1; display: flex; flex-direction: column; }
 
 /* ----------------------------------------------------------- one breakpoint */
 
-.tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--hair); }
-.tabs button {
-  text-align: center; padding: 14px; font-size: 11px; font-weight: 600;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
-}
-.tabs button:first-child { border-right: 1px solid var(--hair); }
-.tabs button.sel { background: var(--ink); color: var(--paper); }
-
 .dtitle { display: none; }
 
 @media (min-width: 48rem) {
-  /* The two tabs become one view — week above, whole run below, notes in the
-     rail. Nothing new appears; the page stops hiding things behind each other. */
+  /* The week and today's notes sit side by side when there is room. */
   .split { display: grid; grid-template-columns: 1.35fr 1fr; gap: clamp(24px, 4vw, 48px);
     padding: var(--pad-y) var(--pad); align-items: start; }
   .split > * { min-width: 0; }
   .main { display: grid; gap: clamp(28px, 4vh, 44px); align-content: start; }
-  .tabs { display: none; }
   .dtitle {
     display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
     border-bottom: 1px solid var(--hair); padding-bottom: 10px; margin-bottom: 16px;

@@ -9,7 +9,7 @@ reference. It is not part of the public entry path and both live fixed runs are
 retired.
 
 **What's *not* here, on purpose:** the log screens themselves — the tap, the
-note, the week grid, the whole-run grid, the private channel, day thirty-five.
+note, the week grid, the private channel, day thirty-five.
 That copy is yours already, transcribed from the design bundle. It's in
 `app/app.js` if you want it, but it's been through your hands once.
 
@@ -59,8 +59,8 @@ public log has no persistent roster.
 After recording today, the week shows one equal ink dot per person who
 practised. The viewer's own dot alone is violet and ringed. Hovering, focusing
 or tapping a dot opens the person's name, optional picture and optional
-introduction; the picture is never used as the main-page mark. Past days retain
-the people who practised so the sociality of practice has a memory.
+introduction; the picture is never used as the main-page mark. Day details and
+the people in them remain visible only for the current week.
 
 Before recording, “I want to practise now” opens an optional timer: five, ten,
 or twenty minutes, plus a clearly selected custom length from one to 180

@@ -200,8 +200,9 @@ One consequence worth knowing: **accounts are never sent as a participant
 directory or total.** After someone marks today, the shared response contains
 only people who marked a visible day. The week draws one equal dot per mark;
 only the viewer's own dot differs. Hover, focus or tap opens the marked person's
-name, optional picture and optional introduction, including on past days. This
-makes practice social without turning accounts into social media.
+name, optional picture and optional introduction. Participant history and day
+details are limited to the one visible week. This makes practice social without
+turning accounts into social media.
 
 ---
 
@@ -234,8 +235,8 @@ Checked against a real Worker and a real D1, not a mock:
   a second tick sent nothing, because `send_log` had already claimed the day
 - a fixed run mid-flight reads correctly: day 24 of 35, week four is *Play*,
   weeks turning on the Wednesday anchor
-- a run that ended weeks ago opens read-only at the same link, shows all 35 days
-  and stops at the last one, and refuses a tap with 409
+- a run that ended weeks ago opens read-only at the same link, shows its final
+  week and stops at the last day, and refuses a tap with 409
 
 Three defects found this way and fixed, each now covered by a check:
 

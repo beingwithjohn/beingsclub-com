@@ -34,7 +34,6 @@
   var L = load();
   var S = L.cache || null;       // the last state the server sent
   var view = L.timer && L.timer.started ? 'timer' : null;
-  var tab = 'week';
   var openDate = null;
   var timerTick = null;
   var timerAudio = null;
@@ -185,9 +184,8 @@
       });
   }
 
-  // The one breakpoint changes the shape of the room — tabs below, side by
-  // side above — so crossing it has to redraw. Rotating a tablet or narrowing
-  // a window would otherwise leave both blocks stacked and unpadded.
+  // The one breakpoint changes the week and notes from stacked to side by
+  // side, so crossing it has to redraw.
   var wide = matchMedia('(min-width:48rem)');
   if (wide.addEventListener) wide.addEventListener('change', function () { render(); });
   else if (wide.addListener) wide.addListener(function () { render(); });
@@ -1489,13 +1487,7 @@
     inner.appendChild(h('<div class="band"><div class="caps" style="margin-bottom:8px;">Today</div>' +
       '<p>' + todayLine() + '</p></div>'));
 
-    inner.appendChild(h('<div class="tabs" role="tablist">' +
-      '<button id="tw" role="tab" aria-selected="' + (tab === 'week') + '" class="' +
-        (tab === 'week' ? 'sel' : '') + '">This week</button>' +
-      '<button id="ta" role="tab" aria-selected="' + (tab === 'all') + '" class="' +
-        (tab === 'all' ? 'sel' : '') + '">' + esc(allTabLabel()) + '</button></div>'));
-
-    var wk = weekBlock(), all = allBlock(), notes = notesBlock();
+    var wk = weekBlock(), notes = notesBlock();
     var body;
 
     if (window.matchMedia('(min-width:48rem)').matches) {
@@ -1504,16 +1496,13 @@
       var w1 = h('<div></div>');
       w1.appendChild(h('<div class="dtitle"><b>This week</b><span>' + esc(weekSubtitle()) + '</span></div>'));
       w1.appendChild(wk);
-      var w2 = h('<div></div>');
-      w2.appendChild(h('<div class="dtitle"><b>' + esc(allTabLabel()) + '</b><span>Click a day to open it</span></div>'));
-      w2.appendChild(all);
-      col.appendChild(w1); col.appendChild(w2);
+      col.appendChild(w1);
       body.appendChild(col);
       body.appendChild(notes || h('<div></div>'));
     } else {
       body = h('<div class="pad" style="display:grid;gap:26px;"></div>');
-      body.appendChild(tab === 'week' ? wk : all);
-      if (tab === 'week' && notes) body.appendChild(notes);
+      body.appendChild(wk);
+      if (notes) body.appendChild(notes);
     }
 
     if (offline) {
@@ -1529,13 +1518,6 @@
       above: answerStrip()
     });
 
-    document.getElementById('tw').addEventListener('click', function () { tab = 'week'; render(); });
-    document.getElementById('ta').addEventListener('click', function () { tab = 'all'; render(); });
-
-  }
-
-  function allTabLabel() {
-    return S.run.mode === 'fixed' ? 'All ' + S.run.length_days + ' days' : 'All your days';
   }
 
   function weekSubtitle() {
@@ -1634,8 +1616,17 @@
 
       col.appendChild(presenceDots(people, date, 'week-presence'));
 
-      col.appendChild(h('<span class="dlab' + (date === S.today.date ? ' today' : '') + '" aria-hidden="true">' +
-        esc(fmt(date, { weekday: 'narrow' })) + '</span>'));
+      if (future) {
+        col.appendChild(h('<span class="dlab" aria-hidden="true">' +
+          esc(fmt(date, { weekday: 'narrow' })) + '</span>'));
+      } else {
+        var open = h('<button class="dlab day-open' + (date === S.today.date ? ' today' : '') +
+          '" aria-label="Open ' + esc(fmt(date)) + '">' + esc(fmt(date, { weekday: 'narrow' })) + '</button>');
+        (function (openedDate) {
+          open.addEventListener('click', function () { openDate = openedDate; go('day'); });
+        })(date);
+        col.appendChild(open);
+      }
 
       col.setAttribute('aria-label', weekDayReading(date, d, future));
       row.appendChild(col);
@@ -1644,7 +1635,8 @@
     box.appendChild(row);
     box.appendChild(h('<div class="legend">' +
       '<span><span class="key" style="background:var(--ink);"></span>Someone practised</span>' +
-      '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You practised</span></div>'));
+      '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You practised</span></div>' +
+      '<p class="small">Open a day to see who practised and what they wrote. Only this week remains visible.</p>'));
     return box;
   }
 
@@ -1658,65 +1650,6 @@
     var others = othersForDay(d);
     var count = others === 0 ? 'no others' : word(others) + ' other' + (others === 1 ? '' : 's');
     return fmt(date) + ', ' + count + ' practised' + (d && d.mine ? ', and you practised' : '');
-  }
-
-  // A day is one square: darkness is how many of us practised, the violet edge
-  // is you. No totals, no percentages, no averages.
-  function allBlock() {
-    var box = h('<div style="display:grid;gap:18px;align-content:start;"></div>');
-    if (!S.shared) return box;
-
-    var days = S.shared.days;
-    var maximum = Math.max.apply(Math, days.map(function (d) { return d.count; }).concat([1]));
-    var weeks = [];
-    days.forEach(function (d) {
-      var w = Math.floor(d.day_index / 7);
-      if (!weeks.length || weeks[weeks.length - 1].w !== w) weeks.push({ w: w, days: [] });
-      weeks[weeks.length - 1].days.push(d);
-    });
-
-    // A fixed run draws its whole shape, including the days still to come.
-    if (S.run.mode === 'fixed') {
-      var total = Math.ceil(S.run.length_days / 7);
-      while (weeks.length < total) weeks.push({ w: weeks.length, days: [] });
-    }
-
-    weeks.forEach(function (wk) {
-      var blk = h('<div style="display:grid;gap:8px;"></div>');
-      var label = principleOf(wk.w);
-      var isNow = wk.w === S.today.week_index;
-      var head = h('<div class="wkhead"><b>' + esc(label || ('Week ' + (wk.w + 1))) + '</b></div>');
-      head.appendChild(h('<span class="' + (isNow ? 'now' : '') + '">' + (isNow ? 'This week'
-        : (wk.days[0] ? esc(fmt(wk.days[0].date, { day: 'numeric', month: 'short' })) : '')) + '</span>'));
-      blk.appendChild(head);
-
-      var row = h('<div class="wkrow"></div>');
-      for (var i = 0; i < 7; i++) {
-        var d = wk.days[i];
-        if (!d) { row.appendChild(h('<div class="sq" style="opacity:.45;"></div>')); continue; }
-        var frac = d.count / maximum;
-        var bg = d.count === 0 ? 'var(--dim)' : 'rgba(23,25,22,' + (0.28 + frac * 0.54).toFixed(2) + ')';
-        var sq = h('<button class="sq' + (d.date === S.today.date ? ' today' : '') +
-          '" style="background:' + bg + ';" aria-label="' + esc(dayReading(d.date, d, false)) + '"></button>');
-        if (d.mine) sq.appendChild(h('<span class="mine"></span>'));
-        (function (date) {
-          sq.addEventListener('click', function () { openDate = date; go('day'); });
-        })(d.date);
-        row.appendChild(sq);
-      }
-      blk.appendChild(row);
-      box.appendChild(blk);
-    });
-
-    box.appendChild(h('<div style="border-top:1px solid var(--hair);padding-top:16px;display:grid;gap:10px;">' +
-      '<div class="legend">' +
-        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.55);position:relative;display:inline-block;">' +
-          '<span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--you-edge);"></span></span>You practised</span>' +
-        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.75);display:inline-block;"></span>Darker, more of us</span>' +
-        '<span><span style="width:11px;height:11px;background:rgba(23,25,22,.3);outline:1.5px solid var(--ink);outline-offset:1.5px;display:inline-block;"></span>Today</span>' +
-      '</div>' +
-      '<p class="small">Tap any day to see who practised and what they wrote.</p></div>'));
-    return box;
   }
 
   // One day, said out loud. Counts in words, the same as everywhere else, and
@@ -1751,10 +1684,10 @@
     var inner = h('<div style="flex:1;display:flex;flex-direction:column;"></div>');
     inner.appendChild(h('<div class="pad"><p class="small">Opening…</p></div>'));
     shell(inner, {
-      left: '<button class="barlink" id="back">← ' + esc(allTabLabel()) + '</button>',
+      left: '<button class="barlink" id="back">← This week</button>',
       right: '<span class="barlab">' + esc(fmt(date, { day: 'numeric', month: 'short' })) + '</span>'
     });
-    document.getElementById('back').addEventListener('click', function () { tab = 'all'; go('cohort'); });
+    document.getElementById('back').addEventListener('click', function () { go('cohort'); });
 
     api('/api/day?date=' + encodeURIComponent(date)).then(function (d) {
       var p = principleOf(Math.floor(d.day_index / 7));

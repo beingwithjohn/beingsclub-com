@@ -114,8 +114,8 @@ participant can reach.
 
 **And one consequence that is easy to undo by accident:** identity is derived
 from marks, never accounts. `sharedView` may correlate somebody's practice
-across visible past days, because the sociality of practice has a memory, but a
-person enters that response only by having marked one of those days. It never
+within the single visible week, but a person enters that response only by
+having marked one of those days. It never
 returns an account roster or account total. Pictures stay behind hover, focus or
 tap; they are never the main-page visual.
 
@@ -229,7 +229,7 @@ allows five, and the sweep is already timezone-aware.
 ### Things that will bite
 
 - **Rate limits.** Notion is roughly three requests a second. Ten people
-  marking a day is nothing; a backfill of two years is not.
+  marking a day is nothing; a large historical backfill is not.
 - **`ON CONFLICT DO NOTHING` everywhere.** Marks and gifts are
   idempotent by design because webhooks and queued offline marks arrive twice.
   Anything you add should be too.
