@@ -235,12 +235,24 @@ main { flex: 1; display: flex; flex-direction: column; }
   padding-top: clamp(18px, 3vh, 28px); text-align: left;
 }
 .join-how > .eyebrow { text-align: center; margin-bottom: 16px; }
-.join-how ul {
-  display: grid; gap: 7px; margin: 0; padding-left: 1.15rem;
+.join-how ol {
+  display: grid; gap: 7px; margin: 0; padding-left: 1.35rem;
 }
 .join-how li { color: var(--body); font-size: 15px; line-height: 1.55; padding-left: 4px; }
-.join-how li::marker { color: var(--you); }
+.join-how li::marker { color: var(--you); font-size: 13px; }
 .join-how li b { font-weight: 600; }
+
+@media (max-height: 760px) and (min-width: 700px) {
+  .join-front { gap: 10px; padding-block: 12px; }
+  .join-front .h1 { font-size: 40px; }
+  .join-front .body { line-height: 1.6; }
+  .join-front .field { padding-block: 11px; }
+  .join-front .btn { padding: 13px; }
+  .join-how { padding-top: 12px; }
+  .join-how > .eyebrow { margin-bottom: 10px; }
+  .join-how ol { gap: 4px; }
+  .join-how li { line-height: 1.45; }
+}
 
 .band {
   padding: clamp(22px, 3.5vh, 32px) var(--pad);
@@ -911,11 +923,11 @@ main { flex: 1; display: flex; flex-direction: column; }
       '</div>' +
       '<section class="join-how" aria-labelledby="join-how-title">' +
         '<div class="eyebrow" id="join-how-title">How it works</div>' +
-        '<ul>' +
-          '<li>Sit in meditation, however you sit. A timer is there if you want one.</li>' +
-          '<li>When you’re done, tap <b>I practised</b> to record your sit. Share a line if you feel like it.</li>' +
-          '<li>See who else is practising with you this week, and what it has been like for them.</li>' +
-        '</ul>' +
+        '<ol>' +
+          '<li>Choose a time for the log to email each day and ask: <b>Did you practise?</b></li>' +
+          '<li>Sit in meditation, however you sit. Use the timer if you like. When you’re done, tap <b>I practised</b> to record it.</li>' +
+          '<li>Share a line if you feel like it. See who else is practising with you this week, and what it has been like for them.</li>' +
+        '</ol>' +
       '</section></div>');
 
     shell(inner, { right: '<span class="barlab">Practice log</span>', noMenu: true });

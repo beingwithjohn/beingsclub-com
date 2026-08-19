@@ -356,10 +356,12 @@ check(16, 'one public log, with course-bounded access to John', () => {
     'the public host page still offers private invitations');
   ok(/Your practice log is ready/.test(mail) && /your log is ready/.test(mail),
     'the evergreen welcome still reads like a course place');
-  ok(/How it works/.test(log) && /Sit in meditation, however you sit/.test(log) &&
-    /When you’re done, tap <b>I practised<\/b> to record your sit/.test(log) &&
+  ok(/How it works/.test(log) && /Choose a time for the log to email each day/.test(log) &&
+    /ask: <b>Did you practise\?<\/b>/.test(log) &&
+    /Sit in meditation, however you sit/.test(log) &&
+    /tap <b>I practised<\/b> to record it/.test(log) &&
     /practising with you this week, and what it has been like for them/.test(log) &&
-    /<ul>/.test(log) && !/<ol>/.test(log),
+    /<ol>/.test(log),
     'the public sign-up page does not explain the experience');
   return 'open log, course door bounded, no invitation copy on the public path';
 });

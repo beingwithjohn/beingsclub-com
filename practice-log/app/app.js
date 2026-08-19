@@ -434,11 +434,11 @@
       '</div>' +
       '<section class="join-how" aria-labelledby="join-how-title">' +
         '<div class="eyebrow" id="join-how-title">How it works</div>' +
-        '<ul>' +
-          '<li>Sit in meditation, however you sit. A timer is there if you want one.</li>' +
-          '<li>When you’re done, tap <b>I practised</b> to record your sit. Share a line if you feel like it.</li>' +
-          '<li>See who else is practising with you this week, and what it has been like for them.</li>' +
-        '</ul>' +
+        '<ol>' +
+          '<li>Choose a time for the log to email each day and ask: <b>Did you practise?</b></li>' +
+          '<li>Sit in meditation, however you sit. Use the timer if you like. When you’re done, tap <b>I practised</b> to record it.</li>' +
+          '<li>Share a line if you feel like it. See who else is practising with you this week, and what it has been like for them.</li>' +
+        '</ol>' +
       '</section></div>');
 
     shell(inner, { right: '<span class="barlab">Practice log</span>', noMenu: true });
