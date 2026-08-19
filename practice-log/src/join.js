@@ -23,7 +23,7 @@ export async function postJoin(env, body) {
 
   const timezone = typeof body?.timezone === 'string' && validTimezone(body.timezone)
     ? body.timezone : 'Europe/London';
-  const name = String(body?.name ?? '').trim().slice(0, 40) || 'Friend';
+  const name = String(body?.name ?? '').trim().slice(0, 40);
 
   let person = await env.DB.prepare(
     `SELECT * FROM person WHERE run_id = ?1 AND email = ?2`,
@@ -31,6 +31,9 @@ export async function postJoin(env, body) {
   let fresh = false;
 
   if (!person) {
+    // The interface requires a name. Returning the same response here avoids
+    // turning that validation into a way to ask whether an email has an account.
+    if (!name) return same;
     const token = await mintToken(env);
     const joinedOn = localDate(Date.now(), timezone);
     const inserted = await env.DB.prepare(

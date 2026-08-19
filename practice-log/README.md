@@ -196,11 +196,12 @@ template is a rule one refactor away from being gone.
 4. **White is shared, black is John.** `private_message` is read by no handler a
    participant can reach except for answers to their own questions.
 
-One consequence worth knowing: **the cohort is sent as counts, never as a list
-of people.** A stable per-person array, even anonymous, is a row per person by
-another route — follow one dot down the grid for two days and you have someone's
-practice history. Counts cannot be correlated, which is what "nobody can be
-compared to anybody" has to mean once it is data.
+One consequence worth knowing: **accounts are never sent as a participant
+directory or total.** After someone marks today, the shared response contains
+only people who marked a visible day. The week draws one equal dot per mark;
+only the viewer's own dot differs. Hover, focus or tap opens the marked person's
+name, optional picture and optional introduction, including on past days. This
+makes practice social without turning accounts into social media.
 
 ---
 

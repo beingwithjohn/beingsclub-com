@@ -25,6 +25,7 @@
   var API = '__API_ORIGIN__';
   var KEY = 'bc_practice_log_v3';
   var NOTE_MAX = 100;
+  var PROFILE_IMAGE_MAX = 70000;
 
   // The hours offered at setup. Anything else is reachable from Settings.
   var HOURS = [['06:30', '6:30am'], ['07:00', '7:00am'], ['12:00', '12:00pm'], ['21:00', '9:00pm']];
@@ -37,6 +38,7 @@
   var openDate = null;
   var timerTick = null;
   var timerAudio = null;
+  var openPresence = null;
   var busy = false;
   var offline = false;
   var unreachable = false;   // reached the end of the road with nothing cached
@@ -127,12 +129,25 @@
 
   function adopt(state) {
     S = state;
-    L.cache = state;
+    L.cache = cacheState(state);
     offline = false;
     unreachable = false;
     save();
     render();
     return state;
+  }
+
+  // Pictures belong in the live response, not localStorage. A year of practice
+  // can contain many people; caching every JPEG would eventually evict the
+  // token and the offline queue that actually need to live here.
+  function cacheState(state) {
+    var copy;
+    try { copy = JSON.parse(JSON.stringify(state)); } catch (e) { return state; }
+    if (copy.person) copy.person.profile_image = null;
+    if (copy.shared && copy.shared.people) {
+      copy.shared.people.forEach(function (p) { p.image = null; });
+    }
+    return copy;
   }
 
   // -------------------------------------------------------------------------
@@ -247,6 +262,7 @@
   // render
   // -------------------------------------------------------------------------
   function render() {
+    closePresence();
     // Invited but not yet in: the threshold is the whole of it.
     if (!L.token && L.invite) return INV ? viewThreshold() : viewLoading();
     if (!L.token) return viewNoLink();
@@ -397,10 +413,10 @@
     var inner = h('<div class="centre">' +
       '<div class="eyebrow">Practice log</div>' +
       '<h1 class="h1" style="max-width:16ch;">A simple record of showing up.</h1>' +
-      '<p class="body" style="max-width:38ch;">The log is open to anyone. Give it an email address ' +
+      '<p class="body" style="max-width:38ch;">The log is open to anyone. Give it your name and email address ' +
       'and it will send your private link. There is no password.</p>' +
       '<div style="display:grid;gap:10px;width:100%;max-width:22rem;">' +
-        '<input class="field" id="jn" autocomplete="name" aria-label="Your name" placeholder="Your name">' +
+        '<input class="field" id="jn" autocomplete="name" aria-label="Your name" placeholder="Your name" required>' +
         '<input class="field" id="em" type="email" autocomplete="email" ' +
           'aria-label="Your email address" placeholder="you@example.com">' +
         '<button class="btn" id="send">Begin or open my log</button>' +
@@ -415,10 +431,12 @@
 
     inner.querySelector('#send').addEventListener('click', function () {
       var v = em.value.trim();
+      var name = jn.value.trim();
       if (!v) { msg.textContent = 'An email address first.'; return; }
+      if (!name) { msg.textContent = 'Your name too.'; jn.focus(); return; }
       this.disabled = true;
       msg.textContent = 'Sending…';
-      api('/api/join', { method: 'POST', public: true, body: { name: jn.value.trim(), email: v, timezone: tz() } })
+      api('/api/join', { method: 'POST', public: true, body: { name: name, email: v, timezone: tz() } })
         .then(function () {
           msg.textContent = 'The link is on its way. If you already had a log, it is the same link as before.';
         })
@@ -903,13 +921,13 @@
   // Three sentences of contract, one decision, one button. No tour.
   function viewFirstRun() {
     var zone = tz() || S.person.timezone;
-    var lineSetup = S.run.public_join ? '' :
-      '<div><div class="caps" style="margin-bottom:12px;">Why are you here?</div>' +
-        '<p class="body" style="margin-bottom:12px;">One line, in your own words. ' +
-        'The others will see it, and you will see theirs.</p>' +
+    var pendingImage = S.person.profile_image || null;
+    var lineSetup =
+      '<div><div class="caps" style="margin-bottom:12px;">A line about being here <span style="color:var(--muted);">· optional</span></div>' +
+        '<p class="body" style="margin-bottom:12px;">Shown with your picture only when someone opens a day you practised.</p>' +
         '<textarea class="field" id="ln" rows="2" maxlength="100" ' +
-          'aria-label="One line, why you are here" ' +
-          'placeholder="Sceptical, but I keep coming back to it."></textarea>' +
+          'aria-label="One line about being here" ' +
+          'placeholder="What brings you to practice?"></textarea>' +
         '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
           '<span class="small">You can change it later, or leave it blank.</span>' +
           '<span class="count" id="left">100 left</span></div></div>';
@@ -923,8 +941,14 @@
         '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see the others only after you have tapped.</p>' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Nothing counts forward, so nothing can be lost.</p>' +
       '</div>' +
-      '<div><div class="caps" style="margin-bottom:12px;">The name on your notes</div>' +
-        '<input class="field" id="nm" autocomplete="given-name"></div>' +
+      '<div><div class="caps" style="margin-bottom:12px;">Your name</div>' +
+        '<input class="field" id="nm" autocomplete="name" required aria-required="true"></div>' +
+      '<div><div class="caps" style="margin-bottom:12px;">A picture <span style="color:var(--muted);">· optional</span></div>' +
+        '<p class="body" style="margin-bottom:12px;">It appears only when someone opens your dot on a day you practised.</p>' +
+        '<div class="profile-edit"><span class="profile-preview" id="profile-preview"></span>' +
+          '<label class="ul">Choose a picture<input id="profile-file" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>' +
+          '<button class="ul" id="profile-remove" type="button" hidden>Remove</button></div>' +
+        '<p class="small" id="profile-msg" aria-live="polite" style="margin-top:9px;"></p></div>' +
       lineSetup +
       timeFields(zone) +
       '<button class="btn" id="begin">Begin</button>' +
@@ -936,26 +960,30 @@
     var readTime = wireTimeFields(inner, zone, S.person.nudge_hour);
 
     var ta = inner.querySelector('#ln'), left = inner.querySelector('#left');
-    if (ta) {
-      ta.value = S.person.line || '';
-      left.textContent = (100 - ta.value.length) + ' left';
-      ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
-    }
+    ta.value = S.person.line || '';
+    left.textContent = (100 - ta.value.length) + ' left';
+    ta.addEventListener('input', function () { left.textContent = (100 - ta.value.length) + ' left'; });
 
     var nm = inner.querySelector('#nm');
     nm.value = S.person.name || '';
+    wireProfileImage(inner, function () { return pendingImage; }, function (image) { pendingImage = image; });
     inner.querySelector('#begin').addEventListener('click', function () {
       var button = this;
       var msg = inner.querySelector('#setup-msg');
       var when = readTime();
       var body = {
         setup: true,
+        name: (nm.value || '').trim(),
+        line: ta.value.trim(),
+        profile_image: pendingImage,
         nudge_hour: when.nudge_hour,
         timezone: when.timezone
       };
-      if (ta) body.line = ta.value.trim();
-      var name = (nm.value || '').trim();
-      if (name) body.name = name;
+      if (!body.name) {
+        msg.textContent = 'Your name is needed.';
+        nm.focus();
+        return;
+      }
       button.disabled = true;
       msg.textContent = 'Opening your log…';
       api('/api/settings', { method: 'PATCH', body: body }).then(adopt).catch(function () {
@@ -967,6 +995,87 @@
 
   function firstName() {
     return String(S.person.name || '').trim().split(/\s+/)[0] || 'friend';
+  }
+
+  function initials(name) {
+    return String(name || '').trim().split(/\s+/).slice(0, 2)
+      .map(function (part) { return part.charAt(0).toUpperCase(); }).join('') || '·';
+  }
+
+  function profileVisual(image, name, cls) {
+    cls = cls || 'profile-preview';
+    return image
+      ? '<span class="' + cls + '"><img src="' + esc(image) + '" alt=""></span>'
+      : '<span class="' + cls + ' fallback" aria-hidden="true">' + esc(initials(name)) + '</span>';
+  }
+
+  function wireProfileImage(scope, readImage, writeImage) {
+    var input = scope.querySelector('#profile-file');
+    var preview = scope.querySelector('#profile-preview');
+    var remove = scope.querySelector('#profile-remove');
+    var msg = scope.querySelector('#profile-msg');
+
+    function paint() {
+      var image = readImage();
+      preview.innerHTML = image ? '<img src="' + esc(image) + '" alt="Your picture">' : esc(initials(S.person.name));
+      preview.classList.toggle('fallback', !image);
+      remove.hidden = !image;
+    }
+    paint();
+
+    input.addEventListener('change', function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      msg.textContent = 'Preparing picture…';
+      prepareProfileImage(file).then(function (image) {
+        writeImage(image); paint(); msg.textContent = 'Ready to save.';
+      }).catch(function (error) {
+        input.value = '';
+        msg.textContent = error.message || 'That picture could not be used.';
+      });
+    });
+    remove.addEventListener('click', function () {
+      input.value = '';
+      writeImage(null); paint(); msg.textContent = 'Picture removed. Save to keep the change.';
+    });
+  }
+
+  function prepareProfileImage(file) {
+    return new Promise(function (resolve, reject) {
+      if (!/^image\/(?:jpeg|png|webp)$/.test(file.type || '')) {
+        reject(new Error('Choose a JPEG, PNG or WebP image.')); return;
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        reject(new Error('Choose a picture smaller than 12MB.')); return;
+      }
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error('That picture could not be read.')); };
+      reader.onload = function () {
+        var image = new Image();
+        image.onerror = function () { reject(new Error('That picture could not be opened.')); };
+        image.onload = function () {
+          var side = Math.min(image.naturalWidth, image.naturalHeight);
+          if (!side) { reject(new Error('That picture is empty.')); return; }
+          var canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 192;
+          var context = canvas.getContext('2d');
+          context.drawImage(image,
+            Math.floor((image.naturalWidth - side) / 2),
+            Math.floor((image.naturalHeight - side) / 2), side, side,
+            0, 0, 192, 192);
+          var data = canvas.toDataURL('image/jpeg', 0.78);
+          if (data.length > PROFILE_IMAGE_MAX) {
+            data = canvas.toDataURL('image/jpeg', 0.62);
+          }
+          if (data.length > PROFILE_IMAGE_MAX) {
+            reject(new Error('That picture could not be made small enough.')); return;
+          }
+          resolve(data);
+        };
+        image.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   // -------------------------------------------------------------------------
@@ -1258,7 +1367,7 @@
 
     // Committed here, online or not.
     S.today.marked = true;
-    L.cache = S;
+    L.cache = cacheState(S);
     save();
     enqueue({ path: '/api/mark', body: { date: date } });
 
@@ -1305,8 +1414,10 @@
     return S.shared.today_count - (S.person.is_host ? 0 : 1);
   }
 
-  /** True when there is no cohort at all — a log being kept alone. */
-  function alone() { return !S.shared || S.shared.size === 0; }
+  /** True when nobody else has appeared through practice in the visible log. */
+  function alone() {
+    return !S.shared || !(S.shared.people || []).some(function (p) { return !p.mine; });
+  }
 
   function revealLine() {
     if (offline || !S.shared) return 'Your day is in.';
@@ -1328,10 +1439,7 @@
   // M6 · the note, offered once
   // -------------------------------------------------------------------------
   function viewNote() {
-    var size = S.shared ? S.shared.size - 1 : 0;
-    var seenBy = size > 0
-      ? 'The ' + word(size) + ' others will see this'
-      : 'Kept with your day';
+    var seenBy = 'Anyone else who practises today can see this';
 
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:36rem;">' +
       '<div style="display:flex;align-items:center;gap:12px;">' +
@@ -1451,41 +1559,91 @@
     return null;
   }
 
-  // Days across, one dot per person. Amber-free by design: your mark is the
-  // site's violet, ringed in lilac so it reads at seven pixels.
+  function profileById(id) {
+    var people = (S.shared && S.shared.people) || [];
+    for (var i = 0; i < people.length; i++) if (people[i].id === id) return people[i];
+    return null;
+  }
+
+  function profilesForDay(day) {
+    return day && day.people ? day.people.map(profileById).filter(Boolean) : [];
+  }
+
+  function presenceDots(people, date, extra) {
+    var wrap = h('<div class="presence-dots ' + esc(extra || '') + '" role="list" ' +
+      'aria-label="People who practised on ' + esc(fmt(date)) + '"></div>');
+    people.forEach(function (person) {
+      var dot = h('<button class="presence-dot' + (person.mine ? ' mine' : '') + '" role="listitem" ' +
+        'aria-label="' + esc(person.name + ' practised on ' + fmt(date)) + '" aria-expanded="false"></button>');
+      wirePresence(dot, person);
+      wrap.appendChild(dot);
+    });
+    return wrap;
+  }
+
+  function wirePresence(dot, person) {
+    dot.addEventListener('mouseenter', function () { showPresence(dot, person, false); });
+    dot.addEventListener('mouseleave', function () { if (openPresence && !openPresence.sticky) closePresence(); });
+    dot.addEventListener('focus', function () { showPresence(dot, person, false); });
+    dot.addEventListener('blur', function () { if (openPresence && !openPresence.sticky) closePresence(); });
+    dot.addEventListener('click', function (event) {
+      event.stopPropagation();
+      if (openPresence && openPresence.dot === dot && openPresence.sticky) return closePresence();
+      showPresence(dot, person, true);
+    });
+  }
+
+  function showPresence(dot, person, sticky) {
+    closePresence();
+    var card = h('<div class="presence-card" role="status">' +
+      profileVisual(person.image, person.name, 'presence-photo') +
+      '<div><b>' + esc(person.name) + '</b>' +
+        (person.line ? '<p>' + esc(person.line) + '</p>' : '<p class="quiet-line">No introduction.</p>') +
+      '</div></div>');
+    document.body.appendChild(card);
+    var rect = dot.getBoundingClientRect();
+    var left = Math.max(12, Math.min(window.innerWidth - card.offsetWidth - 12,
+      rect.left + rect.width / 2 - card.offsetWidth / 2));
+    var top = rect.bottom + 10;
+    if (top + card.offsetHeight > window.innerHeight - 12) top = rect.top - card.offsetHeight - 10;
+    card.style.left = left + 'px';
+    card.style.top = Math.max(12, top) + 'px';
+    dot.setAttribute('aria-expanded', 'true');
+    openPresence = { card: card, dot: dot, sticky: sticky };
+  }
+
+  function closePresence() {
+    if (!openPresence) return;
+    openPresence.dot.setAttribute('aria-expanded', 'false');
+    if (openPresence.card.parentNode) openPresence.card.parentNode.removeChild(openPresence.card);
+    openPresence = null;
+  }
+
+  // Days across, one equal dot per person. Faces never become the main visual:
+  // a picture and line appear only when a dot is deliberately opened.
   function weekBlock() {
     var box = h('<div style="display:grid;gap:22px;align-content:start;"></div>');
     var row = h('<div class="week"></div>');
     var weekDays = S.today.week.map(function (date) { return dayFor(date); });
-    var maximum = Math.max.apply(Math, weekDays.map(othersForDay).concat([1]));
 
     S.today.week.forEach(function (date, index) {
       var d = weekDays[index];
       var future = date > S.today.date;
       var col = h('<div class="daycol' + (future ? ' future' : '') + '"></div>');
-      var others = future ? 0 : othersForDay(d);
-      var height = others ? Math.max(10, Math.round((others / maximum) * 64)) : 3;
+      var people = future ? [] : profilesForDay(d);
 
-      col.appendChild(h('<span class="wcount" aria-hidden="true">' +
-        (future ? '—' : esc(String(others))) + '</span>'));
-      col.appendChild(h('<span class="wax-track" aria-hidden="true"><i style="height:' +
-        height + 'px;"></i></span>'));
+      col.appendChild(presenceDots(people, date, 'week-presence'));
 
       col.appendChild(h('<span class="dlab' + (date === S.today.date ? ' today' : '') + '" aria-hidden="true">' +
         esc(fmt(date, { weekday: 'narrow' })) + '</span>'));
-      col.appendChild(h('<span class="mine-day' + (d && d.mine ? ' on' : '') + '" aria-hidden="true"></span>'));
 
-      // The columns are a picture of the aggregate. Say the count too, so the
-      // rise and fall never relies on colour or height alone.
-      col.setAttribute('aria-hidden', 'false');
-      col.setAttribute('role', 'img');
       col.setAttribute('aria-label', weekDayReading(date, d, future));
       row.appendChild(col);
     });
 
     box.appendChild(row);
     box.appendChild(h('<div class="legend">' +
-      '<span><span class="key" style="background:var(--ink);"></span>Number of others</span>' +
+      '<span><span class="key" style="background:var(--ink);"></span>Someone practised</span>' +
       '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You practised</span></div>'));
     return box;
   }
@@ -1508,8 +1666,8 @@
     var box = h('<div style="display:grid;gap:18px;align-content:start;"></div>');
     if (!S.shared) return box;
 
-    var size = S.shared.size;
     var days = S.shared.days;
+    var maximum = Math.max.apply(Math, days.map(function (d) { return d.count; }).concat([1]));
     var weeks = [];
     days.forEach(function (d) {
       var w = Math.floor(d.day_index / 7);
@@ -1536,7 +1694,7 @@
       for (var i = 0; i < 7; i++) {
         var d = wk.days[i];
         if (!d) { row.appendChild(h('<div class="sq" style="opacity:.45;"></div>')); continue; }
-        var frac = d.count / Math.max(size, d.count, 1);
+        var frac = d.count / maximum;
         var bg = d.count === 0 ? 'var(--dim)' : 'rgba(23,25,22,' + (0.28 + frac * 0.54).toFixed(2) + ')';
         var sq = h('<button class="sq' + (d.date === S.today.date ? ' today' : '') +
           '" style="background:' + bg + ';" aria-label="' + esc(dayReading(d.date, d, false)) + '"></button>');
@@ -1610,7 +1768,9 @@
         '<p class="h2">' + esc(line) + '</p></div>'));
 
       var nb = h('<div class="pad" style="flex:1;display:grid;gap:18px;align-content:start;">' +
-        '<div class="caps">What people wrote</div></div>');
+        '<div class="caps">Who practised</div></div>');
+      nb.appendChild(presenceDots(d.people || [], date, 'day-presence'));
+      nb.appendChild(h('<div class="caps" style="margin-top:10px;">What people wrote</div>'));
       if (d.notes.length) {
         d.notes.forEach(function (n) {
           nb.appendChild(h('<div class="noterow"><b>' + esc(n.who) + '</b><p>' + esc(n.body) + '</p></div>'));
@@ -1619,7 +1779,7 @@
         nb.appendChild(h('<p class="body">Nothing was written on this day.</p>'));
       }
       nb.appendChild(h('<p class="small" style="border-top:1px solid var(--hair);padding-top:16px;">' +
-        'Who did not practise is not shown. Only what people chose to say.</p>'));
+        'Only people who practised that day appear here.</p>'));
       inner.appendChild(nb);
     }).catch(function () {
       inner.innerHTML = '';
@@ -1732,8 +1892,9 @@
 
     inner.appendChild(toggle('Notes', 'Offer a line after logging', 'notes_on'));
 
+    inner.appendChild(pictureRow());
     inner.appendChild(nameRow());
-    if (!S.run.public_join) inner.appendChild(lineRow());
+    inner.appendChild(lineRow());
     inner.appendChild(h('<div><b style="font-size:17px;font-weight:600;color:var(--ink);">' +
       esc(S.person.name) + '</b>' +
       '<p class="small">' + esc(S.person.email) + ' · ' + esc(S.run.name) + '</p></div>'));
@@ -1789,24 +1950,48 @@
   }
 
   function nameRow() {
-    var r = h('<div class="rowflex"><div><b>The name beside your notes</b>' +
-      '<p>Visible when you choose to write</p></div>' +
+    var r = h('<div class="rowflex"><div><b>Your name</b>' +
+      '<p>Shown when someone opens your dot on a day you practised</p></div>' +
       '<button class="ul" id="nm" style="flex:none;">' + esc(S.person.name) + '</button></div>');
     r.querySelector('#nm').addEventListener('click', function () {
-      var v = prompt('The name on your notes', S.person.name || '');
+      var v = prompt('Your name', S.person.name || '');
       if (v && v.trim()) patch({ name: v.trim() });
     });
     return r;
   }
 
   function lineRow() {
-    var r = h('<div class="rowflex"><div><b>Why you’re here</b>' +
+    var r = h('<div class="rowflex"><div><b>A line about being here</b>' +
       '<p>' + esc(S.person.line || 'Nothing written') + '</p></div>' +
       '<button class="ul" id="ln" style="flex:none;">Change</button></div>');
     r.querySelector('#ln').addEventListener('click', function () {
-      var v = prompt('One line. The others see it.', S.person.line || '');
+      var v = prompt('Shown when someone opens your dot after you practise.', S.person.line || '');
       if (v !== null) patch({ line: v.trim().slice(0, NOTE_MAX) });
     });
+    return r;
+  }
+
+  function pictureRow() {
+    var r = h('<div><div class="rowflex"><div style="display:flex;align-items:center;gap:14px;">' +
+      profileVisual(S.person.profile_image, S.person.name) +
+      '<div><b>Your picture</b><p>Shown only inside your practice dot</p></div></div>' +
+      '<div style="display:flex;gap:12px;align-items:center;flex:none;">' +
+        '<label class="ul">' + (S.person.profile_image ? 'Change' : 'Choose') +
+          '<input id="settings-profile-file" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>' +
+        (S.person.profile_image ? '<button class="ul" id="settings-profile-remove">Remove</button>' : '') +
+      '</div></div><p class="small" id="settings-profile-msg" aria-live="polite" style="margin-top:10px;"></p></div>');
+    var input = r.querySelector('#settings-profile-file');
+    var msg = r.querySelector('#settings-profile-msg');
+    input.addEventListener('change', function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      msg.textContent = 'Preparing picture…';
+      prepareProfileImage(file).then(function (image) {
+        patch({ profile_image: image });
+      }).catch(function (error) { msg.textContent = error.message || 'That picture could not be used.'; });
+    });
+    var remove = r.querySelector('#settings-profile-remove');
+    if (remove) remove.addEventListener('click', function () { patch({ profile_image: null }); });
     return r;
   }
 
@@ -1833,9 +2018,9 @@
 
     // Never invent a room. A run of one says so; a run of ten counts them in
     // words, as everywhere else.
-    var size = S.shared ? S.shared.size : 1;
-    var opening = size > 1
-      ? cap(word(size)) + ' people practised, mostly apart, mostly unseen. Here is the whole of it.'
+    var people = S.shared ? (S.shared.people || []) : [];
+    var opening = people.length > 1
+      ? cap(word(people.length)) + ' people practised, mostly apart, mostly unseen. Here is the whole of it.'
       : 'You practised, mostly unseen. Here is the whole of it.';
 
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:40rem;">' +
@@ -1844,9 +2029,9 @@
     '</div>');
 
     var grid = h('<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;"></div>');
-    var size = S.shared ? S.shared.size : 1;
+    var maximum = Math.max.apply(Math, days.map(function (d) { return d.count; }).concat([1]));
     days.forEach(function (d) {
-      var frac = d.count / Math.max(size, d.count, 1);
+      var frac = d.count / maximum;
       var sq = h('<div class="sq" style="background:' +
         (d.count === 0 ? 'var(--dim)' : 'rgba(23,25,22,' + (0.28 + frac * 0.54).toFixed(2) + ')') + ';"></div>');
       if (d.mine) sq.appendChild(h('<span class="mine"></span>'));
@@ -1871,6 +2056,8 @@
   }
 
   // -------------------------------------------------------------------------
+  document.addEventListener('click', closePresence);
+  addEventListener('scroll', closePresence, true);
   render();
   if (L.token) flush().then(pull);
   else if (L.invite) pullInvite();

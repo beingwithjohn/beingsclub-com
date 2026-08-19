@@ -88,9 +88,11 @@ itself failing.
 has recorded today. Enforced in `api.js`: `state.shared` is *omitted*, not
 hidden, until `markedToday`; `GET /api/day` 404s. The public evergreen log has
 no participant roster at all. This now applies to fixed runs too: only the host
-endpoint may list accounts. Its shared surface is the aggregate seven-day shape
-and the daily notes people chose to write. Any future profile may appear to
-participants only through a day that person marked, never from account creation.
+endpoint may list accounts. Its shared surface is equal practice dots and the
+daily notes people chose to write. Name is required; picture and introduction
+are optional. Those identity fields reach another participant only through a
+day that person marked, never from account creation. This is practice made
+social, not an account network.
 
 **2 · One tap, everything else optional.** The note is offered once a day. The
 timer offers five, ten, twenty, or a custom one-to-180-minute length; it is an
@@ -103,18 +105,19 @@ never named. Banned vocabulary, checked automatically against the built app:
 *streak · in a row · you missed · don't break it · 6/10 · 60% · average ·
 session · minutes · progress · community · members · users · well done ·
 congratulations*. Prose counts are said in words and never as a denominator.
-The one deliberate numeral is the aggregate count above each day in the
-seven-day shape, so growth and fading can be seen without exposing identities.
+The seven-day shape has no visible numbers: every mark is an equal dot and only
+the viewer's own dot is differentiated.
 
 **4 · White is shared, black is John.** Colour carries the privacy model.
 Anything on ink is read by John alone. `private_message` is read by no handler a
 participant can reach.
 
-**And one consequence that is easy to undo by accident:** the cohort is sent as
-*counts*, never as a list of people. A stable per-person array, even anonymous,
-is a row per person by another route — follow one dot down the grid for two days
-and you have somebody's practice history. `sharedView` returns
-`{date, count, mine}` and nothing else, on purpose.
+**And one consequence that is easy to undo by accident:** identity is derived
+from marks, never accounts. `sharedView` may correlate somebody's practice
+across visible past days, because the sociality of practice has a memory, but a
+person enters that response only by having marked one of those days. It never
+returns an account roster or account total. Pictures stay behind hover, focus or
+tap; they are never the main-page visual.
 
 ## 5. API
 
@@ -216,8 +219,8 @@ locked door here.
 Push, don't pull. Add a Notion write at the points where something already
 happens — after `postMark`, after `postContribution`'s webhook, after
 `postPlace` — rather than a job that reads the database wholesale. It keeps the
-counts-not-lists property intact and means Notion never becomes a second source
-of truth for who practised when.
+host-only account registry intact and means Notion never becomes a second
+participant directory.
 
 If you need a scheduled sync, the cron already exists in `src/index.js`
 (`scheduled`). Add to it rather than creating a second trigger; the free plan

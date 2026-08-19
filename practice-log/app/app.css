@@ -281,8 +281,8 @@ main { flex: 1; display: flex; flex-direction: column; }
 .rise.in { transform: none; opacity: 1; }
 
 /* ---------------------------------------------------------------- dots ---- */
-/* Days across, one dot per person. Never a row per person: the API sends a
-   count, not a list, so there is no order to follow down the grid. */
+/* Days across, one equal dot per person. Identity stays behind the interaction:
+   pictures exist only in the card opened by hover, focus or tap. */
 
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
 .dot.did { background: var(--ink); }
@@ -290,18 +290,37 @@ main { flex: 1; display: flex; flex-direction: column; }
 
 .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: stretch; }
 .daycol {
-  min-width: 0; display: grid; grid-template-rows: 24px 68px 18px 8px;
-  gap: 5px; justify-items: center; align-items: end;
+  min-width: 0; display: grid; grid-template-rows: 84px 18px;
+  gap: 7px; justify-items: center; align-items: end;
 }
 .daycol.future { opacity: .3; }
-.dots { display: grid; gap: 3px; justify-content: center; }
-.wcount { font-size: 15px; font-weight: 600; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
-.wax-track { width: min(28px, 72%); height: 68px; display: flex; align-items: end; background: var(--warm); }
-.wax-track i { display: block; width: 100%; min-height: 3px; background: var(--ink); }
-.mine-day { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
-.mine-day.on { background: var(--you); box-shadow: 0 0 0 2px var(--you-ring); }
+.presence-dots { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 8px; }
+.week-presence { width: 100%; min-height: 84px; padding: 8px 3px; align-content: end; }
+.presence-dot {
+  width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: var(--ink);
+  border: 0; padding: 0; cursor: pointer;
+}
+.presence-dot.mine { background: var(--you); box-shadow: 0 0 0 2px var(--you-ring); }
+.presence-dot:hover, .presence-dot:focus-visible { outline: 2px solid var(--you); outline-offset: 3px; }
 .dlab { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .dlab.today { color: var(--ink); }
+
+.presence-card {
+  position: fixed; z-index: 80; width: min(17rem, calc(100vw - 24px));
+  display: grid; grid-template-columns: 54px 1fr; gap: 13px; align-items: center;
+  padding: 13px; background: var(--paper); color: var(--ink);
+  border: 1px solid var(--hair-2); box-shadow: 0 12px 34px rgba(23,25,22,.16);
+}
+.presence-card b { display: block; font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.presence-card p { margin: 3px 0 0; font-size: 14px; line-height: 1.45; color: var(--body); }
+.presence-card p.quiet-line { color: var(--muted); }
+.presence-photo, .profile-preview {
+  width: 54px; height: 54px; overflow: hidden; display: inline-flex; align-items: center;
+  justify-content: center; flex: 0 0 54px; background: var(--lilac); color: var(--you);
+  font-size: 16px; font-weight: 700; letter-spacing: .06em;
+}
+.presence-photo img, .profile-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profile-edit { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 
 .legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; color: var(--muted); }

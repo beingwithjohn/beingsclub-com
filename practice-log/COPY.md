@@ -51,15 +51,16 @@ That copy is yours already, transcribed from the design bundle. It's in
 > This is where you record your practice and, once you have, see how many
 > others practised that day.
 
-The three-rule contract, name, timezone and email hour follow. The public log
-has no persistent roster and does not ask why someone is here. Names appear
-only beside a daily note someone chooses to write. The scheduled email
-behaviour and wording remain unchanged.
+The three-rule contract, required name, optional picture and optional one-line
+introduction, timezone and email hour follow. Picture and introduction can be
+skipped and all three identity fields can be changed later in Settings. The
+public log has no persistent roster.
 
-After recording today, the week shows one aggregate column per day and says
-the number of other people who practised. That is the intended sense of shared
-movement: enough to see participation wax and wane, never a person-by-person
-history.
+After recording today, the week shows one equal ink dot per person who
+practised. The viewer's own dot alone is violet and ringed. Hovering, focusing
+or tapping a dot opens the person's name, optional picture and optional
+introduction; the picture is never used as the main-page mark. Past days retain
+the people who practised so the sociality of practice has a memory.
 
 Before recording, “I want to practise now” opens an optional timer: five, ten,
 or twenty minutes, plus a clearly selected custom length from one to 180
@@ -89,8 +90,8 @@ yours either way.” “Your place” belongs only to a fixed invitation.
 
 **Two rules I've been holding to**, so you know what the constraints were:
 counts are said in words in prose, never as denominators ("seven places left",
-never "3/10"). The seven-day aggregate uses a small numeral so its shape can
-be read at a glance. The other standing rule is that
+never "3/10"). The seven-day shape uses one equal dot for each person who
+practised, with only your own dot differentiated. The other standing rule is that
 the banned list is *streak · in a row · you missed · don't break it · 6/10 ·
 60% · average · session · minutes · progress · community · members · users ·
 well done · congratulations*. If you want to break either, say so — they're
@@ -187,13 +188,13 @@ handle it.
 
 ---
 
-## 3. Profiles and account privacy
+## 3. Practice presence and account privacy
 
 Only the host can see who has created an account. There is no participant
-directory, roster, people search, or public profile URL. A future profile
-picture or profile line may be returned to another participant only as part of
-a day the person has marked; creating an account alone must never make someone
-visible.
+directory, roster, people search, or public profile URL. A picture or
+introduction is returned to another participant only as part of a day the
+person marked; creating an account alone never makes someone visible. This is
+not social media. It makes practice social.
 
 ---
 
@@ -264,8 +265,9 @@ Only you see this. Plainer than the rest on purpose.
 The public evergreen host page does not show this form. People enter through
 `/log/`; the host page is for messages, course-access dates and records.
 
-**The roster** shows each person's email, timezone, when they joined, how many
-days they've marked, and a violet **QUIET 5D** flag after three or more quiet
+**The private account list** shows each person's picture, introduction, email,
+timezone, when they joined, how many days they've marked, and a violet
+**QUIET 5D** flag after three or more quiet
 days. That flag exists so you can notice someone has gone quiet and reach out
 as a person — it is never shown to them, never counted in their interface,
 never emailed.

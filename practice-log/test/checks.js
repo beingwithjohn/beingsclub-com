@@ -384,19 +384,31 @@ check(19, 'only the host can see who has an account', () => {
   const host_ = read('practice-log', 'src', 'host.js');
   ok(/path === ['"]\/api\/host\/people['"]/.test(host_) &&
     /async function people\(/.test(host_), 'the private host account list is missing');
-  ok(/if \(!S\.run\.public_join\) inner\.appendChild\(lineRow\(\)\)/.test(log),
-    'public settings still offer the old profile line');
-  ok(/var lineSetup = S\.run\.public_join \? ''/.test(log),
-    'public setup still asks why someone is here');
+  ok(/FROM day_mark dm JOIN person p/.test(api) &&
+    !/SELECT COUNT\(\*\) AS n FROM person WHERE run_id/.test(api),
+  'participant presence is not derived exclusively from practice marks');
+  ok(/profile_image: person\.profile_image/.test(api) && /profile_image: r\.profile_image/.test(host_),
+    'the person cannot see their own picture or the host cannot see account pictures');
   return 'host registry only; participants appear only through marked days';
 });
 
-check(20, 'the week says how many others practised', () => {
-  ok(/function othersForDay\(d\)/.test(log), 'the week does not calculate other people separately');
-  ok(/Number of others/.test(log), 'the weekly aggregate is not explained');
-  ok(/weekDayReading/.test(log) && /no others/.test(log),
-    'daily aggregate counts are visual only');
-  return 'seven daily aggregate columns, counts said explicitly';
+check(20, 'equal dots make practice social without making accounts social', () => {
+  const css = read('practice-log', 'app', 'app.css');
+  const api = read('practice-log', 'src', 'api.js');
+  ok(/function presenceDots\(people, date, extra\)/.test(log) && /function profilesForDay\(day\)/.test(log),
+    'marked people are not rendered as day dots');
+  ok(/\.presence-dot\s*\{[^}]*background:\s*var\(--ink\)/s.test(css) &&
+    /\.presence-dot\.mine\s*\{[^}]*background:\s*var\(--you\)/s.test(css),
+  'participant dots are not equal apart from the viewer’s own mark');
+  ok(/mouseenter/.test(log) && /addEventListener\(['"]click['"]/.test(log) &&
+    /class=\\?"presence-card/.test(log), 'the practice card does not open by hover and tap');
+  ok(/profileVisual\(person\.image, person\.name, ['"]presence-photo['"]\)/.test(log),
+    'pictures are not confined to the opened practice card');
+  ok(!/Number of others/.test(log) && !/class=\\?"wcount|class=\\?"wax-track/.test(log),
+    'the old visible counts or bars remain on the weekly view');
+  ok(/people:\s*\[\.\.\.profiles\.values\(\)\]/.test(api) && /people,\s*\n\s*mine:/.test(api),
+    'past marked identities are not retained with their days');
+  return 'equal day dots; only yours differs; identity opens on hover or tap';
 });
 
 check(21, 'the timer remains separate from recording practice', () => {

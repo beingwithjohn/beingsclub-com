@@ -109,7 +109,8 @@ async function inbox(env, { run }) {
 // shown to the participant, never counted in the interface, never emailed.
 async function people(env, { run }) {
   const rows = await env.DB.prepare(
-    `SELECT p.id, p.name, p.email, p.timezone, p.nudge_hour, p.nudge_on, p.notes_on,
+    `SELECT p.id, p.name, p.email, p.line, p.profile_image,
+            p.timezone, p.nudge_hour, p.nudge_on, p.notes_on,
             p.message_from, p.message_until,
             p.joined_on, p.left_at, p.is_host,
             (SELECT COUNT(*) FROM day_mark d WHERE d.person_id = p.id) AS marks,
@@ -132,7 +133,8 @@ async function people(env, { run }) {
       quiet = quietDays(new Set((marks.results || []).map((m) => m.on_date)), today, since);
     }
     out.push({
-      id: r.id, name: r.name, email: r.email, timezone: r.timezone,
+      id: r.id, name: r.name, email: r.email, line: r.line,
+      profile_image: r.profile_image, timezone: r.timezone,
       nudge_hour: r.nudge_hour, nudge_on: !!r.nudge_on, notes_on: !!r.notes_on,
       message_from: r.message_from, message_until: r.message_until,
       joined_on: r.joined_on, left_at: r.left_at, is_host: !!r.is_host,

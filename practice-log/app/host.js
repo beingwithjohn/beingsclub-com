@@ -187,12 +187,16 @@
         if (!p.nudge_on) bits.push('nudges off');
         if (p.message_from && p.message_until) bits.push('John line ' + p.message_from + ' to ' + p.message_until);
 
-        var row = h('<div class="rowflex"><div>' +
-          '<b>' + esc(p.name) + '</b>' +
+        var image = p.profile_image
+          ? '<span class="profile-preview"><img src="' + esc(p.profile_image) + '" alt=""></span>'
+          : '<span class="profile-preview fallback">' + esc(String(p.name || '').trim().charAt(0).toUpperCase() || '·') + '</span>';
+        var row = h('<div class="rowflex"><div style="display:flex;gap:14px;align-items:flex-start;min-width:0;">' +
+          image + '<div><b>' + esc(p.name) + '</b>' +
           '<p>' + esc(bits.join(' · ')) + '</p>' +
+          (p.line ? '<p>“' + esc(p.line) + '”</p>' : '') +
           '<p>' + p.marks + (p.marks === 1 ? ' day marked' : ' days marked') +
             (p.last_mark ? ' · last ' + esc(p.last_mark) : '') + '</p>' +
-          '</div><div style="text-align:right;flex:none;">' +
+          '</div></div><div style="text-align:right;flex:none;">' +
           (p.quiet_days >= 3
             ? '<span class="caps" style="color:var(--you);">quiet ' + p.quiet_days + 'd</span>'
             : '<span class="caps">&nbsp;</span>') +

@@ -23,6 +23,8 @@ const NOTE_MAX = 100;
 const LINE_MAX = 100;
 const MESSAGE_MAX = 4000;
 const NAME_MAX = 40;
+const PROFILE_IMAGE_MAX = 70000;
+const PROFILE_IMAGE = /^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i;
 
 // An evergreen log that has been running for years should not send its whole
 // history on every load. Two years of squares is already more than anyone reads.
@@ -62,6 +64,7 @@ export async function getState(env, { person, run }) {
       joined_on: person.joined_on,
       setup_at: person.setup_at,
       line: person.line,
+      profile_image: person.profile_image,
       message_access: messages,
     },
     run: {
@@ -147,28 +150,25 @@ function windowStart(anchor, today) {
 }
 
 /**
- * The cohort, as counts only.
+ * Shared practice, never an account list.
  *
- * Deliberately not a per-person array. A stable list of who-practised-when,
- * even without names, is a row per person by another route: two days of it and
- * you can follow one dot down the grid. Counts cannot be correlated, which is
- * what "nobody can be compared to anybody" has to mean once it is data.
+ * A person enters this response only through a mark inside the visible date
+ * window. Their name, picture and line make practice social across days; merely
+ * creating an account exposes nothing, including the total number of accounts.
  */
-async function sharedView(env, { person, run }, anchor, today, mine) {
+export async function sharedView(env, { person, run }, anchor, today, mine) {
   const from = mine.from;
   // A closed run stops at its last day. Counting on to today would append a
   // tail of empty squares for every day since it ended.
   const until = isClosed(run, today) ? lastDay(run) : today;
 
-  const [sizeRow, counts, notes] = await Promise.all([
+  const [marks, notes] = await Promise.all([
     env.DB.prepare(
-      `SELECT COUNT(*) AS n FROM person WHERE run_id = ?1 AND left_at IS NULL AND is_host = 0`,
-    ).bind(run.id).first(),
-    env.DB.prepare(
-      `SELECT dm.on_date AS d, COUNT(*) AS n
+      `SELECT dm.on_date AS d, dm.created_at AS marked_at,
+              p.id AS pid, p.name, p.line, p.profile_image
          FROM day_mark dm JOIN person p ON p.id = dm.person_id
         WHERE p.run_id = ?1 AND p.is_host = 0 AND dm.on_date >= ?2 AND dm.on_date <= ?3
-        GROUP BY dm.on_date`,
+        ORDER BY dm.on_date, dm.created_at, p.id`,
     ).bind(run.id, from, until).all(),
     env.DB.prepare(
       `SELECT p.name AS who, n.body AS body, n.person_id AS pid
@@ -178,25 +178,38 @@ async function sharedView(env, { person, run }, anchor, today, mine) {
     ).bind(run.id, today).all(),
   ]);
 
-  const byDate = new Map((counts.results || []).map((r) => [r.d, r.n]));
+  const profiles = new Map();
+  const byDate = new Map();
+  for (const row of marks.results || []) {
+    if (!profiles.has(row.pid)) {
+      profiles.set(row.pid, {
+        id: row.pid,
+        name: row.pid === person.id ? 'You' : row.name,
+        line: row.line,
+        image: row.profile_image,
+        mine: row.pid === person.id,
+      });
+    }
+    if (!byDate.has(row.d)) byDate.set(row.d, []);
+    byDate.get(row.d).push(row.pid);
+  }
 
   const days = [];
   for (let d = from; diffDays(d, until) >= 0; d = addDays(d, 1)) {
+    const people = byDate.get(d) || [];
     days.push({
       date: d,
       day_index: dayIndex(d, anchor),
-      count: byDate.get(d) || 0,
+      count: people.length,
+      people,
       mine: mine.marks.has(d),
     });
   }
 
   return {
-    // Honestly zero when nobody else is in the run. `|| 1` here once invented
-    // a cohort of one, which made a log kept alone announce that its keeper
-    // was "the first one in". Every division guards itself instead.
-    size: sizeRow?.n ?? 0,
     from,
-    today_count: byDate.get(today) || 0,
+    today_count: (byDate.get(today) || []).length,
+    people: [...profiles.values()],
     days,
     notes: (notes.results || []).map((r) => ({
       who: r.pid === person.id ? 'You' : r.who,
@@ -329,11 +342,13 @@ export async function getDay(env, { person, run }, url) {
   }
 
   const anchor = anchorOf(run, person);
-  const [count, notes, mineRow] = await Promise.all([
+  const [people, notes, mineRow] = await Promise.all([
     env.DB.prepare(
-      `SELECT COUNT(*) AS n FROM day_mark dm JOIN person p ON p.id = dm.person_id
-        WHERE p.run_id = ?1 AND p.is_host = 0 AND dm.on_date = ?2`,
-    ).bind(run.id, date).first(),
+      `SELECT p.id AS pid, p.name, p.line, p.profile_image
+         FROM day_mark dm JOIN person p ON p.id = dm.person_id
+        WHERE p.run_id = ?1 AND p.is_host = 0 AND dm.on_date = ?2
+        ORDER BY dm.created_at, p.id`,
+    ).bind(run.id, date).all(),
     env.DB.prepare(
       `SELECT p.name AS who, n.body AS body, n.person_id AS pid
          FROM note n JOIN person p ON p.id = n.person_id
@@ -348,8 +363,15 @@ export async function getDay(env, { person, run }, url) {
   return json({
     date,
     day_index: dayIndex(date, anchor),
-    count: count?.n || 0,
+    count: (people.results || []).length,
     mine: !!mineRow,
+    people: (people.results || []).map((r) => ({
+      id: r.pid,
+      name: r.pid === person.id ? 'You' : r.name,
+      line: r.line,
+      image: r.profile_image,
+      mine: r.pid === person.id,
+    })),
     notes: (notes.results || []).map((r) => ({
       who: r.pid === person.id ? 'You' : r.who, body: r.body, mine: r.pid === person.id,
     })),
@@ -447,6 +469,15 @@ export async function patchSettings(env, ctx, body) {
     const line = body.line.trim().slice(0, LINE_MAX);
     sets.push(`line = ?${sets.length + 1}`); binds.push(line || null);
   }
+  if (body?.profile_image === null) {
+    sets.push(`profile_image = ?${sets.length + 1}`); binds.push(null);
+  } else if (typeof body?.profile_image === 'string') {
+    const image = body.profile_image.trim();
+    if (image.length > PROFILE_IMAGE_MAX || !PROFILE_IMAGE.test(image)) {
+      return bad(400, 'profile image');
+    }
+    sets.push(`profile_image = ?${sets.length + 1}`); binds.push(image);
+  }
   if (typeof body?.nudge_hour === 'string') {
     if (minutesOf(body.nudge_hour) == null) return bad(400, 'nudge_hour');
     sets.push(`nudge_hour = ?${sets.length + 1}`); binds.push(body.nudge_hour);
@@ -458,7 +489,10 @@ export async function patchSettings(env, ctx, body) {
   }
   // First run is finished on the server's say-so, so a second device does not
   // ask them to set up again.
-  if (body?.setup === true) sets.push('setup_at = unixepoch()');
+  if (body?.setup === true) {
+    if (typeof body?.name !== 'string' || !body.name.trim()) return bad(400, 'name');
+    sets.push('setup_at = unixepoch()');
+  }
 
   if (!sets.length) return bad(400, 'nothing to change');
 
@@ -474,6 +508,7 @@ export async function patchSettings(env, ctx, body) {
       ...person,
       name: fresh.name, timezone: fresh.timezone, nudge_hour: fresh.nudge_hour,
       nudge_on: !!fresh.nudge_on, notes_on: !!fresh.notes_on, setup_at: fresh.setup_at,
+      line: fresh.line, profile_image: fresh.profile_image,
     },
   });
 }
