@@ -231,7 +231,8 @@ check(8, 'a link in an email cannot write anything', () => {
   const idx = read('practice-log', 'src', 'index.js');
   // Every write is behind POST or PATCH. If a GET ever routed to one of them,
   // a mail scanner following links would log practices nobody did.
-  const writes = ['/api/join', '/api/mark', '/api/note', '/api/message', '/api/settings/revoke'];
+  const writes = ['/api/join', '/api/mark', '/api/note', '/api/message',
+    '/api/settings/revoke', '/api/settings/delete', '/api/giving/manage'];
   for (const w of writes) {
     const line = idx.split('\n').find((l) => l.includes(`'${w}'`) && l.includes('path ==='));
     ok(line, `${w} is not routed`);
@@ -469,7 +470,33 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   const idx = read('practice-log', 'src', 'index.js');
   ok(idx.indexOf("path === '/api/giving'") < idx.indexOf('const who = await identify'),
     'giving still depends on Practice Log identity');
-  return 'standalone /giving/; one-off first; GBP or USD; no access gate';
+  const givingApi = read('practice-log', 'src', 'giving.js');
+  const givingMigration = read('practice-log', 'migrations', '0006_giving_email.sql');
+  ok(/\/api\/giving\/manage/.test(log) && /postGivingPortal/.test(givingApi) &&
+    /billing_portal\/sessions/.test(givingApi), 'Settings cannot open Stripe to manage monthly giving');
+  ok(/giving_subscription/.test(givingMigration) && !/REFERENCES person/.test(givingMigration) &&
+    /lower\(email\) = lower\(\?1\)/.test(givingApi),
+  'monthly management either cannot match the giver or attaches giving to a Practice Log person');
+  return 'standalone /giving/; one-off first; GBP or USD; Stripe management from Settings';
+});
+
+check(23, 'deleting a Practice Log erases identity and presence', () => {
+  const idx = read('practice-log', 'src', 'index.js');
+  const api = read('practice-log', 'src', 'api.js');
+  const schema = read('practice-log', 'migrations', '0001_init.sql');
+  ok(/path === ['"]\/api\/settings\/delete['"] && method === ['"]POST['"]/.test(idx),
+    'account deletion is not an authenticated POST');
+  ok(/body\?\.confirmation !== ['"]DELETE['"]/.test(api) &&
+    /DELETE FROM person WHERE id = \?1/.test(api), 'deletion is soft or lacks explicit confirmation');
+  ok((schema.match(/REFERENCES person\(id\) ON DELETE CASCADE/g) || []).length >= 5,
+    'person-linked practice data does not cascade away with the profile');
+  ok(/Another host must exist/.test(api), 'the only host credential can be accidentally deleted');
+  ok(/localStorage\.removeItem\(KEY\)/.test(log) && /view === ['"]deleted['"]/.test(log),
+    'the deleted person’s old local session survives');
+  ok(/copy\.shared\.people = copy\.shared\.people\.filter/.test(log) &&
+    /return p\.mine/.test(log) && /copy\.shared\.notes.*filter/.test(log),
+  'other people’s profiles or notes remain in the offline cache');
+  return 'hard delete; cascaded practice data; old link and cached identity removed';
 });
 
 // ---------------------------------------------------------------------------

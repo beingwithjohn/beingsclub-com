@@ -2,7 +2,9 @@
 //
 // Beings Club offers the work first. A later gift does not buy the Practice
 // Log, a place in a Sit, or different care. This is therefore a public side
-// door with no Practice Log identity attached to it.
+// door with no Practice Log identity attached to it. For monthly management,
+// the email Stripe collected can be matched to the authenticated log email;
+// there is still no person_id, access benefit or public relationship.
 
 import { json, bad } from './api.js';
 
@@ -59,6 +61,42 @@ export async function postGiving(env, body) {
   }
 
   const session = await res.json();
+  return json({ url: session.url });
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/giving/manage → Stripe's secure customer portal
+// ---------------------------------------------------------------------------
+export async function postGivingPortal(env, person) {
+  if (!env.STRIPE_SECRET_KEY) return bad(503, 'giving is not set up yet');
+
+  const row = await env.DB.prepare(
+    `SELECT stripe_customer_ref
+       FROM giving_subscription
+      WHERE lower(email) = lower(?1)
+        AND status NOT IN ('canceled', 'incomplete_expired')
+      ORDER BY updated_at DESC LIMIT 1`,
+  ).bind(person.email).first();
+  if (!row?.stripe_customer_ref) return bad(404, 'No monthly gift was found for this email.');
+
+  const form = new URLSearchParams({
+    customer: row.stripe_customer_ref,
+    return_url: String(env.APP_URL || 'https://beingsclub.com/log/'),
+  });
+  const res = await fetch(`${STRIPE}/billing_portal/sessions`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+    body: form,
+  });
+  if (!res.ok) {
+    console.error('stripe portal', res.status, (await res.text()).slice(0, 400));
+    return bad(502, 'could not open Stripe');
+  }
+  const session = await res.json();
+  if (!session.url) return bad(502, 'could not open Stripe');
   return json({ url: session.url });
 }
 
@@ -119,6 +157,7 @@ async function rememberCheckoutSubscription(env, session) {
     status: session.payment_status === 'paid' ? 'active' : 'incomplete',
     cancelAtPeriodEnd: 0,
     eventCreated: 0,
+    email: String(session.customer_details?.email || '').trim().toLowerCase(),
   });
   return json({ ok: true });
 }
@@ -140,6 +179,7 @@ async function rememberSubscription(env, subscription, eventCreated) {
     status: subscription.status || 'active',
     cancelAtPeriodEnd: subscription.cancel_at_period_end ? 1 : 0,
     eventCreated,
+    email: '',
   });
   return json({ ok: true });
 }
@@ -173,8 +213,8 @@ async function upsertSubscription(env, data) {
   await env.DB.prepare(
     `INSERT INTO giving_subscription
        (stripe_customer_ref, stripe_subscription_ref, amount, currency,
-        status, cancel_at_period_end, event_created, updated_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, unixepoch())
+        status, cancel_at_period_end, event_created, email, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, unixepoch())
      ON CONFLICT (stripe_subscription_ref) DO UPDATE SET
        stripe_customer_ref = excluded.stripe_customer_ref,
        amount = excluded.amount,
@@ -182,11 +222,12 @@ async function upsertSubscription(env, data) {
        status = excluded.status,
        cancel_at_period_end = excluded.cancel_at_period_end,
        event_created = excluded.event_created,
+       email = CASE WHEN excluded.email <> '' THEN excluded.email ELSE giving_subscription.email END,
        updated_at = unixepoch()
      WHERE excluded.event_created >= giving_subscription.event_created`,
   ).bind(
     data.customer, data.subscription, data.amount, String(data.currency || 'gbp'),
-    data.status, data.cancelAtPeriodEnd, data.eventCreated || 0,
+    data.status, data.cancelAtPeriodEnd, data.eventCreated || 0, data.email || '',
   ).run();
 }
 

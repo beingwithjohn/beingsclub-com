@@ -62,7 +62,7 @@ day_mark         (person_id, on_date) PK, marked_at, late
 note             (person_id, on_date) PK, body ≤100, removed_at
 private_message  person_id, on_date, body, answer_body, answer_url, answered_at
 gift             amount, currency, cadence, Stripe refs; no Practice Log person
-giving_subscription  Stripe customer/subscription refs, amount, status
+giving_subscription  Stripe customer/subscription refs, email, amount, status; no person FK
 contribution / contribution_subscription  legacy unused tables from the earlier attached model
 send_log         (person_id, kind, scope) PK — idempotence for every email
 ```
@@ -140,7 +140,9 @@ POST   /api/note        {date?, body}
 POST   /api/message     {body}     private to John
 PATCH  /api/settings    {name?, line?, timezone?, nudge_hour?, nudge_on?, notes_on?, setup?}
 POST   /api/settings/revoke        new link, emailed, never returned
+POST   /api/settings/delete        {confirmation:"DELETE"}; cascades all person-linked data
 POST   /api/giving                 public, site-Origin only → {url} Stripe Checkout
+POST   /api/giving/manage          authenticated email match → {url} Stripe customer portal
 POST   /api/stripe/webhook         signature-verified, unauthenticated
 
 GET    /api/invite                 Invite auth. The threshold. Writes nothing.
@@ -261,7 +263,7 @@ safe place to work; `seed/bootstrap.sh` creates runs and prints the magic links.
 ## 8. Open
 
 - Stripe is unconnected — the one-off and monthly paths, signed webhooks and
-  manage/cancel route are built, but the two Worker secrets, webhook event
+  Settings manage/cancel route are built, but the two Worker secrets, webhook event
   destination and customer-portal cancellation still need John's Stripe account.
 - DMARC is at `p=none` while sending is proven, and should be tightened to
   `p=reject` once a real send is confirmed to pass SPF and DKIM aligned.

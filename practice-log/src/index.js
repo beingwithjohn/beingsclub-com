@@ -6,11 +6,11 @@
 import { identify, identifyInvite } from './auth.js';
 import {
   json, bad, getState, getDay, postMark, postNote, postMessage,
-  patchSettings, postRevoke, getInvite, postPlace,
+  patchSettings, postRevoke, postDelete, getInvite, postPlace,
 } from './api.js';
 import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
-import { postGiving, stripeWebhook } from './giving.js';
+import { postGiving, postGivingPortal, stripeWebhook } from './giving.js';
 import { postLogin } from './login.js';
 import { postJoin } from './join.js';
 
@@ -109,6 +109,15 @@ async function route(request, env, ctx, url) {
 
   if (path === '/api/state' && method === 'GET') return getState(env, who);
   if (path === '/api/day' && method === 'GET') return getDay(env, who, url);
+  if (path === '/api/giving/manage' && method === 'POST') return postGivingPortal(env, who.person);
+
+  // Erasure remains available to somebody whose log has otherwise become
+  // read-only. Leaving must never trap a person's data in the app.
+  if (path === '/api/settings/delete' && method === 'POST') {
+    const body = await readJson(request);
+    if (body === undefined) return bad(400, 'bad json');
+    return postDelete(env, who, body);
+  }
 
   if (method === 'POST' || method === 'PATCH') {
     if (readOnly) return bad(409, 'closed');

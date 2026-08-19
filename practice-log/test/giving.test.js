@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { postGiving, stripeWebhook } from '../src/giving.js';
+import { postGiving, postGivingPortal, stripeWebhook } from '../src/giving.js';
 
 function fakeDb(firstValue = null) {
   const calls = [];
@@ -24,6 +24,7 @@ function env(db = fakeDb()) {
     STRIPE_SECRET_KEY: 'stripe-test-key',
     STRIPE_WEBHOOK_SECRET: 'webhook-test-secret',
     GIVING_URL: 'https://beingsclub.com/giving/',
+    APP_URL: 'https://beingsclub.com/log/',
   };
 }
 
@@ -65,6 +66,36 @@ test('monthly giving uses the chosen currency and amount as a recurring price', 
     assert.equal(form.get('line_items[0][price_data][recurring][interval]'), 'month');
     assert.equal(form.get('subscription_data[metadata][source]'), 'giving');
   });
+});
+
+test('an authenticated giver can open Stripe to manage or cancel monthly giving', async () => {
+  const db = fakeDb({ stripe_customer_ref: 'cus_monthly' });
+  await withFetch({ url: 'https://billing.stripe.test/session' }, async (sent) => {
+    const response = await postGivingPortal(env(db), { email: 'person@example.com' });
+    assert.equal(response.status, 200);
+    assert.equal(sent().url, 'https://api.stripe.com/v1/billing_portal/sessions');
+    assert.equal(sent().options.body.get('customer'), 'cus_monthly');
+    assert.equal(sent().options.body.get('return_url'), 'https://beingsclub.com/log/');
+    assert.match(db.calls[0].sql, /lower\(email\) = lower\(\?1\)/);
+    assert.deepEqual(db.calls[0].values, ['person@example.com']);
+  });
+});
+
+test('monthly Checkout remembers Stripe’s email without linking a Practice Log person', async () => {
+  const db = fakeDb();
+  const event = JSON.stringify({
+    type: 'checkout.session.completed',
+    data: { object: {
+      id: 'cs_monthly', mode: 'subscription', payment_status: 'paid', amount_total: 725,
+      currency: 'gbp', customer: 'cus_monthly', subscription: 'sub_monthly',
+      customer_details: { email: 'Person@Example.com' }, metadata: { source: 'giving' },
+    } },
+  });
+  const response = await stripeWebhook(env(db), await signedRequest(event));
+  assert.equal(response.status, 200);
+  assert.match(db.calls.at(-1).sql, /INSERT INTO giving_subscription/);
+  assert.equal(db.calls.at(-1).values.at(-1), 'person@example.com');
+  assert.doesNotMatch(db.calls.at(-1).sql, /person_id/);
 });
 
 test('dollar giving is presented in USD', async () => {

@@ -521,3 +521,26 @@ export async function postRevoke(env, { person }) {
   await sendWelcomeBack(env, person, logUrl(env, token));
   return json({ ok: true, sent_to: person.email });
 }
+
+// ---------------------------------------------------------------------------
+// POST /api/settings/delete — permanent erasure, not a soft leave.
+//
+// Every person-linked Practice Log table uses ON DELETE CASCADE, so removing
+// this row also removes marks, notes, private messages, old person-linked
+// contributions and send history. Public giving is intentionally unrelated.
+// The final host cannot erase the credential that controls the private host
+// surface; another host must exist first.
+// ---------------------------------------------------------------------------
+export async function postDelete(env, { person }, body) {
+  if (body?.confirmation !== 'DELETE') return bad(400, 'confirmation');
+
+  if (person.is_host) {
+    const another = await env.DB.prepare(
+      `SELECT 1 FROM person WHERE run_id = ?1 AND is_host = 1 AND id <> ?2 LIMIT 1`,
+    ).bind(person.run_id, person.id).first();
+    if (!another) return bad(409, 'Another host must exist before this host account can be deleted.');
+  }
+
+  await env.DB.prepare(`DELETE FROM person WHERE id = ?1`).bind(person.id).run();
+  return json({ deleted: true });
+}

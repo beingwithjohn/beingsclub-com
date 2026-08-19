@@ -76,6 +76,7 @@ body {
 img { display: block; max-width: 100%; }
 em { font-style: italic; }
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; text-align: left; }
+[hidden] { display: none !important; }
 a { color: var(--ink); text-decoration: none; }
 a:hover { color: var(--you); }
 ::selection { background: var(--lilac); color: var(--ink); }
@@ -246,6 +247,8 @@ main { flex: 1; display: flex; flex-direction: column; }
 .foot > :last-child { text-align: right; }
 .ul { color: var(--body); border-bottom: 1px solid var(--hair-2); }
 .ul:hover { color: var(--you); border-bottom-color: var(--you); }
+.danger-link { color: #7b302d; border-bottom-color: rgba(123,48,45,.35); }
+.danger-link:hover { color: #5f201e; border-bottom-color: #5f201e; }
 
 /* ------------------------------------------------------------ the tap ---- */
 
@@ -371,6 +374,8 @@ main { flex: 1; display: flex; flex-direction: column; }
 }
 .btn:hover { background: var(--you); color: var(--paper); }
 .btn[disabled] { opacity: .45; cursor: default; }
+.btn.danger-button { background: #7b302d; }
+.btn.danger-button:hover:not([disabled]) { background: #5f201e; }
 .btn.on-ink { background: var(--paper); color: var(--ink); }
 .btn.on-ink:hover { background: var(--lilac); }
 
@@ -588,15 +593,27 @@ main { flex: 1; display: flex; flex-direction: column; }
     return state;
   }
 
-  // Pictures belong in the live response, not localStorage. A year of practice
-  // can contain many people; caching every JPEG would eventually evict the
-  // token and the offline queue that actually need to live here.
+  // Other people's identity belongs only in a live response. Keeping names or
+  // introductions in localStorage would leave a findable copy after somebody
+  // deleted their profile. The offline cache keeps only this viewer's marks.
   function cacheState(state) {
     var copy;
     try { copy = JSON.parse(JSON.stringify(state)); } catch (e) { return state; }
     if (copy.person) copy.person.profile_image = null;
     if (copy.shared && copy.shared.people) {
-      copy.shared.people.forEach(function (p) { p.image = null; });
+      var mine = {};
+      copy.shared.people = copy.shared.people.filter(function (p) {
+        if (p.mine) mine[p.id] = true;
+        return p.mine;
+      }).map(function (p) { p.image = null; return p; });
+      (copy.shared.days || []).forEach(function (d) {
+        d.people = (d.people || []).filter(function (id) { return mine[id]; });
+        d.count = d.people.length;
+      });
+      copy.shared.today_count = (copy.shared.days || []).reduce(function (count, d) {
+        return d.date === copy.today.date ? d.count : count;
+      }, 0);
+      copy.shared.notes = (copy.shared.notes || []).filter(function (n) { return n.mine; });
     }
     return copy;
   }
@@ -713,6 +730,7 @@ main { flex: 1; display: flex; flex-direction: column; }
   // -------------------------------------------------------------------------
   function render() {
     closePresence();
+    if (view === 'deleted') return viewDeleted();
     // Invited but not yet in: the threshold is the whole of it.
     if (!L.token && L.invite) return INV ? viewThreshold() : viewLoading();
     if (!L.token) return viewNoLink();
@@ -786,9 +804,8 @@ main { flex: 1; display: flex; flex-direction: column; }
       href: '/giving/'
     });
 
-    // The host practises like everyone else — his own marks, his own grid,
-    // and he is deliberately not one of the ten, so he never shows in their
-    // counts. The other chair is a page, not a second login.
+    // The host practises like everyone else. Hosting changes access to the
+    // private page, not whether a practice mark appears to others.
     if (S.person.is_host) {
       items.push({ id: 'host', label: 'Hosting', sub: 'What people asked, and who is in', href: 'host/' });
     }
@@ -2289,6 +2306,25 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<p class="small" id="revoked" style="margin-top:10px;"></p></div>');
     inner.appendChild(link);
 
+    var giving = h('<div><div class="rowflex"><div><b>Monthly giving</b>' +
+      '<p>Change or cancel a monthly gift securely in Stripe</p></div>' +
+      '<button class="ul" id="manage-giving" style="flex:none;">Manage</button></div>' +
+      '<p class="small" id="giving-message" aria-live="polite" style="margin-top:10px;"></p></div>');
+    inner.appendChild(giving);
+
+    var deletion = h('<div><div class="rowflex"><div><b>Delete my Practice Log</b>' +
+      '<p>Permanently remove your profile, circles, notes and private messages</p></div>' +
+      '<button class="ul danger-link" id="delete-open" style="flex:none;">Delete</button></div>' +
+      '<div id="delete-confirm" hidden style="margin-top:18px;display:grid;gap:12px;max-width:34rem;">' +
+        '<p class="small">This cannot be undone. Your old link will stop working. ' +
+          'Giving is separate, so this does not cancel a recurring gift.</p>' +
+        '<label class="small" for="delete-word">Type DELETE to confirm</label>' +
+        '<input class="field" id="delete-word" autocomplete="off" spellcheck="false">' +
+        '<button class="btn danger-button" id="delete-confirm-button" disabled>Permanently delete my log</button>' +
+        '<p class="small" id="delete-message" aria-live="polite"></p>' +
+      '</div></div>');
+    inner.appendChild(deletion);
+
     inner.appendChild(h('<div style="border-bottom:none;"><p class="small">' +
       'Nothing here is scored. Nothing counts forward, so nothing can be lost.</p></div>'));
 
@@ -2321,6 +2357,51 @@ main { flex: 1; display: flex; flex-direction: column; }
         L.token = null; save();
       }).catch(function () { note.textContent = 'That did not go through. Try again in a moment.'; });
     });
+
+    inner.querySelector('#manage-giving').addEventListener('click', function () {
+      var message = inner.querySelector('#giving-message');
+      message.textContent = 'Opening Stripe…';
+      api('/api/giving/manage', { method: 'POST', body: {} }).then(function (result) {
+        location.href = result.url;
+      }).catch(function (error) {
+        message.textContent = error.message || 'Stripe could not be opened just now.';
+      });
+    });
+
+    var deletePanel = inner.querySelector('#delete-confirm');
+    var deleteWord = inner.querySelector('#delete-word');
+    var deleteButton = inner.querySelector('#delete-confirm-button');
+    inner.querySelector('#delete-open').addEventListener('click', function () {
+      deletePanel.hidden = false;
+      deleteWord.focus();
+    });
+    deleteWord.addEventListener('input', function () {
+      deleteButton.disabled = deleteWord.value !== 'DELETE';
+    });
+    deleteButton.addEventListener('click', function () {
+      var message = inner.querySelector('#delete-message');
+      deleteButton.disabled = true;
+      message.textContent = 'Deleting…';
+      api('/api/settings/delete', { method: 'POST', body: { confirmation: deleteWord.value } })
+        .then(function () {
+          try { localStorage.removeItem(KEY); } catch (e) {}
+          L = load(); S = null; view = 'deleted'; render();
+        })
+        .catch(function (error) {
+          deleteButton.disabled = false;
+          message.textContent = error.message || 'That did not go through. Try again in a moment.';
+        });
+    });
+  }
+
+  function viewDeleted() {
+    var inner = h('<div class="centre"><div class="eyebrow">Practice Log</div>' +
+      '<h1 class="h1" style="max-width:15ch;">Your log has been deleted.</h1>' +
+      '<p class="body" style="max-width:38ch;">Your profile, practice days, notes and private messages ' +
+        'have been permanently removed. Your old link no longer works.</p>' +
+      '<button class="btn" id="deleted-done">Done</button></div>');
+    shell(inner, { noMenu: true });
+    inner.querySelector('#deleted-done').addEventListener('click', function () { view = null; render(); });
   }
 
   function toggle(title, sub, key) {

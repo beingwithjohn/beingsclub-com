@@ -108,6 +108,11 @@ identity and practice history. The log contains only a link to that page. The
 public page offers a blank amount field, one-off first and monthly as an option.
 The giver chooses GBP or USD, with a minimum of one whole unit in the
 chosen currency. Stripe collects the giver's email and handles payment.
+For a monthly gift, that Stripe-supplied email is kept on the independent
+subscription row (never a `person_id`). If it matches the authenticated
+Practice Log email, Settings can open Stripe's secure customer portal to change
+or cancel the gift. Stripe's own receipt/portal emails remain the route for a
+giver who has no Practice Log account or deletes it.
 
 Keep both values out of the repo:
 
@@ -203,6 +208,13 @@ only the viewer's own dot differs. Hover, focus or tap opens the marked person's
 name, optional picture and optional introduction. Participant history and day
 details are limited to the one visible week. This makes practice social without
 turning accounts into social media.
+
+Settings also offers permanent deletion. It requires typing `DELETE`, removes
+the `person` row and therefore cascades through marks, notes, private messages,
+send history and the unused legacy person-linked contribution tables. The old
+magic link stops resolving immediately. Other participants' identities are not
+kept in the offline cache, so a deleted profile is not left findable there.
+Public giving remains separate and a deletion does not cancel a Stripe gift.
 
 ---
 

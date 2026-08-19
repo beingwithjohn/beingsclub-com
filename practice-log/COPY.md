@@ -54,7 +54,8 @@ That copy is yours already, transcribed from the design bundle. It's in
 The three-rule contract, required name, optional picture and optional one-line
 introduction, timezone and email hour follow. Picture and introduction can be
 skipped and all three identity fields can be changed later in Settings. The
-public log has no persistent roster.
+public log has no persistent roster. Settings can also permanently delete the
+account and every person-linked practice record.
 
 After recording today, the week shows one equal ink dot per person who
 practised. The viewer's own dot alone is violet and ringed. Hovering, focusing
@@ -201,8 +202,9 @@ not social media. It makes practice social.
 ## 4. Giving
 
 Giving is not a Practice Log screen. The log's menu has one link to the public
-page at `/giving/`; the room and Settings contain no request, gift history or
-billing controls.
+page at `/giving/`; the room and Settings contain no request or gift history.
+Settings has only a route into Stripe for somebody who wants to manage or
+cancel an existing monthly gift.
 
 **Heading**
 > This work is freely given.
@@ -249,6 +251,16 @@ manage or end monthly giving.
 > Long-lived, and yours. Replace it if the device it lives on is not.
 > Replace
 > *after:* A new link is on its way to you@example.com. This one has stopped working.
+
+**Monthly giving**
+> Change or cancel a monthly gift securely in Stripe
+> Manage
+
+**Delete my Practice Log**
+> Permanently remove your profile, circles, notes and private messages
+> Delete
+>
+> This cannot be undone. Type DELETE to confirm.
 
 ---
 
