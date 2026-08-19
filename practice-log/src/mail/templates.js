@@ -113,11 +113,6 @@ const FOOT_LINK = 'Beings Club · your log stays at this link';
 const settings = (url) =>
   `${link(url, 'Change when you receive this note')} &nbsp;·&nbsp; ${link(url, 'stop these')}`;
 
-// The house wording. The standard first, the flexibility second — never the
-// flexibility alone, or the standard quietly disappears.
-const STANDARD = 'Twenty minutes is standard, and sitting daily matters far more than sitting long. '
-  + 'Five minutes on a hard day is a real practice, not a failed one.';
-
 // ---------------------------------------------------------------------------
 // E1 · you're in
 // ---------------------------------------------------------------------------
@@ -166,8 +161,8 @@ export function welcome({ person, run, url, mapUrl }) {
   const opening = fixed
     ? `${esc(run.name)} runs for ${words(run.length_days)} days, from ${longDate(run.starts_on)}. `
       + `Ten of us, practising daily.`
-    : `${esc(run.name)} has no start date and no end. People join on the day they arrive, `
-      + `practise as they can, and see how many others did.`;
+    : `${esc(run.name)} has no start date and no end. Sit in meditation, record it, `
+      + `and see who else is practising with you across the week.`;
 
   const welcomeHeading = fixed
     ? `${esc(first(person.name))} — you have a place.`
@@ -220,22 +215,25 @@ export function welcome({ person, run, url, mapUrl }) {
 // E2 · day one
 // ---------------------------------------------------------------------------
 export function dayOne({ person, run, url, principle }) {
+  const fixed = run.mode === 'fixed';
   const blocks = [
-    eyebrow(run.mode === 'fixed' ? 'Day 1 · today we start' : 'Day 1'),
-    heading(`It begins today, ${esc(first(person.name))}.`),
+    eyebrow(fixed ? 'Day 1 · today we start' : 'Practice Log'),
+    heading(fixed ? `It begins today, ${esc(first(person.name))}.` : `Hello, ${esc(first(person.name))}.`),
     principle ? para(`This week we’re with <em style="color:${T.violet};">${esc(principle.toLowerCase())}</em> — sitting without needing anything to happen.`) : '',
-    para(`${STANDARD} Whenever you practise today, come and say so.`),
+    para('Whenever you practise today, come and say so.'),
     button(url, CTA),
     gap(),
   ].join('');
 
   return {
-    subject: 'Day 1 · today we start',
-    html: layout({ preheader: 'It begins today.', blocks, footer: settings(url) }),
+    subject: fixed ? 'Day 1 · today we start' : 'Did you practise?',
+    html: layout({
+      preheader: fixed ? 'It begins today.' : 'Whenever you practise today, come and say so.',
+      blocks, footer: settings(url),
+    }),
     text: [
-      `It begins today, ${first(person.name)}.`, '',
+      fixed ? `It begins today, ${first(person.name)}.` : `Hello, ${first(person.name)}.`, '',
       principle ? `This week we’re with ${principle.toLowerCase()} — sitting without needing anything to happen.\n` : '',
-      STANDARD, '',
       'Whenever you practise today, come and say so.', '',
       `${CTA}: ${url}`,
     ].filter(Boolean).join('\n'),
@@ -250,7 +248,7 @@ export function dayOne({ person, run, url, principle }) {
 export function daily({ person, run, url, dayNumber, principle }) {
   const blocks = [
     eyebrow('Practice Log'),
-    heading(`Good morning, ${esc(first(person.name))}.`),
+    heading(`Hello, ${esc(first(person.name))}.`),
     principle ? para(`This week we’re with <em style="color:${T.violet};">${esc(principle.toLowerCase())}</em>.`) : '',
     para('Whenever you practise today, long or short, come and say so.'),
     button(url, CTA),
@@ -262,7 +260,7 @@ export function daily({ person, run, url, dayNumber, principle }) {
     subject: 'Did you practise?',
     html: layout({ preheader: 'Whenever you practise today, come and say so.', blocks, footer: settings(url) }),
     text: [
-      `Good morning, ${first(person.name)}.`, '',
+      `Hello, ${first(person.name)}.`, '',
       principle ? `This week we’re with ${principle.toLowerCase()}.\n` : '',
       'Whenever you practise today, long or short, come and say so.', '',
       `${CTA}: ${url}`, '',

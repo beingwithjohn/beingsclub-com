@@ -356,6 +356,10 @@ check(16, 'one public log, with course-bounded access to John', () => {
     'the public host page still offers private invitations');
   ok(/Your practice log is ready/.test(mail) && /your log is ready/.test(mail),
     'the evergreen welcome still reads like a course place');
+  ok(!/how many others|Good morning|Twenty minutes is standard/.test(log + mail),
+    'stale count, morning-only, or prescribed-length copy remains live');
+  ok(/subject: fixed \? 'Day 1 · today we start' : 'Did you practise\?'/.test(mail),
+    'the evergreen first-day email still claims a course is starting');
   ok(/How it works/.test(log) && /Choose a time for the log to email each day/.test(log) &&
     /ask: <b>Did you practise\?<\/b>/.test(log) &&
     /Sit in meditation, however you sit/.test(log) &&

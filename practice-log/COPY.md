@@ -42,8 +42,8 @@ That copy is yours already, transcribed from the design bundle. It's in
 >
 > John — your log is ready.
 >
-> The Practice Log has no start date and no end. People join on the day they
-> arrive, practise as they can, and see how many others did.
+> The Practice Log has no start date and no end. Sit in meditation, record it,
+> and see who else is practising with you across the week.
 >
 > 1. Choose the name that appears beside anything you write.
 > 2. Pick your hour. One email a day, at that hour.
@@ -54,8 +54,8 @@ That copy is yours already, transcribed from the design bundle. It's in
 **First opening**
 > Welcome, John.
 >
-> This is where you record your practice and, once you have, see how many
-> others practised that day.
+> This is where you record your practice and, once you have, see who else is
+> practising with you across the week.
 
 The three-rule contract, required name, optional picture and optional one-line
 introduction, timezone and email hour follow. Picture and introduction can be
@@ -318,10 +318,10 @@ The daily one is the one they'll see thirty-four times, so it's worth more of
 your attention than its length suggests:
 
 **Subject**
-> Practice Log
+> Did you practise?
 
 **Body**
-> Good morning, John.
+> Hello, John.
 > This week we're with *responsibility*.
 > Whenever you practise today, long or short, come and say so.
 > LOG YOUR PRACTICE
