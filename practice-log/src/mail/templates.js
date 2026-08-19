@@ -111,7 +111,7 @@ const FOOT_CLUB = 'Beings Club · reply to this and John reads it';
 const FOOT_LINK = 'Beings Club · your log stays at this link';
 
 const settings = (url) =>
-  `${link(url, 'Change the time')} &nbsp;·&nbsp; ${link(url, 'stop these')}`;
+  `${link(url, 'Change when you receive this note')} &nbsp;·&nbsp; ${link(url, 'stop these')}`;
 
 // The house wording. The standard first, the flexibility second — never the
 // flexibility alone, or the standard quietly disappears.
@@ -253,7 +253,7 @@ export function daily({ person, run, url, dayNumber, principle }) {
     : `A quiet minute counts`;
 
   const blocks = [
-    eyebrow(label),
+    eyebrow('Practice Log'),
     heading(`Good morning, ${esc(first(person.name))}.`),
     principle ? para(`This week we’re with <em style="color:${T.violet};">${esc(principle.toLowerCase())}</em>.`) : '',
     para('Whenever you practise today, long or short, come and say so.'),

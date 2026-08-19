@@ -62,9 +62,9 @@ movement: enough to see participation wax and wane, never a person-by-person
 history.
 
 Before recording, “I want to practise now” opens an optional timer: five, ten,
-or twenty minutes, with twenty marked standard. A gentle end bell is on by
-default and can be turned off. The timer never records a practice; the ordinary
-“I practised” tap remains after it ends.
+or twenty minutes, plus a clearly selected custom length from one to 180
+minutes. A gentle end bell is on by default and can be turned off. The timer
+never records a practice; the ordinary “I practised” tap remains after it ends.
 
 The public interface never calls the people using it a “cohort.” Settings says
 “The name beside your notes,” and the daily-email setting says only that it
@@ -321,7 +321,7 @@ The daily one is the one they'll see thirty-four times, so it's worth more of
 your attention than its length suggests:
 
 **Subject**
-> Day 18 · a quiet minute counts
+> Practice Log
 
 **Body**
 > Good morning, John.

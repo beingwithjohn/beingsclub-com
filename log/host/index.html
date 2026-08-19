@@ -274,12 +274,16 @@ main { flex: 1; display: flex; flex-direction: column; }
   min-height: calc(100svh - 54px); max-width: 38rem;
   display: flex; flex-direction: column; justify-content: center; gap: 26px;
 }
-.timer-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.timer-choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .timer-choices .chip { text-align: center; padding-inline: 8px; }
-.timer-choices small {
-  display: block; margin-top: 2px; font-size: 10px; line-height: 1.3;
-  letter-spacing: .14em; text-transform: uppercase; opacity: .72;
+.timer-custom { display: grid; gap: 9px; }
+.timer-custom > span:last-of-type { position: relative; display: block; }
+.timer-custom .field { padding-right: 88px; }
+.timer-custom i {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  font-style: normal; font-size: 16px; color: var(--muted); pointer-events: none;
 }
+.timer-custom small { font-size: 14px; line-height: 1.5; color: var(--muted); }
 .timer-sound { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding-block: 18px; }
 .timer-running { min-height: calc(100svh - 54px); }
 .timer-clock {
@@ -287,6 +291,7 @@ main { flex: 1; display: flex; flex-direction: column; }
   letter-spacing: -.055em; color: var(--ink); font-variant-numeric: tabular-nums;
 }
 .timer-actions { display: grid; gap: 8px; width: min(100%, 22rem); }
+@media (max-width: 34rem) { .timer-choices { grid-template-columns: repeat(2, 1fr); } }
 
 .fade { opacity: 0; transition: opacity .6s ease-out; }
 .fade.in { opacity: 1; }

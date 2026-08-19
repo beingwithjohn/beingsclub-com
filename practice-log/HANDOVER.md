@@ -92,8 +92,8 @@ shape and the daily notes people chose to write. Legacy private fixed runs may
 still have their own room.
 
 **2 · One tap, everything else optional.** The note is offered once a day. The
-five, ten, or twenty-minute timer is an aid and never records practice; after
-its optional bell the same tap remains. The private line to John appears only
+timer offers five, ten, twenty, or a custom one-to-180-minute length; it is an
+aid and never records practice. After its optional bell the same tap remains. The private line to John appears only
 inside an active course-access window and is in the path of none.
 
 **3 · No streaks, ever.** Nothing counts forward, so nothing can be lost. Days

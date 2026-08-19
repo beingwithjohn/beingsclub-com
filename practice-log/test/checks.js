@@ -185,7 +185,7 @@ check(6, 'rule 3 — the vocabulary of scoring is absent', () => {
   const prose = [log, host].map(visibleText).join('\n');
   // A filter that removed everything would make this check pass on nothing.
   ok(prose.length > 2000, `only ${prose.length} chars of prose found — the filter is too greedy`);
-  ok(/Did you practise today/.test(prose), 'the main question is not in the prose corpus');
+  ok(/Did you practise\?/.test(prose), 'the main question is not in the prose corpus');
 
   const hits = banned.filter((w) => new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i').test(prose));
   ok(hits.length === 0, `found: ${hits.join(', ')}`);
@@ -196,15 +196,13 @@ check(6, 'rule 3 — the vocabulary of scoring is absent', () => {
   return `${banned.length} phrases, none present`;
 });
 
-check('6b', 'the verb is practised, and the standard comes before the flexibility', () => {
+check('6b', 'the app uses practise without prescribing a standard length', () => {
   const prose = visibleText(log);
   ok(/practise/i.test(prose), 'the verb "practise" is missing');
   ok(!/\bsessions?\b/i.test(prose), '"session" appears');
-  const std = log.indexOf('Twenty minutes is standard');
-  const flex = log.indexOf('Five minutes on a hard day');
-  ok(std > -1, 'the house wording is missing');
-  ok(flex > std, 'the flexibility is stated before the standard');
-  return 'standard first';
+  ok(!/Twenty minutes is standard/.test(prose), 'the removed standard-length copy remains');
+  ok(!/Five minutes on a hard day/.test(prose), 'the removed flexibility copy remains');
+  return 'no prescribed length in the app';
 });
 
 check(7, 'rule 4 — no participant endpoint reads a private message', () => {
@@ -403,11 +401,22 @@ check(21, 'the timer remains separate from recording practice', () => {
     /data-minutes=\\?"20\\?"/.test(log), 'the agreed timer lengths are not all offered');
   ok(/Sound at the end/.test(log) && /One gentle bell/.test(log),
     'the timer has no visible sound choice');
+  ok(/id=\\?"timer-custom-choice\\?"/.test(log) && /min=\\?"1\\?"[^>]*max=\\?"180\\?"/.test(log),
+    'a granular custom timer length is not offered');
+  ok(/customChoice\.classList\.toggle\(['"]sel['"], t\.custom\)/.test(log),
+    'the custom timer choice is not visibly selected');
+  ok(!/20 minutes\s*<small>standard<\/small>/.test(log), '20 minutes is still labelled standard');
   const timer = /function viewTimer\(\)[\s\S]*?function quietArrival\(\)/.exec(log)?.[0] || '';
   ok(timer && !/\/api\/mark/.test(timer), 'finishing the timer records practice');
-  ok(/L\.timerEnded = S\.today\.date/.test(timer) && /Did you practise today\?/.test(log),
+  ok(/L\.timerEnded = S\.today\.date/.test(timer) && /Did you practise\?/.test(log),
     'the timer does not return to the existing practice tap');
-  return '5, 10, 20; optional bell; no automatic mark';
+  ok(/tap\.querySelector\(['"]i['"]\)\.textContent = ['"]today['"]/.test(log),
+    'the confirmation still shows a day number');
+  ok(/A line for anyone else who practices today/.test(log) && /Whatever you feel like sharing\.\.\./.test(log),
+    'the agreed note invitation is missing');
+  const mail = read('practice-log', 'src', 'mail', 'templates.js');
+  ok(/Change when you receive this note/.test(mail), 'the email timing link has the old wording');
+  return 'presets plus 1–180 custom; optional bell; no automatic mark';
 });
 
 check(22, 'giving is public, optional, and separate from the Practice Log', () => {
@@ -420,6 +429,9 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   ok(/min="1"/.test(giving) && /£1 minimum/.test(giving), 'the agreed £1 minimum is not stated');
   ok(/This work is freely given/.test(giving) && /Giving nothing creates no debt/.test(giving),
     'the page does not preserve the Dana freedom test');
+  ok(/More support may let Beings Club do more/.test(giving) &&
+    /does not buy the giver more access, attention or standing/.test(giving),
+  'the page is not honest about capacity while separating gifts from privilege');
   ok(/manage or end monthly giving/.test(giving), 'monthly cancellation is not explained');
   const idx = read('practice-log', 'src', 'index.js');
   ok(idx.indexOf("path === '/api/giving'") < idx.indexOf('const who = await identify'),

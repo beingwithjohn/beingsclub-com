@@ -5,8 +5,9 @@ of how many others answered it too, plus the notes people chose to write that
 day. The main Practice Log is one evergreen tool that anyone can begin from
 `/log/`; it has no participant directory. A course grants the private line to
 John for its dates rather than creating another copy of the log. An optional
-five, ten, or twenty-minute timer ends with a gentle bell but never records the
-practice; the person still taps for themselves.
+timer offers five, ten, twenty, or a custom one-to-180-minute length. It ends
+with a gentle bell but never records the practice; the person still taps for
+themselves.
 
 Built to two shapes at once:
 
@@ -208,7 +209,7 @@ compared to anybody" has to mean once it is data.
 the log exists and is `noindex`; `/log/` is not in the shell's `ROUTES`;
 re-running `build_shell.py` leaves the six slugs byte-identical; `shared` is
 gated server-side; none of the banned vocabulary is in the built app; the verb
-is *practised* and the standard precedes the flexibility; no participant query
+is *practised* and the app prescribes no standard length; no participant query
 reads a private message; every write is behind POST or PATCH; the token is
 stripped from the URL and never put in one; nothing secret is in anything
 served; closing is enforced in the API.

@@ -989,7 +989,7 @@
       '<div style="display:grid;gap:14px;">' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;One tap a day. That is the whole tool.</p>' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see the others only after you have tapped.</p>' +
-        '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Twenty minutes is standard, and sitting daily matters far more than sitting long. Nothing counts forward, so nothing can be lost.</p>' +
+        '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Nothing counts forward, so nothing can be lost.</p>' +
       '</div>' +
       '<div><div class="caps" style="margin-bottom:12px;">The name on your notes</div>' +
         '<input class="field" id="nm" autocomplete="given-name"></div>' +
@@ -1064,17 +1064,17 @@
     } else {
       inner.appendChild(h('<div class="eyebrow">' +
         esc(L.timerEnded === S.today.date ? 'Timer ended' : fmt(S.today.date)) + '</div>'));
-      inner.appendChild(h('<h1 class="ask">Did you practise today?</h1>'));
+      inner.appendChild(h('<h1 class="ask">Did you practise?</h1>'));
     }
 
     var tap = h('<button class="tap" id="tap"><b>I practised</b><i>tap anywhere here</i></button>');
     inner.appendChild(tap);
     inner.appendChild(h('<button class="practice-now" id="practise-now">I want to practise now</button>'));
 
-    inner.appendChild(h('<p class="small" style="max-width:34ch;">' + (away
-      ? 'Beginning again is not the failure. It <em>is</em> the practice.'
-      : 'Twenty minutes is standard, and sitting daily matters far more than sitting long. ' +
-        'Five minutes on a hard day is a real practice, not a failed one.') + '</p>'));
+    if (away) {
+      inner.appendChild(h('<p class="small" style="max-width:34ch;">' +
+        'Beginning again is not the failure. It <em>is</em> the practice.</p>'));
+    }
 
     var foot = h('<div class="foot"></div>');
     foot.appendChild(S.yesterday.markable
@@ -1099,7 +1099,12 @@
   // -------------------------------------------------------------------------
   function timerState() {
     if (!L.timer) L.timer = { minutes: 20, running: false, remaining: 20 * 60000 };
-    if ([5, 10, 20].indexOf(L.timer.minutes) < 0) L.timer.minutes = 20;
+    if (!Number.isInteger(L.timer.minutes) || L.timer.minutes < 1 || L.timer.minutes > 180) {
+      L.timer.minutes = 20;
+    }
+    if (typeof L.timer.custom !== 'boolean') {
+      L.timer.custom = [5, 10, 20].indexOf(L.timer.minutes) < 0;
+    }
     if (!Number.isFinite(L.timer.remaining) || L.timer.remaining <= 0) {
       L.timer.remaining = L.timer.minutes * 60000;
     }
@@ -1115,16 +1120,22 @@
       inner = h('<div class="pad narrow timer-panel">' +
         '<div class="eyebrow">Practise now</div>' +
         '<h1 class="h1" style="max-width:14ch;">Choose a length.</h1>' +
-        '<p class="body">Twenty minutes is standard. Five on a hard day is a real practice.</p>' +
+        '<p class="body">Set the length that suits this practice.</p>' +
         '<div class="timer-choices" role="group" aria-label="Timer length">' +
-          '<button class="chip" data-minutes="5">5 minutes</button>' +
-          '<button class="chip" data-minutes="10">10 minutes</button>' +
-          '<button class="chip" data-minutes="20">20 minutes <small>standard</small></button>' +
+          '<button class="chip" data-minutes="5" aria-pressed="false">5 minutes</button>' +
+          '<button class="chip" data-minutes="10" aria-pressed="false">10 minutes</button>' +
+          '<button class="chip" data-minutes="20" aria-pressed="false">20 minutes</button>' +
+          '<button class="chip" id="timer-custom-choice" aria-pressed="false">Custom</button>' +
         '</div>' +
+        (t.custom ? '<label class="timer-custom"><span class="caps">Custom length</span>' +
+          '<span><input class="field" id="timer-custom" type="number" inputmode="numeric" ' +
+            'min="1" max="180" step="1" value="' + esc(String(t.minutes)) + '" ' +
+            'aria-label="Custom timer length in minutes"><i>minutes</i></span>' +
+          '<small>Choose from 1 to 180 minutes.</small></label>' : '') +
         '<div class="rowflex timer-sound"><div><b>Sound at the end</b><p>One gentle bell</p></div>' +
           '<button class="sw' + (L.timerSound ? ' on' : '') + '" id="timer-sound" ' +
           'aria-label="Sound at the end" aria-pressed="' + !!L.timerSound + '"><i></i></button></div>' +
-        '<button class="btn" id="timer-start">Start ' + esc(String(t.minutes)) + ' minutes</button>' +
+        '<button class="btn" id="timer-start">Start ' + esc(minuteLabel(t.minutes)) + '</button>' +
       '</div>');
       shell(inner, {
         left: '<button class="barlink" id="timer-close">← Today</button>',
@@ -1133,17 +1144,40 @@
 
       [].forEach.call(inner.querySelectorAll('[data-minutes]'), function (button) {
         var minutes = Number(button.getAttribute('data-minutes'));
-        button.classList.toggle('sel', minutes === t.minutes);
+        var selected = !t.custom && minutes === t.minutes;
+        button.classList.toggle('sel', selected);
+        button.setAttribute('aria-pressed', selected ? 'true' : 'false');
         button.addEventListener('click', function () {
           t.minutes = minutes;
+          t.custom = false;
           t.remaining = minutes * 60000;
           save(); render();
         });
       });
+      var customChoice = inner.querySelector('#timer-custom-choice');
+      customChoice.classList.toggle('sel', t.custom);
+      customChoice.setAttribute('aria-pressed', t.custom ? 'true' : 'false');
+      customChoice.addEventListener('click', function () {
+        t.custom = true;
+        t.remaining = t.minutes * 60000;
+        save(); render();
+      });
+      var customInput = inner.querySelector('#timer-custom');
+      if (customInput) {
+        customInput.addEventListener('input', function () {
+          var minutes = Number(customInput.value);
+          if (!Number.isInteger(minutes) || minutes < 1 || minutes > 180) return;
+          t.minutes = minutes;
+          t.remaining = minutes * 60000;
+          inner.querySelector('#timer-start').textContent = 'Start ' + minuteLabel(minutes);
+          save();
+        });
+      }
       inner.querySelector('#timer-sound').addEventListener('click', function () {
         L.timerSound = !L.timerSound; save(); render();
       });
       inner.querySelector('#timer-start').addEventListener('click', function () {
+        if (!Number.isInteger(t.minutes) || t.minutes < 1 || t.minutes > 180) return;
         unlockBell();
         t.started = true;
         t.running = true;
@@ -1156,7 +1190,7 @@
         '<div class="eyebrow">Practising</div>' +
         '<div class="timer-clock" id="timer-clock" aria-label="Time remaining">' +
           esc(clock(timerRemaining(t))) + '</div>' +
-        '<p class="small">' + esc(String(t.minutes)) + ' minutes' +
+        '<p class="small">' + esc(minuteLabel(t.minutes)) +
           (L.timerSound ? ' · bell on' : ' · silent') + '</p>' +
         '<div class="timer-actions">' +
           '<button class="btn" id="timer-pause">' + (t.running ? 'Pause' : 'Continue') + '</button>' +
@@ -1195,6 +1229,10 @@
     var seconds = Math.ceil(ms / 1000);
     var minutes = Math.floor(seconds / 60);
     return String(minutes).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
+  }
+
+  function minuteLabel(minutes) {
+    return String(minutes) + (minutes === 1 ? ' minute' : ' minutes');
   }
 
   function runTimerClock() {
@@ -1301,7 +1339,7 @@
     setTimeout(function () {
       tap.classList.add('done');
       tap.querySelector('b').textContent = 'You practised.';
-      tap.querySelector('i').textContent = dayLabel().split(' ·')[0];
+      tap.querySelector('i').textContent = 'today';
       var label = document.querySelector('.barlab');
       if (label) {
         label.textContent = offline ? 'Logged · offline' : 'Logged';
@@ -1366,11 +1404,11 @@
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:36rem;">' +
       '<div style="display:flex;align-items:center;gap:12px;">' +
         '<span class="dot me" style="width:10px;height:10px;"></span>' +
-        '<span class="caps">' + esc(dayLabel().split(' ·')[0]) + ' · you practised</span></div>' +
+        '<span class="caps">Today · you practised</span></div>' +
       '<h2 class="h2" style="max-width:15ch;">Add a note?</h2>' +
-      '<p class="body">A line for the others. What it was like, or nothing at all.</p>' +
-      '<div><textarea class="field" id="nt" aria-label="A note for the others, up to 100 characters" rows="3" maxlength="' + NOTE_MAX + '" ' +
-        'placeholder="Restless the whole way through. Sat anyway."></textarea>' +
+      '<p class="body">A line for anyone else who practices today. What it was like, or nothing at all.</p>' +
+      '<div><textarea class="field" id="nt" aria-label="A note for anyone else who practices today, up to 100 characters" rows="3" maxlength="' + NOTE_MAX + '" ' +
+        'placeholder="Whatever you feel like sharing..."></textarea>' +
         '<div style="display:flex;justify-content:flex-end;margin-top:8px;">' +
         '<span class="count" id="left">' + NOTE_MAX + ' left</span></div></div>' +
       '<div style="display:flex;align-items:center;gap:8px;" class="small">' +
