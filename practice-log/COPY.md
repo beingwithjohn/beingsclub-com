@@ -31,9 +31,9 @@ That copy is yours already, transcribed from the design bundle. It's in
 >
 > HOW IT WORKS
 >
-> - Sit in meditation in your own way — or use the timer.
-> - Tap **I practised**. Add a line if you feel like it.
-> - See who is practising with you across the week, and what they shared.
+> - Sit in meditation, however you sit. A timer is there if you want one.
+> - When you’re done, tap **I practised** to record your sit. Share a line if you feel like it.
+> - See who else is practising with you this week, and what it has been like for them.
 
 **The email sent to someone new**
 > Subject: Your practice log is ready.

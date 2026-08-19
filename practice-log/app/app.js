@@ -435,9 +435,9 @@
       '<section class="join-how" aria-labelledby="join-how-title">' +
         '<div class="eyebrow" id="join-how-title">How it works</div>' +
         '<ul>' +
-          '<li>Sit in meditation in your own way — or use the timer.</li>' +
-          '<li>Tap <b>I practised</b>. Add a line if you feel like it.</li>' +
-          '<li>See who is practising with you across the week, and what they shared.</li>' +
+          '<li>Sit in meditation, however you sit. A timer is there if you want one.</li>' +
+          '<li>When you’re done, tap <b>I practised</b> to record your sit. Share a line if you feel like it.</li>' +
+          '<li>See who else is practising with you this week, and what it has been like for them.</li>' +
         '</ul>' +
       '</section></div>');
 
