@@ -15,8 +15,9 @@ import {
 import { unseal, logUrl } from './auth.js';
 import { claim, sendDaily, sendDayOne, sendStillHere, sendLastDay } from './mail/send.js';
 
-// Five consecutive quiet days, once per run, never twice. Never names the number.
-const QUIET_BEFORE_STILL_HERE = 5;
+// Three complete quiet days: the fourth day's note changes tone. Once per run,
+// never twice, and the email itself never names the number.
+const QUIET_BEFORE_STILL_HERE = 3;
 
 export async function runNudges(env, at) {
   const people = await env.DB.prepare(
@@ -75,7 +76,7 @@ async function nudgeOne(env, row, at) {
   const url = logUrl(env, await unseal(env, person.token_enc));
   const principle = principleFor(run, date, anchor);
 
-  // ---- the gentle one, at five quiet days ---------------------------------
+  // ---- the gentle one, on the fourth day ----------------------------------
   //
   // Sent in place of that day's daily rather than alongside it. Two emails
   // arriving in the same minute from something that promises one a day is a

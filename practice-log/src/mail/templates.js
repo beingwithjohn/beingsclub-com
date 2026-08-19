@@ -110,8 +110,9 @@ const link = (url, text) =>
 const FOOT_CLUB = 'Beings Club · reply to this and John reads it';
 const FOOT_LINK = 'Beings Club · your log stays at this link';
 
+const settingsUrl = (url) => `${url}${url.includes('?') ? '&' : '?'}view=settings`;
 const settings = (url) =>
-  `${link(url, 'Change when you receive this note')} &nbsp;·&nbsp; ${link(url, 'stop these')}`;
+  `${link(settingsUrl(url), 'Change when you receive this note')} &nbsp;·&nbsp; ${link(settingsUrl(url), 'stop these notes')}`;
 
 // ---------------------------------------------------------------------------
 // E1 · you're in
@@ -161,12 +162,12 @@ export function welcome({ person, run, url, mapUrl }) {
   const opening = fixed
     ? `${esc(run.name)} runs for ${words(run.length_days)} days, from ${longDate(run.starts_on)}. `
       + `Ten of us, practising daily.`
-    : `${esc(run.name)} has no start date and no end. Sit in meditation, record it, `
-      + `and see who else is practising with you across the week.`;
+    : 'A simple record of sitting in meditation. It emails at a time you choose, '
+      + 'and shows you who is practising with you across the week.';
 
   const welcomeHeading = fixed
     ? `${esc(first(person.name))} — you have a place.`
-    : `${esc(first(person.name))} — your log is ready.`;
+    : 'Your log is ready.';
   const welcomeSteps = fixed
     ? [
         mapUrl ? `Read ${link(mapUrl, 'the practice map')} before you begin. Ten minutes.` : 'Find ten quiet minutes to read before you begin.',
@@ -174,9 +175,9 @@ export function welcome({ person, run, url, mapUrl }) {
         'Find a place to sit and a time you can keep.',
       ]
     : [
-        'Choose the name that appears beside anything you write.',
-        'Pick your hour. One email a day, at that hour.',
-        'Find a place to sit and a time you can keep.',
+        'Choose a time for the log to email each day and ask: <strong>Did you practise?</strong>',
+        'Sit in meditation, however you sit. Use the timer if you like. When you’re done, tap <strong>I practised</strong> to record it.',
+        'Share a line if you feel like it. See who else is practising with you this week, and what it has been like for them.',
       ];
 
   const blocks = [
@@ -185,26 +186,33 @@ export function welcome({ person, run, url, mapUrl }) {
     para(opening),
     steps(welcomeSteps),
     button(url, fixed ? 'Set up my log' : 'Open my log'),
+    fixed ? '' : small(`If you ever want to change the time or stop the daily emails, you can do that in ${link(settingsUrl(url), 'Settings')}.`),
     small('One link, no password. It’s yours and it doesn’t expire.'),
     gap(),
   ].join('');
 
   return {
-    subject: fixed ? `You’re in. We start ${weekdayName(run.starts_on)}.` : 'Your practice log is ready.',
+    subject: fixed ? `You’re in. We start ${weekdayName(run.starts_on)}.` : 'Ready to practise?',
     html: layout({
       preheader: fixed ? 'Your place is held. Set up your log.' : 'Your practice log is ready.',
       blocks,
       footer: FOOT_CLUB,
     }),
     text: [
-      fixed ? `${first(person.name)} — you have a place.` : `${first(person.name)} — your log is ready.`, '',
+      fixed ? `${first(person.name)} — you have a place.` : 'Your log is ready.', '',
       strip(opening), '',
       fixed
         ? '1. Read the practice map before you begin. Ten minutes.'
-        : '1. Choose the name that appears beside anything you write.',
-      '2. Pick your hour. One email a day, at that hour.',
-      '3. Find a place to sit and a time you can keep.', '',
+        : '1. Choose a time for the log to email each day and ask: Did you practise?',
+      fixed
+        ? '2. Pick your hour. One email a day, at that hour.'
+        : '2. Sit in meditation, however you sit. Use the timer if you like. When you’re done, tap I practised to record it.',
+      fixed
+        ? '3. Find a place to sit and a time you can keep.'
+        : '3. Share a line if you feel like it. See who else is practising with you this week, and what it has been like for them.', '',
       `${fixed ? 'Set up my log' : 'Open my log'}: ${url}`, '',
+      fixed ? '' : `If you ever want to change the time or stop the daily emails, you can do that in Settings: ${settingsUrl(url)}`,
+      fixed ? '' : '',
       'One link, no password. It’s yours and it doesn’t expire.', '',
       'Beings Club · reply to this and John reads it',
     ].join('\n'),
@@ -218,7 +226,7 @@ export function dayOne({ person, run, url, principle }) {
   const fixed = run.mode === 'fixed';
   const blocks = [
     eyebrow(fixed ? 'Day 1 · today we start' : 'Practice Log'),
-    heading(fixed ? `It begins today, ${esc(first(person.name))}.` : `Hello, ${esc(first(person.name))}.`),
+    fixed ? heading(`It begins today, ${esc(first(person.name))}.`) : '',
     principle ? para(`This week we’re with <em style="color:${T.violet};">${esc(principle.toLowerCase())}</em> — sitting without needing anything to happen.`) : '',
     para('Whenever you practise today, come and say so.'),
     button(url, CTA),
@@ -232,7 +240,7 @@ export function dayOne({ person, run, url, principle }) {
       blocks, footer: settings(url),
     }),
     text: [
-      fixed ? `It begins today, ${first(person.name)}.` : `Hello, ${first(person.name)}.`, '',
+      fixed ? `It begins today, ${first(person.name)}.` : '',
       principle ? `This week we’re with ${principle.toLowerCase()} — sitting without needing anything to happen.\n` : '',
       'Whenever you practise today, come and say so.', '',
       `${CTA}: ${url}`,
@@ -248,11 +256,10 @@ export function dayOne({ person, run, url, principle }) {
 export function daily({ person, run, url, dayNumber, principle }) {
   const blocks = [
     eyebrow('Practice Log'),
-    heading(`Hello, ${esc(first(person.name))}.`),
     principle ? para(`This week we’re with <em style="color:${T.violet};">${esc(principle.toLowerCase())}</em>.`) : '',
     para('Whenever you practise today, long or short, come and say so.'),
     button(url, CTA),
-    small('Haven’t yet? This will keep until you have.'),
+    small('You can come back later if you need to.'),
     gap(),
   ].join('');
 
@@ -260,11 +267,10 @@ export function daily({ person, run, url, dayNumber, principle }) {
     subject: 'Did you practise?',
     html: layout({ preheader: 'Whenever you practise today, come and say so.', blocks, footer: settings(url) }),
     text: [
-      `Hello, ${first(person.name)}.`, '',
       principle ? `This week we’re with ${principle.toLowerCase()}.\n` : '',
       'Whenever you practise today, long or short, come and say so.', '',
       `${CTA}: ${url}`, '',
-      'Haven’t yet? This will keep until you have.',
+      'You can come back later if you need to.',
     ].filter(Boolean).join('\n'),
   };
 }
@@ -334,14 +340,13 @@ export function answered({ person, url, question, askedOn, answerText, audioUrl 
 // ---------------------------------------------------------------------------
 // E6 · still here — once per run, never twice, never names the number of days
 // ---------------------------------------------------------------------------
-export function stillHere({ person, url, stopUrl }) {
+export function stillHere({ person, url }) {
   const blocks = [
     eyebrow('Still here whenever you are'),
-    heading(`${esc(first(person.name))} — no news needed.`),
-    para('Life takes the days it takes. I’m not counting them and neither is the log.'),
-    para('The log is the same as you left it. There’s today, and today is enough to come back on.'),
+    heading('Nothing to explain.'),
+    para('Life has its own rhythms. You can always begin again; showing up again is how the practice deepens.'),
     button(url, 'Practise today'),
-    small(`If you’d rather stop, that’s a fine answer too — ${link(stopUrl || url, 'tell me here')} and the emails end.`),
+    small(`If you’d rather stop these notes, you can do that in ${link(settingsUrl(url), 'Settings')}.`),
     gap(),
   ].join('');
 
@@ -349,11 +354,10 @@ export function stillHere({ person, url, stopUrl }) {
     subject: 'Still here whenever you are',
     html: layout({ preheader: 'No news needed.', blocks, footer: 'Sent once · never twice' }),
     text: [
-      `${first(person.name)} — no news needed.`, '',
-      'Life takes the days it takes. I’m not counting them and neither is the log.', '',
-      'The log is the same as you left it. There’s today, and today is enough to come back on.', '',
+      'Nothing to explain.', '',
+      'Life has its own rhythms. You can always begin again; showing up again is how the practice deepens.', '',
       `Practise today: ${url}`, '',
-      'If you’d rather stop, that’s a fine answer too — reply and the emails end.',
+      `If you’d rather stop these notes, you can do that in Settings: ${settingsUrl(url)}`,
     ].join('\n'),
   };
 }
@@ -429,17 +433,22 @@ export function yourLinks({ person, runs }) {
 export function newLink({ person, url }) {
   const blocks = [
     eyebrow('Your new link'),
-    heading('Here’s the way back in.'),
-    para('The old link has stopped working. This one is yours now.'),
+    heading('Here’s your way back in.'),
+    para('The old link has stopped working. Here’s a new one.'),
     button(url, 'Open my log'),
-    small('If you didn’t ask for this, the old link is already dead and nothing else has changed.'),
+    small('If you didn’t replace your link, reply to this email. Your old link no longer works, and John will help.'),
     gap(),
   ].join('');
 
   return {
     subject: 'Your new link',
-    html: layout({ preheader: 'Here’s the way back in.', blocks, footer: FOOT_LINK }),
-    text: ['Here’s the way back in.', '', 'The old link has stopped working. This one is yours now.', '', url].join('\n'),
+    html: layout({ preheader: 'Here’s your way back in.', blocks, footer: FOOT_LINK }),
+    text: [
+      'Here’s your way back in.', '',
+      'The old link has stopped working. Here’s a new one.', '',
+      url, '',
+      'If you didn’t replace your link, reply to this email. Your old link no longer works, and John will help.',
+    ].join('\n'),
   };
 }
 

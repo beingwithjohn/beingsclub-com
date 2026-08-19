@@ -1,6 +1,6 @@
 # Copy — the public Practice Log
 
-Copy pass completed 18 August 2026 when the product moved from one log per
+Copy pass completed 19 August 2026 when the product moved from one log per
 course to one public evergreen log. The implemented source remains
 `app/app.js` and `src/mail/templates.js`; this file records the decisions.
 
@@ -22,12 +22,12 @@ That copy is yours already, transcribed from the design bundle. It's in
 >
 > A simple record of showing up.
 >
-> The log is open to anyone. Give it an email address and it will send your
-> private link. There is no password.
+> Come sit with us. Enter your name and email to begin. We’ll send you a
+> private link — no password needed.
 >
 > Your name / you@example.com
 >
-> BEGIN OR OPEN MY LOG
+> OPEN MY LOG
 >
 > HOW IT WORKS
 >
@@ -36,20 +36,27 @@ That copy is yours already, transcribed from the design bundle. It's in
 > 3. Share a line if you feel like it. See who else is practising with you this week, and what it has been like for them.
 
 **The email sent to someone new**
-> Subject: Your practice log is ready.
+> Subject: Ready to practise?
 >
 > Welcome
 >
-> John — your log is ready.
+> Your log is ready.
 >
-> The Practice Log has no start date and no end. Sit in meditation, record it,
-> and see who else is practising with you across the week.
+> A simple record of sitting in meditation. It emails at a time you choose,
+> and shows you who is practising with you across the week.
 >
-> 1. Choose the name that appears beside anything you write.
-> 2. Pick your hour. One email a day, at that hour.
-> 3. Find a place to sit and a time you can keep.
+> 1. Choose a time for the log to email each day and ask: **Did you practise?**
+> 2. Sit in meditation, however you sit. Use the timer if you like. When you’re done, tap **I practised** to record it.
+> 3. Share a line if you feel like it. See who else is practising with you this week, and what it has been like for them.
 >
 > OPEN MY LOG
+>
+> If you ever want to change the time or stop the daily emails, you can do that
+> in [Settings].
+>
+> One link, no password. It’s yours and it doesn’t expire.
+>
+> Beings Club · reply to this and John reads it
 
 **First opening**
 > Welcome, John.
@@ -57,11 +64,14 @@ That copy is yours already, transcribed from the design bundle. It's in
 > This is where you record your practice and, once you have, see who else is
 > practising with you across the week.
 
-The three-rule contract, required name, optional picture and optional one-line
+The two-rule contract, required name, optional picture and optional one-line
 introduction, timezone and email hour follow. Picture and introduction can be
 skipped and all three identity fields can be changed later in Settings. The
 public log has no persistent roster. Settings can also permanently delete the
 account and every person-linked practice record.
+
+> 1. When you’ve practised, tap **I practised** to record it.
+> 2. You see who else practised this week only after you have tapped.
 
 After recording today, the week shows one equal ink dot per person who
 practised. The viewer's own dot alone is violet and ringed. Hovering, focusing
@@ -74,9 +84,9 @@ or twenty minutes, plus a clearly selected custom length from one to 180
 minutes. A gentle end bell is on by default and can be turned off. The timer
 never records a practice; the ordinary “I practised” tap remains after it ends.
 
-The public interface never calls the people using it a “cohort.” Settings says
-“The name beside your notes,” and the daily-email setting says only that it
-contains nothing about anyone else’s practice.
+The public interface never calls the people using it a “cohort.” Settings
+describes the daily nudge as “One email a day, at the time you choose,” and
+describes the private link as the passwordless sign-in credential it is.
 
 After practice has been recorded, the shared week ends with one quiet giving
 line. It never appears before the tap or in an email:
@@ -242,9 +252,9 @@ manage or end monthly giving.
 **Opened with no link at all** — see the current public path in §0.
 
 **Nothing cached and nothing reachable**
-> The log cannot be reached.
-> Your day is safe either way — nothing here is lost by waiting. If you have
-> practised, come back when you have signal and it will go in.
+> Wait a second…
+> We can’t reach your log just now. You can record your practice when you’re
+> able to connect.
 > TRY AGAIN
 
 **A fixed run that hasn't opened yet**
@@ -256,16 +266,18 @@ manage or end monthly giving.
 
 ## 7. Settings — the rows I added
 
-**Why you're here**
-> Change    *(shows the current line, or "Nothing written")*
+**A line about being here**
+> Change    *(shows the current line, or “Nothing written”)*
 
-**This link**
-> Long-lived, and yours. Replace it if the device it lives on is not.
+**Your private link**
+> It signs you in without a password. Replace it if you think someone else has access.
 > Replace
+> *confirmation:* Replace your private link? This will sign you out everywhere.
+> A new link will be emailed to you@example.com.
 > *after:* A new link is on its way to you@example.com. This one has stopped working.
 
 **Manage monthly giving**
-> Change or end a gift you freely chose, securely in Stripe
+> Change or end your monthly gift securely through Stripe
 > Manage
 
 **Delete my Practice Log**
@@ -321,8 +333,23 @@ your attention than its length suggests:
 > Did you practise?
 
 **Body**
-> Hello, John.
 > This week we're with *responsibility*.
 > Whenever you practise today, long or short, come and say so.
 > LOG YOUR PRACTICE
-> Haven't yet? This will keep until you have.
+> You can come back later if you need to.
+
+After three complete quiet days, the fourth day’s email changes once. The
+ordinary daily note resumes the following day.
+
+**Subject**
+> Still here whenever you are
+
+**Body**
+> Nothing to explain.
+>
+> Life has its own rhythms. You can always begin again; showing up again is how
+> the practice deepens.
+>
+> PRACTISE TODAY
+>
+> If you’d rather stop these notes, you can do that in Settings.

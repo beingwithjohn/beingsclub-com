@@ -354,8 +354,13 @@ check(16, 'one public log, with course-bounded access to John', () => {
   ok(/message_access && S\.person\.message_access\.active/.test(log), 'the private line is shown outside active course access');
   ok(/if \(!d\.run\.public_join\) wrap\.appendChild\(inviteForm\(\)\)/.test(host),
     'the public host page still offers private invitations');
-  ok(/Your practice log is ready/.test(mail) && /your log is ready/.test(mail),
+  ok(/Ready to practise\?/.test(mail) && /Your log is ready/.test(mail),
     'the evergreen welcome still reads like a course place');
+  ok(/view=settings/.test(mail) && /requestedView = \/\[\?&\]view=settings/.test(log) &&
+    /change the time or stop the daily emails/.test(mail),
+    'email Settings links do not open Settings directly');
+  ok(!/heading\(`Hello,|Good morning/.test(mail),
+    'routine emails still greet the reader by name every time');
   ok(!/how many others|Good morning|Twenty minutes is standard/.test(log + mail),
     'stale count, morning-only, or prescribed-length copy remains live');
   ok(/subject: fixed \? 'Day 1 · today we start' : 'Did you practise\?'/.test(mail),
@@ -427,7 +432,7 @@ check(20, 'equal dots make practice social without making accounts social', () =
   ok(/S\.shared\.today_count - 1/.test(log) &&
     /d\.count - \(d\.mine \? 1 : 0\)/.test(log),
   'the viewer’s own host mark is counted as another person');
-  ok(/Only this week remains visible/.test(log) && !/function allBlock\(/.test(log) &&
+  ok(/The log shows one week at a time/.test(log) && !/function allBlock\(/.test(log) &&
     /outside the visible week/.test(api), 'participant history extends beyond the one visible week');
   return 'equal day dots; only yours differs; one week; identity opens on hover or tap';
 });
@@ -454,6 +459,10 @@ check(21, 'the timer remains separate from recording practice', () => {
   ok(/Change when you receive this note/.test(mail), 'the email timing link has the old wording');
   ok(/subject: ['"]Did you practise\?['"]/.test(mail) &&
     !/A quiet minute counts/.test(mail), 'the daily email subject is not the agreed question');
+  const nudge = read('practice-log', 'src', 'nudge.js');
+  ok(/QUIET_BEFORE_STILL_HERE\s*=\s*3/.test(nudge) &&
+    /Nothing to explain\./.test(mail) && /showing up again is how the practice deepens/.test(mail),
+  'the fourth-day return note does not use the agreed timing and copy');
   return 'presets plus 1–180 custom; optional bell; no automatic mark';
 });
 

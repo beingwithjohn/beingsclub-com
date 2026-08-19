@@ -33,7 +33,8 @@
   var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
   var L = load();
   var S = L.cache || null;       // the last state the server sent
-  var view = L.timer && L.timer.started ? 'timer' : null;
+  var requestedView = /[?&]view=settings(?:[&#]|$)/.test(location.search) ? 'settings' : null;
+  var view = L.timer && L.timer.started ? 'timer' : requestedView;
   var openDate = null;
   var timerTick = null;
   var timerAudio = null;
@@ -339,18 +340,18 @@
     if (phase === 'running' || phase === 'closed') {
       items.push({ id: 'today', label: 'Today', sub: todaySub(), view: null });
     }
-    items.push({ id: 'settings', label: 'Settings', sub: 'Your email, timezone and notes', view: 'settings' });
+    items.push({ id: 'settings', label: 'Settings', sub: 'Manage your Practice Log and account', view: 'settings' });
     items.push({
       id: 'giving',
       label: 'Giving',
-      sub: 'The work is freely offered. Give only if you want to sustain it',
+      sub: 'The work is freely given. Gifts help sustain it',
       href: '/giving/'
     });
 
     // The host practises like everyone else. Hosting changes access to the
     // private page, not whether a practice mark appears to others.
     if (S.person.is_host) {
-      items.push({ id: 'host', label: 'Hosting', sub: 'What people asked, and who is in', href: 'host/' });
+      items.push({ id: 'host', label: 'Hosting', sub: 'People, practice and private questions', href: 'host/' });
     }
     var drawer = h('<div class="drawer" role="dialog" aria-modal="true" aria-label="Menu">' +
       '<div class="head"><span class="brand">' + esc(S.run.name) + '</span>' +
@@ -365,8 +366,6 @@
         ? '<button class="item ink" id="m-john">Something just for John' +
           '<small>Private, and open while your course is running</small></button>'
         : '') +
-      '<div class="tail"><p class="small">Nothing here is scored. ' +
-      'Nothing counts forward, so nothing can be lost.</p></div>' +
     '</div>');
 
     var scrim = h('<div class="scrim"></div>');
@@ -423,13 +422,13 @@
     var inner = h('<div class="centre join-front">' +
       '<div class="eyebrow">Practice log</div>' +
       '<h1 class="h1" style="max-width:16ch;">A simple record of showing up.</h1>' +
-      '<p class="body" style="max-width:38ch;">The log is open to anyone. Give it your name and email address ' +
-      'and it will send your private link. There is no password.</p>' +
+      '<p class="body" style="max-width:38ch;">Come sit with us. Enter your name and email to begin. ' +
+      'We’ll send you a private link — no password needed.</p>' +
       '<div style="display:grid;gap:10px;width:100%;max-width:22rem;">' +
         '<input class="field" id="jn" autocomplete="name" aria-label="Your name" placeholder="Your name" required>' +
         '<input class="field" id="em" type="email" autocomplete="email" ' +
           'aria-label="Your email address" placeholder="you@example.com">' +
-        '<button class="btn" id="send">Begin or open my log</button>' +
+        '<button class="btn" id="send">Open my log</button>' +
         '<p class="small" id="msg" aria-live="polite"></p>' +
       '</div>' +
       '<section class="join-how" aria-labelledby="join-how-title">' +
@@ -450,8 +449,8 @@
     inner.querySelector('#send').addEventListener('click', function () {
       var v = em.value.trim();
       var name = jn.value.trim();
-      if (!v) { msg.textContent = 'An email address first.'; return; }
-      if (!name) { msg.textContent = 'Your name too.'; jn.focus(); return; }
+      if (!v) { msg.textContent = 'Your link needs somewhere to land — add your email.'; return; }
+      if (!name) { msg.textContent = 'Who’s sitting with us? Add your name.'; jn.focus(); return; }
       this.disabled = true;
       msg.textContent = 'Sending…';
       api('/api/join', { method: 'POST', public: true, body: { name: name, email: v, timezone: tz() } })
@@ -473,12 +472,12 @@
   // thing that might help, rather than spinning.
   function viewUnreachable() {
     var inner = h('<div class="centre">' +
-      '<h1 class="h1" style="max-width:16ch;">The log cannot be reached.</h1>' +
-      '<p class="body" style="max-width:36ch;">Your day is safe either way — nothing here is ' +
-      'lost by waiting. If you have practised, come back when you have signal and it will go in.</p>' +
+      '<h1 class="h1" style="max-width:16ch;">Wait a second…</h1>' +
+      '<p class="body" style="max-width:36ch;">We can’t reach your log just now. ' +
+      'You can record your practice when you’re able to connect.</p>' +
       '<button class="btn" id="retry" style="max-width:20rem;">Try again</button>' +
       '</div>');
-    shell(inner, { right: '<span class="barlab">Offline</span>' });
+    shell(inner, { right: '<span class="barlab">Unavailable</span>' });
     inner.querySelector('#retry').addEventListener('click', function () {
       this.disabled = true;
       unreachable = false;
@@ -577,8 +576,7 @@
             'placeholder="A city, or UTC, GMT, EST…">' +
           '<ul class="combo-list" id="tzlist" role="listbox" hidden></ul>' +
         '</div>' +
-        '<p class="small" style="margin-top:8px;">Your day turns at your own midnight, ' +
-        'so a late sit counts for the night you were awake.</p></div>' +
+        '<p class="small" style="margin-top:8px;">This keeps your practice days and daily email in your local time.</p></div>' +
       '<div><div class="caps" style="margin-bottom:12px;">Send the daily email at</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;" id="hrs"></div>' +
         '<input class="field" type="time" id="hh" step="1800" style="max-width:11rem;" ' +
@@ -945,7 +943,7 @@
         '<p class="body" style="margin-bottom:12px;">Shown with your picture only when someone opens a day you practised.</p>' +
         '<textarea class="field" id="ln" rows="2" maxlength="100" ' +
           'aria-label="One line about being here" ' +
-          'placeholder="What brings you to practice?"></textarea>' +
+          'placeholder="Write with your heart."></textarea>' +
         '<div style="display:flex;justify-content:space-between;margin-top:8px;">' +
           '<span class="small">You can change it later, or leave it blank.</span>' +
           '<span class="count" id="left">100 left</span></div></div>';
@@ -955,9 +953,8 @@
       '<p class="lead">' + esc(S.run.standfirst ||
         'This is where you record your practice and, once you have, see who else is practising with you across the week.') + '</p>' +
       '<div style="display:grid;gap:14px;">' +
-        '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;One tap a day. That is the whole tool.</p>' +
+        '<p class="body"><b style="color:var(--you);font-weight:700;">1</b>&nbsp;&nbsp;When you’ve practised, tap <b>I practised</b> to record it.</p>' +
         '<p class="body"><b style="color:var(--you);font-weight:700;">2</b>&nbsp;&nbsp;You see who else practised this week only after you have tapped.</p>' +
-        '<p class="body"><b style="color:var(--you);font-weight:700;">3</b>&nbsp;&nbsp;Nothing counts forward, so nothing can be lost.</p>' +
       '</div>' +
       '<div><div class="caps" style="margin-bottom:12px;">Your name</div>' +
         '<input class="field" id="nm" autocomplete="name" required aria-required="true"></div>' +
@@ -969,7 +966,7 @@
         '<p class="small" id="profile-msg" aria-live="polite" style="margin-top:9px;"></p></div>' +
       lineSetup +
       timeFields(zone) +
-      '<button class="btn" id="begin">Begin</button>' +
+      '<button class="btn" id="begin">Enter</button>' +
       '<p class="small" id="setup-msg" aria-live="polite"></p>' +
     '</div>');
 
@@ -1117,9 +1114,9 @@
 
     if (away) {
       // The gap is never mentioned and never counted.
-      inner.appendChild(h('<h1 class="h1" style="max-width:14ch;">Good to see you.</h1>'));
-      inner.appendChild(h('<p class="body" style="max-width:34ch;">Nothing has been kept. ' +
-        'Nothing needs explaining. There is just today, the same as it was.</p>'));
+      inner.appendChild(h('<h1 class="h1" style="max-width:14ch;">Welcome back.</h1>'));
+      inner.appendChild(h('<p class="body" style="max-width:34ch;">' +
+        'There is nothing to catch up on. Begin again whenever you’re ready.</p>'));
     } else {
       inner.appendChild(h('<div class="eyebrow">' +
         esc(L.timerEnded === S.today.date ? 'Timer ended' : fmt(S.today.date)) + '</div>'));
@@ -1437,12 +1434,7 @@
   }
 
   function revealLine() {
-    if (offline || !S.shared) return 'Your day is in.';
-    if (alone()) return 'Your day is in.';
-    var others = othersToday();
-    if (others <= 0) return 'You’re the first one in.';
-    return cap(word(others)) + ' other' + (others === 1 ? '' : 's') +
-      (others === 1 ? ' has' : ' have') + ' practised so far today.';
+    return 'Your day is in.';
   }
 
   function afterTap() {
@@ -1472,7 +1464,7 @@
         '<span style="width:6px;height:6px;border-radius:50%;background:var(--muted);"></span>' +
         '<span>' + esc(seenBy) + '</span></div>' +
       '<div style="display:grid;gap:10px;">' +
-        '<button class="btn" id="addit">Add it</button>' +
+        '<button class="btn" id="addit">Share</button>' +
         '<button class="quiet" id="skip">Skip — no note today</button></div>' +
     '</div>');
 
@@ -1550,7 +1542,7 @@
     // A log kept alone says so, rather than inventing a room to be first in.
     if (alone()) return 'You practised today.';
     var others = othersToday();
-    if (others <= 0) return 'You’re the first one in.';
+    if (others <= 0) return 'You practised today.';
     return 'You and ' + word(others) + ' other' + (others === 1 ? '' : 's') + ' have practised.';
   }
 
@@ -1601,7 +1593,7 @@
     var card = h('<div class="presence-card" role="status">' +
       profileVisual(person.image, person.name, 'presence-photo') +
       '<div><b>' + esc(person.name) + '</b>' +
-        (person.line ? '<p>' + esc(person.line) + '</p>' : '<p class="quiet-line">No introduction.</p>') +
+        (person.line ? '<p>' + esc(person.line) + '</p>' : '') +
       '</div></div>');
     document.body.appendChild(card);
     var rect = dot.getBoundingClientRect();
@@ -1655,9 +1647,9 @@
 
     box.appendChild(row);
     box.appendChild(h('<div class="legend">' +
-      '<span><span class="key" style="background:var(--ink);"></span>Someone practised</span>' +
-      '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You practised</span></div>' +
-      '<p class="small">Open a day to see who practised and what they wrote. Only this week remains visible.</p>'));
+      '<span><span class="key" style="background:var(--ink);"></span>Someone else</span>' +
+      '<span><span class="key" style="background:var(--you);box-shadow:0 0 0 2px var(--you-ring);"></span>You</span></div>' +
+      '<p class="small">Open any day to see who was there and what they shared. The log shows one week at a time.</p>'));
     return box;
   }
 
@@ -1749,7 +1741,7 @@
     var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;max-width:36rem;">' +
       '<h2 class="h2">Did you practise on ' + esc(fmt(date, { weekday: 'long' })) + '?</h2>' +
       '<p class="body">Only yesterday can be added, and only until midnight tonight. ' +
-      'After that a day is what it was.</p>' +
+      'After that, it can no longer be recorded.</p>' +
       '<div style="display:grid;gap:10px;">' +
         '<button id="yes" style="border:1px solid var(--ink);background:var(--warm);padding:18px;' +
           'display:flex;justify-content:space-between;align-items:center;gap:16px;">' +
@@ -1757,12 +1749,11 @@
           '<span class="small">' + esc(fmt(date, { weekday: 'short', day: 'numeric', month: 'short' })) + '</span></button>' +
         '<button class="quiet" id="no">No — leave it as it is</button></div>' +
       '<div style="background:var(--lilac);padding:18px 20px;"><p class="small" style="color:var(--body);">' +
-        'It joins the grid without a mark saying it was late. ' +
-        'Nobody is told the difference, because there is not one.</p></div>' +
+        'It will appear in the week just as if you recorded it yesterday.</p></div>' +
     '</div>');
 
     var foot = h('<div class="foot" style="justify-content:center;">' +
-      '<span>No notes on a late day — the moment has passed</span></div>');
+      '<span>Notes can only be added for the present day’s practice.</span></div>');
 
     shell(inner, {
       left: '<button class="barlink" id="back">← Today</button>',
@@ -1835,7 +1826,7 @@
   function viewSettings() {
     var inner = h('<div class="rows" style="flex:1;"></div>');
 
-    inner.appendChild(toggle('Daily nudge', 'One email, nothing about anyone else’s practice', 'nudge_on'));
+    inner.appendChild(toggle('Daily nudge', 'One email a day, at the time you choose', 'nudge_on'));
 
     // Both changeable, and both saved together — moving timezone without
     // moving the hour is how someone ends up nudged at four in the morning.
@@ -1853,14 +1844,22 @@
       esc(S.person.name) + '</b>' +
       '<p class="small">' + esc(S.person.email) + ' · ' + esc(S.run.name) + '</p></div>'));
 
-    var link = h('<div><div class="rowflex"><div><b>This link</b>' +
-      '<p>Long-lived, and yours. Replace it if the device it lives on is not.</p></div>' +
+    var link = h('<div><div class="rowflex"><div><b>Your private link</b>' +
+      '<p>It signs you in without a password. Replace it if you think someone else has access.</p></div>' +
       '<button class="ul" id="revoke" style="flex:none;">Replace</button></div>' +
+      '<div id="revoke-confirm" hidden style="margin-top:18px;display:grid;gap:12px;max-width:34rem;">' +
+        '<p class="small">Replace your private link? This will sign you out everywhere. ' +
+          'A new link will be emailed to ' + esc(S.person.email) + '.</p>' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<button class="quiet" id="revoke-cancel" style="width:auto;flex:1;">Cancel</button>' +
+          '<button class="btn" id="revoke-confirm-button" style="width:auto;flex:2;">Replace my link</button>' +
+        '</div>' +
+      '</div>' +
       '<p class="small" id="revoked" style="margin-top:10px;"></p></div>');
     inner.appendChild(link);
 
     var giving = h('<div><div class="rowflex"><div><b>Manage monthly giving</b>' +
-      '<p>Change or end a gift you freely chose, securely in Stripe</p></div>' +
+      '<p>Change or end your monthly gift securely through Stripe</p></div>' +
       '<button class="ul" id="manage-giving" style="flex:none;">Manage</button></div>' +
       '<p class="small" id="giving-message" aria-live="polite" style="margin-top:10px;"></p></div>');
     inner.appendChild(giving);
@@ -1877,9 +1876,6 @@
         '<p class="small" id="delete-message" aria-live="polite"></p>' +
       '</div></div>');
     inner.appendChild(deletion);
-
-    inner.appendChild(h('<div style="border-bottom:none;"><p class="small">' +
-      'Nothing here is scored. Nothing counts forward, so nothing can be lost.</p></div>'));
 
     shell(inner, {
       left: '<span class="brand">Settings</span>',
@@ -1902,13 +1898,27 @@
       }).catch(function () { msg.textContent = 'That did not save. Try again in a moment.'; });
     });
 
+    var revokePanel = inner.querySelector('#revoke-confirm');
+    var revokeButton = inner.querySelector('#revoke-confirm-button');
     inner.querySelector('#revoke').addEventListener('click', function () {
+      revokePanel.hidden = false;
+      revokeButton.focus();
+    });
+    inner.querySelector('#revoke-cancel').addEventListener('click', function () {
+      revokePanel.hidden = true;
+    });
+    revokeButton.addEventListener('click', function () {
       var note = inner.querySelector('#revoked');
+      revokeButton.disabled = true;
       note.textContent = 'Sending…';
       api('/api/settings/revoke', { method: 'POST', body: {} }).then(function (r) {
+        revokePanel.hidden = true;
         note.textContent = 'A new link is on its way to ' + r.sent_to + '. This one has stopped working.';
         L.token = null; save();
-      }).catch(function () { note.textContent = 'That did not go through. Try again in a moment.'; });
+      }).catch(function () {
+        revokeButton.disabled = false;
+        note.textContent = 'That did not go through. Try again in a moment.';
+      });
     });
 
     inner.querySelector('#manage-giving').addEventListener('click', function () {
