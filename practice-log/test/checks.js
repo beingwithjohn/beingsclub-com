@@ -467,6 +467,15 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
     /does not buy the giver more access, attention or standing/.test(giving),
   'the page is not honest about capacity while separating gifts from privilege');
   ok(/manage or end monthly giving/.test(giving), 'monthly cancellation is not explained');
+  ok(/class=\\?"practice-giving/.test(log) &&
+    /If you want to help sustain Beings Club/.test(log) && /you can give here/.test(log),
+  'the small post-practice Dana invitation is missing');
+  const beforeTap = /function viewLog\(\)[\s\S]*?function viewTimer\(\)/.exec(log)?.[0] || '';
+  ok(!/practice-giving|help sustain Beings Club|\/giving\//.test(beforeTap),
+    'the giving invitation appears before practice is recorded');
+  const mail = read('practice-log', 'src', 'mail', 'templates.js');
+  ok(!/\/giving\/|help sustain Beings Club|one-off or monthly gift|monthly giving/i.test(mail),
+    'a Practice Log email contains a giving invitation');
   const idx = read('practice-log', 'src', 'index.js');
   ok(idx.indexOf("path === '/api/giving'") < idx.indexOf('const who = await identify'),
     'giving still depends on Practice Log identity');

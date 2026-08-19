@@ -104,7 +104,8 @@ node app/build.js --api https://your-worker-origin
 **Public giving through Stripe**
 
 Giving lives at `https://beingsclub.com/giving/`, separate from Practice Log
-identity and practice history. The log contains only a link to that page. The
+identity and practice history. The log links there from its menu and with one
+small line shown only after practice has been recorded; emails never ask. The
 public page offers a blank amount field, one-off first and monthly as an option.
 The giver chooses GBP or USD, with a minimum of one whole unit in the
 chosen currency. Stripe collects the giver's email and handles payment.

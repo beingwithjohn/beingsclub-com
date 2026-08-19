@@ -17,7 +17,7 @@ Source tags:
 
 **Browser tab / Google title:** [MINE] Salons — where curiosity connects · Beings Club
 
-**Google description:** Beings Club Salons: a monthly online gathering. Meditation together, then real conversation. Nothing to prepare. Pay what you can.
+**Google description:** Beings Club Salons: a monthly online gathering. Meditation together, then real conversation. Nothing to prepare. Freely offered.
 
 **Social card title:** Salons — where curiosity connects
 
@@ -59,7 +59,7 @@ Source tags:
 | Rhythm | [SITE] Monthly |
 | Time | [SITE] 7pm UK |
 | Where | [SITE] Online, from anywhere |
-| Cost | [SITE] Pay what you can |
+| Cost | [SITE] Freely offered |
 
 ---
 
@@ -122,7 +122,7 @@ Source tags:
 **Side panel 1 text:** [MINE] No recording, ever. What's said in the room stays in the room.
 
 **Side panel 2 label:** Cost
-**Side panel 2 text:** [MINE] Pay what you can, including nothing.
+**Side panel 2 text:** [MINE] Freely offered. Give only if you want to sustain the work.
 **Side panel 2 note:** [MINE] Money should not decide who is in the room.
 
 ---

@@ -72,6 +72,11 @@ The public interface never calls the people using it a “cohort.” Settings sa
 “The name beside your notes,” and the daily-email setting says only that it
 contains nothing about anyone else’s practice.
 
+After practice has been recorded, the shared week ends with one quiet giving
+line. It never appears before the tap or in an email:
+
+> If you want to help sustain Beings Club, you can give here.
+
 **Course access**
 
 The private line to John is absent by default. John grants it for an inclusive
@@ -201,10 +206,11 @@ not social media. It makes practice social.
 
 ## 4. Giving
 
-Giving is not a Practice Log screen. The log's menu has one link to the public
-page at `/giving/`; the room and Settings contain no request or gift history.
-Settings has only a route into Stripe for somebody who wants to manage or
-cancel an existing monthly gift.
+Giving is not a Practice Log screen. The log's menu links to the public page at
+`/giving/`, and one small invitation appears beneath the shared week after a
+practice is recorded. It does not appear before practice or in an email.
+Settings contains no request or gift history: it has only a route into Stripe
+for somebody who wants to manage or end an existing monthly gift.
 
 **Heading**
 > This work is freely given.
@@ -252,8 +258,8 @@ manage or end monthly giving.
 > Replace
 > *after:* A new link is on its way to you@example.com. This one has stopped working.
 
-**Monthly giving**
-> Change or cancel a monthly gift securely in Stripe
+**Manage monthly giving**
+> Change or end a gift you freely chose, securely in Stripe
 > Manage
 
 **Delete my Practice Log**

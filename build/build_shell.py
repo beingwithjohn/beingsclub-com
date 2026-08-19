@@ -26,7 +26,7 @@ SCREENS = [
      "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
-     "A small group meditation class for making meditation your own. Thirty-five days, six Tuesday meetings, online from 15 September. Pay what you can."),
+     "A small group meditation class for making meditation your own. Thirty-five days, six Tuesday meetings, online from 15 September. Freely offered."),
     ("join", "Join",
      "/join/", "The Door — leave us a note · Beings Club",
      "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."),
@@ -142,7 +142,7 @@ def convert(body, key):
             ('Hosted and introduced by John.', 'Hosted by John.', 'hosting line'),
             ('>Six Wednesdays<', '>Six Tuesdays<', 'stat'),
             ('Pay what you can, online, 16 September \u2013 21 October.',
-             'Pay what you can, online, 15 September \u2013 20 October.', 'price line'),
+             'Freely offered, online, 15 September \u2013 20 October.', 'offering line'),
             ('>16 Sep<', '>15 Sep<', 'week 1'),
             ('>23 Sep<', '>22 Sep<', 'week 2'),
             ('>30 Sep<', '>29 Sep<', 'week 3'),
@@ -189,12 +189,20 @@ def convert(body, key):
             assert old in body, 'BB %s not found' % what
             body = body.replace(old, new, 1)
 
+        cost = '>Pay what you can<'
+        assert cost in body, 'BB cost line not found'
+        body = body.replace(cost, '>Freely offered<', 1)
+
     if key == 'sits':
         assert 'For making meditation yours' in body, 'Sits line not found'
         body = body.replace('For making meditation yours', 'Meditation for the curious')
 
         assert '16 Sep \u2013 21 Oct' in body, 'Sits run not found'
         body = body.replace('16 Sep \u2013 21 Oct', '15 Sep \u2013 20 Oct', 1)
+
+        cost = '>Pay what you can<'
+        assert cost in body, 'Sits cost line not found'
+        body = body.replace(cost, '>Freely offered<', 1)
 
         # The intro opens on the Sit itself rather than on Salons, and the voice
         # settles on John \u2014 he hosts and teaches, so it is his claim to make.
@@ -220,6 +228,9 @@ def convert(body, key):
         cameras = ' Cameras on, nothing recorded.'
         assert cameras in body, 'cameras line not found in Salons'
         body = body.replace(cameras, '', 1)
+        cost = '>Pay what you can<'
+        assert cost in body, 'Salons cost line not found'
+        body = body.replace(cost, '>Freely offered<', 1)
         # "either 1:1 or" reads as scheduling shorthand and sets the two formats
         # against each other. Both happen; the sentence should say so plainly.
         pairs = 'members meet either 1:1 or in groups of three'
@@ -332,6 +343,7 @@ def convert(body, key):
         body = re.sub(r'(<p role="status"[^>]*)>\{\{ status \}\}<', r'\1 id="bc-status"><', body)
 
     assert '{{' not in body, (key, re.findall(r'\{\{[^}]*\}\}', body)[:4])
+    assert 'Pay what you can' not in body, '%s still frames giving as a price' % key
     return body.strip()
 
 layers = []

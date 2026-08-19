@@ -348,6 +348,13 @@ main { flex: 1; display: flex; flex-direction: column; }
 .legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; color: var(--muted); }
 .key { width: 8px; height: 8px; border-radius: 50%; }
+.practice-giving {
+  border-top: 1px solid var(--hair); padding: 13px var(--pad); display: flex;
+  justify-content: center; gap: 5px 8px; flex-wrap: wrap; text-align: center;
+  font-size: 13px; line-height: 1.5; color: var(--muted);
+}
+.practice-giving a { color: var(--body); border-bottom: 1px solid var(--hair-2); }
+.practice-giving a:hover { color: var(--you); border-bottom-color: var(--you); }
 
 /* --------------------------------------------------------------- forms ---- */
 
@@ -800,7 +807,7 @@ main { flex: 1; display: flex; flex-direction: column; }
     items.push({
       id: 'giving',
       label: 'Giving',
-      sub: 'One-off or monthly, if you want to sustain the work',
+      sub: 'The work is freely offered. Give only if you want to sustain it',
       href: '/giving/'
     });
 
@@ -1980,6 +1987,8 @@ main { flex: 1; display: flex; flex-direction: column; }
         'Your day is kept and will go up on its own.</p></div>'));
     }
     inner.appendChild(body);
+    inner.appendChild(h('<div class="practice-giving">If you want to help sustain Beings Club, ' +
+      '<a href="/giving/">you can give here.</a></div>'));
 
     shell(inner, {
       right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>',
@@ -2306,8 +2315,8 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<p class="small" id="revoked" style="margin-top:10px;"></p></div>');
     inner.appendChild(link);
 
-    var giving = h('<div><div class="rowflex"><div><b>Monthly giving</b>' +
-      '<p>Change or cancel a monthly gift securely in Stripe</p></div>' +
+    var giving = h('<div><div class="rowflex"><div><b>Manage monthly giving</b>' +
+      '<p>Change or end a gift you freely chose, securely in Stripe</p></div>' +
       '<button class="ul" id="manage-giving" style="flex:none;">Manage</button></div>' +
       '<p class="small" id="giving-message" aria-live="polite" style="margin-top:10px;"></p></div>');
     inner.appendChild(giving);
@@ -2317,7 +2326,7 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<button class="ul danger-link" id="delete-open" style="flex:none;">Delete</button></div>' +
       '<div id="delete-confirm" hidden style="margin-top:18px;display:grid;gap:12px;max-width:34rem;">' +
         '<p class="small">This cannot be undone. Your old link will stop working. ' +
-          'Giving is separate, so this does not cancel a recurring gift.</p>' +
+          'Giving remains separate and freely chosen, so deleting the log does not end a recurring gift.</p>' +
         '<label class="small" for="delete-word">Type DELETE to confirm</label>' +
         '<input class="field" id="delete-word" autocomplete="off" spellcheck="false">' +
         '<button class="btn danger-button" id="delete-confirm-button" disabled>Permanently delete my log</button>' +

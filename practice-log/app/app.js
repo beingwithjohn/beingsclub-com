@@ -343,7 +343,7 @@
     items.push({
       id: 'giving',
       label: 'Giving',
-      sub: 'One-off or monthly, if you want to sustain the work',
+      sub: 'The work is freely offered. Give only if you want to sustain it',
       href: '/giving/'
     });
 
@@ -1523,6 +1523,8 @@
         'Your day is kept and will go up on its own.</p></div>'));
     }
     inner.appendChild(body);
+    inner.appendChild(h('<div class="practice-giving">If you want to help sustain Beings Club, ' +
+      '<a href="/giving/">you can give here.</a></div>'));
 
     shell(inner, {
       right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>',
@@ -1849,8 +1851,8 @@
       '<p class="small" id="revoked" style="margin-top:10px;"></p></div>');
     inner.appendChild(link);
 
-    var giving = h('<div><div class="rowflex"><div><b>Monthly giving</b>' +
-      '<p>Change or cancel a monthly gift securely in Stripe</p></div>' +
+    var giving = h('<div><div class="rowflex"><div><b>Manage monthly giving</b>' +
+      '<p>Change or end a gift you freely chose, securely in Stripe</p></div>' +
       '<button class="ul" id="manage-giving" style="flex:none;">Manage</button></div>' +
       '<p class="small" id="giving-message" aria-live="polite" style="margin-top:10px;"></p></div>');
     inner.appendChild(giving);
@@ -1860,7 +1862,7 @@
       '<button class="ul danger-link" id="delete-open" style="flex:none;">Delete</button></div>' +
       '<div id="delete-confirm" hidden style="margin-top:18px;display:grid;gap:12px;max-width:34rem;">' +
         '<p class="small">This cannot be undone. Your old link will stop working. ' +
-          'Giving is separate, so this does not cancel a recurring gift.</p>' +
+          'Giving remains separate and freely chosen, so deleting the log does not end a recurring gift.</p>' +
         '<label class="small" for="delete-word">Type DELETE to confirm</label>' +
         '<input class="field" id="delete-word" autocomplete="off" spellcheck="false">' +
         '<button class="btn danger-button" id="delete-confirm-button" disabled>Permanently delete my log</button>' +
