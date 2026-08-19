@@ -12,17 +12,32 @@ import { localDate, addDays, diffDays, anchorOf, quietDays, isDate } from './day
 import { unseal, logUrl, inviteUrl, mintToken } from './auth.js';
 import { sendAnswered, sendWeekLetter, sendInvitation, claim } from './mail/send.js';
 
+const REPLY_BODY_MAX = 4000;
+const REPLY_CONTEXT_MAX = 500;
+const REPLY_AUDIO_MAX_MS = 20 * 60 * 1000;
+const REPLY_AUDIO_MAX_BYTES = 25 * 1024 * 1024;
+const REPLY_AUDIO_TYPES = new Set(['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/mpeg', 'audio/wav', 'audio/x-m4a']);
+
 export async function hostRoute(env, request, url, who) {
   const path = url.pathname;
   const method = request.method;
 
   if (path === '/api/host/inbox' && method === 'GET') return inbox(env, who);
   if (path === '/api/host/people' && method === 'GET') return people(env, who);
+  if (path === '/api/host/notes' && method === 'GET') return notes(env, who);
+
+  if (path === '/api/host/reply' && method === 'POST') {
+    const form = await request.formData().catch(() => null);
+    if (!form) return bad(400, 'bad form');
+    return reply(env, who, form);
+  }
 
   if (method === 'POST') {
     const body = await request.json().catch(() => null);
     if (!body) return bad(400, 'bad json');
     if (path === '/api/host/answer') return answer(env, who, body);
+    if (path === '/api/host/reply/visibility') return setReplyVisibility(env, who, body);
+    if (path === '/api/host/reply/remove') return removeReply(env, who, body);
     if (path === '/api/host/note/remove') return removeNote(env, who, body);
     if (path === '/api/host/week') return weekLetter(env, who, body);
     if (path === '/api/host/invite') return invite(env, who, body);
@@ -84,11 +99,16 @@ async function invite(env, { run }, body) {
 // ---------------------------------------------------------------------------
 async function inbox(env, { run }) {
   const rows = await env.DB.prepare(
-    `SELECT m.id, m.on_date, m.body, m.created_at, m.answer_body, m.answer_url, m.answered_at,
-            p.id AS person_id, p.name, p.email
+    `SELECT m.id, m.on_date, m.body, m.created_at,
+            p.id AS person_id, p.name, p.email,
+            hr.id AS reply_id, hr.visibility AS reply_visibility,
+            hr.public_context AS reply_context, hr.body AS reply_body,
+            hr.audio_object AS reply_audio_object, hr.audio_ms AS reply_audio_ms,
+            hr.legacy_audio_url AS reply_legacy_audio, hr.created_at AS replied_at
        FROM private_message m JOIN person p ON p.id = m.person_id
+       LEFT JOIN host_reply hr ON hr.source_message_id = m.id
       WHERE p.run_id = ?1
-      ORDER BY (m.answered_at IS NOT NULL), m.created_at DESC
+      ORDER BY (hr.id IS NOT NULL), m.created_at DESC
       LIMIT 200`,
   ).bind(run.id).all();
 
@@ -96,9 +116,53 @@ async function inbox(env, { run }) {
     messages: (rows.results || []).map((r) => ({
       id: r.id, person_id: r.person_id, name: r.name, email: r.email,
       on_date: r.on_date, body: r.body, created_at: r.created_at,
-      answered: !!r.answered_at, answer: r.answer_body, audio: r.answer_url,
+      reply: hostReplyFromRow(r),
     })),
   });
+}
+
+// ---------------------------------------------------------------------------
+// practice notes John can reply to — host only
+// ---------------------------------------------------------------------------
+async function notes(env, { run }) {
+  const rows = await env.DB.prepare(
+    `SELECT n.person_id, n.on_date, n.body, n.created_at,
+            p.name, p.email,
+            hr.id AS reply_id, hr.visibility AS reply_visibility,
+            hr.public_context AS reply_context, hr.body AS reply_body,
+            hr.audio_object AS reply_audio_object, hr.audio_ms AS reply_audio_ms,
+            hr.legacy_audio_url AS reply_legacy_audio, hr.created_at AS replied_at
+       FROM note n JOIN person p ON p.id = n.person_id
+       LEFT JOIN host_reply hr
+         ON hr.recipient_person_id = n.person_id
+        AND hr.source_message_id IS NULL
+        AND hr.source_note_date = n.on_date
+      WHERE p.run_id = ?1 AND n.removed_at IS NULL
+      ORDER BY n.on_date DESC, n.created_at DESC
+      LIMIT 200`,
+  ).bind(run.id).all();
+
+  return json({
+    notes: (rows.results || []).map((r) => ({
+      person_id: r.person_id, name: r.name, email: r.email,
+      on_date: r.on_date, body: r.body, created_at: r.created_at,
+      reply: hostReplyFromRow(r),
+    })),
+  });
+}
+
+function hostReplyFromRow(row) {
+  if (!row.reply_id) return null;
+  return {
+    id: row.reply_id,
+    visibility: row.reply_visibility,
+    context: row.reply_context,
+    body: row.reply_body,
+    has_audio: !!row.reply_audio_object,
+    audio_ms: row.reply_audio_ms,
+    legacy_audio: row.reply_legacy_audio || null,
+    created_at: row.replied_at,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -174,38 +238,186 @@ async function setMessageAccess(env, { run }, body) {
 }
 
 // ---------------------------------------------------------------------------
-// answering — the one dark email
+// replies — private to one person, or shared through John's rewritten context
 // ---------------------------------------------------------------------------
-async function answer(env, { run }, body) {
-  const id = Number(body.id);
-  if (!Number.isInteger(id)) return bad(400, 'id');
+async function reply(env, { run }, form) {
+  const sourceType = String(form.get('source_type') || '');
+  const visibility = String(form.get('visibility') || 'private');
+  const context = String(form.get('context') || '').trim();
+  const text = String(form.get('body') || '').trim();
+  const audio = form.get('audio');
+  const hasAudio = !!audio && typeof audio.arrayBuffer === 'function' && Number(audio.size) > 0;
+  const audioMs = Number(form.get('audio_ms') || 0);
 
-  const text = String(body.body ?? '').trim();
-  const audio = body.audio ? String(body.audio).trim() : null;
-  if (!text && !audio) return bad(400, 'empty');
-  if (audio && !/^https:\/\//.test(audio)) return bad(400, 'audio must be https');
+  if (!['private', 'shared'].includes(visibility)) return bad(400, 'visibility');
+  if (text.length > REPLY_BODY_MAX) return bad(400, 'reply too long');
+  if (context.length > REPLY_CONTEXT_MAX) return bad(400, 'context too long');
+  if (visibility === 'shared' && !context) return bad(400, 'public context');
+  if (!text && !hasAudio) return bad(400, 'empty');
 
-  const msg = await env.DB.prepare(
-    `SELECT m.*, p.id AS pid, p.name, p.email, p.token_enc, p.run_id
-       FROM private_message m JOIN person p ON p.id = m.person_id
-      WHERE m.id = ?1`,
-  ).bind(id).first();
-  if (!msg || msg.run_id !== run.id) return bad(404, 'not found');
+  const source = await replySource(env, run, sourceType, form);
+  if (!source) return bad(404, 'not found');
 
-  await env.DB.prepare(
-    `UPDATE private_message SET answer_body = ?1, answer_url = ?2, answered_at = unixepoch()
-      WHERE id = ?3`,
-  ).bind(text || null, audio, id).run();
+  const existing = sourceType === 'message'
+    ? await env.DB.prepare(`SELECT id FROM host_reply WHERE source_message_id = ?1`).bind(source.source_id).first()
+    : await env.DB.prepare(
+      `SELECT id FROM host_reply
+        WHERE source_message_id IS NULL AND recipient_person_id = ?1 AND source_note_date = ?2`,
+    ).bind(source.pid, source.source_date).first();
+  if (existing) return bad(409, 'already replied');
 
-  // One notification per answer, even if the row is edited later.
-  let mailed = false;
-  if (await claim(env, msg.pid, 'answer', String(id))) {
-    const url = logUrl(env, await unseal(env, msg.token_enc));
-    mailed = await sendAnswered(env, { name: msg.name, email: msg.email }, url, {
-      question: msg.body, askedOn: msg.on_date, answerText: text, audioUrl: audio,
+  let audioKey = null;
+  let audioMime = null;
+  if (hasAudio) {
+    if (!env.AUDIO) return bad(503, 'audio storage unavailable');
+    if (Number(audio.size) > REPLY_AUDIO_MAX_BYTES) return bad(413, 'recording too large');
+    if (!Number.isInteger(audioMs) || audioMs < 1 || audioMs > REPLY_AUDIO_MAX_MS) {
+      return bad(400, 'recording length');
+    }
+    audioMime = String(audio.type || '').split(';')[0].toLowerCase();
+    if (!REPLY_AUDIO_TYPES.has(audioMime)) return bad(415, 'recording type');
+    audioKey = `replies/${crypto.randomUUID()}`;
+    await env.AUDIO.put(audioKey, await audio.arrayBuffer(), {
+      httpMetadata: { contentType: audioMime },
+      customMetadata: { duration_ms: String(audioMs) },
     });
   }
 
+  try {
+    await env.DB.prepare(
+      `INSERT INTO host_reply
+        (recipient_person_id, source_message_id, source_note_date,
+         visibility, public_context, body, audio_object, audio_mime, audio_ms)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
+    ).bind(
+      source.pid,
+      sourceType === 'message' ? source.source_id : null,
+      sourceType === 'note' ? source.source_date : null,
+      visibility,
+      visibility === 'shared' ? context : null,
+      text || null,
+      audioKey,
+      audioMime,
+      hasAudio ? audioMs : null,
+    ).run();
+  } catch (error) {
+    if (audioKey && env.AUDIO) await env.AUDIO.delete(audioKey);
+    throw error;
+  }
+
+  const saved = sourceType === 'message'
+    ? await env.DB.prepare(`SELECT id FROM host_reply WHERE source_message_id = ?1`).bind(source.source_id).first()
+    : await env.DB.prepare(
+      `SELECT id FROM host_reply
+        WHERE source_message_id IS NULL AND recipient_person_id = ?1 AND source_note_date = ?2`,
+    ).bind(source.pid, source.source_date).first();
+
+  if (!saved?.id) {
+    if (audioKey && env.AUDIO) await env.AUDIO.delete(audioKey);
+    return bad(500, 'reply was not saved');
+  }
+
+  const mailed = await notifyReply(env, source, saved.id, visibility, hasAudio);
+  return json({ ok: true, id: saved.id, mailed });
+}
+
+async function replySource(env, run, sourceType, fields) {
+  if (sourceType === 'message') {
+    const id = Number(fields.get('message_id'));
+    if (!Number.isInteger(id)) return null;
+    return env.DB.prepare(
+      `SELECT m.id AS source_id, m.on_date AS source_date,
+              p.id AS pid, p.name, p.email, p.token_enc, p.run_id
+         FROM private_message m JOIN person p ON p.id = m.person_id
+        WHERE m.id = ?1 AND p.run_id = ?2`,
+    ).bind(id, run.id).first();
+  }
+  if (sourceType === 'note') {
+    const personId = Number(fields.get('person_id'));
+    const date = String(fields.get('note_date') || '');
+    if (!Number.isInteger(personId) || !isDate(date)) return null;
+    return env.DB.prepare(
+      `SELECT n.on_date AS source_date,
+              p.id AS pid, p.name, p.email, p.token_enc, p.run_id
+         FROM note n JOIN person p ON p.id = n.person_id
+        WHERE n.person_id = ?1 AND n.on_date = ?2 AND n.removed_at IS NULL AND p.run_id = ?3`,
+    ).bind(personId, date, run.id).first();
+  }
+  return null;
+}
+
+async function notifyReply(env, source, replyId, visibility, hasAudio) {
+  if (!(await claim(env, source.pid, 'reply', String(replyId)))) return false;
+  const base = logUrl(env, await unseal(env, source.token_enc));
+  const url = `${base}&view=from-john&reply=${replyId}`;
+  return sendAnswered(env, { name: source.name, email: source.email }, url, {
+    visibility, hasAudio,
+  });
+}
+
+async function hostReply(env, run, id) {
+  if (!Number.isInteger(id)) return null;
+  return env.DB.prepare(
+    `SELECT hr.*, p.run_id
+       FROM host_reply hr JOIN person p ON p.id = hr.recipient_person_id
+      WHERE hr.id = ?1 AND p.run_id = ?2`,
+  ).bind(id, run.id).first();
+}
+
+async function setReplyVisibility(env, { run }, body) {
+  const id = Number(body.id);
+  const visibility = String(body.visibility || '');
+  const context = String(body.context || '').trim();
+  if (!['private', 'shared'].includes(visibility)) return bad(400, 'visibility');
+  if (context.length > REPLY_CONTEXT_MAX) return bad(400, 'context too long');
+  if (visibility === 'shared' && !context) return bad(400, 'public context');
+  if (!(await hostReply(env, run, id))) return bad(404, 'not found');
+
+  await env.DB.prepare(
+    `UPDATE host_reply
+        SET visibility = ?1, public_context = ?2, updated_at = unixepoch()
+      WHERE id = ?3`,
+  ).bind(visibility, visibility === 'shared' ? context : null, id).run();
+  return json({ ok: true, visibility, context: visibility === 'shared' ? context : null });
+}
+
+async function removeReply(env, { run }, body) {
+  const id = Number(body.id);
+  const row = await hostReply(env, run, id);
+  if (!row) return bad(404, 'not found');
+  if (row.audio_object && env.AUDIO) await env.AUDIO.delete(row.audio_object);
+  await env.DB.prepare(`DELETE FROM host_reply WHERE id = ?1`).bind(id).run();
+  return json({ ok: true });
+}
+
+// Compatibility for an already-open copy of the former URL-paste host page.
+async function answer(env, { run }, body) {
+  const id = Number(body.id);
+  const text = String(body.body ?? '').trim();
+  const audio = body.audio ? String(body.audio).trim() : null;
+  if (!Number.isInteger(id) || (!text && !audio)) return bad(400, 'empty');
+  if (audio && !/^https:\/\//.test(audio)) return bad(400, 'audio must be https');
+
+  const source = await env.DB.prepare(
+    `SELECT m.id AS source_id, m.on_date AS source_date,
+            p.id AS pid, p.name, p.email, p.token_enc, p.run_id
+       FROM private_message m JOIN person p ON p.id = m.person_id
+      WHERE m.id = ?1 AND p.run_id = ?2`,
+  ).bind(id, run.id).first();
+  if (!source) return bad(404, 'not found');
+  const existing = await env.DB.prepare(`SELECT id FROM host_reply WHERE source_message_id = ?1`).bind(id).first();
+  if (existing) return bad(409, 'already replied');
+
+  await env.DB.prepare(
+    `INSERT INTO host_reply
+      (recipient_person_id, source_message_id, visibility, body, legacy_audio_url)
+     VALUES (?1, ?2, 'private', ?3, ?4)`,
+  ).bind(source.pid, id, text || null, audio).run();
+  await env.DB.prepare(
+    `UPDATE private_message SET answer_body = ?1, answer_url = ?2, answered_at = unixepoch() WHERE id = ?3`,
+  ).bind(text || null, audio, id).run();
+  const saved = await env.DB.prepare(`SELECT id FROM host_reply WHERE source_message_id = ?1`).bind(id).first();
+  const mailed = await notifyReply(env, source, saved.id, 'private', !!audio);
   return json({ ok: true, mailed });
 }
 

@@ -304,36 +304,36 @@ export function weekLetter({ person, run, url, weekNumber, principle, bodyHtml, 
 }
 
 // ---------------------------------------------------------------------------
-// E5 · John answered you — the one dark email
+// E5 · John replied — sent only to the person whose share prompted it
 // ---------------------------------------------------------------------------
-export function answered({ person, url, question, askedOn, answerText, audioUrl }) {
+export function answered({ person, url, visibility, hasAudio }) {
+  const shared = visibility === 'shared';
   const blocks = [
-    eyebrow(`You asked on ${weekdayName(askedOn)}`, 'rgba(255,255,255,0.5)'),
-    heading('An answer, just for you.', true),
-    // Their own words back. A nested table, because a border-left on the outer
-    // cell would run down the edge of the sheet rather than beside the quote.
-    `<tr><td style="padding:22px 40px 0;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td style="width:2px;background:${T.violet};font-size:0;line-height:0;">&nbsp;</td>
-        <td style="padding-left:18px;font-family:${FONT};font-size:17px;line-height:1.7;
-          font-style:italic;color:rgba(255,255,255,0.72);">“${esc(question)}”</td>
-      </tr></table>
-    </td></tr>`,
-    answerText ? para(`“${esc(answerText)}”`, true) : '',
-    audioUrl ? button(audioUrl, 'Listen · then log today', true) : button(url, CTA, true),
-    small('Nobody else received this. Ask him something else any time.', true),
+    eyebrow('A reply from John', 'rgba(255,255,255,0.5)'),
+    heading(hasAudio ? 'There’s something to listen to.' : 'John replied.', true),
+    para(shared
+      ? 'John made this reply available in From John, using his own question or context. Your original words and identity remain private.'
+      : 'This reply is just for you.', true),
+    button(url, hasAudio ? 'Listen in my log' : 'Open the reply', true),
+    small(shared
+      ? 'Only you received this email. Shared replies appear for everyone else without a notification.'
+      : 'Nobody else can see this reply.', true),
     gap(),
   ].join('');
 
   return {
-    subject: 'An answer, just for you',
-    html: layout({ preheader: 'John answered you.', blocks, footer: 'Just to you', dark: true }),
+    subject: 'A reply from John',
+    html: layout({ preheader: 'John replied to something you shared.', blocks, footer: 'From John', dark: true }),
     text: [
-      `You asked on ${weekdayName(askedOn)}:`, `“${question}”`, '',
-      answerText ? `“${answerText}”\n` : '',
-      audioUrl ? `Listen: ${audioUrl}` : `${CTA}: ${url}`, '',
-      'Nobody else received this. Ask him something else any time.',
-    ].filter(Boolean).join('\n'),
+      'John replied to something you shared.', '',
+      shared
+        ? 'John made this reply available in From John, using his own question or context. Your original words and identity remain private.'
+        : 'This reply is just for you.', '',
+      `${hasAudio ? 'Listen in my log' : 'Open the reply'}: ${url}`, '',
+      shared
+        ? 'Only you received this email. Shared replies appear for everyone else without a notification.'
+        : 'Nobody else can see this reply.',
+    ].join('\n'),
   };
 }
 

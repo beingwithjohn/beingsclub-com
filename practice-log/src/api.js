@@ -18,6 +18,7 @@ import {
 import { mintToken, logUrl, unseal } from './auth.js';
 import { sendWelcomeBack } from './mail/send.js';
 import { messageAccess } from './access.js';
+import { deleteReplyAudioForPerson } from './replies.js';
 
 const NOTE_MAX = 100;
 const LINE_MAX = 100;
@@ -101,9 +102,6 @@ export async function getState(env, { person, run }) {
       marked: mine.marks.has(addDays(today, -1)),
       markable: markable.includes(addDays(today, -1)),
     },
-    // Your answered private thread remains yours after a course ends. Starting
-    // a new message is a separate, date-bounded course entitlement.
-    answers: await answersFor(env, person.id),
     shared: null,
   };
 
@@ -209,19 +207,6 @@ export async function sharedView(env, { person, run }, anchor, today, mine) {
       mine: r.pid === person.id,
     })),
   };
-}
-
-async function answersFor(env, personId) {
-  const rows = await env.DB.prepare(
-    `SELECT id, on_date, body, answer_body, answer_url, answered_at
-       FROM private_message
-      WHERE person_id = ?1 AND answered_at IS NOT NULL
-      ORDER BY answered_at DESC LIMIT 10`,
-  ).bind(personId).all();
-  return (rows.results || []).map((r) => ({
-    id: r.id, on_date: r.on_date, question: r.body,
-    answer: r.answer_body, audio: r.answer_url, answered_at: r.answered_at,
-  }));
 }
 
 // ---------------------------------------------------------------------------
@@ -541,6 +526,7 @@ export async function postDelete(env, { person }, body) {
     if (!another) return bad(409, 'Another host must exist before this host account can be deleted.');
   }
 
+  await deleteReplyAudioForPerson(env, person.id);
   await env.DB.prepare(`DELETE FROM person WHERE id = ?1`).bind(person.id).run();
   return json({ deleted: true });
 }

@@ -26,17 +26,18 @@ message access. See `anchorOf` in `src/days.js` and `src/access.js`.
 
 ```
 practice-log/
-  migrations/0001_init.sql   run · person · day_mark · note · private_message · send_log
+  migrations/               numbered D1 schema, including host_reply
   src/
     index.js                 the Worker: routing, CORS, the cron entry point
     days.js                  every date decision in the system
     auth.js                  magic links — hashed for lookup, sealed for sending
     api.js                   the participant API
+    replies.js               private/shared replies and protected audio playback
     join.js                  public entry to the one evergreen log
     access.js                date-bounded course access to John
     host.js                  John's API
     nudge.js                 the half-hourly send sweep
-    mail/templates.js        the seven emails
+    mail/templates.js        the email templates
     mail/send.js             Resend, and the once-only guard
   app/
     app.css  app.js          the log
@@ -73,6 +74,13 @@ Paste the printed `database_id` into `wrangler.toml`. It is not a secret.
 
 ```bash
 npm run db:remote      # applies every unapplied migration, in order
+```
+
+Recordings use a private R2 bucket. It has no public address; the Worker reads
+an object only after checking the person's Practice Log link.
+
+```bash
+npx wrangler r2 bucket create practice-log-audio
 ```
 
 **2 · the secrets**
@@ -168,7 +176,7 @@ cd .. && ./build/deploy.sh "Open the Practice Log"
 ## Working on it
 
 ```bash
-npm test                       # day maths, access, payments, CORS — 42 tests
+npm test                       # day maths, access, replies, payments, CORS
 node test/checks.js            # the §7 checks against the built app
 node app/build.js --api http://localhost:8787
 npx wrangler dev --local --test-scheduled --port 8787
@@ -199,8 +207,15 @@ template is a rule one refactor away from being gone.
 3. **No streaks, ever.** Nothing counts forward. Unmarked days are drawn exactly
    like days that have not arrived. `test/checks.js` fails the build if any of
    twelve scoring words reaches the built app.
-4. **White is shared, black is John.** `private_message` is read by no handler a
-   participant can reach except for answers to their own questions.
+4. **White is shared, black is John.** `private_message` and source notes are
+   read only by the host. A participant sees a separate `host_reply`: private
+   replies only when they are the recipient, and shared replies through John's
+   own public question or context. The source person's words and identity are
+   never returned with a shared reply.
+
+Shared replies from other people follow the same nothing-before-the-tap rule as
+the weekly practice view. A reply prompted by your own words remains available
+to you immediately, so an email link can always open what John sent.
 
 One consequence worth knowing: **accounts are never sent as a participant
 directory or total.** After someone marks today, the shared response contains
@@ -221,20 +236,21 @@ Public giving remains separate and a deletion does not cancel a Stripe gift.
 
 ## Verification
 
-`node test/checks.js` — 20 static product checks, all passing:
+`node test/checks.js` — static product checks, all passing:
 the log exists and is `noindex`; `/log/` is not in the shell's `ROUTES`;
 re-running `build_shell.py` leaves the six slugs byte-identical; `shared` is
 gated server-side; none of the banned vocabulary is in the built app; the verb
 is *practised* and the app prescribes no standard length; no participant query
-reads a private message; every write is behind POST or PATCH; the token is
+reads a private message or source note; private recordings are protected and
+capped at twenty minutes; every write is behind POST or PATCH; the token is
 stripped from the URL and never put in one; nothing secret is in anything
 served; closing is enforced in the API.
 
-`npm test` — 42 unit tests. The day maths: local dates across timezones, DST,
+`npm test` — unit tests. The day maths: local dates across timezones, DST,
 leap years, the two run shapes, the yesterday grace, the nudge window
 (including the zones offset by :30 and :45), and quiet days. Plus the CORS
-origin matcher, course access, and Stripe session, amount, portal and signed
-webhook handling.
+origin matcher, course access, private/shared reply visibility, audio erasure,
+and Stripe session, amount, portal and signed webhook handling.
 
 Checked against a real Worker and a real D1, not a mock:
 

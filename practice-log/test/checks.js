@@ -207,20 +207,64 @@ check('6b', 'the app uses practise without prescribing a standard length', () =>
 
 check(7, 'rule 4 — no participant endpoint reads a private message', () => {
   const api = read('practice-log', 'src', 'api.js');
-  // postMessage writes; nothing a participant can reach selects one back except
-  // the answers to their own questions. The whole statement is matched, not
-  // just up to the FROM, so the WHERE clause is actually inspected.
-  const reads = api.match(/SELECT[\s\S]*?FROM private_message[\s\S]*?`/gi) || [];
-  ok(reads.length > 0, 'no private_message read found — has the query moved?');
-  for (const r of reads) {
-    ok(/person_id = \?1/.test(r) && /answered_at IS NOT NULL/.test(r),
-      'a participant query reads private messages that are not answered ones of their own');
+  const replies = read('practice-log', 'src', 'replies.js');
+  // postMessage writes. Participant reads use a separate host_reply record,
+  // which deliberately contains none of the source message or note.
+  for (const [name, source] of [['api.js', api], ['replies.js', replies]]) {
+    ok(!/FROM private_message/i.test(source), `${name} reads private_message`);
+    ok(!/JOIN private_message/i.test(source), `${name} joins private_message`);
   }
+  ok(!/\bFROM note\b/i.test(replies), 'replies.js reads source notes');
+  ok(/FROM host_reply/.test(replies), 'participant replies do not come from host_reply');
+  ok(/row\.visibility === 'shared' \? row\.public_context : null/.test(replies),
+    'a private reply can expose a public-context field');
   const host_ = read('practice-log', 'src', 'host.js');
   ok(/is_host/.test(read('practice-log', 'src', 'index.js')), 'the host routes are not gated');
   ok(host_.includes('run_id = ?1') || host_.includes('p.run_id = ?1'),
     'the host inbox is not scoped to the run');
-  return 'answers only, and only your own';
+  return 'source words remain host-only; replies are separate records';
+});
+
+check('7b', 'shared replies keep their source person private and obey the tap gate', () => {
+  const replies = read('practice-log', 'src', 'replies.js');
+  ok(/recipient_person_id = \?1 OR \(visibility = 'shared' AND \?2 = 1\)/.test(replies),
+    'shared replies are not gated while own replies remain reachable');
+  ok(/SELECT 1 FROM day_mark WHERE person_id = \?1 AND on_date = \?2/.test(replies),
+    'the shared-reply gate does not require today\'s mark');
+  ok(!/\b(?:name|email|source_note_date|source_message_id|recipient_person_id)\s*:/.test(
+    replies.slice(replies.indexOf('return replyJson({'), replies.indexOf('export async function getReplyAudio'))
+  ), 'participant reply JSON exposes source identity');
+  return 'own replies always; everyone else’s only after today’s tap';
+});
+
+check('7c', 'voice replies are private objects, capped at twenty minutes', () => {
+  const hostJs = read('practice-log', 'app', 'host.js');
+  const hostApi = read('practice-log', 'src', 'host.js');
+  const config = read('practice-log', 'wrangler.toml');
+  ok(/MAX_RECORDING_MS = 20 \* 60 \* 1000/.test(hostJs), 'the recorder lacks a twenty-minute client cap');
+  ok(/REPLY_AUDIO_MAX_MS = 20 \* 60 \* 1000/.test(hostApi), 'the API lacks a twenty-minute cap');
+  ok(/navigator\.mediaDevices\.getUserMedia\(\{ audio: true \}\)/.test(hostJs),
+    'the host page has no in-app recorder');
+  ok(/\[\[r2_buckets\]\][\s\S]*binding = "AUDIO"[\s\S]*bucket_name = "practice-log-audio"/.test(config),
+    'private recording storage is not bound');
+  ok(!/preview_url|public_url|r2\.dev/i.test(config + hostApi), 'recordings are configured with a public URL');
+  return 'browser recorder, server cap, authenticated R2 playback';
+});
+
+check('7d', 'only the source person is notified when John replies', () => {
+  const hostApi = read('practice-log', 'src', 'host.js');
+  const mail = read('practice-log', 'src', 'mail', 'templates.js');
+  const client = read('practice-log', 'app', 'app.js');
+  const notify = hostApi.slice(hostApi.indexOf('async function notifyReply'), hostApi.indexOf('async function hostReply'));
+  ok(/sendAnswered\(env, \{ name: source\.name, email: source\.email \}/.test(notify),
+    'the reply notification is not addressed only to its source person');
+  ok(!/SELECT|\.all\(|everyone|broadcast/i.test(notify), 'reply notification can fan out beyond its source person');
+  ok(/view=from-john&reply=/.test(notify), 'the email does not link to the exact in-log reply');
+  ok(/Only you received this email/.test(mail) && /without a notification/.test(mail),
+    'the shared-reply email describes a different notification rule');
+  ok(/For you/.test(client) && /Shared/.test(client) && /From something you shared/.test(client),
+    'the participant filters or source-person label are missing');
+  return 'one recipient; everyone else finds shared replies in the log';
 });
 
 // ---------------------------------------------------------------------------
@@ -356,7 +400,7 @@ check(16, 'one public log, with course-bounded access to John', () => {
     'the public host page still offers private invitations');
   ok(/Ready to practise\?/.test(mail) && /Your log is ready/.test(mail),
     'the evergreen welcome still reads like a course place');
-  ok(/view=settings/.test(mail) && /requestedView = \/\[\?&\]view=settings/.test(log) &&
+  ok(/view=settings/.test(mail) && /requestedParams\.get\(['"]view['"]\) === ['"]settings['"]/.test(log) &&
     /change the time or stop the daily emails/.test(mail),
     'email Settings links do not open Settings directly');
   ok(!/heading\(`Hello,|Good morning/.test(mail),

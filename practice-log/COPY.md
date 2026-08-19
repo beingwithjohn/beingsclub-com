@@ -322,9 +322,10 @@ Rendered to files you can open in a browser:
 node practice-log/dev/emails.js practice-log/email-preview
 ```
 
-Then open `practice-log/email-preview/index.html`. Ten of them: the invitation,
-you're in, day one, the daily, the Wednesday letter, John answered you, still
-here, day thirty-five, and a replacement link.
+Then open `practice-log/email-preview/index.html`. The preview includes the
+fixed and evergreen variants: the invitation, you're in, day one, the daily,
+the Wednesday letter, a reply from John, still here, day thirty-five, and a
+replacement link.
 
 The daily one is the one they'll see thirty-four times, so it's worth more of
 your attention than its length suggests:

@@ -13,6 +13,12 @@ database_name = "practice-log"
 # `wrangler d1 create practice-log` prints this. Paste it here; it is not a secret.
 database_id = "8cf3af32-666c-48fb-a943-9c38c393d24c"
 
+# Private voice replies. The bucket has no public domain; audio is returned
+# only through an authenticated Practice Log request.
+[[r2_buckets]]
+binding = "AUDIO"
+bucket_name = "practice-log-audio"
+
 [vars]
 # The app's own origin. The API only accepts browser calls from here.
 # Comma-separated for more than one. An entry may end in `:*` to allow any port

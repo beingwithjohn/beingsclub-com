@@ -13,6 +13,7 @@ import { runNudges } from './nudge.js';
 import { postGiving, postGivingPortal, stripeWebhook } from './giving.js';
 import { postLogin } from './login.js';
 import { postJoin } from './join.js';
+import { listReplies, getReplyAudio } from './replies.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -109,6 +110,9 @@ async function route(request, env, ctx, url) {
 
   if (path === '/api/state' && method === 'GET') return getState(env, who);
   if (path === '/api/day' && method === 'GET') return getDay(env, who, url);
+  if (path === '/api/replies' && method === 'GET') return listReplies(env, who);
+  const replyAudio = /^\/api\/replies\/(\d+)\/audio$/.exec(path);
+  if (replyAudio && method === 'GET') return getReplyAudio(env, who, Number(replyAudio[1]));
   if (path === '/api/giving/manage' && method === 'POST') return postGivingPortal(env, who.person);
 
   // Erasure remains available to somebody whose log has otherwise become

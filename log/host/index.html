@@ -437,6 +437,23 @@ main { flex: 1; display: flex; flex-direction: column; }
 .noterow b { font-size: 16px; font-weight: 600; color: var(--ink); }
 .noterow p { font-size: 17px; line-height: 1.6; color: var(--body); }
 
+.reply-page { max-width: 46rem; margin-inline: auto; width: 100%; }
+.reply-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+#reply-list { display: grid; gap: 18px; }
+.reply-card {
+  display: grid; gap: 13px; padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--hair-2); background: var(--warm);
+}
+.reply-card .h2 { max-width: 24ch; }
+.reply-card .body { max-width: 42ch; white-space: pre-wrap; }
+.reply-audio { min-height: 24px; display: flex; align-items: center; }
+.reply-audio:empty { display: none; }
+.reply-audio audio { width: min(100%, 32rem); }
+.reply-card.private { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.reply-card.private .caps, .reply-card.private .small { color: rgba(253,252,249,.55); }
+.reply-card.private .body, .reply-card.private .h2 { color: rgba(253,252,249,.88); }
+.reply-card.private .ul { color: var(--lilac); border-bottom-color: rgba(242,236,255,.4); }
+
 .frame { border: 1px solid var(--hair-2); padding: 20px; display: grid; gap: 8px; }
 
 /* ------------------------------------------------------------ black is John */
@@ -503,6 +520,8 @@ main { flex: 1; display: flex; flex-direction: column; }
   var root = document.getElementById('root');
   var token = null;
   var tab = 'inbox';
+  var hostAudioUrls = {};
+  var MAX_RECORDING_MS = 20 * 60 * 1000;
 
   (function () {
     var m = location.search.match(/[?&]t=([^&#]+)/);
@@ -532,6 +551,28 @@ main { flex: 1; display: flex; flex-direction: column; }
     });
   }
 
+  function apiForm(path, form) {
+    return fetch(API + path, {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + (token || '') },
+      body: form
+    }).then(function (r) {
+      if (!r.ok) return r.json().catch(function () { return {}; }).then(function (j) {
+        throw new Error(j.error || ('http ' + r.status));
+      });
+      return r.json();
+    });
+  }
+
+  function apiAudio(id) {
+    return fetch(API + '/api/replies/' + id + '/audio', {
+      headers: { authorization: 'Bearer ' + (token || '') }
+    }).then(function (r) {
+      if (!r.ok) throw new Error('That recording could not be opened.');
+      return r.blob();
+    });
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
@@ -553,7 +594,7 @@ main { flex: 1; display: flex; flex-direction: column; }
     root.appendChild(app);
 
     var t = document.getElementById('tabs');
-    [['inbox', 'Asked'], ['people', 'People']].forEach(function (p, i) {
+    [['inbox', 'Asked'], ['notes', 'Notes'], ['people', 'People']].forEach(function (p, i) {
       var b = h('<button class="barlink" style="' + (tab === p[0] ? 'color:var(--you);' : '') +
         (i ? 'margin-left:16px;' : '') + '">' + p[1] + '</button>');
       b.addEventListener('click', function () { tab = p[0]; render(); });
@@ -567,7 +608,8 @@ main { flex: 1; display: flex; flex-direction: column; }
         '<p class="body">The host link is the one seeded with <code>--host</code>.</p></div>'));
     }
     shell(h('<div class="pad"><p class="small">Loading…</p></div>'));
-    (tab === 'inbox' ? inbox() : people()).catch(function (e) {
+    var opening = tab === 'inbox' ? inbox() : tab === 'notes' ? notes() : people();
+    opening.catch(function (e) {
       shell(h('<div class="pad"><p class="small">' + esc(e.message) +
         ' — this link may not be a host link.</p></div>'));
     });
@@ -582,37 +624,266 @@ main { flex: 1; display: flex; flex-direction: column; }
       d.messages.forEach(function (m) {
         var row = h('<div style="display:grid;gap:12px;"></div>');
         row.appendChild(h('<div class="caps">' + esc(m.name) + ' · ' + esc(when(m.created_at)) +
-          (m.answered ? ' · answered' : '') + '</div>'));
+          (m.reply ? ' · replied' : '') + '</div>'));
         row.appendChild(h('<p class="body">' + esc(m.body) + '</p>'));
 
-        if (m.answered) {
-          row.appendChild(h('<p class="small">Answered: ' + esc(m.answer || '') +
-            (m.audio ? ' · <a href="' + esc(m.audio) + '">audio</a>' : '') + '</p>'));
-        } else {
-          var form = h('<div style="display:grid;gap:10px;">' +
-            '<textarea class="field" rows="3" placeholder="A line back, or leave blank and just send the audio."></textarea>' +
-            '<input class="field" placeholder="https://… voice note (optional)">' +
-            '<button class="btn">Send the answer</button>' +
-            '<p class="small" aria-live="polite"></p></div>');
-          var ta = form.querySelector('textarea');
-          var url = form.querySelector('input');
-          var msg = form.querySelector('p');
-          form.querySelector('button').addEventListener('click', function () {
-            var body = ta.value.trim(), audio = url.value.trim();
-            if (!body && !audio) { msg.textContent = 'Nothing to send.'; return; }
-            this.disabled = true;
-            msg.textContent = 'Sending…';
-            api('/api/host/answer', { method: 'POST', body: { id: m.id, body: body, audio: audio || null } })
-              .then(function (r) { msg.textContent = r.mailed ? 'Sent, and emailed.' : 'Saved. The email did not go.'; render(); })
-              .catch(function (e) { msg.textContent = e.message; });
-          });
-          row.appendChild(form);
-        }
+        row.appendChild(m.reply
+          ? savedReply(m.reply)
+          : replyForm({ type: 'message', message_id: m.id }));
         wrap.appendChild(row);
       });
 
       shell(wrap);
     });
+  }
+
+  function notes() {
+    return api('/api/host/notes').then(function (d) {
+      var wrap = h('<div class="rows" style="flex:1;"></div>');
+      if (!d.notes.length) wrap.appendChild(h('<div><p class="small">No practice notes yet.</p></div>'));
+
+      d.notes.forEach(function (note) {
+        var row = h('<div style="display:grid;gap:12px;"></div>');
+        row.appendChild(h('<div class="caps">' + esc(note.name) + ' · ' + esc(note.on_date) +
+          (note.reply ? ' · replied' : '') + '</div>'));
+        row.appendChild(h('<p class="body">“' + esc(note.body) + '”</p>'));
+        row.appendChild(note.reply
+          ? savedReply(note.reply)
+          : replyForm({ type: 'note', person_id: note.person_id, note_date: note.on_date }));
+        wrap.appendChild(row);
+      });
+
+      shell(wrap);
+    });
+  }
+
+  function replyForm(source) {
+    var box = h('<div class="host-reply-form" style="display:grid;gap:12px;padding-top:8px;">' +
+      '<div class="caps">Reply</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;" role="group" aria-label="Who can see this reply">' +
+        '<button class="chip sel" data-vis="private" aria-pressed="true">Just for them</button>' +
+        '<button class="chip" data-vis="shared" aria-pressed="false">Share with everyone</button>' +
+      '</div>' +
+      '<div class="public-context" hidden>' +
+        '<label class="small">Your question or context — this is all everyone else sees</label>' +
+        '<textarea class="field" rows="2" maxlength="500" placeholder="Write the question or context in your own words. Their original stays private."></textarea>' +
+      '</div>' +
+      '<textarea class="field reply-body" rows="3" maxlength="4000" placeholder="Write a reply, record one, or do both."></textarea>' +
+      '<div class="host-recorder" style="display:grid;gap:10px;">' +
+        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+          '<button class="ul record">Record a voice reply</button>' +
+          '<button class="ul stop" hidden>Stop recording</button>' +
+          '<span class="small timer">Up to 20 minutes</span>' +
+        '</div>' +
+        '<div class="recording-preview"></div>' +
+      '</div>' +
+      '<button class="btn send-reply">Send reply</button>' +
+      '<p class="small reply-message" aria-live="polite"></p>' +
+    '</div>');
+
+    var visibility = 'private';
+    var contextWrap = box.querySelector('.public-context');
+    var context = contextWrap.querySelector('textarea');
+    var body = box.querySelector('.reply-body');
+    var record = box.querySelector('.record');
+    var stop = box.querySelector('.stop');
+    var timer = box.querySelector('.timer');
+    var preview = box.querySelector('.recording-preview');
+    var message = box.querySelector('.reply-message');
+    var recording = null;
+    var recordingMs = 0;
+    var recorder = null;
+    var stream = null;
+    var tick = null;
+    var cutoff = null;
+    var started = 0;
+    var previewUrl = null;
+
+    [].forEach.call(box.querySelectorAll('[data-vis]'), function (button) {
+      button.addEventListener('click', function () {
+        visibility = button.getAttribute('data-vis');
+        [].forEach.call(box.querySelectorAll('[data-vis]'), function (other) {
+          var selected = other === button;
+          other.classList.toggle('sel', selected);
+          other.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        });
+        contextWrap.hidden = visibility !== 'shared';
+        if (visibility === 'shared') context.focus();
+      });
+    });
+
+    record.addEventListener('click', function () {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        message.textContent = 'This browser cannot record audio here.';
+        return;
+      }
+      message.textContent = 'Opening the microphone…';
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (opened) {
+        stream = opened;
+        var types = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg;codecs=opus'];
+        var mime = '';
+        for (var i = 0; i < types.length; i++) {
+          if (!MediaRecorder.isTypeSupported || MediaRecorder.isTypeSupported(types[i])) { mime = types[i]; break; }
+        }
+        try {
+          recorder = new MediaRecorder(stream, mime ? { mimeType: mime, audioBitsPerSecond: 48000 } : { audioBitsPerSecond: 48000 });
+        } catch (error) {
+          recorder = new MediaRecorder(stream);
+        }
+        var chunks = [];
+        recorder.addEventListener('dataavailable', function (event) {
+          if (event.data && event.data.size) chunks.push(event.data);
+        });
+        recorder.addEventListener('stop', function () {
+          clearInterval(tick); clearTimeout(cutoff);
+          if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
+          recordingMs = Math.min(MAX_RECORDING_MS, Math.max(1, Date.now() - started));
+          recording = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
+          previewUrl = URL.createObjectURL(recording);
+          preview.innerHTML = '';
+          var player = document.createElement('audio');
+          player.controls = true; player.preload = 'metadata'; player.src = previewUrl;
+          player.setAttribute('controlsList', 'nodownload');
+          preview.appendChild(player);
+          var remove = h('<button class="ul" style="margin-left:12px;">Remove recording</button>');
+          remove.addEventListener('click', function () {
+            recording = null; recordingMs = 0;
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            previewUrl = null; preview.innerHTML = '';
+            record.textContent = 'Record a voice reply';
+            timer.textContent = 'Up to 20 minutes';
+          });
+          preview.appendChild(remove);
+          record.hidden = false; record.textContent = 'Record again'; stop.hidden = true;
+          timer.textContent = formatDuration(recordingMs);
+          message.textContent = 'Recording ready.';
+        });
+        recorder.start(1000);
+        started = Date.now();
+        record.hidden = true; stop.hidden = false;
+        message.textContent = 'Recording…';
+        tick = setInterval(function () { timer.textContent = formatDuration(Date.now() - started) + ' / 20:00'; }, 250);
+        cutoff = setTimeout(function () { if (recorder && recorder.state === 'recording') recorder.stop(); }, MAX_RECORDING_MS);
+      }).catch(function () {
+        message.textContent = 'The microphone could not be opened.';
+      });
+    });
+
+    stop.addEventListener('click', function () {
+      if (recorder && recorder.state === 'recording') recorder.stop();
+    });
+
+    box.querySelector('.send-reply').addEventListener('click', function () {
+      var button = this;
+      if (!body.value.trim() && !recording) { message.textContent = 'Write or record something first.'; return; }
+      if (visibility === 'shared' && !context.value.trim()) {
+        message.textContent = 'Write the public question or context first.'; context.focus(); return;
+      }
+
+      var form = new FormData();
+      form.append('source_type', source.type);
+      if (source.type === 'message') form.append('message_id', String(source.message_id));
+      if (source.type === 'note') {
+        form.append('person_id', String(source.person_id));
+        form.append('note_date', source.note_date);
+      }
+      form.append('visibility', visibility);
+      form.append('context', context.value.trim());
+      form.append('body', body.value.trim());
+      if (recording) {
+        form.append('audio', recording, recording.type.indexOf('mp4') > -1 ? 'reply.m4a' : 'reply.webm');
+        form.append('audio_ms', String(recordingMs));
+      }
+
+      button.disabled = true;
+      message.textContent = 'Sending…';
+      apiForm('/api/host/reply', form).then(function (result) {
+        message.textContent = result.mailed ? 'Saved, and they were emailed.' : 'Saved. Their email did not go.';
+        setTimeout(render, 700);
+      }).catch(function (error) {
+        button.disabled = false;
+        message.textContent = error.message || 'That did not go through.';
+      });
+    });
+
+    return box;
+  }
+
+  function savedReply(reply) {
+    var box = h('<div class="frame" style="display:grid;gap:10px;">' +
+      '<div class="caps">' + (reply.visibility === 'shared' ? 'Shared with everyone' : 'Just for them') + '</div>' +
+      (reply.context ? '<p class="body"><b>Public context:</b> ' + esc(reply.context) + '</p>' : '') +
+      (reply.body ? '<p class="body">' + esc(reply.body) + '</p>' : '') +
+      '<div class="saved-audio"></div>' +
+      '<div class="reply-sharing" hidden style="display:grid;gap:8px;">' +
+        '<textarea class="field" rows="2" maxlength="500" placeholder="The question or context everyone will see.">' + esc(reply.context || '') + '</textarea>' +
+        '<button class="ul save-sharing">Share with everyone</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:14px;flex-wrap:wrap;">' +
+        (reply.visibility === 'shared'
+          ? '<button class="ul make-private">Make private</button><button class="ul edit-context">Change public context</button>'
+          : '<button class="ul make-shared">Share with everyone</button>') +
+        '<button class="ul danger-link remove-reply">Remove reply</button>' +
+      '</div>' +
+      '<p class="small saved-message" aria-live="polite"></p>' +
+    '</div>');
+
+    var audio = box.querySelector('.saved-audio');
+    if (reply.legacy_audio) {
+      audio.appendChild(h('<a class="ul" href="' + esc(reply.legacy_audio) + '" target="_blank" rel="noopener">Listen</a>'));
+    } else if (reply.has_audio) {
+      var listen = h('<button class="ul">Listen</button>');
+      listen.addEventListener('click', function () {
+        listen.disabled = true; listen.textContent = 'Opening…';
+        var ready = hostAudioUrls[reply.id] ? Promise.resolve(hostAudioUrls[reply.id]) : apiAudio(reply.id).then(function (blob) {
+          var url = URL.createObjectURL(blob); hostAudioUrls[reply.id] = url; return url;
+        });
+        ready.then(function (url) {
+          var player = document.createElement('audio');
+          player.controls = true; player.preload = 'metadata'; player.src = url;
+          player.setAttribute('controlsList', 'nodownload');
+          audio.innerHTML = ''; audio.appendChild(player);
+        }).catch(function () { listen.disabled = false; listen.textContent = 'Try listening again'; });
+      });
+      audio.appendChild(listen);
+    }
+
+    var sharing = box.querySelector('.reply-sharing');
+    var sharingText = sharing.querySelector('textarea');
+    var message = box.querySelector('.saved-message');
+    function openSharing() { sharing.hidden = false; sharingText.focus(); }
+    var makeShared = box.querySelector('.make-shared');
+    var editContext = box.querySelector('.edit-context');
+    if (makeShared) makeShared.addEventListener('click', openSharing);
+    if (editContext) editContext.addEventListener('click', openSharing);
+    box.querySelector('.save-sharing').addEventListener('click', function () {
+      if (!sharingText.value.trim()) { message.textContent = 'Write the public context first.'; return; }
+      this.disabled = true; message.textContent = 'Saving…';
+      api('/api/host/reply/visibility', {
+        method: 'POST', body: { id: reply.id, visibility: 'shared', context: sharingText.value.trim() }
+      }).then(render).catch(function (error) { message.textContent = error.message; });
+    });
+    var makePrivate = box.querySelector('.make-private');
+    if (makePrivate) makePrivate.addEventListener('click', function () {
+      this.disabled = true; message.textContent = 'Saving…';
+      api('/api/host/reply/visibility', {
+        method: 'POST', body: { id: reply.id, visibility: 'private', context: '' }
+      }).then(render).catch(function (error) { message.textContent = error.message; });
+    });
+    box.querySelector('.remove-reply').addEventListener('click', function () {
+      if (!confirm('Remove this reply and its recording?')) return;
+      this.disabled = true; message.textContent = 'Removing…';
+      api('/api/host/reply/remove', { method: 'POST', body: { id: reply.id } })
+        .then(render).catch(function (error) { message.textContent = error.message; });
+    });
+    return box;
+  }
+
+  function formatDuration(ms) {
+    var seconds = Math.max(0, Math.floor(ms / 1000));
+    var minutes = Math.floor(seconds / 60);
+    return String(minutes).padStart(2, '0') + ':' + String(seconds % 60).padStart(2, '0');
   }
 
   // -------------------------------------------------------------------------

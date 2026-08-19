@@ -1,4 +1,4 @@
-// Render all seven emails to files, so they can be looked at before anyone
+// Render every email shape to files, so they can be looked at before anyone
 // receives one.
 //
 //   node practice-log/dev/emails.js [outdir]
@@ -32,10 +32,7 @@ const set = [
     mapUrl: 'https://beingsclub.com/practice-map/',
   })],
   ['E5-answered', T.answered({
-    person, url, askedOn: '2026-10-01',
-    question: 'I have sat every day this week and felt nothing. Am I doing it wrong, or is that the point?',
-    answerText: 'Feeling nothing is not a failure of the practice — it is often the first honest thing.',
-    audioUrl: 'https://example.com/answer.mp3',
+    person, url, visibility: 'shared', hasAudio: true,
   })],
   ['E6-still-here', T.stillHere({ person, url })],
   ['E7-last-day', T.lastDay({ person, run: fixed, url, marked: 28 })],
@@ -55,7 +52,7 @@ for (const [name, mail] of set) {
 writeFileSync(join(out, 'index.html'),
   `<meta charset="utf-8"><title>Emails</title>
    <body style="font:15px/1.6 -apple-system,sans-serif;background:#F0EEE8;margin:0;padding:40px;">
-   <h1 style="font-weight:600;letter-spacing:-.02em;">The seven emails</h1>
+   <h1 style="font-weight:600;letter-spacing:-.02em;">Practice Log emails</h1>
    <p style="color:#75726A;">Rendered from src/mail/templates.js. Nothing here was sent.</p>
    <table style="background:#FDFCF9;border-collapse:collapse;width:100%;max-width:64rem;">${rows.join('')}</table>`);
 

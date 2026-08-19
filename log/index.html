@@ -437,6 +437,23 @@ main { flex: 1; display: flex; flex-direction: column; }
 .noterow b { font-size: 16px; font-weight: 600; color: var(--ink); }
 .noterow p { font-size: 17px; line-height: 1.6; color: var(--body); }
 
+.reply-page { max-width: 46rem; margin-inline: auto; width: 100%; }
+.reply-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+#reply-list { display: grid; gap: 18px; }
+.reply-card {
+  display: grid; gap: 13px; padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--hair-2); background: var(--warm);
+}
+.reply-card .h2 { max-width: 24ch; }
+.reply-card .body { max-width: 42ch; white-space: pre-wrap; }
+.reply-audio { min-height: 24px; display: flex; align-items: center; }
+.reply-audio:empty { display: none; }
+.reply-audio audio { width: min(100%, 32rem); }
+.reply-card.private { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.reply-card.private .caps, .reply-card.private .small { color: rgba(253,252,249,.55); }
+.reply-card.private .body, .reply-card.private .h2 { color: rgba(253,252,249,.88); }
+.reply-card.private .ul { color: var(--lilac); border-bottom-color: rgba(242,236,255,.4); }
+
 .frame { border: 1px solid var(--hair-2); padding: 20px; display: grid; gap: 8px; }
 
 /* ------------------------------------------------------------ black is John */
@@ -522,11 +539,15 @@ main { flex: 1; display: flex; flex-direction: column; }
   var reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
   var L = load();
   var S = L.cache || null;       // the last state the server sent
-  var requestedView = /[?&]view=settings(?:[&#]|$)/.test(location.search) ? 'settings' : null;
+  var requestedParams = new URLSearchParams(location.search);
+  var requestedView = requestedParams.get('view') === 'settings' ? 'settings'
+    : requestedParams.get('view') === 'from-john' ? 'replies' : null;
+  var requestedReply = Number(requestedParams.get('reply')) || null;
   var view = L.timer && L.timer.started ? 'timer' : requestedView;
   var openDate = null;
   var timerTick = null;
   var timerAudio = null;
+  var replyAudioUrls = {};
   var openPresence = null;
   var busy = false;
   var offline = false;
@@ -588,6 +609,16 @@ main { flex: 1; display: flex; flex-direction: column; }
         var e = new Error(j.error || ('http ' + r.status)); e.status = r.status; throw e;
       });
       return r.json();
+    });
+  }
+
+  function apiBlob(path) {
+    return fetch(API + path, {
+      headers: { authorization: 'Bearer ' + (L.token || '') }
+    }).then(function (r) {
+      if (r.status === 401) { L.token = null; save(); throw new Error('unauthorised'); }
+      if (!r.ok) throw new Error('That recording could not be opened.');
+      return r.blob();
     });
   }
 
@@ -773,6 +804,7 @@ main { flex: 1; display: flex; flex-direction: column; }
     if (view === 'timer') return viewTimer();
 
     if (view === 'john') return viewJohn();
+    if (view === 'replies') return viewReplies();
     if (view === 'settings') return viewSettings();
     if (view === 'yesterday') return viewYesterday();
     if (view === 'day') return viewDay();
@@ -830,6 +862,7 @@ main { flex: 1; display: flex; flex-direction: column; }
       items.push({ id: 'today', label: 'Today', sub: todaySub(), view: null });
     }
     items.push({ id: 'settings', label: 'Settings', sub: 'Manage your Practice Log and account', view: 'settings' });
+    items.push({ id: 'replies', label: 'From John', sub: 'Replies for you and replies shared with everyone', view: 'replies' });
     items.push({
       id: 'giving',
       label: 'Giving',
@@ -1629,7 +1662,6 @@ main { flex: 1; display: flex; flex-direction: column; }
 
     shell(inner, {
       right: '<span class="barlab">' + esc(dayLabel()) + '</span>',
-      above: answerStrip(),
       foot: foot
     });
 
@@ -1842,23 +1874,6 @@ main { flex: 1; display: flex; flex-direction: column; }
     return gap >= 3;
   }
 
-  // M11 · an answer from John, above the log. Still black, and it never blocks
-  // the tap — you are never made to read before you can log.
-  function answerStrip() {
-    var a = (S.answers || [])[0];
-    if (!a || L.dismissed['answer:' + a.id]) return null;
-    var el = h('<div class="answer">' +
-      '<div class="caps">John replied · just to you</div>' +
-      (a.answer ? '<p>“' + esc(a.answer) + '”</p>' : '') +
-      (a.audio ? '<p><a href="' + esc(a.audio) + '" target="_blank" rel="noopener">Listen</a></p>' : '') +
-      '<button class="caps" id="dismiss-answer" style="justify-self:start;">Close</button>' +
-    '</div>');
-    el.querySelector('#dismiss-answer').addEventListener('click', function () {
-      L.dismissed['answer:' + a.id] = 1; save(); render();
-    });
-    return el;
-  }
-
   // -------------------------------------------------------------------------
   // the anatomy of one tap
   // -------------------------------------------------------------------------
@@ -2016,8 +2031,7 @@ main { flex: 1; display: flex; flex-direction: column; }
       '<a href="/giving/">you can give here.</a></div>'));
 
     shell(inner, {
-      right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>',
-      above: answerStrip()
+      right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>'
     });
 
   }
@@ -2223,6 +2237,118 @@ main { flex: 1; display: flex; flex-direction: column; }
   }
 
   // -------------------------------------------------------------------------
+  // replies from John — private to you, or shared through John's own context
+  // -------------------------------------------------------------------------
+  function viewReplies() {
+    var filter = requestedReply ? 'for-you' : (L.replyFilter || 'for-you');
+    var inner = h('<div class="pad reply-page" style="flex:1;display:grid;align-content:start;gap:24px;">' +
+      '<div><div class="eyebrow">From John</div>' +
+        '<h1 class="h1" style="max-width:16ch;">Replies, kept here.</h1></div>' +
+      '<div class="reply-tabs" role="group" aria-label="Which replies to show">' +
+        '<button class="chip" data-reply-filter="for-you" aria-pressed="false">For you</button>' +
+        '<button class="chip" data-reply-filter="shared" aria-pressed="false">Shared</button>' +
+      '</div>' +
+      '<div id="reply-list"><p class="small">Opening…</p></div>' +
+    '</div>');
+
+    shell(inner, { right: '<span class="barlab">From John</span>' });
+
+    var list = inner.querySelector('#reply-list');
+    var replies = [];
+    function paint() {
+      [].forEach.call(inner.querySelectorAll('[data-reply-filter]'), function (button) {
+        var selected = button.getAttribute('data-reply-filter') === filter;
+        button.classList.toggle('sel', selected);
+        button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+      });
+
+      var shown = replies.filter(function (reply) {
+        return filter === 'for-you' ? reply.for_you : reply.visibility === 'shared';
+      });
+      list.innerHTML = '';
+      if (!shown.length) {
+        list.appendChild(h('<p class="body">' +
+          (filter === 'for-you' ? 'Nothing here for you yet.' : 'Nothing has been shared yet.') +
+          '</p>'));
+        return;
+      }
+      shown.forEach(function (reply) { list.appendChild(replyCard(reply)); });
+      if (requestedReply) {
+        var chosen = document.getElementById('reply-' + requestedReply);
+        if (chosen) chosen.scrollIntoView({ block: 'center' });
+        requestedReply = null;
+      }
+    }
+
+    [].forEach.call(inner.querySelectorAll('[data-reply-filter]'), function (button) {
+      button.addEventListener('click', function () {
+        filter = button.getAttribute('data-reply-filter');
+        L.replyFilter = filter; save(); paint();
+      });
+    });
+
+    api('/api/replies').then(function (data) {
+      replies = data.replies || [];
+      paint();
+    }).catch(function () {
+      list.innerHTML = '<p class="body">The replies could not be opened just now.</p>';
+    });
+  }
+
+  function replyCard(reply) {
+    var label = reply.visibility === 'private' ? 'Just for you'
+      : reply.for_you ? 'From something you shared · shared' : 'Shared';
+    var card = h('<article class="reply-card' + (reply.visibility === 'private' ? ' private' : '') +
+      '" id="reply-' + esc(String(reply.id)) + '">' +
+      '<div class="caps">' + esc(label) + '</div>' +
+      (reply.context ? '<h2 class="h2">' + esc(reply.context) + '</h2>' : '') +
+      (reply.body ? '<p class="body">' + esc(reply.body) + '</p>' : '') +
+      '<div class="reply-audio"></div>' +
+      '<p class="small">' + esc(replyWhen(reply.created_at)) + '</p>' +
+    '</article>');
+    var audioBox = card.querySelector('.reply-audio');
+
+    if (reply.legacy_audio) {
+      audioBox.appendChild(h('<a class="ul" href="' + esc(reply.legacy_audio) +
+        '" target="_blank" rel="noopener">Listen</a>'));
+    } else if (reply.has_audio) {
+      var listen = h('<button class="ul">Listen</button>');
+      listen.addEventListener('click', function () {
+        listen.disabled = true;
+        listen.textContent = 'Opening…';
+        var ready = replyAudioUrls[reply.id]
+          ? Promise.resolve(replyAudioUrls[reply.id])
+          : apiBlob('/api/replies/' + reply.id + '/audio').then(function (blob) {
+            var url = URL.createObjectURL(blob);
+            replyAudioUrls[reply.id] = url;
+            return url;
+          });
+        ready.then(function (url) {
+          var player = document.createElement('audio');
+          player.controls = true;
+          player.preload = 'metadata';
+          player.src = url;
+          player.setAttribute('controlsList', 'nodownload');
+          audioBox.innerHTML = '';
+          audioBox.appendChild(player);
+        }).catch(function () {
+          listen.disabled = false;
+          listen.textContent = 'Try listening again';
+        });
+      });
+      audioBox.appendChild(listen);
+    }
+    return card;
+  }
+
+  function replyWhen(timestamp) {
+    if (!timestamp) return '';
+    return new Date(timestamp * 1000).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  }
+
+  // -------------------------------------------------------------------------
   // M13 · yesterday, added late
   // -------------------------------------------------------------------------
   function viewYesterday() {
@@ -2301,10 +2427,19 @@ main { flex: 1; display: flex; flex-direction: column; }
     inner.querySelector('#send').addEventListener('click', function () {
       var v = q.value.trim();
       if (!v) return;
-      this.disabled = true;
-      enqueue({ path: '/api/message', body: { body: v } });
-      q.value = '';
-      inner.querySelector('#msg').textContent = 'Sent. He answers by voice, usually within a day or two.';
+      var button = this;
+      var message = inner.querySelector('#msg');
+      button.disabled = true;
+      message.textContent = 'Sending…';
+      api('/api/message', { method: 'POST', body: { body: v } }).then(function () {
+        q.value = '';
+        message.textContent = 'Sent. He answers by voice, usually within a day or two.';
+      }).catch(function (error) {
+        button.disabled = false;
+        message.textContent = error.status === 409
+          ? 'This private line is no longer open.'
+          : 'That did not send. Try again in a moment.';
+      });
     });
   }
 

@@ -61,6 +61,8 @@ person           run_id, name, email, timezone, nudge_hour, nudge_on, notes_on,
 day_mark         (person_id, on_date) PK, marked_at, late
 note             (person_id, on_date) PK, body ≤100, removed_at
 private_message  person_id, on_date, body, answer_body, answer_url, answered_at
+host_reply       recipient, one source message or note, private/shared,
+                 John's public context, text, private R2 audio key, duration
 gift             amount, currency, cadence, Stripe refs; no Practice Log person
 giving_subscription  Stripe customer/subscription refs, email, amount, status; no person FK
 contribution / contribution_subscription  legacy unused tables from the earlier attached model
@@ -109,8 +111,17 @@ The seven-day shape has no visible numbers: every mark is an equal dot and only
 the viewer's own dot is differentiated.
 
 **4 · White is shared, black is John.** Colour carries the privacy model.
-Anything on ink is read by John alone. `private_message` is read by no handler a
-participant can reach.
+Anything on ink is read by John alone. `private_message`, and the original note
+behind a reply, are read by no handler a participant can reach. Replies live in
+a separate `host_reply` record. A shared reply contains John's own public
+question or context, never the source person's words or identity. Private
+replies are returned only to their recipient. Shared replies prompted by other
+people open only after today's tap; your own reply always opens from its email.
+
+Voice replies are stored in the private `practice-log-audio` R2 bucket and
+streamed through an authenticated Worker route. There is no public R2 URL. The
+browser and Worker both cap a recording at twenty minutes. Account deletion
+removes the person's R2 objects before D1 cascades their rows.
 
 **And one consequence that is easy to undo by accident:** identity is derived
 from marks, never accounts. `sharedView` may correlate somebody's practice
@@ -135,6 +146,8 @@ POST   /api/join        {name?, email, timezone?}  public evergreen entry; email
 POST   /api/login       {email}    unauthenticated; posts the link back
 GET    /api/state                  everything the app renders
 GET    /api/day?date=YYYY-MM-DD    one day, gated on today being marked
+GET    /api/replies                own replies + shared replies after today's tap
+GET    /api/replies/:id/audio      authenticated private R2 stream
 POST   /api/mark        {date?}    the only thing that records a practice
 POST   /api/note        {date?, body}
 POST   /api/message     {body}     private to John
@@ -149,10 +162,15 @@ GET    /api/invite                 Invite auth. The threshold. Writes nothing.
 POST   /api/place       {name?, line?, timezone?, nudge_hour?}  → {token}
 
 GET    /api/host/inbox             is_host only; 404 otherwise, never 403
+GET    /api/host/notes             practice notes the host may reply to
 GET    /api/host/people
 POST   /api/host/invite  {name, email, send?, force?}
 POST   /api/host/message-access {person_id, from, until}  dates or both null
-POST   /api/host/answer  {id, body?, audio?}
+POST   /api/host/reply             multipart: source, private/shared, context,
+                                   body and/or recording (twenty-minute max)
+POST   /api/host/reply/visibility  make a reply private/shared; context required shared
+POST   /api/host/reply/remove      remove reply and its recording
+POST   /api/host/answer            compatibility for the retired URL form
 POST   /api/host/note/remove {person_id, date}
 POST   /api/host/week    {confirm:true, week_number, ...}
 ```
@@ -238,22 +256,22 @@ allows five, and the sweep is already timezone-aware.
 - **The offline queue.** The client writes locally and syncs later, so a mark
   can arrive hours after the day it belongs to. Key on `on_date`, never on
   arrival time.
-- **`is_host`.** John practises like everyone else but is deliberately *not*
-  one of the participant count: excluded from aggregates and from "the
-  others". Any aggregate you build should
-  exclude hosts the same way.
+- **`is_host`.** John practises like everyone else and appears as one equal dot
+  when he marks. Host privilege changes access to the host page, not whether a
+  practice counts in the shared week.
 
 ## 7. Verifying you have not broken it
 
 ```bash
 cd practice-log
-npm test              # 42 unit tests: day maths, access, Stripe and CORS
-node test/checks.js   # 20 product checks against the built app
+npm test              # unit tests: days, access, replies, Stripe and CORS
+node test/checks.js   # product checks against the built app
 ```
 
 `checks.js` is the one that matters for a change like this. It fails the build
 if the banned vocabulary reaches the interface, if `shared` stops being gated,
-if a participant query starts reading private messages, if a write becomes
+if a participant query starts reading source messages or notes, if protected
+recordings become public or lose their cap, if a write becomes
 reachable by GET, if a token appears in a URL, or if anything secret is tracked
 by git. Run it before every deploy. If you add a rule, add a check.
 
