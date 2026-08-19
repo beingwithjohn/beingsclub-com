@@ -408,6 +408,11 @@ check(20, 'equal dots make practice social without making accounts social', () =
     'the old visible counts or bars remain on the weekly view');
   ok(/people:\s*\[\.\.\.profiles\.values\(\)\]/.test(api) && /people,\s*\n\s*mine:/.test(api),
     'past marked identities are not retained with their days');
+  ok(!/FROM day_mark dm JOIN person p[\s\S]{0,220}p\.is_host = 0/.test(api),
+    'a host who practises is still filtered out of participant presence');
+  ok(/S\.shared\.today_count - 1/.test(log) &&
+    /d\.count - \(d\.mine \? 1 : 0\)/.test(log),
+  'the viewer’s own host mark is counted as another person');
   ok(/Only this week remains visible/.test(log) && !/function allBlock\(/.test(log) &&
     /outside the visible week/.test(api), 'participant history extends beyond the one visible week');
   return 'equal day dots; only yours differs; one week; identity opens on hover or tap';

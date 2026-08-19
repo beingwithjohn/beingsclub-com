@@ -23,10 +23,10 @@ function presenceDb() {
   };
 }
 
-test('shared presence contains only people who marked visible days', async () => {
+test('shared presence contains marked people, including the host', async () => {
   const shared = await sharedView(
     { DB: presenceDb() },
-    { person: { id: 1 }, run: { id: 7, mode: 'evergreen' } },
+    { person: { id: 1, is_host: true }, run: { id: 7, mode: 'evergreen' } },
     '2026-08-18',
     '2026-08-19',
     { from: '2026-08-18', marks: new Set(['2026-08-18']), notes: new Map() },

@@ -1404,12 +1404,11 @@
 
   // How many people other than you practised today.
   //
-  // The host is not one of the ten and is not in these counts, so subtracting
-  // yourself is right for a participant and wrong for him — his own mark was
-  // never in the total to begin with.
+  // Hosting changes access, not presence: when the host practises, his own
+  // mark is in the total and is subtracted here exactly like anybody else's.
   function othersToday() {
     if (!S.shared) return 0;
-    return S.shared.today_count - (S.person.is_host ? 0 : 1);
+    return Math.max(0, S.shared.today_count - 1);
   }
 
   /** True when nobody else has appeared through practice in the visible log. */
@@ -1642,7 +1641,7 @@
 
   function othersForDay(d) {
     if (!d) return 0;
-    return Math.max(0, d.count - (S.person.is_host ? 0 : (d.mine ? 1 : 0)));
+    return Math.max(0, d.count - (d.mine ? 1 : 0));
   }
 
   function weekDayReading(date, d, future) {
