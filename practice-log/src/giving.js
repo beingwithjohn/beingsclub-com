@@ -7,9 +7,10 @@
 import { json, bad } from './api.js';
 
 const STRIPE = 'https://api.stripe.com/v1';
-const MINIMUM = 100;              // £1.00, in the smallest unit
+const MINIMUM = 100;              // £1.00 or $1.00, in the smallest unit
 const MAXIMUM = 99999999;         // Stripe's eight-digit unit-amount ceiling
 const REPLAY_WINDOW = 5 * 60;     // seconds a webhook signature stays valid
+const CURRENCIES = new Set(['gbp', 'usd']);
 
 // ---------------------------------------------------------------------------
 // POST /api/giving  →  a Checkout session to send the giver to
@@ -19,7 +20,9 @@ export async function postGiving(env, body) {
 
   const cadence = body?.cadence || 'once';
   const amount = Number(body?.amount);
+  const currency = String(body?.currency || 'gbp').toLowerCase();
   if (!['once', 'monthly'].includes(cadence)) return bad(400, 'cadence');
+  if (!CURRENCIES.has(currency)) return bad(400, 'currency');
   if (!Number.isInteger(amount) || amount < MINIMUM || amount > MAXIMUM) {
     return bad(400, 'amount');
   }
@@ -31,7 +34,7 @@ export async function postGiving(env, body) {
     'metadata[source]': 'giving',
     'metadata[cadence]': cadence,
     'line_items[0][quantity]': '1',
-    'line_items[0][price_data][currency]': 'gbp',
+    'line_items[0][price_data][currency]': currency,
     'line_items[0][price_data][product_data][name]': cadence === 'monthly'
       ? 'Monthly gift to Beings Club'
       : 'Gift to Beings Club',

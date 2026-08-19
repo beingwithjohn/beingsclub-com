@@ -46,6 +46,7 @@ test('one-off giving uses the amount chosen on the public page', async () => {
     assert.equal(response.status, 200);
     const form = sent().options.body;
     assert.equal(form.get('mode'), 'payment');
+    assert.equal(form.get('line_items[0][price_data][currency]'), 'gbp');
     assert.equal(form.get('line_items[0][price_data][unit_amount]'), '725');
     assert.equal(form.get('line_items[0][price_data][custom_unit_amount][enabled]'), null);
     assert.equal(form.get('metadata[source]'), 'giving');
@@ -53,22 +54,32 @@ test('one-off giving uses the amount chosen on the public page', async () => {
   });
 });
 
-test('monthly giving uses the same chosen amount as a recurring price', async () => {
+test('monthly giving uses the chosen currency and amount as a recurring price', async () => {
   await withFetch({ url: 'https://checkout.stripe.test/monthly' }, async (sent) => {
-    const response = await postGiving(env(), { cadence: 'monthly', amount: 725 });
+    const response = await postGiving(env(), { cadence: 'monthly', currency: 'usd', amount: 725 });
     assert.equal(response.status, 200);
     const form = sent().options.body;
     assert.equal(form.get('mode'), 'subscription');
+    assert.equal(form.get('line_items[0][price_data][currency]'), 'usd');
     assert.equal(form.get('line_items[0][price_data][unit_amount]'), '725');
     assert.equal(form.get('line_items[0][price_data][recurring][interval]'), 'month');
     assert.equal(form.get('subscription_data[metadata][source]'), 'giving');
   });
 });
 
-test('giving refuses missing, fractional-pence and sub-£1 amounts', async () => {
+test('dollar giving is presented in USD', async () => {
+  await withFetch({ url: 'https://checkout.stripe.test/dollars' }, async (sent) => {
+    const response = await postGiving(env(), { cadence: 'once', currency: 'usd', amount: 1250 });
+    assert.equal(response.status, 200);
+    assert.equal(sent().options.body.get('line_items[0][price_data][currency]'), 'usd');
+  });
+});
+
+test('giving refuses unsupported currencies, fractional smallest units and sub-unit gifts', async () => {
   assert.equal((await postGiving(env(), { cadence: 'once' })).status, 400);
   assert.equal((await postGiving(env(), { cadence: 'once', amount: 100.5 })).status, 400);
   assert.equal((await postGiving(env(), { cadence: 'monthly', amount: 99 })).status, 400);
+  assert.equal((await postGiving(env(), { cadence: 'once', currency: 'cad', amount: 500 })).status, 400);
 });
 
 test('a signed paid gift is recorded without a Practice Log person', async () => {

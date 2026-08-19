@@ -416,6 +416,8 @@ check(21, 'the timer remains separate from recording practice', () => {
     'the agreed note invitation is missing');
   const mail = read('practice-log', 'src', 'mail', 'templates.js');
   ok(/Change when you receive this note/.test(mail), 'the email timing link has the old wording');
+  ok(/subject: ['"]Did you practise\?['"]/.test(mail) &&
+    !/A quiet minute counts/.test(mail), 'the daily email subject is not the agreed question');
   return 'presets plus 1–180 custom; optional bell; no automatic mark';
 });
 
@@ -426,7 +428,10 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   ok(/data-cadence="once"[^>]*aria-pressed="true"/.test(giving),
     'one-off is not the initially selected gift');
   ok(/data-cadence="monthly"/.test(giving), 'monthly giving is not offered');
-  ok(/min="1"/.test(giving) && /£1 minimum/.test(giving), 'the agreed £1 minimum is not stated');
+  ok(/min="1"/.test(giving) && /£1 minimum/.test(giving), 'the minimum is not stated');
+  ok(/data-currency="gbp"[^>]*aria-pressed="true"/.test(giving) &&
+    /data-currency="usd"/.test(giving) && !/data-currency="eur"/.test(giving),
+  'the page does not offer exactly GBP and USD, with pounds selected first');
   ok(/This work is freely given/.test(giving) && /Giving nothing creates no debt/.test(giving),
     'the page does not preserve the Dana freedom test');
   ok(/More support may let Beings Club do more/.test(giving) &&
@@ -436,7 +441,7 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   const idx = read('practice-log', 'src', 'index.js');
   ok(idx.indexOf("path === '/api/giving'") < idx.indexOf('const who = await identify'),
     'giving still depends on Practice Log identity');
-  return 'standalone /giving/; one-off first; monthly; no debt or access gate';
+  return 'standalone /giving/; one-off first; GBP or USD; no access gate';
 });
 
 // ---------------------------------------------------------------------------

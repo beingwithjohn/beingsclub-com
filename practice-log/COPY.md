@@ -245,9 +245,10 @@ billing controls.
 > What you give changes nothing about your access or place here. Giving nothing
 > creates no debt.
 
-The amount field starts blank, one-off is selected first, and both one-off and
-monthly gifts have a £1 minimum. Stripe handles payment and sends the giver the
-way to manage or end monthly giving.
+The amount field starts blank, one-off is selected first, and the giver chooses
+GBP or USD. Both one-off and monthly gifts have a minimum of one whole unit
+in the chosen currency. Stripe handles payment and sends the giver the way to
+manage or end monthly giving.
 
 ---
 

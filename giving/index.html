@@ -85,10 +85,17 @@
           <button class="choice" type="button" data-cadence="once" aria-pressed="true" style="border:1px solid rgba(38,34,26,0.18);background:#F2ECFF;color:#5A4B7C;padding:11px 16px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">One-off</button>
           <button class="choice" type="button" data-cadence="monthly" aria-pressed="false" style="border:1px solid rgba(38,34,26,0.18);background:#FDFCF9;color:#43403A;padding:11px 16px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;">Monthly</button>
         </div>
+        <div style="display:grid;gap:9px;">
+          <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Currency</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;" role="group" aria-label="Currency">
+            <button class="choice" type="button" data-currency="gbp" aria-pressed="true" style="border:1px solid rgba(38,34,26,0.18);background:#F2ECFF;color:#5A4B7C;padding:11px 16px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">£ GBP</button>
+            <button class="choice" type="button" data-currency="usd" aria-pressed="false" style="border:1px solid rgba(38,34,26,0.18);background:#FDFCF9;color:#43403A;padding:11px 16px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">$ USD</button>
+          </div>
+        </div>
         <label style="display:grid;gap:9px;">
           <span id="amount-label" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Amount</span>
           <span style="position:relative;display:block;">
-            <span aria-hidden="true" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:19px;color:#43403A;">£</span>
+            <span id="currency-symbol" aria-hidden="true" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:19px;color:#43403A;">£</span>
             <input class="amount" id="amount" type="number" inputmode="decimal" min="1" step="0.01" autocomplete="off" aria-describedby="amount-help" style="width:100%;border:1px solid rgba(38,34,26,0.18);border-radius:0;background:#FDFCF9;color:#171916;padding:14px 16px 14px 36px;font-size:19px;line-height:1.4;">
           </span>
         </label>
@@ -115,12 +122,23 @@
   (function () {
     var API = 'https://practice-log.beingsclub.workers.dev';
     var cadence = 'once';
+    var currency = 'gbp';
+    var symbols = { gbp: '£', usd: '$' };
     var amount = document.getElementById('amount');
     var give = document.getElementById('give');
     var message = document.getElementById('message');
     var help = document.getElementById('amount-help');
     var label = document.getElementById('amount-label');
+    var currencySymbol = document.getElementById('currency-symbol');
     var monthlyNote = document.getElementById('monthly-note');
+
+    function updateAmountCopy() {
+      var symbol = symbols[currency];
+      label.textContent = cadence === 'monthly' ? 'Amount each month' : 'Amount';
+      help.textContent = symbol + '1 minimum.' +
+        (cadence === 'monthly' ? ' This repeats monthly until you end it.' : '');
+      currencySymbol.textContent = symbol;
+    }
 
     if (/[?&]thanks=1(?:&|$)/.test(location.search)) {
       document.getElementById('thanks').hidden = false;
@@ -136,16 +154,28 @@
           choice.style.background = selected ? '#F2ECFF' : '#FDFCF9';
           choice.style.color = selected ? '#5A4B7C' : '#43403A';
         });
-        label.textContent = cadence === 'monthly' ? 'Amount each month' : 'Amount';
-        help.textContent = cadence === 'monthly' ? '£1 minimum. This repeats monthly until you end it.' : '£1 minimum.';
+        updateAmountCopy();
         monthlyNote.hidden = cadence !== 'monthly';
+      });
+    });
+
+    document.querySelectorAll('[data-currency]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        currency = button.getAttribute('data-currency');
+        document.querySelectorAll('[data-currency]').forEach(function (choice) {
+          var selected = choice === button;
+          choice.setAttribute('aria-pressed', selected ? 'true' : 'false');
+          choice.style.background = selected ? '#F2ECFF' : '#FDFCF9';
+          choice.style.color = selected ? '#5A4B7C' : '#43403A';
+        });
+        updateAmountCopy();
       });
     });
 
     give.addEventListener('click', function () {
       var raw = (amount.value || '').trim();
       if (!/^\d+(?:\.\d{1,2})?$/.test(raw) || Number(raw) < 1) {
-        message.textContent = 'Enter an amount of £1 or more.';
+        message.textContent = 'Enter an amount of ' + symbols[currency] + '1 or more.';
         amount.focus();
         return;
       }
@@ -154,7 +184,11 @@
       fetch(API + '/api/giving', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ cadence: cadence, amount: Math.round(Number(raw) * 100) })
+        body: JSON.stringify({
+          cadence: cadence,
+          currency: currency,
+          amount: Math.round(Number(raw) * 100)
+        })
       }).then(function (response) {
         return response.json().catch(function () { return {}; }).then(function (body) {
           if (!response.ok) { var error = new Error(body.error || 'request'); error.status = response.status; throw error; }

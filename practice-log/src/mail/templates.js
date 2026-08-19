@@ -248,10 +248,6 @@ export function dayOne({ person, run, url, principle }) {
 // No group news, no counts, no "you haven't logged". One line rotates with the
 // week's principle where a run has them; the rest is fixed.
 export function daily({ person, run, url, dayNumber, principle }) {
-  const label = run.mode === 'fixed'
-    ? `Day ${dayNumber} · a quiet minute counts`
-    : `A quiet minute counts`;
-
   const blocks = [
     eyebrow('Practice Log'),
     heading(`Good morning, ${esc(first(person.name))}.`),
@@ -263,7 +259,7 @@ export function daily({ person, run, url, dayNumber, principle }) {
   ].join('');
 
   return {
-    subject: label,
+    subject: 'Did you practise?',
     html: layout({ preheader: 'Whenever you practise today, come and say so.', blocks, footer: settings(url) }),
     text: [
       `Good morning, ${first(person.name)}.`, '',

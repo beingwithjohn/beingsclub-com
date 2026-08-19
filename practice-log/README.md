@@ -105,8 +105,9 @@ node app/build.js --api https://your-worker-origin
 
 Giving lives at `https://beingsclub.com/giving/`, separate from Practice Log
 identity and practice history. The log contains only a link to that page. The
-public page offers a blank amount field, one-off first and monthly as an option;
-both have a £1 minimum. Stripe collects the giver's email and handles payment.
+public page offers a blank amount field, one-off first and monthly as an option.
+The giver chooses GBP or USD, with a minimum of one whole unit in the
+chosen currency. Stripe collects the giver's email and handles payment.
 
 Keep both values out of the repo:
 
