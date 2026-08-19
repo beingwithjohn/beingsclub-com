@@ -187,47 +187,17 @@ handle it.
 
 ---
 
-## 3. Legacy fixed run — the room before day one
+## 3. Profiles and account privacy
 
-**Band eyebrow**
-> YOUR PLACE IS HELD
-
-**Band**
-> We begin in forty days, on Wednesday 16 September.
-> *(or "We begin tomorrow." / "We begin today.")*
-
-**Section**
-> WHO'S HERE · SEVEN PLACES LEFT
-
-then each person's name and their line. Someone who wrote nothing shows an em
-dash. If you're first:
-
-> You're the first one in.
-
-**Framed box**
-> WE MEET
-> Wednesdays, 6:30–7:45pm UK
-
-**Footer**
-> Settings · The room        Something just for John? Ask privately
+Only the host can see who has created an account. There is no participant
+directory, roster, people search, or public profile URL. A future profile
+picture or profile line may be returned to another participant only as part of
+a day the person has marked; creating an account alone must never make someone
+visible.
 
 ---
 
-## 4. Legacy fixed run — the room during the run
-
-Reached from the log after the day is marked.
-
-**Band eyebrow**
-> THE ROOM
-
-**Band**
-> The people sitting the same days as you.
-
-Same roster below. The places-left count disappears once the run has started.
-
----
-
-## 5. Giving
+## 4. Giving
 
 Giving is not a Practice Log screen. The log's menu has one link to the public
 page at `/giving/`; the room and Settings contain no request, gift history or

@@ -104,7 +104,6 @@ export async function getState(env, { person, run }) {
     // a new message is a separate, date-bounded course entitlement.
     answers: await answersFor(env, person.id),
     shared: null,
-    roster: null,
   };
 
   // Nothing before the tap.
@@ -120,44 +119,7 @@ export async function getState(env, { person, run }) {
     state.shared = await sharedView(env, { person, run }, anchor, today, mine);
   }
 
-  // The roster — who has taken a place, and the line they wrote.
-  //
-  // Before day one this is the whole surface: there is nothing to practise
-  // yet, and seeing the others arrive is the point of the room. Once the
-  // run starts it goes behind the tap with everything else, because from then
-  // on the room is something you earn each day rather than something you look
-  // at. Same rule, moved to the right threshold.
-  if (!run.public_join && (state.run.phase === 'room' || canSeeShared)) {
-    state.roster = await roster(env, run, person);
-  }
-
   return json(state);
-}
-
-/**
- * Who is in. Names and lines only — never a mark, never a count of days, and
- * never who has contributed. The order is the order people arrived, which is
- * the one ordering that ranks nobody.
- */
-async function roster(env, run, person) {
-  const rows = await env.DB.prepare(
-    `SELECT id, name, line, took_place_at FROM person
-      WHERE run_id = ?1 AND is_host = 0 AND took_place_at IS NOT NULL AND left_at IS NULL
-      ORDER BY took_place_at`,
-  ).bind(run.id).all();
-
-  const people = (rows.results || []).map((r) => ({
-    name: r.id === person.id ? 'You' : r.name,
-    line: r.line,
-    mine: r.id === person.id,
-  }));
-
-  return {
-    people,
-    places: run.places,
-    // "Four places left", never "six of ten".
-    places_left: run.places ? Math.max(0, run.places - people.length) : null,
-  };
 }
 
 /** This person's own marks and notes across the window. */

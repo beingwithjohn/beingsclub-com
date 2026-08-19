@@ -254,12 +254,6 @@
     if (!S.person.setup_at) return viewFirstRun();
 
     if (view === 'timer') return viewTimer();
-    if (view === 'room' && !S.run.public_join) return viewRoom();
-
-    // Before day one there is nothing to practise. The room is who is in it.
-    if (S.run.phase === 'room' && view !== 'settings' && view !== 'john') {
-      return viewRoom();
-    }
 
     if (view === 'john') return viewJohn();
     if (view === 'settings') return viewSettings();
@@ -307,9 +301,8 @@
   // -------------------------------------------------------------------------
   // the menu
   // -------------------------------------------------------------------------
-  // Everywhere you can go, in one place. What is *not* here matters as much:
-    // a private fixed-run room appears only once there is one to see, so the drawer cannot
-  // become the way around the rule that you tap before you look.
+  // Everywhere you can go, in one place. There is deliberately no people
+  // directory: only the host can see who has created an account.
   function openMenu() {
     closeMenu();
 
@@ -318,14 +311,6 @@
 
     if (phase === 'running' || phase === 'closed') {
       items.push({ id: 'today', label: 'Today', sub: todaySub(), view: null });
-    }
-    if (S.roster && !S.run.public_join) {
-      items.push({
-        id: 'room',
-        label: 'The room',
-        sub: phase === 'room' ? 'Who has taken a place' : 'The people sitting the same days as you',
-        view: 'room'
-      });
     }
     items.push({ id: 'settings', label: 'Settings', sub: 'Your email, timezone and notes', view: 'settings' });
     items.push({
@@ -337,7 +322,7 @@
 
     // The host practises like everyone else — his own marks, his own grid,
     // and he is deliberately not one of the ten, so he never shows in their
-    // counts or on the roster. The other chair is a page, not a second login.
+    // counts. The other chair is a page, not a second login.
     if (S.person.is_host) {
       items.push({ id: 'host', label: 'Hosting', sub: 'What people asked, and who is in', href: 'host/' });
     }
@@ -903,59 +888,6 @@
         }
         L.invite = null; save(); unreachable = !L.token; render();
       });
-  }
-
-  // -------------------------------------------------------------------------
-  // the room — after taking a place, before day one
-  // -------------------------------------------------------------------------
-  function viewRoom() {
-    var r = S.run, ros = S.roster || { people: [], places_left: null };
-    var before = r.phase === 'room';
-    var inner = h('<div style="flex:1;display:flex;flex-direction:column;"></div>');
-
-    // Before day one the band counts down. Once the run is going it says what
-    // this room is, since the countdown has nothing left to count.
-    inner.appendChild(h('<div class="band">' +
-      '<div class="caps" style="margin-bottom:8px;">' +
-        (before ? 'Your place is held' : 'The room') + '</div>' +
-      '<p>' + esc(before ? startsLine() : 'The people sitting the same days as you.') + '</p></div>'));
-
-    var body = h('<div class="pad" style="display:grid;gap:26px;"></div>');
-
-    // Who is here. The point of the room.
-    // Places left matters while people are still arriving. Once the run has
-    // begun it is just an empty chair being counted, so it goes.
-    var list = h('<div style="display:grid;gap:16px;"><div class="caps">Who’s here' +
-      (before && ros.places_left != null
-        ? ' · ' + esc(placesLine(ros.places_left).replace(/\.$/, '')) : '') + '</div>' +
-      '<div class="notes"></div></div>');
-    var notes = list.querySelector('.notes');
-    if (!ros.people.length) {
-      notes.appendChild(h('<p class="body">You’re the first one in.</p>'));
-    }
-    ros.people.forEach(function (p) {
-      notes.appendChild(h('<div class="noterow"><b>' + esc(p.name) + '</b>' +
-        (p.line ? '<p>' + esc(p.line) + '</p>' : '<p style="color:var(--muted);">—</p>') + '</div>'));
-    });
-    body.appendChild(list);
-
-    if (r.meets) {
-      body.appendChild(h('<div class="frame"><span class="caps">We meet</span>' +
-        '<p class="body">' + esc(r.meets) + '</p></div>'));
-    }
-
-    inner.appendChild(body);
-
-    shell(inner, {
-      // During the run the room is somewhere you went, so it needs a way back.
-      left: before
-        ? '<span class="brand">Beings Club</span>'
-        : '<button class="barlink" id="back">← Today</button>',
-      right: '<span class="barlab">' + esc(before ? r.name : 'The room') + '</span>',
-      above: answerStrip()
-    });
-    var back = document.getElementById('back');
-    if (back) back.addEventListener('click', function () { go('cohort'); });
   }
 
   function startsLine() {

@@ -87,9 +87,10 @@ itself failing.
 **1 · Nothing before the tap.** No cohort, no counts, no notes until the person
 has recorded today. Enforced in `api.js`: `state.shared` is *omitted*, not
 hidden, until `markedToday`; `GET /api/day` 404s. The public evergreen log has
-no participant roster at all. Its shared surface is the aggregate seven-day
-shape and the daily notes people chose to write. Legacy private fixed runs may
-still have their own room.
+no participant roster at all. This now applies to fixed runs too: only the host
+endpoint may list accounts. Its shared surface is the aggregate seven-day shape
+and the daily notes people chose to write. Any future profile may appear to
+participants only through a day that person marked, never from account creation.
 
 **2 · One tap, everything else optional.** The note is offered once a day. The
 timer offers five, ten, twenty, or a custom one-to-180-minute length; it is an
@@ -233,8 +234,8 @@ allows five, and the sweep is already timezone-aware.
   can arrive hours after the day it belongs to. Key on `on_date`, never on
   arrival time.
 - **`is_host`.** John practises like everyone else but is deliberately *not*
-  one of the participant count: excluded from aggregates, from any legacy
-  fixed-run roster, and from "the others". Any aggregate you build should
+  one of the participant count: excluded from aggregates and from "the
+  others". Any aggregate you build should
   exclude hosts the same way.
 
 ## 7. Verifying you have not broken it

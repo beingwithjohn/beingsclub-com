@@ -375,17 +375,20 @@ check(18, 'the public interface does not call people a cohort', () => {
   return 'people and notes described directly';
 });
 
-check(19, 'the public log has no persistent people room', () => {
+check(19, 'only the host can see who has an account', () => {
   const api = read('practice-log', 'src', 'api.js');
-  ok(/if \(!run\.public_join && \(state\.run\.phase === 'room' \|\| canSeeShared\)\)/.test(api),
-    'the public API still sends a persistent roster');
-  ok(/if \(S\.roster && !S\.run\.public_join\)/.test(log),
-    'the public menu still offers the fixed-run room');
+  ok(!/state\.roster|async function roster/.test(api),
+    'the participant API still sends a persistent roster');
+  ok(!/S\.roster|viewRoom|label: ['"]The room['"]/.test(log),
+    'the participant app still contains an account directory');
+  const host_ = read('practice-log', 'src', 'host.js');
+  ok(/path === ['"]\/api\/host\/people['"]/.test(host_) &&
+    /async function people\(/.test(host_), 'the private host account list is missing');
   ok(/if \(!S\.run\.public_join\) inner\.appendChild\(lineRow\(\)\)/.test(log),
     'public settings still offer the old profile line');
   ok(/var lineSetup = S\.run\.public_join \? ''/.test(log),
     'public setup still asks why someone is here');
-  return 'daily aggregates and chosen notes only';
+  return 'host registry only; participants appear only through marked days';
 });
 
 check(20, 'the week says how many others practised', () => {
