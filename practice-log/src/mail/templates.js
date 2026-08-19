@@ -145,8 +145,7 @@ export function invitation({ person, run, url }) {
     para(esc(lineage)),
     band('Take your place, and you’ll see who else is here.'),
     button(url, 'Take my place'),
-    small('One link, no password. Nothing is charged to be here — there’s a way to contribute '
-      + 'if and when you want to, and skipping it changes nothing at all.'),
+    small('One link, no password. Nothing is charged to be here, now or later.'),
     gap(),
   ].join('');
 

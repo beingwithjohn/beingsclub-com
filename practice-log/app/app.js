@@ -59,11 +59,7 @@
     var i = location.search.match(/[?&]i=([^&#]+)/);
     if (i) L.invite = decodeURIComponent(i[1]);
 
-    // Coming back from a contribution. Nothing is granted by it; the page says
-    // thank you once and then never mentions it again.
-    if (/[?&]thanks=1/.test(location.search)) L.thanks = true;
-
-    if (t || i || L.thanks) {
+    if (t || i) {
       save();
       // Keep it out of the address bar, the history and any shared screenshot.
       try { history.replaceState({}, '', location.pathname); } catch (e) {}
@@ -257,7 +253,6 @@
     if (!S) return unreachable ? viewUnreachable() : viewLoading();
     if (!S.person.setup_at) return viewFirstRun();
 
-    if (view === 'contribute') return viewContribute();
     if (view === 'timer') return viewTimer();
     if (view === 'room' && !S.run.public_join) return viewRoom();
 
@@ -333,6 +328,12 @@
       });
     }
     items.push({ id: 'settings', label: 'Settings', sub: 'Your email, timezone and notes', view: 'settings' });
+    items.push({
+      id: 'giving',
+      label: 'Giving',
+      sub: 'One-off or monthly, if you want to sustain the work',
+      href: '/giving/'
+    });
 
     // The host practises like everyone else — his own marks, his own grid,
     // and he is deliberately not one of the ten, so he never shows in their
@@ -340,13 +341,6 @@
     if (S.person.is_host) {
       items.push({ id: 'host', label: 'Hosting', sub: 'What people asked, and who is in', href: 'host/' });
     }
-    items.push({
-      id: 'contribute',
-      label: 'Contribute',
-      sub: (S.contributions || []).length ? 'You have, thank you' : 'Pay what you want, whenever',
-      view: 'contribute'
-    });
-
     var drawer = h('<div class="drawer" role="dialog" aria-modal="true" aria-label="Menu">' +
       '<div class="head"><span class="brand">' + esc(S.run.name) + '</span>' +
         '<button class="barlink" id="mclose">Close</button></div>' +
@@ -494,7 +488,7 @@
       ? cap(word(r.length_days)) + ' days from ' + fmt(r.starts_on)
       : 'For as long as you want it';
 
-    var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;' +
+    var inner = h('<div class="pad narrow threshold-view" style="flex:1;display:flex;flex-direction:column;' +
       'justify-content:center;gap:24px;max-width:38rem;">' +
       '<div class="eyebrow">A place is yours if you want it</div>' +
       '<h1 class="h1" style="max-width:17ch;">' + esc(INV.person.name ? firstOf(INV.person.name) : 'You') +
@@ -928,12 +922,6 @@
 
     var body = h('<div class="pad" style="display:grid;gap:26px;"></div>');
 
-    if (L.thanks) {
-      body.appendChild(h('<div class="frame"><span class="caps">Thank you</span>' +
-        '<p class="body">That came through. It is not recorded anywhere anyone else can see.</p></div>'));
-      L.thanks = false; save();
-    }
-
     // Who is here. The point of the room.
     // Places left matters while people are still arriving. Once the run has
     // begun it is just an empty chair being counted, so it goes.
@@ -956,10 +944,6 @@
         '<p class="body">' + esc(r.meets) + '</p></div>'));
     }
 
-    // The invitation to contribute. Never a gate, never a nag, and skipping it
-    // is not a lesser answer.
-    body.appendChild(contributeBlock());
-
     inner.appendChild(body);
 
     shell(inner, {
@@ -979,85 +963,6 @@
     if (n === 0) return 'We begin today.';
     if (n === 1) return 'We begin tomorrow.';
     return 'We begin in ' + word(n) + ' days, on ' + fmt(S.run.starts_on) + '.';
-  }
-
-  function contributeBlock() {
-    var given = (S.contributions || []).length;
-    var box = h('<div class="frame">' +
-      '<span class="caps">' + (given ? 'You’ve contributed' : 'Pay what you want') + '</span>' +
-      '<p class="body">' + (given
-        ? 'Thank you. You can add to it whenever you like, and never need to.'
-        : 'Using the log does not depend on this and never will. John’s work costs something, ' +
-          'and if you want to meet some of that, you can — now, later, or not at all.') + '</p>' +
-      '<div style="display:grid;gap:10px;margin-top:6px;">' +
-        '<button class="btn" id="give">' + (given ? 'Contribute again' : 'Contribute') + '</button>' +
-        (given ? '' : '<button class="quiet" id="later">Skip for now</button>') +
-      '</div><p class="small" id="gmsg" aria-live="polite"></p></div>');
-
-    box.querySelector('#give').addEventListener('click', function () { go('contribute'); });
-    var later = box.querySelector('#later');
-    if (later) later.addEventListener('click', function () {
-      box.querySelector('#gmsg').textContent = 'Of course. It won’t be asked again.';
-      L.dismissed['contribute'] = 1; save();
-    });
-    return box;
-  }
-
-  // -------------------------------------------------------------------------
-  // contributing
-  // -------------------------------------------------------------------------
-  function viewContribute() {
-    var lo = S.run.suggest_low, hi = S.run.suggest_high;
-    var cur = (S.run.currency || 'gbp').toUpperCase();
-    var sym = cur === 'GBP' ? '£' : cur === 'EUR' ? '€' : cur === 'USD' ? '$' : '';
-    var money = function (n) { return sym + (n / 100).toFixed(0); };
-
-    var inner = h('<div class="pad narrow" style="flex:1;display:flex;flex-direction:column;' +
-      'justify-content:center;gap:22px;max-width:36rem;">' +
-      '<h2 class="h2" style="max-width:18ch;">Pay what you want.</h2>' +
-      '<p class="body">Not what it’s worth, and not what someone else paid. What you want to give, ' +
-      'if you want to give anything.</p>' +
-      '<p class="body">The log is yours either way. Nobody is told what anyone contributed, ' +
-      'and nothing in the log changes because of it.</p>' +
-      // The range is offered, never shown. A figure on screen is an expectation
-      // however gently it is worded, so it waits behind a question and only
-      // arrives for someone who asked it.
-      (lo && hi ? '<div><button class="ul" id="ask">Need a suggestion?</button>' +
-        '<p class="body" id="range" hidden style="margin-top:12px;">' +
-        money(lo) + ' to ' + money(hi) + '. Anything is welcome, and so is nothing.</p></div>' : '') +
-      '<div style="display:grid;gap:10px;">' +
-        '<button class="btn" id="go">Continue</button>' +
-        '<button class="quiet" id="back">Not now</button></div>' +
-      '<p class="small" id="msg" aria-live="polite"></p>' +
-    '</div>');
-
-    shell(inner, {
-      left: '<button class="barlink" id="close">← Back</button>',
-      right: '<span class="barlab">Contribute</span>'
-    });
-
-    document.getElementById('close').addEventListener('click', function () { go(null); });
-    inner.querySelector('#back').addEventListener('click', function () { go(null); });
-
-    var ask = inner.querySelector('#ask');
-    if (ask) ask.addEventListener('click', function () {
-      inner.querySelector('#range').hidden = false;
-      ask.remove();          // asked and answered; it does not need asking twice
-    });
-
-    inner.querySelector('#go').addEventListener('click', function () {
-      var msg = inner.querySelector('#msg');
-      this.disabled = true;
-      msg.textContent = 'Opening…';
-      api('/api/contribution', { method: 'POST', body: {} }).then(function (r) {
-        location.href = r.url;
-      }).catch(function (e) {
-        inner.querySelector('#go').disabled = false;
-        msg.textContent = e.status === 503
-          ? 'Contributions aren’t switched on yet. Nothing is owed in the meantime.'
-          : 'That didn’t open. Try again in a moment.';
-      });
-    });
   }
 
   // -------------------------------------------------------------------------
@@ -1859,8 +1764,6 @@
 
     inner.appendChild(nameRow());
     if (!S.run.public_join) inner.appendChild(lineRow());
-    inner.appendChild(contributeRow());
-
     inner.appendChild(h('<div><b style="font-size:17px;font-weight:600;color:var(--ink);">' +
       esc(S.person.name) + '</b>' +
       '<p class="small">' + esc(S.person.email) + ' · ' + esc(S.run.name) + '</p></div>'));
@@ -1934,18 +1837,6 @@
       var v = prompt('One line. The others see it.', S.person.line || '');
       if (v !== null) patch({ line: v.trim().slice(0, NOTE_MAX) });
     });
-    return r;
-  }
-
-  function contributeRow() {
-    var given = (S.contributions || []).length;
-    var r = h('<div class="rowflex"><div><b>Contribute</b>' +
-      '<p>' + (given
-        ? 'You have. Thank you. You can again whenever you like.'
-        : 'Pay what you want, whenever you want. Using the log never depends on it.') +
-      '</p></div><button class="ul" id="cg" style="flex:none;">' +
-      (given ? 'Again' : 'Open') + '</button></div>');
-    r.querySelector('#cg').addEventListener('click', function () { go('contribute'); });
     return r;
   }
 

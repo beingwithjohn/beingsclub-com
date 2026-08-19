@@ -25,7 +25,7 @@ Live now:
 | Database | Cloudflare D1 `practice-log`, `8cf3af32-666c-48fb-a943-9c38c393d24c`, WEUR |
 | Cron | `0,30 * * * *` — the timezone-bucketed daily send |
 | Mail | Resend, from `practice@beingsclub.com`, reply-to `john@spacetobe.xyz` |
-| Payments | Stripe, optional, not yet connected |
+| Payments | Stripe code ready; account secrets and dashboard setup remain |
 | Source | `practice-log/` in `github.com/beingwithjohn/beingsclub-com`, branch `main` |
 
 Secrets are in Cloudflare (`wrangler secret list`): `LINK_KEY`, `RESEND_API_KEY`.
@@ -50,7 +50,7 @@ Beyond Belief is a fixed run: 2026-09-16, 35 days, 10 places.
 
 ## 3. Data model
 
-`migrations/0001_init.sql` is the whole thing and is commented. In brief:
+The numbered migrations are the full schema history and are commented. In brief:
 
 ```
   run              slug, name, mode, public_join, starts_on, length_days, week_labels,
@@ -61,7 +61,9 @@ person           run_id, name, email, timezone, nudge_hour, nudge_on, notes_on,
 day_mark         (person_id, on_date) PK, marked_at, late
 note             (person_id, on_date) PK, body ≤100, removed_at
 private_message  person_id, on_date, body, answer_body, answer_url, answered_at
-contribution     person_id, amount, currency, stripe_ref UNIQUE
+gift             amount, currency, cadence, Stripe refs; no Practice Log person
+giving_subscription  Stripe customer/subscription refs, amount, status
+contribution / contribution_subscription  legacy unused tables from the earlier attached model
 send_log         (person_id, kind, scope) PK — idempotence for every email
 ```
 
@@ -134,7 +136,7 @@ POST   /api/note        {date?, body}
 POST   /api/message     {body}     private to John
 PATCH  /api/settings    {name?, line?, timezone?, nudge_hour?, nudge_on?, notes_on?, setup?}
 POST   /api/settings/revoke        new link, emailed, never returned
-POST   /api/contribution           → {url} a Stripe Checkout session
+POST   /api/giving                 public, site-Origin only → {url} Stripe Checkout
 POST   /api/stripe/webhook         signature-verified, unauthenticated
 
 GET    /api/invite                 Invite auth. The threshold. Writes nothing.
@@ -190,7 +192,7 @@ locked door here.
   where a Sit is defined.
 - **`day_mark`** — a person, a local date, a timestamp. The whole practice
   record. Read-only into Notion is safe.
-- **`contribution`** — amounts and dates. John's own record.
+- **`gift`** — amounts and dates, with no Practice Log person attached.
 - **`person`** minus the token columns — name, email, timezone, nudge hour,
   joined, left.
 
@@ -224,7 +226,7 @@ allows five, and the sweep is already timezone-aware.
 
 - **Rate limits.** Notion is roughly three requests a second. Ten people
   marking a day is nothing; a backfill of two years is not.
-- **`ON CONFLICT DO NOTHING` everywhere.** Marks and contributions are
+- **`ON CONFLICT DO NOTHING` everywhere.** Marks and gifts are
   idempotent by design because webhooks and queued offline marks arrive twice.
   Anything you add should be too.
 - **The offline queue.** The client writes locally and syncs later, so a mark
@@ -239,9 +241,8 @@ allows five, and the sweep is already timezone-aware.
 
 ```bash
 cd practice-log
-npm test              # 36 unit tests: day maths across timezones, DST, leap
-                      # years, both run shapes, the nudge window, CORS matching
-node test/checks.js   # 14 checks against the built app
+npm test              # 42 unit tests: day maths, access, Stripe and CORS
+node test/checks.js   # 20 product checks against the built app
 ```
 
 `checks.js` is the one that matters for a change like this. It fails the build
@@ -255,8 +256,9 @@ safe place to work; `seed/bootstrap.sh` creates runs and prints the magic links.
 
 ## 8. Open
 
-- Stripe is unconnected — the contribution page says so politely and everything
-  else works.
+- Stripe is unconnected — the one-off and monthly paths, signed webhooks and
+  manage/cancel route are built, but the two Worker secrets, webhook event
+  destination and customer-portal cancellation still need John's Stripe account.
 - DMARC is at `p=none` while sending is proven, and should be tightened to
   `p=reject` once a real send is confirmed to pass SPF and DKIM aligned.
 - `COPY.md` records the completed public-evergreen copy pass. Fixed invitation

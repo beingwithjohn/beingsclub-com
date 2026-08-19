@@ -61,6 +61,7 @@ const read = (...p) => readFileSync(join(repo, ...p), 'utf8');
 
 const log = read('log', 'index.html');
 const host = read('log', 'host', 'index.html');
+const giving = read('giving', 'index.html');
 
 // ---------------------------------------------------------------------------
 // integration
@@ -299,7 +300,9 @@ check(14, 'nothing secret is in anything served', () => {
   // This file is the one exception, and only because it has to hold the
   // canaries above. Nothing else here is exempt.
   const self = 'practice-log/test/checks.js';
-  const scanned = tracked.filter((f) => f !== self);
+  // A tracked file can be intentionally deleted in the working tree during a
+  // rename; scan what will actually be served or committed.
+  const scanned = tracked.filter((f) => f !== self && existsSync(join(repo, f)));
 
   // A tracked path that is not a regular file is a symlink or a directory that
   // slipped past .gitignore. `node_modules/` with a trailing slash does not
@@ -405,6 +408,23 @@ check(21, 'the timer remains separate from recording practice', () => {
   ok(/L\.timerEnded = S\.today\.date/.test(timer) && /Did you practise today\?/.test(log),
     'the timer does not return to the existing practice tap');
   return '5, 10, 20; optional bell; no automatic mark';
+});
+
+check(22, 'giving is public, optional, and separate from the Practice Log', () => {
+  ok(/href:\s*['"]\/giving\/['"]/.test(log), 'the log does not link to the giving page');
+  ok(!/Pay what you (?:want|can)/i.test(log), 'old pay-what-you-want language remains in the log');
+  ok(!/\/api\/contribution/.test(log), 'payment handling remains embedded in the log');
+  ok(/data-cadence="once"[^>]*aria-pressed="true"/.test(giving),
+    'one-off is not the initially selected gift');
+  ok(/data-cadence="monthly"/.test(giving), 'monthly giving is not offered');
+  ok(/min="1"/.test(giving) && /£1 minimum/.test(giving), 'the agreed £1 minimum is not stated');
+  ok(/This work is freely given/.test(giving) && /Giving nothing creates no debt/.test(giving),
+    'the page does not preserve the Dana freedom test');
+  ok(/manage or end monthly giving/.test(giving), 'monthly cancellation is not explained');
+  const idx = read('practice-log', 'src', 'index.js');
+  ok(idx.indexOf("path === '/api/giving'") < idx.indexOf('const who = await identify'),
+    'giving still depends on Practice Log identity');
+  return 'standalone /giving/; one-off first; monthly; no debt or access gate';
 });
 
 // ---------------------------------------------------------------------------

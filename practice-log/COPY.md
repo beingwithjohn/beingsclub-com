@@ -227,57 +227,27 @@ Same roster below. The places-left count disappears once the run has started.
 
 ---
 
-## 5. Pay what you want
+## 5. Giving
 
-### The block in the room
-
-**Eyebrow**
-> PAY WHAT YOU WANT
-
-**Body**
-> Your place does not depend on this and never will. John's work costs
-> something, and if you want to meet some of that, you can — now, later, or not
-> at all.
-
-**Buttons**
-> CONTRIBUTE
-> Skip for now
-
-**If they skip**
-> Of course. It won't be asked again.
-
-**If they've already given**
-> You've contributed
-> Thank you. You can add to it whenever you like, and never need to.
-
-### The contribution screen
+Giving is not a Practice Log screen. The log's menu has one link to the public
+page at `/giving/`; the room and Settings contain no request, gift history or
+billing controls.
 
 **Heading**
-> Pay what you want.
+> This work is freely given.
 
 **Body**
-> Not what it's worth, and not what someone else paid. What you want to give,
-> if you want to give anything.
+> Beings Club offers practices, gatherings and the Practice Log without a fee
+> or expected amount. I do this to protect the work from the ways money can
+> distort how we meet one another.
 
-> Your place is yours either way. Nobody is told what anyone contributed, and
-> nothing in the log changes because of it.
+> If you want to help sustain the work, you can make a one-off or monthly gift.
+> What you give changes nothing about your access or place here. Giving nothing
+> creates no debt.
 
-**The disclosure** — nothing is shown until this is clicked
-> Need a suggestion?
-
-**What it reveals**
-> £150 to £300. Anything is welcome, and so is nothing.
-
-**Buttons**
-> CONTINUE
-> Not now
-
-**If Stripe isn't connected**
-> Contributions aren't switched on yet. Nothing is owed in the meantime.
-
-**Coming back afterwards**
-> THANK YOU
-> That came through. It is not recorded anywhere anyone else can see.
+The amount field starts blank, one-off is selected first, and both one-off and
+monthly gifts have a £1 minimum. Stripe handles payment and sends the giver the
+way to manage or end monthly giving.
 
 ---
 
@@ -302,9 +272,6 @@ Same roster below. The places-left count disappears once the run has started.
 
 **Why you're here**
 > Change    *(shows the current line, or "Nothing written")*
-
-**Contribute**
-> Pay what you want, whenever you want. Your place never depends on it.
 
 **This link**
 > Long-lived, and yours. Replace it if the device it lives on is not.

@@ -10,7 +10,7 @@ import {
 } from './api.js';
 import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
-import { postContribution, stripeWebhook } from './contribution.js';
+import { postGiving, stripeWebhook } from './giving.js';
 import { postLogin } from './login.js';
 import { postJoin } from './join.js';
 
@@ -49,6 +49,16 @@ async function route(request, env, ctx, url) {
   const method = request.method;
 
   if (path === '/api/health' && method === 'GET') return json({ ok: true });
+
+  // Giving is public and deliberately knows nothing about Practice Log
+  // identity. Requiring the site's browser Origin prevents another page from
+  // silently manufacturing Checkout sessions through this endpoint.
+  if (path === '/api/giving' && method === 'POST') {
+    if (!request.headers.get('origin')) return bad(403, 'origin');
+    const body = await readJson(request);
+    if (body === undefined) return bad(400, 'bad json');
+    return postGiving(env, body);
+  }
 
   // The one evergreen log is open to anyone. This never returns a credential:
   // it sends the long-lived link to the address that will own it.
@@ -110,7 +120,6 @@ async function route(request, env, ctx, url) {
     if (path === '/api/message' && method === 'POST') return postMessage(env, who, body);
     if (path === '/api/settings' && method === 'PATCH') return patchSettings(env, who, body);
     if (path === '/api/settings/revoke' && method === 'POST') return postRevoke(env, who);
-    if (path === '/api/contribution' && method === 'POST') return postContribution(env, who, body);
   }
 
   return bad(404, 'not found');

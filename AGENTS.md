@@ -28,6 +28,7 @@ exists" below.
 | `index.html`, `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/` | **yes** | six copies of the app shell, one per route |
 | `404.html` | no | hand-maintained, must match the shell's nav/footer |
 | `practice-map/` | no | hand-maintained standalone page |
+| `giving/` | no | hand-maintained public giving page; payment API lives in `practice-log/` |
 | `beyondbelief/companion/`, `.../print/` | no | hand-maintained standalone pages |
 | `log/` | no | Practice Log prototype, not linked from the site |
 | `practice-log/` | no | a separate agent's build; `node_modules` is gitignored |
@@ -129,8 +130,9 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
   The dates live in the `key == 'beyondbelief'` block of the generator, in the `sits` block,
   and in both companions (hand-maintained).
 - **The Practice Log** is one public evergreen tool. Courses grant the private line to John
-  for a date window; they do not need separate runs. The remaining operational work is
-  Stripe, a D1 backup habit, and tightening DMARC after aligned delivery is confirmed.
+  for a date window; they do not need separate runs. Stripe's one-off and monthly paths are
+  built; the account secrets, webhook events and customer portal still need connecting. The
+  other operational work is a D1 backup habit and tightening DMARC after aligned delivery.
 - **The 82MB blob in git history** (see #4).
 
 ## Security constraints John has set

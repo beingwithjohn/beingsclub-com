@@ -105,9 +105,6 @@ export async function getState(env, { person, run }) {
     answers: await answersFor(env, person.id),
     shared: null,
     roster: null,
-    // Your own contributions, so the page can say thank you and offer another.
-    // Nobody else's are ever visible, and nothing anywhere is ranked by them.
-    contributions: await contributionsFor(env, person.id),
   };
 
   // Nothing before the tap.
@@ -161,14 +158,6 @@ async function roster(env, run, person) {
     // "Four places left", never "six of ten".
     places_left: run.places ? Math.max(0, run.places - people.length) : null,
   };
-}
-
-async function contributionsFor(env, personId) {
-  const rows = await env.DB.prepare(
-    `SELECT amount, currency, created_at FROM contribution
-      WHERE person_id = ?1 ORDER BY created_at DESC`,
-  ).bind(personId).all();
-  return rows.results || [];
 }
 
 /** This person's own marks and notes across the window. */

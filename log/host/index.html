@@ -342,6 +342,13 @@ main { flex: 1; display: flex; flex-direction: column; }
 .field:focus { border-color: var(--ink); }
 .field::placeholder { color: var(--muted); }
 
+/* Keep the invitation threshold visible on a short laptop. */
+@media (max-height: 760px) {
+  .threshold-view { gap: 14px !important; }
+  .threshold-view.pad { padding-block: 24px; }
+  .threshold-view .body { line-height: 1.6; }
+}
+
 .btn {
   display: block; width: 100%; text-align: center; padding: 16px;
   font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;

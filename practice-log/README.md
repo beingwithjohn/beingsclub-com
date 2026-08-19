@@ -100,6 +100,28 @@ Note the origin it prints. If it is not
 node app/build.js --api https://your-worker-origin
 ```
 
+**Public giving through Stripe**
+
+Giving lives at `https://beingsclub.com/giving/`, separate from Practice Log
+identity and practice history. The log contains only a link to that page. The
+public page offers a blank amount field, one-off first and monthly as an option;
+both have a £1 minimum. Stripe collects the giver's email and handles payment.
+
+Keep both values out of the repo:
+
+```bash
+npx wrangler secret put STRIPE_SECRET_KEY
+npx wrangler secret put STRIPE_WEBHOOK_SECRET
+```
+
+In Stripe, register `https://practice-log.beingsclub.workers.dev/api/stripe/webhook`
+for `checkout.session.completed`, `invoice.paid`,
+`customer.subscription.created`, `customer.subscription.updated`, and
+`customer.subscription.deleted`. Activate Stripe's no-code customer portal,
+allow subscription cancellation, and add its login link to Stripe's customer
+emails so monthly givers can manage or end their gift without a Practice Log
+account. Apply the database migrations before deploying the Worker.
+
 **4 · the public run, and the host**
 
 ```bash
@@ -138,7 +160,7 @@ cd .. && ./build/deploy.sh "Open the Practice Log"
 ## Working on it
 
 ```bash
-npm test                       # day maths, CORS, and course access — 36 tests
+npm test                       # day maths, access, payments, CORS — 42 tests
 node test/checks.js            # the §7 checks against the built app
 node app/build.js --api http://localhost:8787
 npx wrangler dev --local --test-scheduled --port 8787
@@ -182,7 +204,7 @@ compared to anybody" has to mean once it is data.
 
 ## Verification
 
-`node test/checks.js` — 13 static checks from §7 of the spec, all passing:
+`node test/checks.js` — 20 static product checks, all passing:
 the log exists and is `noindex`; `/log/` is not in the shell's `ROUTES`;
 re-running `build_shell.py` leaves the six slugs byte-identical; `shared` is
 gated server-side; none of the banned vocabulary is in the built app; the verb
@@ -191,11 +213,11 @@ reads a private message; every write is behind POST or PATCH; the token is
 stripped from the URL and never put in one; nothing secret is in anything
 served; closing is enforced in the API.
 
-`npm test` — 31 unit tests. The day maths: local dates across timezones, DST,
+`npm test` — 42 unit tests. The day maths: local dates across timezones, DST,
 leap years, the two run shapes, the yesterday grace, the nudge window
 (including the zones offset by :30 and :45), and quiet days. Plus the CORS
-origin matcher, which has to refuse `http://localhost:1.evil.com` while
-allowing any real port.
+origin matcher, course access, and Stripe session, amount, portal and signed
+webhook handling.
 
 Checked against a real Worker and a real D1, not a mock:
 
@@ -230,6 +252,10 @@ now use the public evergreen log.
 ---
 
 ## Open, and needing you
+
+**Stripe.** The one-off and monthly paths are implemented. They remain politely
+off until the two Worker secrets, the webhook events, and customer-portal
+cancellation are configured in John's Stripe account.
 
 **Sending domain.** Real sends are working. DMARC remains at `p=none` while SPF
 and DKIM alignment are observed, then should move to `p=reject`. Every email

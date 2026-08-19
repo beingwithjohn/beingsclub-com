@@ -81,9 +81,9 @@ after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in bef
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
 
-# Pages outside the app shell (404, the Practice Map) wear the same header and
+# Pages outside the app shell (404, the Practice Map, Giving) wear the same header and
 # footer. They are hand-maintained, so nothing but this check keeps them in step.
-STANDALONE = ["404.html", "practice-map/index.html"]
+STANDALONE = ["404.html", "practice-map/index.html", "giving/index.html"]
 
 def chrome(html, tag):
     m = re.search(r"(?s)<%s.*?</%s>" % (tag, tag), html)
@@ -150,6 +150,7 @@ if "--live" in sys.argv:
             return resp.status, resp.read().decode("utf-8", "replace")
 
     for route, local in list(zip(ROUTES, PAGES)) + [("/practice-map/", "practice-map/index.html"),
+                                                    ("/giving/", "giving/index.html"),
                                                     ("/404.html", "404.html")]:
         try:
             status, body = live(route)
