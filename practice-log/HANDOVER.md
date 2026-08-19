@@ -56,6 +56,7 @@ The numbered migrations are the full schema history and are commented. In brief:
   run              slug, name, mode, public_join, starts_on, length_days, week_labels,
                  places, blurb, meets, suggest_low, suggest_high, currency
 person           run_id, name, email, timezone, nudge_hour, nudge_on, notes_on,
+                 reply_digest_on,
                  token_hash, token_enc, invite_hash, is_host, joined_on,
                  took_place_at, setup_at, line, left_at, message_from, message_until
 day_mark         (person_id, on_date) PK, marked_at, late
@@ -123,6 +124,14 @@ streamed through an authenticated Worker route. There is no public R2 URL. The
 browser and Worker both cap a recording at twenty minutes. Account deletion
 removes the person's R2 objects before D1 cascades their rows.
 
+The public-reply digest is explicitly opt-in. On Sunday at the person's chosen
+email time, `digest.js` collects replies first made public in the preceding
+seven days. It excludes replies prompted by that same person, who already got
+the immediate notification. No new public reply means no digest; a sent digest
+stands in for Sunday's daily nudge so two scheduled emails do not arrive
+together. Changing public context does not re-notify; `shared_at` changes only
+when a private reply becomes shared.
+
 **And one consequence that is easy to undo by accident:** identity is derived
 from marks, never accounts. `sharedView` may correlate somebody's practice
 within the single visible week, but a person enters that response only by
@@ -151,7 +160,8 @@ GET    /api/replies/:id/audio      authenticated private R2 stream
 POST   /api/mark        {date?}    the only thing that records a practice
 POST   /api/note        {date?, body}
 POST   /api/message     {body}     private to John
-PATCH  /api/settings    {name?, line?, timezone?, nudge_hour?, nudge_on?, notes_on?, setup?}
+PATCH  /api/settings    {name?, line?, timezone?, nudge_hour?, nudge_on?,
+                         notes_on?, reply_digest_on?, setup?}
 POST   /api/settings/revoke        new link, emailed, never returned
 POST   /api/settings/delete        {confirmation:"DELETE"}; cascades all person-linked data
 POST   /api/giving                 public, site-Origin only → {url} Stripe Checkout

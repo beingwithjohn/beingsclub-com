@@ -33,6 +33,7 @@ practice-log/
     auth.js                  magic links — hashed for lookup, sealed for sending
     api.js                   the participant API
     replies.js               private/shared replies and protected audio playback
+    digest.js                opt-in Sunday collection of newly shared replies
     join.js                  public entry to the one evergreen log
     access.js                date-bounded course access to John
     host.js                  John's API
@@ -216,6 +217,13 @@ template is a rule one refactor away from being gone.
 Shared replies from other people follow the same nothing-before-the-tap rule as
 the weekly practice view. A reply prompted by your own words remains available
 to you immediately, so an email link can always open what John sent.
+
+Settings also offers an off-by-default Sunday digest of newly public replies.
+It uses the person's existing email time and goes only when something new was
+shared during the previous seven days. Replies prompted by that person's own
+words are excluded because they already received the immediate email. When a
+digest goes out, it replaces that Sunday's ordinary nudge rather than adding a
+second scheduled email.
 
 One consequence worth knowing: **accounts are never sent as a participant
 directory or total.** After someone marks today, the shared response contains

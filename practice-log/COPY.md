@@ -88,6 +88,17 @@ The public interface never calls the people using it a “cohort.” Settings
 describes the daily nudge as “One email a day, at the time you choose,” and
 describes the private link as the passwordless sign-in credential it is.
 
+The menu also opens into the wider Beings Club work through benefit-led doors.
+The Sits door reads:
+
+> Build a meditation practice through shared commitment
+> Sits · weekly live sessions
+
+The Practice Map door reads:
+
+> Find another way into your practice
+> Practice map · body, heart and mind
+
 After practice has been recorded, the shared week ends with one quiet giving
 line. It never appears before the tap or in an email:
 
@@ -117,7 +128,8 @@ practised, with only your own dot differentiated. The other standing rule is tha
 the banned list is *streak · in a row · you missed · don't break it · 6/10 ·
 60% · average · session · minutes · progress · community · members · users ·
 well done · congratulations*. If you want to break either, say so — they're
-your rules, not laws.
+your rules, not laws. “Weekly live sessions” in the Sits door is the deliberate
+exception: it describes a separate live offering, not a unit of logged practice.
 
 ---
 
@@ -324,8 +336,8 @@ node practice-log/dev/emails.js practice-log/email-preview
 
 Then open `practice-log/email-preview/index.html`. The preview includes the
 fixed and evergreen variants: the invitation, you're in, day one, the daily,
-the Wednesday letter, a reply from John, still here, day thirty-five, and a
-replacement link.
+the Wednesday letter, a reply from John, the optional Sunday reply digest,
+still here, day thirty-five, and a replacement link.
 
 The daily one is the one they'll see thirty-four times, so it's worth more of
 your attention than its length suggests:

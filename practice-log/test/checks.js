@@ -199,7 +199,11 @@ check(6, 'rule 3 — the vocabulary of scoring is absent', () => {
 check('6b', 'the app uses practise without prescribing a standard length', () => {
   const prose = visibleText(log);
   ok(/practise/i.test(prose), 'the verb "practise" is missing');
-  ok(!/\bsessions?\b/i.test(prose), '"session" appears');
+  // “Weekly live sessions” describes the separate Sits offering. What this
+  // rule rejects is the Log recasting a person's meditation as a scored or
+  // standardised session.
+  const logProse = prose.replace(/Sits · weekly live sessions/gi, '');
+  ok(!/\bsessions?\b/i.test(logProse), '"session" appears outside the Sits door');
   ok(!/Twenty minutes is standard/.test(prose), 'the removed standard-length copy remains');
   ok(!/Five minutes on a hard day/.test(prose), 'the removed flexibility copy remains');
   return 'no prescribed length in the app';
@@ -260,11 +264,45 @@ check('7d', 'only the source person is notified when John replies', () => {
     'the reply notification is not addressed only to its source person');
   ok(!/SELECT|\.all\(|everyone|broadcast/i.test(notify), 'reply notification can fan out beyond its source person');
   ok(/view=from-john&reply=/.test(notify), 'the email does not link to the exact in-log reply');
-  ok(/Only you received this email/.test(mail) && /without a notification/.test(mail),
+  ok(/Only you received an immediate email/.test(mail) && /weekly updates/.test(mail),
     'the shared-reply email describes a different notification rule');
   ok(/For you/.test(client) && /Shared/.test(client) && /From something you shared/.test(client),
     'the participant filters or source-person label are missing');
   return 'one recipient; everyone else finds shared replies in the log';
+});
+
+check('7e', 'public-reply digests are explicit, weekly and never duplicate the source notification', () => {
+  const migration = read('practice-log', 'migrations', '0008_reply_digest.sql');
+  const digest = read('practice-log', 'src', 'digest.js');
+  const nudge = read('practice-log', 'src', 'nudge.js');
+  const mail = read('practice-log', 'src', 'mail', 'templates.js');
+  const app = read('practice-log', 'app', 'app.js');
+  ok(/reply_digest_on INTEGER NOT NULL DEFAULT 0/.test(migration), 'the digest is not opt-in');
+  ok(/weekday\(date\) === 0/.test(digest), 'the digest is not confined to Sunday');
+  ok(/nudgeDue\(\{ \.\.\.person, nudge_on: true \}, at\)/.test(digest),
+    'the digest does not use the person’s existing email time');
+  ok(/recipient_person_id <> \?3/.test(digest),
+    'a source person can receive their own public reply again in the digest');
+  ok(/visibility = 'shared'/.test(digest) && /shared_at > \?1 AND shared_at <= \?2/.test(digest),
+    'the digest is not limited to newly public replies');
+  ok(/if \(digest\.handled\)[\s\S]{0,120}continue;[\s\S]{0,80}nudgeOne/.test(nudge),
+    'a Sunday digest can be followed by a second scheduled email');
+  ok(/Weekly replies from John/.test(app) && /One Sunday email when John has shared something new/.test(app),
+    'Settings does not clearly describe the opt-in');
+  ok(/subject: 'From John this week'/.test(mail) && /people and words that prompted them remain private/.test(mail),
+    'the digest subject or privacy explanation is missing');
+  return 'off by default; Sunday at the chosen time; source replies excluded';
+});
+
+check('7f', 'the Practice Log opens benefit-led doors into the wider work', () => {
+  const app = read('practice-log', 'app', 'app.js');
+  ok(/label: 'Build a meditation practice through shared commitment'/.test(app) &&
+    /sub: 'Sits · weekly live sessions'/.test(app) && /href: '\/sits\/'/.test(app),
+  'the Sits door does not name shared commitment and weekly live sessions');
+  ok(/label: 'Find another way into your practice'/.test(app) &&
+    /sub: 'Practice map · body, heart and mind'/.test(app) && /href: '\/practice-map\/'/.test(app),
+  'the Practice Map door is missing or no longer invitational');
+  return 'shared commitment, live sessions and another way into practice';
 });
 
 // ---------------------------------------------------------------------------

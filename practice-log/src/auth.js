@@ -55,6 +55,7 @@ function shape(row) {
       id: row.id, run_id: row.run_id, name: row.name, email: row.email,
       timezone: row.timezone, nudge_hour: row.nudge_hour,
       nudge_on: !!row.nudge_on, notes_on: !!row.notes_on,
+      reply_digest_on: !!row.reply_digest_on,
       is_host: !!row.is_host, joined_on: row.joined_on, left_at: row.left_at,
       setup_at: row.setup_at, took_place_at: row.took_place_at, line: row.line,
       profile_image: row.profile_image,

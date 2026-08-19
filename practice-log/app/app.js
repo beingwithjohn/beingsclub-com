@@ -358,6 +358,18 @@
     items.push({ id: 'settings', label: 'Settings', sub: 'Manage your Practice Log and account', view: 'settings' });
     items.push({ id: 'replies', label: 'From John', sub: 'Replies for you and replies shared with everyone', view: 'replies' });
     items.push({
+      id: 'sits',
+      label: 'Build a meditation practice through shared commitment',
+      sub: 'Sits · weekly live sessions',
+      href: '/sits/'
+    });
+    items.push({
+      id: 'practice-map',
+      label: 'Find another way into your practice',
+      sub: 'Practice map · body, heart and mind',
+      href: '/practice-map/'
+    });
+    items.push({
       id: 'giving',
       label: 'Giving',
       sub: 'The work is freely given. Gifts help sustain it',
@@ -1762,7 +1774,10 @@
       list.innerHTML = '';
       if (!shown.length) {
         list.appendChild(h('<p class="body">' +
-          (filter === 'for-you' ? 'Nothing here for you yet.' : 'Nothing has been shared yet.') +
+          (filter === 'for-you' ? 'Nothing here for you yet.'
+            : (!S.today.marked && !S.run.closed
+              ? 'Shared replies open after you record today’s practice.'
+              : 'Nothing has been shared yet.')) +
           '</p>'));
         return;
       }
@@ -1954,6 +1969,12 @@
     inner.appendChild(when);
 
     inner.appendChild(toggle('Notes', 'Offer a line after logging', 'notes_on'));
+
+    inner.appendChild(toggle(
+      'Weekly replies from John',
+      'One Sunday email when John has shared something new',
+      'reply_digest_on'
+    ));
 
     inner.appendChild(pictureRow());
     inner.appendChild(nameRow());

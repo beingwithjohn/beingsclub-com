@@ -59,6 +59,7 @@ export async function getState(env, { person, run }) {
       nudge_hour: person.nudge_hour,
       nudge_on: person.nudge_on,
       notes_on: person.notes_on,
+      reply_digest_on: person.reply_digest_on,
       is_host: person.is_host,
       joined_on: person.joined_on,
       setup_at: person.setup_at,
@@ -462,7 +463,7 @@ export async function patchSettings(env, ctx, body) {
     if (minutesOf(body.nudge_hour) == null) return bad(400, 'nudge_hour');
     sets.push(`nudge_hour = ?${sets.length + 1}`); binds.push(body.nudge_hour);
   }
-  for (const flag of ['nudge_on', 'notes_on']) {
+  for (const flag of ['nudge_on', 'notes_on', 'reply_digest_on']) {
     if (typeof body?.[flag] === 'boolean') {
       sets.push(`${flag} = ?${sets.length + 1}`); binds.push(body[flag] ? 1 : 0);
     }
@@ -488,6 +489,7 @@ export async function patchSettings(env, ctx, body) {
       ...person,
       name: fresh.name, timezone: fresh.timezone, nudge_hour: fresh.nudge_hour,
       nudge_on: !!fresh.nudge_on, notes_on: !!fresh.notes_on, setup_at: fresh.setup_at,
+      reply_digest_on: !!fresh.reply_digest_on,
       line: fresh.line, profile_image: fresh.profile_image,
     },
   });

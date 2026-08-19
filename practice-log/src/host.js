@@ -287,8 +287,8 @@ async function reply(env, { run }, form) {
     await env.DB.prepare(
       `INSERT INTO host_reply
         (recipient_person_id, source_message_id, source_note_date,
-         visibility, public_context, body, audio_object, audio_mime, audio_ms)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
+         visibility, public_context, body, audio_object, audio_mime, audio_ms, shared_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`,
     ).bind(
       source.pid,
       sourceType === 'message' ? source.source_id : null,
@@ -299,6 +299,7 @@ async function reply(env, { run }, form) {
       audioKey,
       audioMime,
       hasAudio ? audioMs : null,
+      visibility === 'shared' ? Math.floor(Date.now() / 1000) : null,
     ).run();
   } catch (error) {
     if (audioKey && env.AUDIO) await env.AUDIO.delete(audioKey);
@@ -375,7 +376,12 @@ async function setReplyVisibility(env, { run }, body) {
 
   await env.DB.prepare(
     `UPDATE host_reply
-        SET visibility = ?1, public_context = ?2, updated_at = unixepoch()
+        SET shared_at = CASE
+              WHEN ?1 = 'shared' AND visibility <> 'shared' THEN unixepoch()
+              WHEN ?1 = 'private' THEN NULL
+              ELSE shared_at
+            END,
+            visibility = ?1, public_context = ?2, updated_at = unixepoch()
       WHERE id = ?3`,
   ).bind(visibility, visibility === 'shared' ? context : null, id).run();
   return json({ ok: true, visibility, context: visibility === 'shared' ? context : null });

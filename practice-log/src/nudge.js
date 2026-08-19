@@ -1,12 +1,13 @@
-// The daily send.
+// The scheduled sends.
 //
 // One cron, every half hour. Each tick asks every person whether their own
 // chosen hour has just passed where they are, which is how 7:00am means 7:00am
 // in Lisbon and in Auckland without a trigger per timezone.
 //
-// What is never sent: anything about the cohort, any count, any reference to a
-// day that was not marked. If someone has already practised today they get
-// nothing at all — the email is an invitation, and the invitation is spent.
+// The daily invitation contains no cohort news, count or reference to an
+// unmarked day. An optional Sunday digest is the one exception to the daily
+// path: it contains only John's public contexts, never a source person or their
+// original words, and replaces rather than accompanies that day's nudge.
 
 import {
   localDate, addDays, diffDays, dayIndex, weekIndex,
@@ -14,6 +15,7 @@ import {
 } from './days.js';
 import { unseal, logUrl } from './auth.js';
 import { claim, sendDaily, sendDayOne, sendStillHere, sendLastDay } from './mail/send.js';
+import { replyDigestOne } from './digest.js';
 
 // Three complete quiet days: the fourth day's note changes tone. Once per run,
 // never twice, and the email itself never names the number.
@@ -28,7 +30,7 @@ export async function runNudges(env, at) {
       -- same invitation to say so; what makes him the host is that he is not
       -- one of the ten, not on the roster, and not in their counts. If he does
       -- not want the daily he turns it off in Settings, the same as anyone.
-      WHERE p.left_at IS NULL AND p.nudge_on = 1`,
+      WHERE p.left_at IS NULL AND (p.nudge_on = 1 OR p.reply_digest_on = 1)`,
   ).all();
 
   let sent = 0;
@@ -37,6 +39,11 @@ export async function runNudges(env, at) {
   for (const row of people.results || []) {
     considered++;
     try {
+      const digest = await replyDigestOne(env, row, at);
+      if (digest.handled) {
+        if (digest.sent) sent++;
+        continue;
+      }
       if (await nudgeOne(env, row, at)) sent++;
     } catch (err) {
       // One bad row must not stop everyone else's mail.

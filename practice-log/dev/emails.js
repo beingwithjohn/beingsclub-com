@@ -34,6 +34,12 @@ const set = [
   ['E5-answered', T.answered({
     person, url, visibility: 'shared', hasAudio: true,
   })],
+  ['E5b-reply-digest', T.replyDigest({
+    person, url, contexts: [
+      'What happens when we soften around what is already here?',
+      'Can practice include the part of us that does not want to practise?',
+    ],
+  })],
   ['E6-still-here', T.stillHere({ person, url })],
   ['E7-last-day', T.lastDay({ person, run: fixed, url, marked: 28 })],
   ['new-link', T.newLink({ person, url })],

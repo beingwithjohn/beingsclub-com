@@ -94,6 +94,11 @@ export async function sendAnswered(env, person, url, opts) {
   return post(env, { to: person.email, from: john(env), ...mail });
 }
 
+export async function sendReplyDigest(env, person, url, contexts) {
+  const mail = T.replyDigest({ person, url, contexts });
+  return post(env, { to: person.email, from: john(env), ...mail });
+}
+
 export async function sendStillHere(env, person, url, stopUrl) {
   const mail = T.stillHere({ person, url, stopUrl });
   return post(env, { to: person.email, from: john(env), ...mail });

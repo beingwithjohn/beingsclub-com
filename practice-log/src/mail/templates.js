@@ -98,6 +98,11 @@ const small = (html, dark = false) => `
 
 const gap = (h = 34) => `<tr><td style="height:${h}px;line-height:${h}px;font-size:0;">&nbsp;</td></tr>`;
 
+const digestRows = (items) => items.map((item) => `
+<tr><td style="padding:18px 40px;border-top:1px solid ${T.hair};font-family:${FONT};
+  font-size:18px;font-weight:600;line-height:1.4;letter-spacing:-0.015em;color:${T.ink};">
+  ${esc(item)}</td></tr>`).join('');
+
 const steps = (items) => items.map((s, i) => `
 <tr><td style="padding:${i === 0 ? '22' : '14'}px 40px 0;font-family:${FONT};font-size:16px;
   line-height:1.7;color:${T.body};">
@@ -316,7 +321,7 @@ export function answered({ person, url, visibility, hasAudio }) {
       : 'This reply is just for you.', true),
     button(url, hasAudio ? 'Listen in my log' : 'Open the reply', true),
     small(shared
-      ? 'Only you received this email. Shared replies appear for everyone else without a notification.'
+      ? 'Only you received an immediate email. People who chose weekly updates may see this reply in their Sunday digest.'
       : 'Nobody else can see this reply.', true),
     gap(),
   ].join('');
@@ -331,8 +336,35 @@ export function answered({ person, url, visibility, hasAudio }) {
         : 'This reply is just for you.', '',
       `${hasAudio ? 'Listen in my log' : 'Open the reply'}: ${url}`, '',
       shared
-        ? 'Only you received this email. Shared replies appear for everyone else without a notification.'
+        ? 'Only you received an immediate email. People who chose weekly updates may see this reply in their Sunday digest.'
         : 'Nobody else can see this reply.',
+    ].join('\n'),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// E5b · public replies collected on Sunday — opt-in, and only when there is news
+// ---------------------------------------------------------------------------
+export function replyDigest({ url, contexts }) {
+  const blocks = [
+    eyebrow('From John', T.violet),
+    heading('Shared this week.'),
+    para('John shared these in the Practice Log. The people and words that prompted them remain private.'),
+    digestRows(contexts),
+    button(url, 'Open my log'),
+    small(`This Sunday email is on because you chose weekly replies in ${link(settingsUrl(url), 'Settings')}.`),
+    gap(),
+  ].join('');
+
+  return {
+    subject: 'From John this week',
+    html: layout({ preheader: 'Replies John shared in the Practice Log.', blocks, footer: FOOT_CLUB }),
+    text: [
+      'Shared this week.', '',
+      'John shared these in the Practice Log. The people and words that prompted them remain private.', '',
+      ...contexts.map((context) => `— ${context}`), '',
+      `Open my log: ${url}`, '',
+      `This Sunday email is on because you chose weekly replies in Settings: ${settingsUrl(url)}`,
     ].join('\n'),
   };
 }
