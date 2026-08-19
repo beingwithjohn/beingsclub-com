@@ -28,6 +28,12 @@ That copy is yours already, transcribed from the design bundle. It's in
 > Your name / you@example.com
 >
 > BEGIN OR OPEN MY LOG
+>
+> HOW IT WORKS
+>
+> - Practise however you practise — or use the timer.
+> - Tap **I practised**. Add a line if you feel like it.
+> - See who else practised that day, and what they shared.
 
 **The email sent to someone new**
 > Subject: Your practice log is ready.

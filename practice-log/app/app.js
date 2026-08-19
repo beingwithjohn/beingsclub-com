@@ -420,7 +420,7 @@
   // evergreen log; a later one sends the same long-lived link back. Neither
   // returns a credential to the browser.
   function viewNoLink() {
-    var inner = h('<div class="centre">' +
+    var inner = h('<div class="centre join-front">' +
       '<div class="eyebrow">Practice log</div>' +
       '<h1 class="h1" style="max-width:16ch;">A simple record of showing up.</h1>' +
       '<p class="body" style="max-width:38ch;">The log is open to anyone. Give it your name and email address ' +
@@ -431,7 +431,15 @@
           'aria-label="Your email address" placeholder="you@example.com">' +
         '<button class="btn" id="send">Begin or open my log</button>' +
         '<p class="small" id="msg" aria-live="polite"></p>' +
-      '</div></div>');
+      '</div>' +
+      '<section class="join-how" aria-labelledby="join-how-title">' +
+        '<div class="eyebrow" id="join-how-title">How it works</div>' +
+        '<ul>' +
+          '<li>Practise however you practise — or use the timer.</li>' +
+          '<li>Tap <b>I practised</b>. Add a line if you feel like it.</li>' +
+          '<li>See who else practised that day, and what they shared.</li>' +
+        '</ul>' +
+      '</section></div>');
 
     shell(inner, { right: '<span class="barlab">Practice log</span>', noMenu: true });
 

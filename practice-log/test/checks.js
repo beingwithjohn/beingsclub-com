@@ -356,6 +356,10 @@ check(16, 'one public log, with course-bounded access to John', () => {
     'the public host page still offers private invitations');
   ok(/Your practice log is ready/.test(mail) && /your log is ready/.test(mail),
     'the evergreen welcome still reads like a course place');
+  ok(/How it works/.test(log) && /Practise however you practise/.test(log) &&
+    /Tap <b>I practised<\/b>/.test(log) && /See who else practised that day/.test(log) &&
+    /<ul>/.test(log) && !/<ol>/.test(log),
+    'the public sign-up page does not explain the experience');
   return 'open log, course door bounded, no invitation copy on the public path';
 });
 

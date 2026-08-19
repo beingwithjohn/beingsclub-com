@@ -223,11 +223,24 @@ main { flex: 1; display: flex; flex-direction: column; }
   align-items: center; text-align: center; gap: clamp(20px, 3.5vh, 34px);
   padding: var(--pad-y) var(--pad);
 }
+.join-front { gap: clamp(14px, 2vh, 22px); padding-block: clamp(18px, 3vh, 32px); }
 .pad { padding: var(--pad-y) var(--pad); }
 
 /* A column of measure inside the page column, centred as on the site rather
    than left-hugging a 64rem sheet. */
 .narrow { width: 100%; margin-inline: auto; }
+
+.join-how {
+  width: min(100%, 30rem); border-top: 1px solid var(--hair);
+  padding-top: clamp(18px, 3vh, 28px); text-align: left;
+}
+.join-how > .eyebrow { text-align: center; margin-bottom: 16px; }
+.join-how ul {
+  display: grid; gap: 7px; margin: 0; padding-left: 1.15rem;
+}
+.join-how li { color: var(--body); font-size: 15px; line-height: 1.55; padding-left: 4px; }
+.join-how li::marker { color: var(--you); }
+.join-how li b { font-weight: 600; }
 
 .band {
   padding: clamp(22px, 3.5vh, 32px) var(--pad);
