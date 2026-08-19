@@ -237,7 +237,7 @@ billing controls.
 > This work is freely given.
 
 **Body**
-> Beings Club offers practices, gatherings and the Practice Log without a fee
+> Beings Club offers Salons, Sits and the Practice Log without a fee
 > or expected amount. I do this to protect the work from the ways money can
 > distort how we meet one another.
 
