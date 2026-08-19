@@ -156,11 +156,11 @@ export async function sharedView(env, { person, run }, anchor, today, mine) {
 
   const [marks, notes] = await Promise.all([
     env.DB.prepare(
-      `SELECT dm.on_date AS d, dm.created_at AS marked_at,
+      `SELECT dm.on_date AS d, dm.marked_at,
               p.id AS pid, p.name, p.line, p.profile_image
          FROM day_mark dm JOIN person p ON p.id = dm.person_id
         WHERE p.run_id = ?1 AND dm.on_date >= ?2 AND dm.on_date <= ?3
-        ORDER BY dm.on_date, dm.created_at, p.id`,
+        ORDER BY dm.on_date, dm.marked_at, p.id`,
     ).bind(run.id, from, until).all(),
     env.DB.prepare(
       `SELECT p.name AS who, n.body AS body, n.person_id AS pid
@@ -342,7 +342,7 @@ export async function getDay(env, { person, run }, url) {
       `SELECT p.id AS pid, p.name, p.line, p.profile_image
          FROM day_mark dm JOIN person p ON p.id = dm.person_id
         WHERE p.run_id = ?1 AND dm.on_date = ?2
-        ORDER BY dm.created_at, p.id`,
+        ORDER BY dm.marked_at, p.id`,
     ).bind(run.id, date).all(),
     env.DB.prepare(
       `SELECT p.name AS who, n.body AS body, n.person_id AS pid

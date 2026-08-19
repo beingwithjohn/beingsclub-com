@@ -410,6 +410,8 @@ check(20, 'equal dots make practice social without making accounts social', () =
     'past marked identities are not retained with their days');
   ok(!/FROM day_mark dm JOIN person p[\s\S]{0,220}p\.is_host = 0/.test(api),
     'a host who practises is still filtered out of participant presence');
+  ok(!/dm\.created_at/.test(api) && /dm\.marked_at/.test(api),
+    'practice presence uses a timestamp column that day_mark does not have');
   ok(/S\.shared\.today_count - 1/.test(log) &&
     /d\.count - \(d\.mine \? 1 : 0\)/.test(log),
   'the viewer’s own host mark is counted as another person');
