@@ -114,7 +114,10 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
 - Overall Beings Club framing is led by curiosity; do not restore the retired
   precious-or-cherished care principle. Beyond Belief still has its five principles,
   including care, unchanged.
-- "realise things of value" is John's chosen phrase; keep it intact.
+- The overall framing says "Together, we explore two principles in curiosity":
+  "Curiosity connects" and "Stay curious".
+- "realise things of value" is John's chosen conceptual phrase. Its current public form is
+  "things of value can be realised in reality"; keep the realisation wordplay.
 - Never promise a headcount for Beyond Belief — "ten people max", "a group of other people".
 - The Sits CTA points at `/beyondbelief`, never straight to Luma.
 

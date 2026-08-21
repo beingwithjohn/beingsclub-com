@@ -17,7 +17,7 @@ SCREENS = [
      "Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."),
     ("about", "About",
      "/about/", "About — why Beings Club exists · Beings Club",
-     "Curiosity connects us to what matters. Where Beings Club came from, and how gathering with others can help us realise things of value."),
+     "Curiosity connects people, ideas and new futures. Where Beings Club came from, and how what is important can reveal itself."),
     ("salons", "Salons",
      "/salons/", "Salons — where curiosity connects · Beings Club",
      "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."),
@@ -281,27 +281,29 @@ def convert(body, key):
         for old, new, what in [
             ('We gather to realise what is possible — in ourselves, between us, and in the world. '
              'Two principles hold the room, and everything else is free to change.',
-             '<span data-curiosity-line="1" style="display:block;margin-bottom:8px;font-weight:600;'
-             'color:#171916;">Curiosity</span>We gather to realise what is possible — in '
-             'ourselves, between us, and in the world.', 'lead'),
+             'At Beings Club we define curiosity as an orientation to experience that is open to '
+             'discovery.<span data-curiosity-lead="1" style="display:block;margin-top:10px;'
+             'font-weight:600;color:#171916;">Together, we explore two principles in '
+             'curiosity.</span>', 'lead'),
             ('>Curiosity connects</h2>',
              '>Stay curious</h2>', 'second curiosity heading'),
             ('>We hold each other as precious</h2>',
              '>Curiosity connects</h2>', 'first curiosity heading'),
             ('Each life in the room, including the ones nothing like yours, is treated as real '
              'and valuable and worth our care. Your own life is precious on the same terms.',
-             'Curiosity connects us to what matters. We are supported by our own curiosity and the '
-             'curiosity of others as we realise things of value — in ourselves, between us, and in '
-             'the world.', 'first curiosity paragraph'),
+             'Curiosity reveals and deepens connection—with ourselves, each other, ideas and new '
+             'futures.', 'first curiosity paragraph'),
             ('An orientation to experience that is open to discovery. Practiced this way, it creates '
              'the conditions for connection — to ourselves, to each other, and to what is possible.',
-             'We can trust curiosity to lead us towards what matters, without deciding in advance '
-             'what that must be. Staying curious keeps us open to discovery.',
+             'Staying curious keeps experience open, allowing what is important to reveal itself.',
              'second curiosity paragraph'),
-            ('When people hold each other as precious and stay curious, the edge of what feels '
-             'possible starts to move.',
-             'When we stay curious together, the edge of what feels possible starts to move.',
-             'why it matters'),
+            ('It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. '
+             'When people hold each other as precious and stay curious, the edge of what feels possible '
+             'starts to move. When we practice intentionally with the ways we meet experience, we find '
+             'more openness, ease, and courage.',
+             'As connections deepen and new ones appear, what we see, how we relate, and our sense of '
+             'what is possible all change. What is important can be realised inwardly; things of value '
+             'can be realised in reality.', 'why it matters'),
             ('Beings Club exists because of a tea house at Plum Village, where I found myself '
              'in conversations over tea that expanded my sense of what is possible — free of any prescribed topic.',
              'Beings Club exists because of a tea house at Plum Village, where I found myself '

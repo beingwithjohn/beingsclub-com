@@ -82,10 +82,18 @@ def audit(html, label):
     ok(label + ": retired overall care framing is absent",
        "We hold each other as precious" not in html and
        "When people hold each other as precious" not in html)
-    ok(label + ": curiosity framing keeps the chosen phrase",
-       "realise things of value" in html)
-    ok(label + ": curiosity stands alone as the top line",
-       'data-curiosity-line="1"' in html and "Curiosity holds the room" not in html)
+    ok(label + ": curiosity framing keeps the realisation wordplay",
+       "things of value can be realised in reality" in html)
+    ok(label + ": the definition leads into the two movements",
+       "At Beings Club we define curiosity as" in html and
+       'data-curiosity-lead="1"' in html and
+       "Together, we explore two principles in curiosity." in html and
+       "Curiosity holds the room" not in html)
+    ok(label + ": curiosity has the two chosen movements",
+       ">Curiosity connects</h2>" in html and ">Stay curious</h2>" in html)
+    ok(label + ": discovery language is exact",
+       "what is important can reveal itself" in html and
+       "each other, ideas and new futures" in html)
 
 print("LOCAL BUILD")
 for p in PAGES:
