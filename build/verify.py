@@ -91,9 +91,11 @@ def audit(html, label):
        "Curiosity holds the room" not in html)
     ok(label + ": curiosity has the two chosen movements",
        ">Curiosity connects</h2>" in html and ">Stay curious</h2>" in html)
+    ok(label + ": curiosity movements use the chosen order",
+       html.index(">Stay curious</h2>") < html.index(">Curiosity connects</h2>"))
     ok(label + ": discovery language is exact",
-       "what is important can reveal itself" in html and
-       "each other, ideas and new futures" in html)
+       "what is important reveals itself and curiosity itself can deepen" in html and
+       "each other, fresh ideas and new futures" in html)
 
 print("LOCAL BUILD")
 for p in PAGES:

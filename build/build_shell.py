@@ -285,17 +285,16 @@ def convert(body, key):
              'discovery.<span data-curiosity-lead="1" style="display:block;margin-top:10px;'
              'font-weight:600;color:#171916;">Together, we explore two principles in '
              'curiosity.</span>', 'lead'),
-            ('>Curiosity connects</h2>',
-             '>Stay curious</h2>', 'second curiosity heading'),
             ('>We hold each other as precious</h2>',
-             '>Curiosity connects</h2>', 'first curiosity heading'),
+             '>Stay curious</h2>', 'first curiosity heading'),
             ('Each life in the room, including the ones nothing like yours, is treated as real '
              'and valuable and worth our care. Your own life is precious on the same terms.',
-             'Curiosity reveals and deepens connection—with ourselves, each other, ideas and new '
-             'futures.', 'first curiosity paragraph'),
+             'When we stay oriented to experience and open to discovery, what is important reveals '
+             'itself and curiosity itself can deepen.', 'first curiosity paragraph'),
             ('An orientation to experience that is open to discovery. Practiced this way, it creates '
              'the conditions for connection — to ourselves, to each other, and to what is possible.',
-             'Staying curious keeps experience open, allowing what is important to reveal itself.',
+             "As curiosity deepens and more is revealed, we're more available to ourselves, each "
+             'other, fresh ideas and new futures.',
              'second curiosity paragraph'),
             ('It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. '
              'When people hold each other as precious and stay curious, the edge of what feels possible '
@@ -313,6 +312,17 @@ def convert(body, key):
         ]:
             assert old in body, 'About %s not found' % what
             body = body.replace(old, new, 1)
+
+        # Stay curious leads on the left, paired with stillness; Curiosity
+        # connects follows on the right, paired with interdependence.
+        first_image = 'assets/opart/interdependence.png'
+        second_image = 'assets/opart/stillness.png'
+        assert body.count(first_image) == 1, 'About interdependence image not found once'
+        assert body.count(second_image) == 1, 'About stillness image not found once'
+        image_token = 'assets/opart/__principle-image-swap__.png'
+        body = body.replace(first_image, image_token, 1)
+        body = body.replace(second_image, first_image, 1)
+        body = body.replace(image_token, second_image, 1)
 
     if key == 'about':
         # The three doors at the foot of About carry the same info lines the
