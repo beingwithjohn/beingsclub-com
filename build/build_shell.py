@@ -281,8 +281,9 @@ def convert(body, key):
         for old, new, what in [
             ('We gather to realise what is possible — in ourselves, between us, and in the world. '
              'Two principles hold the room, and everything else is free to change.',
-             'Curiosity holds the room, and everything else is free to change. We gather to '
-             'realise what is possible — in ourselves, between us, and in the world.', 'lead'),
+             '<span data-curiosity-line="1" style="display:block;margin-bottom:8px;font-weight:600;'
+             'color:#171916;">Curiosity</span>We gather to realise what is possible — in '
+             'ourselves, between us, and in the world.', 'lead'),
             ('>Curiosity connects</h2>',
              '>Stay curious</h2>', 'second curiosity heading'),
             ('>We hold each other as precious</h2>',

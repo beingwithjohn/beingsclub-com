@@ -84,6 +84,8 @@ def audit(html, label):
        "When people hold each other as precious" not in html)
     ok(label + ": curiosity framing keeps the chosen phrase",
        "realise things of value" in html)
+    ok(label + ": curiosity stands alone as the top line",
+       'data-curiosity-line="1"' in html and "Curiosity holds the room" not in html)
 
 print("LOCAL BUILD")
 for p in PAGES:
