@@ -17,7 +17,7 @@ SCREENS = [
      "Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."),
     ("about", "About",
      "/about/", "About — why Beings Club exists · Beings Club",
-     "Two principles hold the room, and everything else is free to change. Where Beings Club came from, and why it matters."),
+     "Curiosity connects us to what matters. Where Beings Club came from, and how gathering with others can help us realise things of value."),
     ("salons", "Salons",
      "/salons/", "Salons — where curiosity connects · Beings Club",
      "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."),
@@ -112,6 +112,14 @@ def convert(body, key):
         body = body.replace('onMouseLeave="{{ leave }}"', 'data-doors="1"')
         for k in ('salons', 'sits', 'about', 'door'):
             body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
+        home_statement = '<p style="margin:0;max-width:30ch;font-size:clamp(19px,2.8vh,26px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#171916;text-wrap:pretty;">A realisationhouse for the curious.</p>'
+        assert home_statement in body, 'Home statement not found'
+        body = body.replace(home_statement, home_statement.replace('<p ', '<h1 ').replace('</p>', '</h1>'), 1)
+
+    if key == 'join':
+        door_heading = '<span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>'
+        assert door_heading in body, 'The Door heading not found'
+        body = body.replace(door_heading, door_heading.replace('<span ', '<h1 style="margin:0;').replace('style="margin:0;style="', 'style="margin:0;').replace('</span>', '</h1>'), 1)
 
     # ---- John's copy pass ----------------------------------------------
     # "practice" is the spelling everywhere, noun and verb alike.
@@ -267,8 +275,32 @@ def convert(body, key):
         body = body.replace(stale, '<span id="bc-next-salon">' + next_salon + '</span>', 1)
 
     if key == 'about':
-        # John's wording for the origin story.
+        # Curiosity is the overall Beings Club orientation. Care remains one stage
+        # of Beyond Belief, but it is no longer a general principle of the club.
+        # Keep "realise things of value" intact: it is John's chosen phrase.
         for old, new, what in [
+            ('We gather to realise what is possible — in ourselves, between us, and in the world. '
+             'Two principles hold the room, and everything else is free to change.',
+             'Curiosity holds the room, and everything else is free to change. We gather to '
+             'realise what is possible — in ourselves, between us, and in the world.', 'lead'),
+            ('>Curiosity connects</h2>',
+             '>Stay curious</h2>', 'second curiosity heading'),
+            ('>We hold each other as precious</h2>',
+             '>Curiosity connects</h2>', 'first curiosity heading'),
+            ('Each life in the room, including the ones nothing like yours, is treated as real '
+             'and valuable and worth our care. Your own life is precious on the same terms.',
+             'Curiosity connects us to what matters. We are supported by our own curiosity and the '
+             'curiosity of others as we realise things of value — in ourselves, between us, and in '
+             'the world.', 'first curiosity paragraph'),
+            ('An orientation to experience that is open to discovery. Practiced this way, it creates '
+             'the conditions for connection — to ourselves, to each other, and to what is possible.',
+             'We can trust curiosity to lead us towards what matters, without deciding in advance '
+             'what that must be. Staying curious keeps us open to discovery.',
+             'second curiosity paragraph'),
+            ('When people hold each other as precious and stay curious, the edge of what feels '
+             'possible starts to move.',
+             'When we stay curious together, the edge of what feels possible starts to move.',
+             'why it matters'),
             ('Beings Club exists because of a tea house at Plum Village, where I found myself '
              'in conversations over tea that expanded my sense of what is possible — free of any prescribed topic.',
              'Beings Club exists because of a tea house at Plum Village, where I found myself '
@@ -410,7 +442,7 @@ CSS = """
     flex:0 1 145px!important;margin:clamp(18px,3.5vh,32px) auto 0;padding:0 20px;}
   html[data-layout="ribbon"] #bc-logo + div{display:flex!important;flex:1 1 auto;min-height:0;flex-direction:column;align-items:center;
     justify-content:flex-start;gap:clamp(10px,2vh,18px)!important;padding:clamp(10px,2vh,18px) 28px 20px;}
-  html[data-layout="ribbon"] #bc-logo + div > p:first-child{max-width:15ch!important;font-size:clamp(42px,6.25vw,78px)!important;
+  html[data-layout="ribbon"] #bc-logo + div > :first-child{max-width:15ch!important;font-size:clamp(42px,6.25vw,78px)!important;
     font-weight:720!important;line-height:.92!important;letter-spacing:-.062em!important;text-wrap:balance!important;}
   html[data-layout="ribbon"] #bc-tagline{max-width:52ch;white-space:normal;font-size:clamp(14px,1.55vw,17px)!important;color:#5E5B54!important;}
   @media (max-width:640px){
@@ -419,7 +451,7 @@ CSS = """
     html[data-layout="ribbon"] .bc-ribbon{--ribbon-travel:-52%;height:108px;}
     html[data-layout="ribbon"] #bc-logo{width:min(390px,78vw)!important;max-height:112px!important;flex-basis:112px!important;margin-top:18px;}
     html[data-layout="ribbon"] #bc-logo + div{padding:10px 20px 16px;}
-    html[data-layout="ribbon"] #bc-logo + div > p:first-child{font-size:clamp(38px,11.5vw,54px)!important;max-width:12ch!important;}
+    html[data-layout="ribbon"] #bc-logo + div > :first-child{font-size:clamp(38px,11.5vw,54px)!important;max-width:12ch!important;}
     html[data-layout="ribbon"] #bc-tagline{max-width:31ch;font-size:14px!important;line-height:1.4!important;}
   }
 
@@ -665,8 +697,12 @@ JS = r"""
   function show(key, push, path) {
     if (!layers[key]) return;
     if (key !== current) {
-      Object.keys(layers).forEach(function (k) { layers[k].removeAttribute('data-active'); });
+      Object.keys(layers).forEach(function (k) {
+        layers[k].removeAttribute('data-active');
+        layers[k].setAttribute('data-nosnippet', '');
+      });
       layers[key].setAttribute('data-active', '1');
+      layers[key].removeAttribute('data-nosnippet');
       layers[key].scrollTop = 0;
       current = key;
       var meta = TITLES[key];
@@ -1005,16 +1041,44 @@ SOCIAL_DEFAULT = ('/assets/social-preview.png', 'Beings Club')
 
 def page(key, slug, title, desc):
     esc = lambda s: s.replace('&', '&amp;').replace('"', '&quot;')
+    image_path, image_alt = SOCIAL.get(key, SOCIAL_DEFAULT)
+    page_url = ORIGIN + slug
+    page_types = {'about': 'AboutPage', 'join': 'ContactPage'}
+    webpage = {
+        '@type': page_types.get(key, 'WebPage'), '@id': page_url + '#webpage',
+        'url': page_url, 'name': title, 'description': desc, 'inLanguage': 'en-GB',
+        'isPartOf': {'@id': ORIGIN + '/#website'},
+        'about': {'@id': ORIGIN + '/#organization'},
+        'primaryImageOfPage': {'@type': 'ImageObject', 'url': ORIGIN + image_path,
+                               'caption': image_alt},
+    }
+    graph = [webpage]
+    if key == 'home':
+        graph = [
+            {'@type': 'WebSite', '@id': ORIGIN + '/#website', 'url': ORIGIN + '/',
+             'name': 'Beings Club', 'description': desc, 'inLanguage': 'en-GB',
+             'publisher': {'@id': ORIGIN + '/#organization'}},
+            {'@type': 'Organization', '@id': ORIGIN + '/#organization',
+             'name': 'Beings Club', 'url': ORIGIN + '/', 'description': desc,
+             'logo': {'@type': 'ImageObject', 'url': ORIGIN + '/assets/favicon-512.png',
+                      'width': 512, 'height': 512},
+             'sameAs': ['https://instagram.com/beings_club', 'https://x.com/beings_club']},
+            webpage,
+        ]
+    jsonld = json.dumps({'@context': 'https://schema.org', '@graph': graph},
+                        ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     head = """<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>{t}</title>
 <meta name="description" content="{d}">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="{o}{s}">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Beings Club">
+<meta property="og:locale" content="en_GB">
 <meta property="og:title" content="{t}">
 <meta property="og:description" content="{d}">
 <meta property="og:url" content="{o}{s}">
@@ -1027,15 +1091,17 @@ def page(key, slug, title, desc):
 <meta name="twitter:description" content="{d}">
 <meta name="twitter:image" content="{o}{img}">
 <meta name="twitter:image:alt" content="{alt}">
+<script type="application/ld+json">{jsonld}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">""".format(
         t=esc(title), d=esc(desc), o=ORIGIN, s=slug,
-        img=SOCIAL.get(key, SOCIAL_DEFAULT)[0], alt=esc(SOCIAL.get(key, SOCIAL_DEFAULT)[1]))
+        img=image_path, alt=esc(image_alt), jsonld=jsonld)
     head = head.replace('<title>', ARM_INTRO + '<title>', 1)
 
-    body = BODY.replace('<div class="bc-layer" id="s-%s"' % key,
+    body = BODY.replace('<div class="bc-layer" id=', '<div class="bc-layer" data-nosnippet id=')
+    body = body.replace('<div class="bc-layer" data-nosnippet id="s-%s"' % key,
                         '<div class="bc-layer" data-active="1" id="s-%s"' % key)
     return ('<!DOCTYPE html>\n<html lang="en" data-screen="%s">\n<head>\n%s\n<style>%s</style>\n</head>\n<body>\n%s\n<script>%s</script>\n</body>\n</html>\n'
             % (key, head, CSS, body, JS))

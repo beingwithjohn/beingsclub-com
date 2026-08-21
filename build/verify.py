@@ -64,6 +64,26 @@ def audit(html, label):
     ok(label + ": a layer is pre-activated", 'class="bc-layer" data-active="1"' in html)
     ok(label + ": no unresolved template holes", "{{" not in html)
     ok(label + ": no relative asset paths", 'url(\'assets/' not in html and 'src="assets/' not in html)
+    ok(label + ": index previews are open",
+       '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">' in html)
+    structured = re.search(r'(?s)<script type="application/ld\+json">(.*?)</script>', html)
+    try:
+        data = json.loads(structured.group(1)) if structured else None
+        graph = data.get('@graph', []) if isinstance(data, dict) else []
+        structured_ok = data.get('@context') == 'https://schema.org' and bool(graph)
+    except Exception:
+        structured_ok = False
+    ok(label + ": structured data parses", structured_ok)
+    ok(label + ": inactive screens cannot become the Google snippet",
+       html.count('class="bc-layer" data-nosnippet') == 5)
+    active = re.search(r'(?s)<div class="bc-layer" data-active="1".*?(?=<div class="bc-layer"|<div id="bc-intro")', html)
+    ok(label + ": active screen has one primary heading",
+       bool(active) and active.group(0).count('<h1') == 1)
+    ok(label + ": retired overall care framing is absent",
+       "We hold each other as precious" not in html and
+       "When people hold each other as precious" not in html)
+    ok(label + ": curiosity framing keeps the chosen phrase",
+       "realise things of value" in html)
 
 print("LOCAL BUILD")
 for p in PAGES:
@@ -80,6 +100,29 @@ ok("generator runs clean", r.returncode == 0, r.stderr.strip()[-200:])
 after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in before}
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
+
+robots_path = os.path.join(ROOT, "robots.txt")
+sitemap_path = os.path.join(ROOT, "sitemap.xml")
+robots = io.open(robots_path, encoding="utf-8").read() if os.path.exists(robots_path) else ""
+sitemap = io.open(sitemap_path, encoding="utf-8").read() if os.path.exists(sitemap_path) else ""
+ok("robots.txt allows OAI search discovery",
+   "User-agent: OAI-SearchBot\nAllow: /" in robots)
+ok("robots.txt advertises the sitemap",
+   "Sitemap: https://beingsclub.com/sitemap.xml" in robots)
+public_urls = {ORIGIN + route for route in ROUTES + ["/practice-map/", "/giving/", "/beyondbelief/companion/"]}
+listed_urls = set(re.findall(r"<loc>(https://[^<]+)</loc>", sitemap))
+ok("sitemap lists every public canonical page", listed_urls == public_urls,
+   "missing or extra: " + ", ".join(sorted(public_urls ^ listed_urls)))
+for archive in ["archive-refined.html", "archive-v4-dark-plates.html"]:
+    archive_html = io.open(os.path.join(ROOT, archive), encoding="utf-8").read()
+    ok(archive + ": excluded from search", '<meta name="robots" content="noindex,follow">' in archive_html)
+companion = io.open(os.path.join(ROOT, "beyondbelief/companion/index.html"), encoding="utf-8").read()
+companion_print = io.open(os.path.join(ROOT, "beyondbelief/companion/print/index.html"), encoding="utf-8").read()
+ok("Beyond Belief companion has a canonical URL",
+   '<link rel="canonical" href="https://beingsclub.com/beyondbelief/companion/">' in companion)
+ok("Beyond Belief print view consolidates into its companion",
+   '<meta name="robots" content="noindex,follow">' in companion_print and
+   '<link rel="canonical" href="https://beingsclub.com/beyondbelief/companion/">' in companion_print)
 
 # Pages outside the app shell (404, the Practice Map, Giving) wear the same header and
 # footer. They are hand-maintained, so nothing but this check keeps them in step.
@@ -105,6 +148,15 @@ for p in STANDALONE:
        'data-navmark' in html and '/assets/navmark.js' in html)
     ok(p + ": no relative asset paths",
        'url(\'assets/' not in html and 'src="assets/' not in html)
+    if p != "404.html":
+        ok(p + ": index previews are open",
+           '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">' in html)
+        structured = re.search(r'(?s)<script type="application/ld\+json">(.*?)</script>', html)
+        try:
+            structured_ok = bool(structured) and json.loads(structured.group(1)).get('@context') == 'https://schema.org'
+        except Exception:
+            structured_ok = False
+        ok(p + ": structured data parses", structured_ok)
 
 # The design keeps resting styles INLINE, and an inline declaration beats any
 # ordinary stylesheet rule. A hover rule that sets a property the element also
@@ -151,6 +203,8 @@ if "--live" in sys.argv:
 
     for route, local in list(zip(ROUTES, PAGES)) + [("/practice-map/", "practice-map/index.html"),
                                                     ("/giving/", "giving/index.html"),
+                                                    ("/robots.txt", "robots.txt"),
+                                                    ("/sitemap.xml", "sitemap.xml"),
                                                     ("/404.html", "404.html")]:
         try:
             status, body = live(route)

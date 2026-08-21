@@ -111,8 +111,10 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
 
 - British spellings. "practice" as both noun and verb.
 - "realisationhouse" is **one word**. It was split to two and reverted; leave it.
-- "principle" is already heavily loaded: About has "two principles hold the room", Beyond
-  Belief has "five principles". Don't introduce a third meaning.
+- Overall Beings Club framing is led by curiosity; do not restore the retired
+  precious-or-cherished care principle. Beyond Belief still has its five principles,
+  including care, unchanged.
+- "realise things of value" is John's chosen phrase; keep it intact.
 - Never promise a headcount for Beyond Belief — "ten people max", "a group of other people".
 - The Sits CTA points at `/beyondbelief`, never straight to Luma.
 

@@ -8,12 +8,14 @@
 try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drift|current)(?:&|$)/.exec(location.search),l=/(?:^|[?&])layout=(ribbon|float)(?:&|$)/.exec(location.search);if(m){d.setAttribute("data-motion",m[1]);}if(d.getAttribute("data-screen")==="home"){d.setAttribute("data-layout",l?l[1]:"float");}if(d.getAttribute("data-screen")==="home"&&!sessionStorage.getItem("bc-intro-seen")&&!matchMedia("(prefers-reduced-motion:reduce)").matches){d.setAttribute("data-intro","1");}}catch(e){}</script>
 <title>Beings Club — a realisationhouse for the curious</title>
 <meta name="description" content="Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://beingsclub.com/">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Beings Club">
+<meta property="og:locale" content="en_GB">
 <meta property="og:title" content="Beings Club — a realisationhouse for the curious">
 <meta property="og:description" content="Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.">
 <meta property="og:url" content="https://beingsclub.com/">
@@ -26,6 +28,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 <meta name="twitter:description" content="Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.">
 <meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">
 <meta name="twitter:image:alt" content="Beings Club">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://beingsclub.com/#website","url":"https://beingsclub.com/","name":"Beings Club","description":"Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.","inLanguage":"en-GB","publisher":{"@id":"https://beingsclub.com/#organization"}},{"@type":"Organization","@id":"https://beingsclub.com/#organization","name":"Beings Club","url":"https://beingsclub.com/","description":"Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.","logo":{"@type":"ImageObject","url":"https://beingsclub.com/assets/favicon-512.png","width":512,"height":512},"sameAs":["https://instagram.com/beings_club","https://x.com/beings_club"]},{"@type":"WebPage","@id":"https://beingsclub.com/#webpage","url":"https://beingsclub.com/","name":"Beings Club — a realisationhouse for the curious","description":"Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings.","inLanguage":"en-GB","isPartOf":{"@id":"https://beingsclub.com/#website"},"about":{"@id":"https://beingsclub.com/#organization"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://beingsclub.com/assets/social-preview.png","caption":"Beings Club"}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
@@ -88,7 +91,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     flex:0 1 145px!important;margin:clamp(18px,3.5vh,32px) auto 0;padding:0 20px;}
   html[data-layout="ribbon"] #bc-logo + div{display:flex!important;flex:1 1 auto;min-height:0;flex-direction:column;align-items:center;
     justify-content:flex-start;gap:clamp(10px,2vh,18px)!important;padding:clamp(10px,2vh,18px) 28px 20px;}
-  html[data-layout="ribbon"] #bc-logo + div > p:first-child{max-width:15ch!important;font-size:clamp(42px,6.25vw,78px)!important;
+  html[data-layout="ribbon"] #bc-logo + div > :first-child{max-width:15ch!important;font-size:clamp(42px,6.25vw,78px)!important;
     font-weight:720!important;line-height:.92!important;letter-spacing:-.062em!important;text-wrap:balance!important;}
   html[data-layout="ribbon"] #bc-tagline{max-width:52ch;white-space:normal;font-size:clamp(14px,1.55vw,17px)!important;color:#5E5B54!important;}
   @media (max-width:640px){
@@ -97,7 +100,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     html[data-layout="ribbon"] .bc-ribbon{--ribbon-travel:-52%;height:108px;}
     html[data-layout="ribbon"] #bc-logo{width:min(390px,78vw)!important;max-height:112px!important;flex-basis:112px!important;margin-top:18px;}
     html[data-layout="ribbon"] #bc-logo + div{padding:10px 20px 16px;}
-    html[data-layout="ribbon"] #bc-logo + div > p:first-child{font-size:clamp(38px,11.5vw,54px)!important;max-width:12ch!important;}
+    html[data-layout="ribbon"] #bc-logo + div > :first-child{font-size:clamp(38px,11.5vw,54px)!important;max-width:12ch!important;}
     html[data-layout="ribbon"] #bc-tagline{max-width:31ch;font-size:14px!important;line-height:1.4!important;}
   }
 
@@ -353,7 +356,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     </div>
     <div id="bc-logo" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:100%;display:flex;align-items:center;justify-content:center;line-height:0;flex:0 1 auto;min-height:0;"><img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;max-height:100%;object-fit:contain;"></div>
     <div style="display:grid;gap:10px;justify-items:center;text-align:center;flex:0 0 auto;max-width:100%;">
-      <p style="margin:0;max-width:30ch;font-size:clamp(19px,2.8vh,26px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#171916;text-wrap:pretty;">A realisationhouse for the curious.</p>
+      <h1 style="margin:0;max-width:30ch;font-size:clamp(19px,2.8vh,26px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#171916;text-wrap:pretty;">A realisationhouse for the curious.</h1>
       <p id="bc-tagline" style="margin:0;font-size:clamp(15px,2.05vw,18px);line-height:1.55;letter-spacing:-0.008em;color:#75726A;text-wrap:pretty;">We gather to realise what is possible — in ourselves, between us, and in the world.</p>
     </div>
   </div>
@@ -378,7 +381,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   </div>
 </div>
 </div>
-<div class="bc-layer" id="s-about" data-screen="about">
+<div class="bc-layer" data-nosnippet id="s-about" data-screen="about">
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -393,20 +396,20 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
     <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">About</span>
     <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a <span id="bc-rh" role="button" tabindex="0" aria-label="realisationhouse, definition" data-rh-on="1" data-rh-off="1" data-rh-on="1" data-rh-off="1" data-rh-toggle="1" data-rh-key="1" style="position:relative;display:inline-block;cursor:help;color:transparent;-webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;" data-vh="1">realisationhouse</span></span> for the curious.</h1>
-    <p style="margin:0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">We gather to realise what is possible — in ourselves, between us, and in the world. Two principles hold the room, and everything else is free to change.</p>
+    <p style="margin:0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">Curiosity holds the room, and everything else is free to change. We gather to realise what is possible — in ourselves, between us, and in the world.</p>
   <span class="bc-rh-tip" id="bc-rh-tip" role="tooltip"><span style="display:block;"><strong style="font-weight:600;color:#171916;">realisationhouse</strong><span style="margin-left:8px;font-size:14px;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span><em style="margin-left:6px;font-weight:600;color:#5A4B7C;">n.</em></span><span style="display:block;margin-top:8px;color:#43403A;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span>
   </header>
 
   <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));border-bottom:1px solid rgba(38,34,26,0.10);">
     <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;">
       <img loading="lazy" decoding="async" src="/assets/opart/interdependence.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;margin-bottom:6px;">
-      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">We hold each other as precious</h2>
-      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Each life in the room, including the ones nothing like yours, is treated as real and valuable and worth our care. Your own life is precious on the same terms.</p>
+      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Curiosity connects</h2>
+      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">Curiosity connects us to what matters. We are supported by our own curiosity and the curiosity of others as we realise things of value — in ourselves, between us, and in the world.</p>
     </div>
     <div style="padding:clamp(32px,5vh,48px) clamp(24px,5vw,56px);display:grid;gap:14px;align-content:start;border-left:1px solid rgba(38,34,26,0.10);">
       <img loading="lazy" decoding="async" src="/assets/opart/stillness.png" alt="" aria-hidden="true" style="width:84px;height:auto;mix-blend-mode:multiply;margin-bottom:6px;">
-      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Curiosity connects</h2>
-      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">An orientation to experience that is open to discovery. Practiced this way, it creates the conditions for connection — to ourselves, to each other, and to what is possible.</p>
+      <h2 style="margin:0;font-size:22px;font-weight:600;letter-spacing:-0.02em;">Stay curious</h2>
+      <p style="margin:0;max-width:44ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">We can trust curiosity to lead us towards what matters, without deciding in advance what that must be. Staying curious keeps us open to discovery.</p>
     </div>
   </section>
 
@@ -428,7 +431,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     <div data-splitcopy="1" style="flex:1 1 22rem;min-width:0;display:grid;gap:20px;align-content:start;padding:clamp(40px,7vh,72px) 0 clamp(40px,7vh,72px) clamp(24px,5vw,56px);">
       <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;">Why it matters</span>
       <p style="margin:0;max-width:30ch;font-size:clamp(22px,3.2vw,30px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Creativity is only ever limited by our sense of what's possible — and that sense is not fixed.</p>
-      <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. When people hold each other as precious and stay curious, the edge of what feels possible starts to move. When we practice intentionally with the ways we meet experience, we find more openness, ease, and courage.</p>
+      <p style="margin:0;max-width:54ch;font-size:17px;line-height:1.8;color:#43403A;text-wrap:pretty;">It grows, or it shrinks, depending on the company we keep and the flexibility of our minds. When we stay curious together, the edge of what feels possible starts to move. When we practice intentionally with the ways we meet experience, we find more openness, ease, and courage.</p>
       <p style="margin:0;font-size:clamp(20px,2.6vw,25px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#5A4B7C;">We hope more realisationhouses will arise.</p>
     </div>
     <figure data-sidefig="1" style="flex:0 0 auto;width:min(19rem,40%);margin:0;align-self:stretch;overflow:hidden;line-height:0;">
@@ -485,7 +488,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   </footer>
 </div>
 </div>
-<div class="bc-layer" id="s-salons" data-screen="salons">
+<div class="bc-layer" data-nosnippet id="s-salons" data-screen="salons">
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -590,7 +593,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   </footer>
 </div>
 </div>
-<div class="bc-layer" id="s-sits" data-screen="sits">
+<div class="bc-layer" data-nosnippet id="s-sits" data-screen="sits">
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -678,7 +681,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   </footer>
 </div>
 </div>
-<div class="bc-layer" id="s-beyondbelief" data-screen="beyondbelief">
+<div class="bc-layer" data-nosnippet id="s-beyondbelief" data-screen="beyondbelief">
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
   <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -849,7 +852,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   </footer>
 </div>
 </div>
-<div class="bc-layer" id="s-join" data-screen="join">
+<div class="bc-layer" data-nosnippet id="s-join" data-screen="join">
 <div id="bc-door" style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);height:100svh;display:flex;flex-direction:column;overflow:hidden;">
 
   <nav style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);">
@@ -864,7 +867,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <div style="flex:1;min-height:0;display:flex;flex-wrap:wrap;align-items:stretch;">
 
     <form id="bc-form" novalidate style="flex:1 1 30rem;min-width:0;min-height:0;background:#FFF7EE;padding:clamp(20px,4vh,56px) clamp(24px,4vw,48px);display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(10px,2vh,20px);overflow:hidden;">
-      <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>
+      <h1 style="margin:0;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</h1>
 
       <div style="display:grid;gap:clamp(6px,1.4vh,14px);align-content:center;min-height:0;max-width:34rem;font-size:clamp(17px,min(2.6vw,3.1vh),22px);line-height:1.6;letter-spacing:-0.012em;">
         <p style="margin:0;">Hello John — my name is <input name="name" type="text" placeholder="your name" autocomplete="name" data-begin="1" style="font-size:inherit;letter-spacing:inherit;border:0;border-bottom:1px solid #171916;background:transparent;padding:2px 6px;width:11ch;outline:none;color:#171916;">, and you can reach me at <input name="email" type="email" placeholder="you@somewhere" autocomplete="email" data-begin="1" style="font-size:inherit;letter-spacing:inherit;border:0;border-bottom:1px solid #171916;background:transparent;padding:2px 6px;width:15ch;outline:none;color:#171916;">.</p>
@@ -915,7 +918,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 <script>
 (function () {
   var ROUTES = {"/": "home", "/about/": "about", "/salons/": "salons", "/sits/": "sits", "/beyondbelief/": "beyondbelief", "/join/": "join"};                        // path -> screen key
-  var TITLES = {"home": {"t": "Beings Club \u2014 a realisationhouse for the curious", "d": "Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."}, "about": {"t": "About \u2014 why Beings Club exists \u00b7 Beings Club", "d": "Two principles hold the room, and everything else is free to change. Where Beings Club came from, and why it matters."}, "salons": {"t": "Salons \u2014 where curiosity connects \u00b7 Beings Club", "d": "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."}, "sits": {"t": "Sits \u2014 meditation for the curious \u00b7 Beings Club", "d": "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."}, "beyondbelief": {"t": "Beyond Belief: the art of trusting yourself \u00b7 Beings Club", "d": "A small group meditation class for making meditation your own. Thirty-five days, six Tuesday meetings, online from 15 September. Freely offered."}, "join": {"t": "The Door \u2014 leave us a note \u00b7 Beings Club", "d": "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."}};                        // key -> {t,d}
+  var TITLES = {"home": {"t": "Beings Club \u2014 a realisationhouse for the curious", "d": "Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."}, "about": {"t": "About \u2014 why Beings Club exists \u00b7 Beings Club", "d": "Curiosity connects us to what matters. Where Beings Club came from, and how gathering with others can help us realise things of value."}, "salons": {"t": "Salons \u2014 where curiosity connects \u00b7 Beings Club", "d": "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."}, "sits": {"t": "Sits \u2014 meditation for the curious \u00b7 Beings Club", "d": "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."}, "beyondbelief": {"t": "Beyond Belief: the art of trusting yourself \u00b7 Beings Club", "d": "A small group meditation class for making meditation your own. Thirty-five days, six Tuesday meetings, online from 15 September. Freely offered."}, "join": {"t": "The Door \u2014 leave us a note \u00b7 Beings Club", "d": "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."}};                        // key -> {t,d}
   var byKey = {}; Object.keys(ROUTES).forEach(function (p) { byKey[ROUTES[p]] = p; });
   var shell = document.getElementById('bc-shell');
   var layers = {};
@@ -940,8 +943,12 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   function show(key, push, path) {
     if (!layers[key]) return;
     if (key !== current) {
-      Object.keys(layers).forEach(function (k) { layers[k].removeAttribute('data-active'); });
+      Object.keys(layers).forEach(function (k) {
+        layers[k].removeAttribute('data-active');
+        layers[k].setAttribute('data-nosnippet', '');
+      });
       layers[key].setAttribute('data-active', '1');
+      layers[key].removeAttribute('data-nosnippet');
       layers[key].scrollTop = 0;
       current = key;
       var meta = TITLES[key];

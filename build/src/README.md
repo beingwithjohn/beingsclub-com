@@ -109,10 +109,10 @@ Grid gaps: 20px (testimonials), 26px (section stacks), `clamp(24px, 4vw, 48px)` 
 Absorbs the old homepage. Order:
 1. Nav (see below).
 2. **Header** — eyebrow "About"; h1 "Beings Club is a realisationhouse for the curious." — **"realisationhouse" is a glossary trigger**: rendered `color: transparent` + `-webkit-text-stroke: 1.4px #171916` (echoing the outline wordmark), `cursor: help`, and it fills solid ink on hover/focus over 180ms. Hover, focus or tap reveals a definition tip 10px below it — lilac `#F2ECFF` (the site's meaning/emphasis surface, same as `::selection`), the standard `rgba(38,34,26,0.10)` hairline, **no shadow**, `min(23rem, 80vw)`, `padding: 18px 20px`, 16px/1.6, fading in with a 5px rise over 180ms. Entry: headword 600 ink, IPA `[rɪəlaɪˈzeɪʃᵊnhaʊs]` 14px `#75726A`, italic "n." 600 `#5A4B7C`, definition `#43403A` 8px below. `pointer-events` is `auto` only while open, so the definition is selectable; because the tip is a descendant of the trigger, moving into it does not dismiss it. Keyboard: `tabindex="0"`, Enter/Space toggles, Escape dismisses; tap toggles on touch, and any outside click closes. The tip's left offset is clamped to a 12px viewport margin at open and on resize, since the word sits mid-line. There is no standing definition section — the gloss is on demand only.
-3. **Lead** — "We gather to realise what is possible — in ourselves, between us, and in the world. Two principles hold the room, and everything else is free to change."
-4. **Two principles** — two-column grid (`auto-fit, minmax(19rem, 1fr)`), hairline between. Each: op-art mark 84px (`mix-blend-mode: multiply`), h2 22px/600, 17px/1.8 body max-width 44ch.
-   - "We hold each other as precious" — `assets/opart/interdependence.png`
-   - "Curiosity connects" — `assets/opart/stillness.png`
+3. **Lead** — "Curiosity holds the room, and everything else is free to change. We gather to realise what is possible — in ourselves, between us, and in the world."
+4. **Curiosity in two movements** — two-column grid (`auto-fit, minmax(19rem, 1fr)`), hairline between. Each: op-art mark 84px (`mix-blend-mode: multiply`), h2 22px/600, 17px/1.8 body max-width 44ch.
+   - "Curiosity connects" — `assets/opart/interdependence.png`; develops John's phrase "realise things of value".
+   - "Stay curious" — `assets/opart/stillness.png`
 5. **Plate** — `field-rings.jpg`, `object-position: center 62%`.
 6. **Where it comes from** — the tea-house origin, two paragraphs, signed "— John".
 7. **Why it matters** — lilac band, closes on a standalone violet (`#5A4B7C`) statement "We hope more realisationhouses will arise." at 20–26px/600/-0.022em, max-width 26ch. Split: copy left (`flex: 1 1 22rem`, padded left only), image right (`width: min(19rem, 40%)`, full band height, `object-fit: cover`, flush to the right edge, no caption). Below 44rem the image becomes a full-width 190–260px band beneath the copy.
