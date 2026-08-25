@@ -284,6 +284,7 @@ if "--live" in sys.argv:
 
     for route, local in list(zip(ROUTES, PAGES)) + [("/practice-map/", "practice-map/index.html"),
                                                     ("/giving/", "giving/index.html"),
+                                                    ("/" + indexnow_key + ".txt", indexnow_key + ".txt"),
                                                     ("/robots.txt", "robots.txt"),
                                                     ("/sitemap.xml", "sitemap.xml"),
                                                     ("/404.html", "404.html")]:
