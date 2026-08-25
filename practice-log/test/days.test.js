@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   localDate, localTime, addDays, diffDays, weekday, isDate,
   anchorOf, dayIndex, weekIndex, weekStart, weekDates,
+  shareInvitationDays, shareInvitationDue,
   isClosed, lastDay, notYetOpen, markableDates, phaseOf, daysUntil,
   nudgeDue, minutesOf, quietDays, validTimezone,
 } from '../src/days.js';
@@ -114,6 +115,26 @@ test('an evergreen week turns on the day you joined', () => {
   assert.equal(weekday(anchor), 1);
   assert.equal(weekStart('2026-07-26', anchor), '2026-07-20');
   assert.equal(weekStart('2026-07-27', anchor), '2026-07-27');
+});
+
+test('sharing is invited on a stable two to six days of each week', () => {
+  const anchor = '2026-07-20';
+  for (let personId = 1; personId <= 40; personId++) {
+    const days = shareInvitationDays(personId, '2026-08-25', anchor);
+    assert.ok(days.length >= 2 && days.length <= 6);
+    assert.equal(new Set(days).size, days.length);
+    assert.deepEqual(days, shareInvitationDays(personId, '2026-08-25', anchor));
+    for (const date of weekDates('2026-08-25', anchor)) {
+      assert.equal(shareInvitationDue(personId, date, anchor), days.includes(date));
+    }
+  }
+});
+
+test('sharing invitations vary between people and weeks', () => {
+  const anchor = '2026-07-20';
+  const thisWeek = shareInvitationDays(7, '2026-08-25', anchor);
+  assert.notDeepEqual(thisWeek, shareInvitationDays(8, '2026-08-25', anchor));
+  assert.notDeepEqual(thisWeek, shareInvitationDays(7, '2026-09-01', anchor));
 });
 
 // ---------------------------------------------------------------------------

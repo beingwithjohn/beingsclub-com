@@ -97,7 +97,10 @@ are optional. Those identity fields reach another participant only through a
 day that person marked, never from account creation. This is practice made
 social, not an account network.
 
-**2 · One tap, everything else optional.** The note is offered once a day. The
+**2 · One tap, everything else optional.** The note is offered only on a
+stable, hidden selection of two to six days in each person's anchored week;
+someone practising fewer days may encounter fewer invitations. The selection
+does not respond to their practice or sharing history. The
 timer offers five, ten, twenty, or a custom one-to-180-minute length; it is an
 aid and never records practice. While it runs, its low-light page requests a
 screen wake lock and reports whether that succeeded. The bell is a short

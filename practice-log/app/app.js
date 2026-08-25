@@ -1573,7 +1573,7 @@
 
   function afterTap() {
     var key = 'note:' + S.today.date;
-    if (S.person.notes_on && !L.dismissed[key] && !S.today.note) {
+    if (S.person.notes_on && S.today.share_invited && !L.dismissed[key] && !S.today.note) {
       L.dismissed[key] = 1; save(); go('note');
     } else if (view !== 'cohort') { go('cohort'); }
   }

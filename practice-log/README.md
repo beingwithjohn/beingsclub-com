@@ -13,6 +13,10 @@ the iPhone media channel rather than the mute-switch-bound Web Audio channel.
 It does not run a silent audio track for the length of the sit. An ordinary
 browser cannot promise an end bell after somebody manually locks the screen,
 so the live status says plainly whether the screen is being kept awake.
+The post-practice sharing invitation is not part of every sit. Each person has
+a stable, hidden selection of two to six invitation days in each anchored
+week; if they practise on fewer days, they may see fewer invitations. The
+selection is independent of their practice history and what they have shared.
 
 Built to two shapes at once:
 

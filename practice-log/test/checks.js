@@ -557,6 +557,17 @@ check(21, 'the timer remains separate from recording practice', () => {
   return 'presets plus 1–180 custom; awake low-light screen; short media bell; no automatic mark';
 });
 
+check('21b', 'sharing invitations stay occasional and unpredictable', () => {
+  const api = read('practice-log', 'src', 'api.js');
+  const days = read('practice-log', 'src', 'days.js');
+  ok(/S\.today\.share_invited/.test(log) && /share_invited:\s*shareInvitationDue/.test(api) &&
+    /const count = 2 \+ \(seed % 5\)/.test(days),
+    'the note invitation is not a stable, hidden selection of two to six days each week');
+  ok(/A line for anyone else who practices today/.test(log) && /Whatever you feel like sharing\.\.\./.test(log),
+    'the approved invitation wording changed while making its appearance occasional');
+  return 'two to six hidden days per week; stable across devices; existing wording kept';
+});
+
 check(22, 'giving is public, optional, and separate from the Practice Log', () => {
   ok(/href:\s*['"]\/giving\/['"]/.test(log), 'the log does not link to the giving page');
   ok(!/Pay what you (?:want|can)/i.test(log), 'old pay-what-you-want language remains in the log');

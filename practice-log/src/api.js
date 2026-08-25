@@ -12,6 +12,7 @@
 import {
   localDate, isDate, addDays, diffDays, validTimezone,
   anchorOf, dayIndex, weekIndex, weekDates, weekStart,
+  shareInvitationDue,
   isClosed, lastDay, notYetOpen, markableDates, minutesOf,
   phaseOf, daysUntil,
 } from './days.js';
@@ -96,6 +97,7 @@ export async function getState(env, { person, run }) {
       week_start: weekStart(today, anchor),
       marked: markedToday,
       note: mine.notes.get(today) || null,
+      share_invited: shareInvitationDue(person.id, today, anchor),
       markable: markable.includes(today),
     },
     yesterday: {

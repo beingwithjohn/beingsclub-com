@@ -94,6 +94,12 @@ The public interface never calls the people using it a “cohort.” Settings
 describes the daily nudge as “One email a day, at the time you choose,” and
 describes the private link as the passwordless sign-in credential it is.
 
+The existing post-practice note invitation is unchanged when it appears, but
+it does not appear after every practice. Each person has a hidden selection of
+two to six invitation days per anchored week. Someone practising fewer days
+may encounter fewer than two. The choice is stable across reloads and devices
+and does not respond to how often they practise or whether they shared before.
+
 The menu also opens into the wider Beings Club work through benefit-led doors.
 The Sits door reads:
 

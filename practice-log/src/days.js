@@ -129,6 +129,38 @@ export function weekDates(date, anchor) {
 }
 
 /**
+ * The days on which this person may be invited to share after practising.
+ *
+ * Each anchored week quietly contains between two and six invitation days.
+ * The choice is stable for that person and week, so reloads and another device
+ * cannot make an invitation appear or disappear. It is deliberately not based
+ * on whether they shared before, how often they practise, or anything they
+ * wrote: the interruption stays incidental to the practice.
+ */
+export function shareInvitationDays(personId, date, anchor) {
+  const dates = weekDates(date, anchor);
+  let seed = 2166136261;
+  const source = `${personId}:${dates[0]}`;
+  for (let i = 0; i < source.length; i++) {
+    seed ^= source.charCodeAt(i);
+    seed = Math.imul(seed, 16777619) >>> 0;
+  }
+  const count = 2 + (seed % 5);
+  const indexes = [0, 1, 2, 3, 4, 5, 6];
+  for (let i = indexes.length - 1; i > 0; i--) {
+    seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+    seed >>>= 0;
+    const j = seed % (i + 1);
+    [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+  }
+  return indexes.slice(0, count).map((i) => dates[i]).sort();
+}
+
+export function shareInvitationDue(personId, date, anchor) {
+  return shareInvitationDays(personId, date, anchor).includes(date);
+}
+
+/**
  * A fixed run has a last day and then freezes. An evergreen run has neither,
  * so this is always false for one — there is no day it stops being today.
  */
