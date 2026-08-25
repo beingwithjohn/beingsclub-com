@@ -230,6 +230,16 @@ def convert(body, key):
             assert old in body, 'Sits %s not found' % what
             body = body.replace(old, new, 1)
 
+        # The current Sit should disclose its practical commitment before the
+        # reader reaches the fact strip below the image.
+        offer_heading = ('<h2 style="margin:0;max-width:24ch;font-size:clamp(24px,3.6vw,34px);'
+                         'font-weight:600;line-height:1.2;letter-spacing:-0.025em;text-wrap:pretty;">'
+                         'Beyond Belief: the art of trusting yourself.</h2>')
+        assert offer_heading in body, 'Sits current-offer heading not found'
+        offer_when = ('<p class="bc-now-line">15 Sept – 20 Oct · Tuesdays at '
+                      '6:30pm UK · online · freely offered</p>')
+        body = body.replace(offer_heading, offer_heading + '\n      ' + offer_when, 1)
+
     if key == 'salons':
         # John removed this line; the design source still carries it, so drop it on
         # every regeneration rather than editing the built file.
@@ -272,7 +282,14 @@ def convert(body, key):
         stale = 'The next one is Sunday 27 September, 5:30pm UK.'
         assert stale in body, 'salons next-date line not found'
         next_salon = 'The next Salon is Wednesday, September 30th, 7pm UK.'
-        body = body.replace(stale, '<span id="bc-next-salon">' + next_salon + '</span>', 1)
+        body = body.replace(stale, '<span data-next-salon="1">' + next_salon + '</span>', 1)
+        salons_intro = ('<p style="margin:0;font-size:19px;line-height:1.7;color:#43403A;'
+                        'text-wrap:pretty;">Every month we gather to take time for ourselves and '
+                        'to meet one another. Every Salon begins with meditation.</p>')
+        assert salons_intro in body, 'Salons opening paragraph not found'
+        body = body.replace(salons_intro,
+            '<p class="bc-now-line" data-next-salon="1">' + next_salon + '</p>\n      ' +
+            salons_intro, 1)
 
     if key == 'about':
         # Curiosity is the overall Beings Club orientation. Care remains one stage
@@ -324,6 +341,28 @@ def convert(body, key):
         body = body.replace(second_image, first_image, 1)
         body = body.replace(image_token, second_image, 1)
 
+        # A compact host note adds the missing human context without turning
+        # About into a conventional credentials page. Every statement here is
+        # already supported elsewhere on the site.
+        why_section = ('<section style="border-bottom:1px solid rgba(38,34,26,0.10);'
+                       'background:#F2ECFF;display:flex;flex-wrap:wrap;gap:clamp(24px,4vw,48px);'
+                       'align-items:stretch;">')
+        assert body.count(why_section) == 1, 'About why-it-matters section not found once'
+        host_note = '''<section class="bc-host-note">
+    <div>
+      <span class="bc-eyebrow">Hosted by John</span>
+      <h2>Who is holding the space.</h2>
+    </div>
+    <div class="bc-host-facts">
+      <p>John hosts every Salon and teaches every Sit.</p>
+      <p>His work brings contemplative practice into curious, non-doctrinal spaces.</p>
+      <p>He replies to every note himself, and joining begins with a conversation.</p>
+    </div>
+  </section>
+
+  '''
+        body = body.replace(why_section, host_note + why_section, 1)
+
     if key == 'about':
         # The three doors at the foot of About carry the same info lines the
         # home doors reveal on hover — one phrase per destination, site-wide.
@@ -362,8 +401,8 @@ def convert(body, key):
             assert old in body, 'join %s not found' % what
             body = body.replace(old, new, 1)
         body = body.replace('onSubmit="{{ submit }}"', 'id="bc-form" novalidate')
-        body = body.replace('onInput="{{ onName }}"', 'data-begin="1"')
-        body = body.replace('onInput="{{ onEmail }}"', 'data-begin="1"')
+        body = body.replace('onInput="{{ onName }}"', '')
+        body = body.replace('onInput="{{ onEmail }}"', '')
         body = body.replace('style="{{ restStyle }}"', 'id="bc-rest"')
         body = body.replace('onClick="{{ toggleSalons }}"', 'data-chip="salons"')
         body = body.replace('onClick="{{ toggleSits }}"', 'data-chip="sits"')
@@ -387,6 +426,40 @@ def convert(body, key):
         body = body.replace('style="{{ sendStyle }}"', 'id="bc-send"')
         body = re.sub(r'(<p role="status"[^>]*)>\{\{ status \}\}<', r'\1 id="bc-status"><', body)
 
+    # Content pages use one complete, stable map. The current destination stays
+    # visible and is marked explicitly instead of disappearing from navigation.
+    if key != 'home':
+        current_nav = 'sits' if key == 'beyondbelief' else key
+        nav_items = []
+        for nav_key, label, href in [
+            ('about', 'About', '/about/'),
+            ('salons', 'Salons', '/salons/'),
+            ('sits', 'Sits', '/sits/'),
+            ('join', 'Door', '/join/'),
+        ]:
+            current_attr = ''
+            if nav_key == current_nav:
+                current_attr = ' aria-current="location"' if key == 'beyondbelief' else ' aria-current="page"'
+            nav_items.append('<a class="bc-nav-link" href="%s"%s>%s</a>' %
+                             (href, current_attr, label))
+        nav = '''<nav class="bc-site-nav">
+    <a href="/" aria-label="Beings Club" class="bc-nav-mark"><span data-navmark="1"></span></a>
+    <div class="bc-site-map">%s</div>
+  </nav>''' % '\n      '.join(nav_items)
+        assert len(re.findall(r'<nav\b.*?</nav>', body, re.S)) == 1, '%s nav not found once' % key
+        body = re.sub(r'<nav\b.*?</nav>', nav, body, count=1, flags=re.S)
+
+    # Secondary actions need a visible affordance on touchscreens, where hover
+    # cannot do that work for them.
+    for label, shown in [
+        ('Why this exists', 'Why this exists <span aria-hidden="true">→</span>'),
+        ('Start with a Salon instead', 'Start with a Salon instead <span aria-hidden="true">→</span>'),
+        ('Back to Sits', '<span aria-hidden="true">←</span> Back to Sits'),
+    ]:
+        pattern = r'<a ([^>]*)>' + re.escape(label) + r'</a>'
+        if re.search(pattern, body):
+            body = re.sub(pattern, r'<a class="bc-secondary-link" \1>' + shown + '</a>', body, count=1)
+
     assert '{{' not in body, (key, re.findall(r'\{\{[^}]*\}\}', body)[:4])
     assert 'Pay what you can' not in body, '%s still frames giving as a price' % key
     return body.strip()
@@ -406,6 +479,34 @@ CSS = """
   a:hover{color:#5A4B7C;}
   input,textarea,select,button{font-family:inherit;}
   ::selection{background:#F2ECFF;color:#171916;}
+
+  /* One complete page map. Solid paper keeps passing content legible; the
+     current destination remains visible and carries a quiet underline. */
+  .bc-site-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;
+    padding:18px clamp(24px,5vw,56px);background:#FDFCF9;border-bottom:1px solid rgba(38,34,26,.10);}
+  .bc-nav-mark{display:flex;align-items:center;line-height:0;flex:0 0 auto;}
+  .bc-nav-mark span{display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;
+    background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;}
+  .bc-site-map{display:flex;align-items:center;gap:clamp(12px,2vw,22px);margin-left:auto;}
+  .bc-nav-link{position:relative;font-size:11px;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:#75726A;white-space:nowrap;}
+  .bc-nav-link[aria-current]{color:#171916;}
+  .bc-nav-link[aria-current]::after{content:"";position:absolute;left:0;right:.16em;bottom:-7px;
+    height:1px;background:#5A4B7C;}
+  .bc-now-line{margin:0;max-width:54ch;font-size:15px;line-height:1.55;font-weight:650;
+    letter-spacing:.01em;color:#5A4B7C;text-wrap:pretty;}
+  .bc-secondary-link{display:inline-flex;align-items:center;gap:8px;padding-bottom:3px;
+    border-bottom:1px solid currentColor;font-size:12px;font-weight:650;letter-spacing:.12em;
+    line-height:1.5;text-transform:uppercase;color:#5A4B7C;}
+  .bc-host-note{padding:clamp(36px,6vh,60px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,.10);
+    background:#F8F6F1;display:grid;grid-template-columns:minmax(12rem,.72fr) minmax(0,1.7fr);gap:28px 48px;}
+  .bc-host-note > div:first-child{display:grid;gap:10px;align-content:start;}
+  .bc-eyebrow{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#75726A;}
+  .bc-host-note h2{margin:0;max-width:12ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;
+    line-height:1.2;letter-spacing:-.025em;text-wrap:pretty;}
+  .bc-host-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(38,34,26,.10);}
+  .bc-host-facts p{margin:0;padding:18px 20px;background:#F8F6F1;font-size:15.5px;line-height:1.7;
+    color:#43403A;text-wrap:pretty;}
 
   /* the six layers */
   .bc-shell{position:relative;height:100svh;overflow:hidden;background:#F0EEE8;}
@@ -590,9 +691,16 @@ CSS = """
   }
 
   @media (max-width:44rem){
-    [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(190px,32vh,260px)!important;}
+    [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(290px,92vw,360px)!important;}
     [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
     [data-splitcopy]{padding:32px 24px!important;}
+    .bc-site-nav{gap:14px;padding:15px 24px;}
+    .bc-site-map{gap:12px;}
+    .bc-nav-link{font-size:10px;letter-spacing:.11em;}
+    .bc-nav-link[aria-current]::after{right:.11em;bottom:-6px;}
+    .bc-host-note{grid-template-columns:1fr;}
+    .bc-host-note h2{max-width:18ch;}
+    .bc-host-facts{grid-template-columns:1fr;}
     #bc-door{height:auto!important;min-height:100svh;overflow:visible!important;}
     #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
@@ -645,13 +753,10 @@ CSS = """
   #bc-sitmore[data-on="1"]{display:inline;animation:bc-sitmore-in 420ms cubic-bezier(.22,1,.36,1);}
   @keyframes bc-sitmore-in{from{opacity:0}to{opacity:1}}
   @media (prefers-reduced-motion:reduce){#bc-sitmore[data-on="1"]{animation:none;}}
-  #bc-rest{display:grid;gap:clamp(6px,1.4vh,14px);opacity:0;transform:translateY(8px);pointer-events:none;
-    transition:opacity 1.8s cubic-bezier(.22,1,.36,1) .25s,transform 1.8s cubic-bezier(.22,1,.36,1) .25s;}
-  #bc-rest[data-on="1"]{opacity:1;transform:none;pointer-events:auto;}
+  #bc-rest{display:grid;gap:clamp(6px,1.4vh,14px);opacity:1;transform:none;pointer-events:auto;}
   #bc-send{display:inline-flex;align-items:center;gap:12px;font-weight:700;font-size:min(12px,1.9vh);
     letter-spacing:0.16em;text-transform:uppercase;padding:clamp(12px,2.2vh,15px) 28px;background:#171916;
-    color:#FFF7EE;border:1px solid #171916;cursor:pointer;opacity:0.35;transition:opacity .35s ease;}
-  #bc-rest[data-on="1"] #bc-send,#bc-send[data-on="1"]{opacity:1;}
+    color:#FFF7EE;border:1px solid #171916;cursor:pointer;opacity:1;transition:background .25s ease;}
 
   /* First-visit intro. Whether to show it is decided by the small script in
      <head>, BEFORE first paint — arming it from the body script meant the page
@@ -885,8 +990,8 @@ JS = r"""
 
 
   // ---- the next Salon: last week of the month; September is a Wednesday ----
-  var nextEl = document.getElementById('bc-next-salon');
-  if (nextEl) {
+  var nextEls = document.querySelectorAll('[data-next-salon]');
+  if (nextEls.length) {
     function londonOffset(ts) {
       var p = {};
       new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour12: false,
@@ -901,19 +1006,20 @@ JS = r"""
       return g;
     }
     var septemberSalon = ukToUTC(2026, 8, 30, 19, 0);
+    var nextSalonCopy;
     if (Date.now() < septemberSalon) {
-      nextEl.textContent = 'The next Salon is Wednesday, September 30th, 7pm UK.';
+      nextSalonCopy = 'The next Salon is Wednesday, September 30th, 7pm UK.';
     } else {
-      nextEl.textContent = 'The next Salon will be in the last week of the month — date to be announced.';
+      nextSalonCopy = 'The next Salon will be in the last week of the month — date to be announced.';
     }
+    [].forEach.call(nextEls, function (el) { el.textContent = nextSalonCopy; });
   }
 
-  // ---- The Door: chips, progressive reveal, Formspree ----
+  // ---- The Door: chips and Formspree ----
   var form = document.getElementById('bc-form');
   if (form) {
     var state = { salons: false, sits: false, bb: false, next: false, sending: false };
-    var rest = document.getElementById('bc-rest'), and = document.getElementById('bc-and'),
-        send = document.getElementById('bc-send'), status = document.getElementById('bc-status'),
+    var and = document.getElementById('bc-and'), status = document.getElementById('bc-status'),
         sitmore = document.getElementById('bc-sitmore');
     [].forEach.call(form.querySelectorAll('[data-chip]'), function (b) {
       b.setAttribute('aria-pressed', 'false');
@@ -929,14 +1035,6 @@ JS = r"""
         });
         if (and) and.setAttribute('data-on', (state.salons && state.sits) ? '1' : '0');
         if (sitmore) sitmore.setAttribute('data-on', state.sits ? '1' : '0');
-      });
-    });
-    [].forEach.call(form.querySelectorAll('[data-begin]'), function (i) {
-      i.addEventListener('input', function () {
-        if (i.value.trim() && rest && rest.getAttribute('data-on') !== '1') {
-          rest.setAttribute('data-on', '1');
-          if (send) send.setAttribute('data-on', '1');
-        }
       });
     });
     form.addEventListener('submit', function (e) {

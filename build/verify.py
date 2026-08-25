@@ -96,6 +96,23 @@ def audit(html, label):
     ok(label + ": discovery language is exact",
        "what is important reveals itself and curiosity itself can deepen" in html and
        "each other, fresh ideas and new futures" in html)
+    ok(label + ": content navigation keeps the whole map visible",
+       html.count('class="bc-nav-link"') == 20 and
+       all(('href="%s"' % route) in html for route in ['/about/', '/salons/', '/sits/', '/join/']))
+    ok(label + ": The Door is complete on arrival",
+       '#bc-rest{display:grid' in html and 'opacity:1;transform:none;pointer-events:auto' in html and
+       '#bc-send{display:inline-flex' in html and 'cursor:pointer;opacity:1' in html and
+       'data-begin=' not in html)
+    ok(label + ": timely details appear before the lower fact strips",
+       html.count('data-next-salon="1"') == 2 and
+       '15 Sept – 20 Oct · Tuesdays at 6:30pm UK' in html)
+    ok(label + ": About includes supported host context",
+       'class="bc-host-note"' in html and
+       'John hosts every Salon and teaches every Sit' in html and
+       'His work brings contemplative practice into curious, non-doctrinal spaces' in html and
+       'He replies to every note himself' in html)
+    ok(label + ": secondary links have a touch affordance",
+       html.count('class="bc-secondary-link"') == 3)
 
 print("LOCAL BUILD")
 for p in PAGES:
@@ -137,12 +154,16 @@ ok("Beyond Belief print view consolidates into its companion",
    '<link rel="canonical" href="https://beingsclub.com/beyondbelief/companion/">' in companion_print)
 
 # Pages outside the app shell (404, the Practice Map, Giving) wear the same header and
-# footer. They are hand-maintained, so nothing but this check keeps them in step.
+# footer. They are hand-maintained, so nothing but this check keeps them in step. Their
+# complete nav has no current-page mark because none represents one of the four main doors.
 STANDALONE = ["404.html", "practice-map/index.html", "giving/index.html"]
 
 def chrome(html, tag):
     m = re.search(r"(?s)<%s.*?</%s>" % (tag, tag), html)
     return re.sub(r"\s+", " ", m.group(0)) if m else ""
+
+def nav_chrome(html):
+    return re.sub(r' aria-current="[^"]+"', '', chrome(html, "nav"))
 
 shell = io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
 navjs = os.path.join(ROOT, "assets", "navmark.js")
@@ -154,7 +175,7 @@ for p in STANDALONE:
     if not os.path.exists(path):
         ok(p + ": exists", False); continue
     html = io.open(path, encoding="utf-8").read()
-    ok(p + ": header matches the shell", chrome(html, "nav") == chrome(shell, "nav"))
+    ok(p + ": header matches the shell", nav_chrome(html) == nav_chrome(shell))
     ok(p + ": footer matches the shell", chrome(html, "footer") == chrome(shell, "footer"))
     ok(p + ": wordmark hover wired up",
        'data-navmark' in html and '/assets/navmark.js' in html)

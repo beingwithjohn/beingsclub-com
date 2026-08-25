@@ -226,6 +226,10 @@ All six screens exist simultaneously as absolutely-positioned layers inside a `1
 Sections below the fold start at `opacity: 0`, `translateY(12px)` and animate in at `opacity/transform .6s cubic-bezier(.22,1,.36,1)` when their top passes 92% of the viewport. Above-the-fold content is never hidden. Disabled under reduced motion; has an 8s failsafe that reveals everything, and reveals all on `beforeprint`.
 
 ### Form validation (The Door)
+All fields and the submit action are visible on arrival. Validation still provides the
+sequence; the form must not imply that the disabled-looking button or missing fields depend
+on first entering a name.
+
 1. At least one of Salons / Sits — else "Salons, Sits, or both — pick at least one."
 2. A name and an email matching `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` — else "A name and a valid email, please."
 3. On submit: status "Sending…", button locked. POST JSON to `https://formspree.io/f/xpqkbpyv` with `{ intent, interest, name, email, drawn, found }`.
@@ -247,7 +251,6 @@ Sections below the fold start at `opacity: 0`, `translateY(12px)` and animate in
 | `intro` | shell | is the intro overlay showing |
 | `hover` | Home | which door is hovered, drives the info line |
 | `salons`, `sits` | The Door | interest chips; both true reveals "and" |
-| `started` | The Door | has the visitor begun typing; reveals the rest of the letter |
 | `status`, `sending` | The Door | form feedback and submit lock |
 
 No data fetching beyond the Formspree POST and the runtime fetch of the logo SVG.
@@ -295,7 +298,7 @@ To view the prototypes, serve the folder over HTTP (they fetch the logo SVG, so 
 
 There is **one** action idiom, taken from the home door row: a cell with a hairline that fills violet on hover.
 
-- **Nav action** — no box. `11px/700/0.16em` uppercase, `color: #171916` (siblings are `#75726A`), with a trailing `→` at `gap: 7px`. Identical on every inner screen; the Join screen omits it, since you are already there.
+- **Nav map** — no boxes. Every inner screen keeps About, Salons, Sits and Door visible; the current location is marked with an underline and `aria-current` rather than disappearing from the map.
 - **Section / closing CTAs** — `12px/700/0.16em` uppercase, `padding: 15px 26px`, `border: 1px solid #5A4B7C`, `color: #5A4B7C`; hover fills `#5A4B7C` with `#FDFCF9` text.
 - **Join submit** — the same cell, already filled `#5A4B7C` / `#FDFCF9`, being the terminal action of the site.
 - **Door tiles** — no resting background on any tile; Salons/Sits hover `#F8F6F1`, The Door hovers `#5A4B7C` with cream text.

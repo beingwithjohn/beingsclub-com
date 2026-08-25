@@ -39,6 +39,12 @@
   a{color:#171916;text-decoration:none;}
   a:hover{color:#5A4B7C;}
   ::selection{background:#F2ECFF;color:#171916;}
+  .bc-site-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;padding:18px clamp(24px,5vw,56px);background:#FDFCF9;border-bottom:1px solid rgba(38,34,26,.10);}
+  .bc-nav-mark{display:flex;align-items:center;line-height:0;flex:0 0 auto;}
+  .bc-nav-mark span{display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;}
+  .bc-site-map{display:flex;align-items:center;gap:clamp(12px,2vw,22px);margin-left:auto;}
+  .bc-nav-link{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#75726A;white-space:nowrap;}
+  @media (max-width:44rem){.bc-site-nav{gap:14px;padding:15px 24px}.bc-site-map{gap:12px}.bc-nav-link{font-size:10px;letter-spacing:.11em}}
   [data-vh="0"]:hover{background:#5A4B7C !important;color:#FDFCF9 !important;}
   [data-vh="2"]:hover{background:#F8F6F1 !important;}
 
@@ -90,13 +96,12 @@
 <body>
 <div style="max-width:64rem;margin:0 auto;background:#FDFCF9;border-left:1px solid rgba(38,34,26,0.10);border-right:1px solid rgba(38,34,26,0.10);min-height:100svh;">
 
-  <nav style="position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:18px clamp(24px,5vw,56px);background:rgba(253,252,249,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/" aria-label="Beings Club" style="display:flex;align-items:center;line-height:0;"><span data-navmark="1" style="display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;"></span></a>
-    <div style="display:flex;align-items:center;gap:22px;margin-left:auto;">
-      <a href="/salons/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Salons</a>
-      <a href="/sits/" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Sits</a>
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#171916;">The Door <span aria-hidden="true">→</span></a>
-    </div>
+  <nav class="bc-site-nav">
+    <a href="/" aria-label="Beings Club" class="bc-nav-mark"><span data-navmark="1"></span></a>
+    <div class="bc-site-map"><a class="bc-nav-link" href="/about/">About</a>
+      <a class="bc-nav-link" href="/salons/">Salons</a>
+      <a class="bc-nav-link" href="/sits/">Sits</a>
+      <a class="bc-nav-link" href="/join/">Door</a></div>
   </nav>
 
   <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">

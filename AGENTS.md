@@ -95,7 +95,7 @@ someone is looking. That is intended.
 
 ## Standalone pages
 
-`404.html` and `practice-map/` are hand-maintained but must wear the same header and footer
+`404.html`, `practice-map/` and `giving/` are hand-maintained but must wear the same header and footer
 as the shell, byte for byte — `verify.py` compares them. If you change the shell's nav or
 footer in the generator, run the build and copy the new markup into both, or the build fails.
 
