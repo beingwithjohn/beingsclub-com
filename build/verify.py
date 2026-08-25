@@ -96,6 +96,7 @@ def audit(html, label):
            instance.get('courseMode') == 'online' and
            instance.get('startDate') == '2026-09-15' and
            instance.get('endDate') == '2026-10-20' and
+           course.get('provider', {}).get('name') == 'Beings Club' and
            instance.get('offers', {}).get('price') == '0')
     if label == 'sits/index.html':
         ok(label + ": search description answers preference-led queries",

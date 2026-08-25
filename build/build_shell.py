@@ -1165,11 +1165,15 @@ def page(key, slug, title, desc):
         'primaryImageOfPage': {'@type': 'ImageObject', 'url': ORIGIN + image_path,
                                'caption': image_alt},
     }
+    organization_ref = {
+        '@type': 'Organization', '@id': ORIGIN + '/#organization',
+        'name': 'Beings Club', 'url': ORIGIN + '/',
+    }
     person = {
         '@type': 'Person', '@id': JOHN_ID, 'name': 'John',
         'url': ORIGIN + '/about/', 'jobTitle': 'Host and meditation teacher',
         'description': 'John hosts Beings Club Salons and teaches its Sits.',
-        'worksFor': {'@id': ORIGIN + '/#organization'},
+        'worksFor': organization_ref,
     }
     graph = [webpage]
     if key == 'home':
@@ -1197,7 +1201,7 @@ def page(key, slug, title, desc):
             'description': desc,
             'serviceType': ('Online conversation gatherings' if key == 'salons'
                             else 'Small-group online meditation practice'),
-            'provider': {'@id': ORIGIN + '/#organization'},
+            'provider': organization_ref,
             'areaServed': 'Worldwide',
             'availableChannel': {
                 '@type': 'ServiceChannel', 'serviceUrl': page_url,
@@ -1218,7 +1222,7 @@ def page(key, slug, title, desc):
             '@type': 'Course', '@id': course_id,
             'name': 'Beyond Belief: the art of trusting yourself',
             'description': desc, 'inLanguage': 'en-GB',
-            'provider': {'@id': ORIGIN + '/#organization'},
+            'provider': organization_ref,
             'educationalLevel': 'All levels', 'isAccessibleForFree': True,
             'hasCourseInstance': {
                 '@type': 'CourseInstance', '@id': page_url + '#september-2026',
