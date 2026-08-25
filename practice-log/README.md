@@ -7,7 +7,12 @@ day. The main Practice Log is one evergreen tool that anyone can begin from
 John for its dates rather than creating another copy of the log. An optional
 timer offers five, ten, twenty, or a custom one-to-180-minute length. It ends
 with a gentle bell but never records the practice; the person still taps for
-themselves.
+themselves. While it runs, the page requests a screen wake lock and becomes a
+low-light timer. Its short bell clip is primed by the Start tap so it can use
+the iPhone media channel rather than the mute-switch-bound Web Audio channel.
+It does not run a silent audio track for the length of the sit. An ordinary
+browser cannot promise an end bell after somebody manually locks the screen,
+so the live status says plainly whether the screen is being kept awake.
 
 Built to two shapes at once:
 

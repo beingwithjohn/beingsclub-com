@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { seal } from '../src/auth.js';
 import { replyDigestDue, replyDigestOne } from '../src/digest.js';
 
-const LINK_KEY = 'MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=';
+const linkKey = 'MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=';
 const SUNDAY = Date.parse('2026-08-23T06:00:00Z'); // 07:00 in Lisbon
 
 const person = (overrides = {}) => ({
@@ -51,7 +51,7 @@ test('no new public reply means no Sunday digest and leaves the daily nudge avai
 test('the digest contains every new public context except replies prompted by its recipient', async () => {
   const DB = digestDb(['A first public question', 'Another way in']);
   const token = 'local-digest-token';
-  const token_enc = await seal({ LINK_KEY }, token);
+  const token_enc = await seal({ LINK_KEY: linkKey }, token);
   const sent = [];
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (_url, options) => {
@@ -62,7 +62,7 @@ test('the digest contains every new public context except replies prompted by it
   try {
     const result = await replyDigestOne({
       DB,
-      LINK_KEY,
+      LINK_KEY: linkKey,
       APP_URL: 'https://beingsclub.com/log/',
       RESEND_API_KEY: 'test',
       MAIL_FROM: 'Beings Club <practice@beingsclub.com>',

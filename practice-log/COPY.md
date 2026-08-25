@@ -83,6 +83,12 @@ Before recording, “I want to practise now” opens an optional timer: five, te
 or twenty minutes, plus a clearly selected custom length from one to 180
 minutes. A gentle end bell is on by default and can be turned off. The timer
 never records a practice; the ordinary “I practised” tap remains after it ends.
+While running, it shifts to a low-light screen and asks the browser to keep the
+screen awake. When that succeeds it says “This screen will stay awake while the
+timer runs.” Otherwise it says “Keep this screen open and awake to hear the
+bell.” The bell is a short media clip primed by the Start tap, not a silent
+audio track spanning the sit. A normal browser cannot guarantee the bell after
+the phone is manually locked.
 
 The public interface never calls the people using it a “cohort.” Settings
 describes the daily nudge as “One email a day, at the time you choose,” and

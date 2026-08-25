@@ -533,6 +533,15 @@ check(21, 'the timer remains separate from recording practice', () => {
   ok(timer && !/\/api\/mark/.test(timer), 'finishing the timer records practice');
   ok(/L\.timerEnded = S\.today\.date/.test(timer) && /Did you practise\?/.test(log),
     'the timer does not return to the existing practice tap');
+  ok(/navigator\.wakeLock\.request\(['"]screen['"]\)/.test(timer) &&
+    /releaseTimerWakeLock\(\)/.test(timer) && /timerDim:\s*true/.test(timer),
+    'the browser timer does not keep its low-light screen awake and release it afterwards');
+  ok(/document\.createElement\(['"]audio['"]\)/.test(timer) && /audio\/wav/.test(timer) &&
+    /This is a bell clip, not a silent track/.test(timer),
+    'the iPhone-safe short media bell is missing or has become a full-length audio workaround');
+  ok(/Keep this screen open and awake to hear the bell\./.test(timer) &&
+    /This screen will stay awake while the timer runs\./.test(timer),
+    'the timer does not state whether its screen is being kept awake');
   ok(/tap\.querySelector\(['"]i['"]\)\.textContent = ['"]today['"]/.test(log),
     'the confirmation still shows a day number');
   ok(/A line for anyone else who practices today/.test(log) && /Whatever you feel like sharing\.\.\./.test(log),
@@ -545,7 +554,7 @@ check(21, 'the timer remains separate from recording practice', () => {
   ok(/QUIET_BEFORE_STILL_HERE\s*=\s*3/.test(nudge) &&
     /Nothing to explain\./.test(mail) && /showing up again is how the practice deepens/.test(mail),
   'the fourth-day return note does not use the agreed timing and copy');
-  return 'presets plus 1–180 custom; optional bell; no automatic mark';
+  return 'presets plus 1–180 custom; awake low-light screen; short media bell; no automatic mark';
 });
 
 check(22, 'giving is public, optional, and separate from the Practice Log', () => {

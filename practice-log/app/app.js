@@ -41,6 +41,8 @@
   var openDate = null;
   var timerTick = null;
   var timerAudio = null;
+  var timerBell = null;
+  var timerWakeLock = null;
   var replyAudioUrls = {};
   var openPresence = null;
   var busy = false;
@@ -315,7 +317,10 @@
   function shell(inner, opts) {
     opts = opts || {};
     root.innerHTML = '';
-    var app = h('<div class="' + (opts.dark ? 'dark' : 'app') + '"></div>');
+    var theme = document.querySelector('meta[name="theme-color"]');
+    if (theme) theme.setAttribute('content', opts.timerDim ? '#11120F' : '#FDFCF9');
+    var app = h('<div class="' + (opts.dark ? 'dark' : 'app') +
+      (opts.timerDim ? ' timer-dim' : '') + '"></div>');
 
     // The menu rides on every screen except the ones there is nowhere to go
     // from — the threshold, and a log nobody has signed into.
@@ -1275,6 +1280,8 @@
           esc(clock(timerRemaining(t))) + '</div>' +
         '<p class="small">' + esc(minuteLabel(t.minutes)) +
           (L.timerSound ? ' · bell on' : ' · silent') + '</p>' +
+        '<p class="timer-awake-note" id="timer-awake-note" aria-live="polite">' +
+          esc(timerWakeCopy()) + '</p>' +
         '<div class="timer-actions">' +
           '<button class="btn" id="timer-pause">' + (t.running ? 'Pause' : 'Continue') + '</button>' +
           '<button class="quiet" id="timer-end">End timer</button>' +
@@ -1282,7 +1289,7 @@
       '</div>');
       shell(inner, {
         left: '<button class="barlink" id="timer-close">← Today</button>',
-        right: '<span class="barlab">Timer</span>', noMenu: true
+        right: '<span class="barlab">Timer</span>', noMenu: true, timerDim: true
       });
 
       inner.querySelector('#timer-pause').addEventListener('click', function () {
@@ -1290,6 +1297,7 @@
           t.remaining = timerRemaining(t);
           t.running = false;
           delete t.ends_at;
+          releaseTimerWakeLock();
         } else {
           unlockBell();
           t.running = true;
@@ -1298,7 +1306,7 @@
         save(); render();
       });
       inner.querySelector('#timer-end').addEventListener('click', cancelTimer);
-      if (t.running) runTimerClock();
+      if (t.running) { runTimerClock(); requestTimerWakeLock(); }
     }
 
     document.getElementById('timer-close').addEventListener('click', cancelTimer);
@@ -1332,12 +1340,14 @@
 
   function cancelTimer() {
     clearInterval(timerTick);
+    releaseTimerWakeLock();
     L.timer = null;
     save(); go(null);
   }
 
   function finishTimer() {
     clearInterval(timerTick);
+    releaseTimerWakeLock();
     L.timer = null;
     L.timerEnded = S.today.date;
     save();
@@ -1349,6 +1359,23 @@
   function unlockBell() {
     if (!L.timerSound) return;
     try {
+      var bell = mediaBell();
+      if (bell && bell.paused) {
+        var stopPrime = function () {
+          bell.pause();
+          try { bell.currentTime = 0; } catch (e) {}
+        };
+        bell.addEventListener('playing', stopPrime, { once: true });
+        var priming = bell.play();
+        if (priming && priming.catch) priming.catch(function () {
+          bell.removeEventListener('playing', stopPrime);
+        });
+      }
+    } catch (e) {}
+
+    // Keep the synthesised bell as a fallback for browsers that cannot play
+    // the media element. It is not sufficient by itself on a muted iPhone.
+    try {
       if (!timerAudio) timerAudio = new (window.AudioContext || window.webkitAudioContext)();
       if (timerAudio.state === 'suspended') timerAudio.resume();
     } catch (e) {}
@@ -1356,7 +1383,61 @@
 
   function ringBell() {
     try {
-      unlockBell();
+      var bell = mediaBell();
+      if (bell) {
+        bell.pause();
+        bell.currentTime = 0;
+        var playing = bell.play();
+        if (playing && playing.catch) playing.catch(ringSynthBell);
+        return;
+      }
+    } catch (e) {}
+    ringSynthBell();
+  }
+
+  // A short WAV, created in memory, travels through HTMLMediaElement rather
+  // than Web Audio. On iPhone that is the media channel, so the end bell can
+  // be heard with the Ring/Silent switch set to silent while the page remains
+  // awake. This is a bell clip, not a silent track spanning the whole sit.
+  function mediaBell() {
+    if (timerBell) return timerBell;
+    var rate = 16000;
+    var lead = Math.floor(rate * 0.12);
+    var tone = Math.floor(rate * 2.1);
+    var samples = lead + tone;
+    var bytes = new ArrayBuffer(44 + samples * 2);
+    var wav = new DataView(bytes);
+    var write = function (offset, value) {
+      for (var i = 0; i < value.length; i++) wav.setUint8(offset + i, value.charCodeAt(i));
+    };
+    write(0, 'RIFF'); wav.setUint32(4, 36 + samples * 2, true);
+    write(8, 'WAVE'); write(12, 'fmt '); wav.setUint32(16, 16, true);
+    wav.setUint16(20, 1, true); wav.setUint16(22, 1, true);
+    wav.setUint32(24, rate, true); wav.setUint32(28, rate * 2, true);
+    wav.setUint16(32, 2, true); wav.setUint16(34, 16, true);
+    write(36, 'data'); wav.setUint32(40, samples * 2, true);
+    for (var n = 0; n < samples; n++) {
+      var value = 0;
+      if (n >= lead) {
+        var at = (n - lead) / rate;
+        var attack = Math.min(1, at / 0.018);
+        var decay = Math.exp(-2.45 * at);
+        value = attack * decay *
+          (0.12 * Math.sin(2 * Math.PI * 660 * at) +
+           0.07 * Math.sin(2 * Math.PI * 990 * at));
+      }
+      wav.setInt16(44 + n * 2, Math.round(Math.max(-1, Math.min(1, value)) * 32767), true);
+    }
+    var url = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }));
+    timerBell = document.createElement('audio');
+    timerBell.preload = 'auto';
+    timerBell.playsInline = true;
+    timerBell.src = url;
+    return timerBell;
+  }
+
+  function ringSynthBell() {
+    try {
       if (!timerAudio) return;
       var now = timerAudio.currentTime;
       [660, 990].forEach(function (frequency, i) {
@@ -1370,6 +1451,49 @@
       });
     } catch (e) {}
   }
+
+  function requestTimerWakeLock() {
+    if (!L.timer || !L.timer.running || document.visibilityState !== 'visible') return;
+    if (timerWakeLock || !navigator.wakeLock || !navigator.wakeLock.request) {
+      updateTimerWakeNote();
+      return;
+    }
+    navigator.wakeLock.request('screen').then(function (lock) {
+      timerWakeLock = lock;
+      updateTimerWakeNote();
+      lock.addEventListener('release', function () {
+        if (timerWakeLock === lock) timerWakeLock = null;
+        updateTimerWakeNote();
+      });
+    }).catch(updateTimerWakeNote);
+  }
+
+  function releaseTimerWakeLock() {
+    var lock = timerWakeLock;
+    timerWakeLock = null;
+    updateTimerWakeNote();
+    if (lock) try { lock.release().catch(function () {}); } catch (e) {}
+  }
+
+  function updateTimerWakeNote() {
+    var note = document.getElementById('timer-awake-note');
+    if (!note) return;
+    note.textContent = timerWakeCopy();
+  }
+
+  function timerWakeCopy() {
+    if (!L.timer || !L.timer.running) return 'Timer paused.';
+    if (timerWakeLock) return 'This screen will stay awake while the timer runs.';
+    return L.timerSound
+      ? 'Keep this screen open and awake to hear the bell.'
+      : 'Keep this screen open and awake while the timer runs.';
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && L.timer && L.timer.running) {
+      requestTimerWakeLock();
+    }
+  });
 
   // Someone arriving after a stretch away. Read from their own marks, never
   // shown as a number, never mentioned again.

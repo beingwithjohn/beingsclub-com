@@ -300,7 +300,25 @@ main { flex: 1; display: flex; flex-direction: column; }
   font-size: clamp(64px, 16vw, 116px); font-weight: 500; line-height: 1;
   letter-spacing: -.055em; color: var(--ink); font-variant-numeric: tabular-nums;
 }
+.timer-awake-note {
+  max-width: 28rem; font-size: 14px; line-height: 1.55; color: var(--muted);
+  text-wrap: balance;
+}
 .timer-actions { display: grid; gap: 8px; width: min(100%, 22rem); }
+
+/* The screen remains on so an ordinary browser can finish the timer honestly.
+   Keep the room low-light while it does, without borrowing the black/private
+   meaning used by John's messages. */
+.app.timer-dim { background: #11120F; border-color: rgba(253,252,249,.08); }
+.timer-dim .bar { border-bottom-color: rgba(253,252,249,.08); }
+.timer-dim .barlink, .timer-dim .barlab,
+.timer-dim .timer-running .eyebrow, .timer-dim .timer-running .small,
+.timer-dim .timer-awake-note { color: rgba(253,252,249,.48); }
+.timer-dim .timer-clock { color: rgba(253,252,249,.90); }
+.timer-dim .btn { background: rgba(253,252,249,.92); color: var(--ink); }
+.timer-dim .btn:hover { background: var(--lilac); color: var(--ink); }
+.timer-dim .quiet { color: rgba(253,252,249,.48); }
+.timer-dim .quiet:hover, .timer-dim .barlink:hover { color: var(--paper); }
 @media (max-width: 34rem) { .timer-choices { grid-template-columns: repeat(2, 1fr); } }
 
 .fade { opacity: 0; transition: opacity .6s ease-out; }
