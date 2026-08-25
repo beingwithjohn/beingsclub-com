@@ -133,6 +133,9 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
   `CourseInstance`; update its structured dates whenever the visible course dates move.
 - Keep `sitemap.xml` complete and give each URL an honest `lastmod` only after a significant
   content, structured-data or linking change.
+- `build/deploy.sh` notifies IndexNow only after live verification. Keep the public key file
+  and `build/notify_indexnow.py` together; notification failure is a warning, never a reason
+  to misreport a healthy deployment as failed.
 
 ## Open threads
 

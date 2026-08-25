@@ -250,6 +250,10 @@ Beings Club and John on Home/About, `Service` for Salons and Sits, and `Course` 
 `CourseInstance` for Beyond Belief. Inactive shell layers stay `data-nosnippet`, so the shared
 visual shell cannot pollute the route's search excerpt.
 
+Google and Bing both receive the complete nine-page sitemap. After a deployment has passed
+the live byte-for-byte verification, `build/notify_indexnow.py` submits only the public URLs
+affected by that commit to IndexNow. This is crawler notification, not visitor analytics.
+
 ## State
 
 | State | Where | Purpose |

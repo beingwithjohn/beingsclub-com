@@ -68,7 +68,11 @@ done
 echo "==> verifying what is actually being served"
 for i in $(seq 1 12); do
   if python3 build/verify.py --live >/tmp/bc-live.log 2>&1; then
-    tail -1 /tmp/bc-live.log; echo "DEPLOYED ✓ https://beingsclub.com"; exit 0
+    tail -1 /tmp/bc-live.log
+    echo "DEPLOYED ✓ https://beingsclub.com"
+    echo "==> notifying participating search engines"
+    python3 build/notify_indexnow.py "${HEAD_SHA}^" "$HEAD_SHA" || true
+    exit 0
   fi
   sleep 8
 done

@@ -166,6 +166,23 @@ ok("robots.txt allows OAI search discovery",
    "User-agent: OAI-SearchBot\nAllow: /" in robots)
 ok("robots.txt advertises the sitemap",
    "Sitemap: https://beingsclub.com/sitemap.xml" in robots)
+indexnow_key = "7791d2e130943508e1eea9169ea2b217"
+indexnow_path = os.path.join(ROOT, indexnow_key + ".txt")
+indexnow_script = os.path.join(ROOT, "build", "notify_indexnow.py")
+indexnow_source = io.open(indexnow_script, encoding="utf-8").read() if os.path.exists(indexnow_script) else ""
+try:
+    compile(indexnow_source, indexnow_script, "exec")
+    indexnow_parses = bool(indexnow_source)
+except Exception:
+    indexnow_parses = False
+ok("IndexNow ownership key is public and exact",
+   os.path.exists(indexnow_path) and
+   io.open(indexnow_path, encoding="utf-8").read().strip() == indexnow_key)
+ok("IndexNow notifier parses and uses the public key",
+   indexnow_parses and ('KEY = "' + indexnow_key + '"') in indexnow_source)
+deploy_source = io.open(os.path.join(ROOT, "build", "deploy.sh"), encoding="utf-8").read()
+ok("verified deploys notify participating search engines",
+   'python3 build/notify_indexnow.py "${HEAD_SHA}^" "$HEAD_SHA"' in deploy_source)
 public_urls = {ORIGIN + route for route in ROUTES + ["/practice-map/", "/giving/", "/beyondbelief/companion/"]}
 listed_urls = set(re.findall(r"<loc>(https://[^<]+)</loc>", sitemap))
 ok("sitemap lists every public canonical page", listed_urls == public_urls,
