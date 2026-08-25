@@ -14,7 +14,7 @@ SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
 SCREENS = [
     ("home", "Home",
      "/", "Beings Club — a realisationhouse for the curious",
-     "Beings Club is a realisationhouse for the curious, hosting monthly Salons where curious people meet, and Sits for meditation. For the benefit of all beings."),
+     "Beings Club is a realisationhouse for the curious: monthly online Salons for conversation and small-group Sits for meditation. For the benefit of all beings."),
     ("about", "About",
      "/about/", "About — why Beings Club exists · Beings Club",
      "Curiosity connects people, ideas and new futures. Where Beings Club came from, and how what is important can reveal itself."),
@@ -23,16 +23,18 @@ SCREENS = [
      "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."),
     ("sits", "Sits",
      "/sits/", "Sits — meditation for the curious · Beings Club",
-     "Learn to meditate in company. A small group, a daily practice, and a few weeks of shared commitment."),
+     "Small online meditation groups for curious people and sceptics: daily practice, weekly live meetings, contemplative roots and nothing asked as belief."),
     ("beyondbelief", "BeyondBelief",
      "/beyondbelief/", "Beyond Belief: the art of trusting yourself · Beings Club",
-     "A small group meditation class for making meditation your own. Thirty-five days, six Tuesday meetings, online from 15 September. Freely offered."),
+     "A freely offered 35-day online meditation course for making meditation your own: six Tuesday meetings from 15 September, with ten people maximum."),
     ("join", "Join",
      "/join/", "The Door — leave us a note · Beings Club",
      "Register your interest in Beings Club. John writes back himself. No obligation, nothing automated."),
 ]
 BY_FILE = {f: (k, slug) for k, f, slug, _, _ in SCREENS}
 ORIGIN  = "https://beingsclub.com"
+GOOGLE_SITE_VERIFICATION = "R9A-mzN2zV4y6kUaLWKVq6W0wVo7KhnF9uYZFrnF-60"
+JOHN_ID = ORIGIN + "/about/#john"
 
 hover_rules, hover_seen = [], {}
 
@@ -1163,6 +1165,12 @@ def page(key, slug, title, desc):
         'primaryImageOfPage': {'@type': 'ImageObject', 'url': ORIGIN + image_path,
                                'caption': image_alt},
     }
+    person = {
+        '@type': 'Person', '@id': JOHN_ID, 'name': 'John',
+        'url': ORIGIN + '/about/', 'jobTitle': 'Host and meditation teacher',
+        'description': 'John hosts Beings Club Salons and teaches its Sits.',
+        'worksFor': {'@id': ORIGIN + '/#organization'},
+    }
     graph = [webpage]
     if key == 'home':
         graph = [
@@ -1171,11 +1179,62 @@ def page(key, slug, title, desc):
              'publisher': {'@id': ORIGIN + '/#organization'}},
             {'@type': 'Organization', '@id': ORIGIN + '/#organization',
              'name': 'Beings Club', 'url': ORIGIN + '/', 'description': desc,
+             'founder': {'@id': JOHN_ID},
              'logo': {'@type': 'ImageObject', 'url': ORIGIN + '/assets/favicon-512.png',
                       'width': 512, 'height': 512},
              'sameAs': ['https://instagram.com/beings_club', 'https://x.com/beings_club']},
-            webpage,
+            person, webpage,
         ]
+    elif key == 'about':
+        webpage['mainEntity'] = {'@id': JOHN_ID}
+        graph.append(person)
+    elif key in ('salons', 'sits'):
+        service_id = page_url + '#service'
+        webpage['mainEntity'] = {'@id': service_id}
+        service = {
+            '@type': 'Service', '@id': service_id,
+            'name': 'Beings Club Salons' if key == 'salons' else 'Beings Club Sits',
+            'description': desc,
+            'serviceType': ('Online conversation gatherings' if key == 'salons'
+                            else 'Small-group online meditation practice'),
+            'provider': {'@id': ORIGIN + '/#organization'},
+            'areaServed': 'Worldwide',
+            'availableChannel': {
+                '@type': 'ServiceChannel', 'serviceUrl': page_url,
+                'availableLanguage': 'en-GB',
+            },
+            'audience': {
+                '@type': 'Audience',
+                'audienceType': ('Curious people seeking conversation and connection'
+                                 if key == 'salons'
+                                 else 'Curious people and sceptics interested in meditation'),
+            },
+        }
+        graph.append(service)
+    elif key == 'beyondbelief':
+        course_id = page_url + '#course'
+        webpage['mainEntity'] = {'@id': course_id}
+        course = {
+            '@type': 'Course', '@id': course_id,
+            'name': 'Beyond Belief: the art of trusting yourself',
+            'description': desc, 'inLanguage': 'en-GB',
+            'provider': {'@id': ORIGIN + '/#organization'},
+            'educationalLevel': 'All levels', 'isAccessibleForFree': True,
+            'hasCourseInstance': {
+                '@type': 'CourseInstance', '@id': page_url + '#september-2026',
+                'name': 'Beyond Belief — September 2026',
+                'courseMode': 'online', 'startDate': '2026-09-15',
+                'endDate': '2026-10-20', 'duration': 'P35D',
+                'instructor': {'@id': JOHN_ID},
+                'location': {'@type': 'VirtualLocation', 'url': page_url},
+                'offers': {
+                    '@type': 'Offer', 'price': '0', 'priceCurrency': 'GBP',
+                    'availability': 'https://schema.org/InStock',
+                    'url': ORIGIN + '/join/',
+                },
+            },
+        }
+        graph.extend([person, course])
     jsonld = json.dumps({'@context': 'https://schema.org', '@graph': graph},
                         ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     head = """<meta charset="UTF-8">
@@ -1183,6 +1242,7 @@ def page(key, slug, title, desc):
 <title>{t}</title>
 <meta name="description" content="{d}">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<meta name="google-site-verification" content="{verification}">
 <link rel="canonical" href="{o}{s}">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
@@ -1208,7 +1268,8 @@ def page(key, slug, title, desc):
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">""".format(
         t=esc(title), d=esc(desc), o=ORIGIN, s=slug,
-        img=image_path, alt=esc(image_alt), jsonld=jsonld)
+        img=image_path, alt=esc(image_alt), jsonld=jsonld,
+        verification=GOOGLE_SITE_VERIFICATION)
     head = head.replace('<title>', ARM_INTRO + '<title>', 1)
 
     body = BODY.replace('<div class="bc-layer" id=', '<div class="bc-layer" data-nosnippet id=')

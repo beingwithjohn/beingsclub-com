@@ -66,6 +66,8 @@ def audit(html, label):
     ok(label + ": no relative asset paths", 'url(\'assets/' not in html and 'src="assets/' not in html)
     ok(label + ": index previews are open",
        '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">' in html)
+    ok(label + ": Google ownership marker is present",
+       '<meta name="google-site-verification" content="R9A-mzN2zV4y6kUaLWKVq6W0wVo7KhnF9uYZFrnF-60">' in html)
     structured = re.search(r'(?s)<script type="application/ld\+json">(.*?)</script>', html)
     try:
         data = json.loads(structured.group(1)) if structured else None
@@ -74,6 +76,31 @@ def audit(html, label):
     except Exception:
         structured_ok = False
     ok(label + ": structured data parses", structured_ok)
+    node_types = {node.get('@type') for node in graph if isinstance(node, dict)}
+    expected_types = {
+        'index.html': {'WebSite', 'Organization', 'Person', 'WebPage'},
+        'about/index.html': {'AboutPage', 'Person'},
+        'salons/index.html': {'WebPage', 'Service'},
+        'sits/index.html': {'WebPage', 'Service'},
+        'beyondbelief/index.html': {'WebPage', 'Person', 'Course'},
+        'join/index.html': {'ContactPage'},
+    }
+    ok(label + ": structured data names the page's real entities",
+       expected_types.get(label, set()).issubset(node_types),
+       "found: " + ", ".join(sorted(t for t in node_types if isinstance(t, str))))
+    if label == 'beyondbelief/index.html':
+        course = next((node for node in graph if isinstance(node, dict) and node.get('@type') == 'Course'), {})
+        instance = course.get('hasCourseInstance', {})
+        ok(label + ": course dates, format and free offer are machine-readable",
+           instance.get('@type') == 'CourseInstance' and
+           instance.get('courseMode') == 'online' and
+           instance.get('startDate') == '2026-09-15' and
+           instance.get('endDate') == '2026-10-20' and
+           instance.get('offers', {}).get('price') == '0')
+    if label == 'sits/index.html':
+        ok(label + ": search description answers preference-led queries",
+           'Small online meditation groups for curious people and sceptics' in html and
+           'nothing asked as belief' in html)
     ok(label + ": inactive screens cannot become the Google snippet",
        html.count('class="bc-layer" data-nosnippet') == 5)
     active = re.search(r'(?s)<div class="bc-layer" data-active="1".*?(?=<div class="bc-layer"|<div id="bc-intro")', html)
@@ -142,6 +169,9 @@ public_urls = {ORIGIN + route for route in ROUTES + ["/practice-map/", "/giving/
 listed_urls = set(re.findall(r"<loc>(https://[^<]+)</loc>", sitemap))
 ok("sitemap lists every public canonical page", listed_urls == public_urls,
    "missing or extra: " + ", ".join(sorted(public_urls ^ listed_urls)))
+dated_urls = dict(re.findall(r"<url><loc>(https://[^<]+)</loc><lastmod>(\d{4}-\d{2}-\d{2})</lastmod></url>", sitemap))
+ok("sitemap gives every public page an accurate freshness signal",
+   set(dated_urls) == public_urls and all(date <= '2026-08-25' for date in dated_urls.values()))
 for archive in ["archive-refined.html", "archive-v4-dark-plates.html"]:
     archive_html = io.open(os.path.join(ROOT, archive), encoding="utf-8").read()
     ok(archive + ": excluded from search", '<meta name="robots" content="noindex,follow">' in archive_html)

@@ -242,6 +242,14 @@ on first entering a name.
 - Other screens' imagery is warmed on idle after the first screen settles.
 - Do **not** combine a native cross-document view transition with a scripted fade — running both was the cause of a visible snap.
 
+### Search-facing page heads
+
+The generator emits one real URL per screen with its own title, description, canonical URL,
+social card and JSON-LD graph. The current route's visible entity is described directly:
+Beings Club and John on Home/About, `Service` for Salons and Sits, and `Course` plus a dated
+`CourseInstance` for Beyond Belief. Inactive shell layers stay `data-nosnippet`, so the shared
+visual shell cannot pollute the route's search excerpt.
+
 ## State
 
 | State | Where | Purpose |

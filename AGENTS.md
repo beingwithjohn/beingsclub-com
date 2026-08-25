@@ -121,6 +121,19 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
 - Never promise a headcount for Beyond Belief — "ten people max", "a group of other people".
 - The Sits CTA points at `/beyondbelief`, never straight to Luma.
 
+## Search discovery invariants
+
+- Every generated route owns its title, description, canonical URL, social card and JSON-LD
+  graph even though the visual shell is shared. Keep inactive layers `data-nosnippet`.
+- The public Search Console URL-prefix property is verified by the
+  `google-site-verification` marker emitted by `build/build_shell.py`; do not remove it.
+- John is identified publicly as `John`, matching the visible About copy. Do not add a surname
+  or external identity links to `Person` structured data without John's explicit approval.
+- Salons and Sits are `Service` entities. Beyond Belief is a `Course` with one dated
+  `CourseInstance`; update its structured dates whenever the visible course dates move.
+- Keep `sitemap.xml` complete and give each URL an honest `lastmod` only after a significant
+  content, structured-data or linking change.
+
 ## Open threads
 
 - **The practice map wants restructuring.** A reader's feedback: the document calls itself a
