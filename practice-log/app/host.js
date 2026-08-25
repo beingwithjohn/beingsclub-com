@@ -2,7 +2,7 @@
  *
  * Ten people do not need an inbox with features: what is here is what only he
  * can do — read what people asked privately, answer it, grant the private line
- * for a course, see who has gone quiet, and remove a note. Nothing here is shown to anybody else, and the quiet-day
+ * for a set time, see who has gone quiet, and remove a note. Nothing here is shown to anybody else, and the quiet-day
  * count in particular exists so he can reach out as a person, never so the
  * product can.
  */
@@ -474,11 +474,11 @@
 
         if (!p.is_host) {
           var access = h('<div style="display:grid;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--hair);">' +
-            '<div class="caps">Private line during a course</div>' +
+            '<div class="caps">Private line access</div>' +
             '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
-              '<input class="field afrom" type="date" style="max-width:11rem;padding:8px 10px;font-size:15px;" aria-label="Course access starts">' +
+              '<input class="field afrom" type="date" style="max-width:11rem;padding:8px 10px;font-size:15px;" aria-label="Private line access starts">' +
               '<span class="small">to</span>' +
-              '<input class="field auntil" type="date" style="max-width:11rem;padding:8px 10px;font-size:15px;" aria-label="Course access ends">' +
+              '<input class="field auntil" type="date" style="max-width:11rem;padding:8px 10px;font-size:15px;" aria-label="Private line access ends">' +
               '<button class="ul asave">Save access</button>' +
               '<button class="ul aclear">Clear</button>' +
               '<span class="small amsg" aria-live="polite"></span>' +

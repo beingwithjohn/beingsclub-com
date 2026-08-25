@@ -125,15 +125,20 @@ line. It never appears before the tap or in an email:
 
 > If you want to help sustain Beings Club, you can give here.
 
-**Course access**
+**Private-line access**
 
 The private line to John is absent by default. John grants it for an inclusive
 date range from the host page. During those dates the menu says:
 
 > Something just for John
-> Private, and open while your course is running
+> Private, while the line is open for you
 
-After the final date the door closes; replies already received remain theirs.
+Inside the line:
+
+> John will respond when he’s able.
+
+After the final date the door closes; John can still answer messages sent while
+it was open, and replies remain accessible without reopening the line.
 
 **Contributions**
 

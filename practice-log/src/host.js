@@ -213,7 +213,7 @@ async function people(env, { run }) {
 }
 
 // ---------------------------------------------------------------------------
-// the private line to John — granted only while a course is running
+// the private line to John — granted for a host-set time window
 // ---------------------------------------------------------------------------
 async function setMessageAccess(env, { run }, body) {
   const personId = Number(body.person_id);

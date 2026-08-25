@@ -419,7 +419,7 @@ check(15, 'a fixed run freezes, and an evergreen one does not', () => {
   return 'freezes, stays readable, stops at the last day';
 });
 
-check(16, 'one public log, with course-bounded access to John', () => {
+check(16, 'one public log, with host-set access to John', () => {
   const idx = read('practice-log', 'src', 'index.js');
   const join = read('practice-log', 'src', 'join.js');
   const api = read('practice-log', 'src', 'api.js');
@@ -430,10 +430,11 @@ check(16, 'one public log, with course-bounded access to John', () => {
   ok(/path === '\/api\/join' && method === 'POST'/.test(idx), 'the public front door is not POST-only');
   ok(/public_join = 1 AND mode = 'evergreen'/.test(join), 'self-service entry is not confined to the public evergreen log');
   ok(!/json\(\{[^}]*token/.test(join), 'public entry returns a credential to the browser');
-  ok(/messageAccess\(person, today\)\.active/.test(api), 'the message endpoint is not gated by course dates');
-  ok(/from <= today/.test(access) && /today <= until/.test(access), 'course access is not bounded at both ends');
-  ok(/message-access/.test(host_), 'the host cannot grant or clear course access');
-  ok(/message_access && S\.person\.message_access\.active/.test(log), 'the private line is shown outside active course access');
+  ok(/messageAccess\(person, today\)\.active/.test(api), 'the message endpoint is not gated by host-set dates');
+  ok(/from <= today/.test(access) && /today <= until/.test(access), 'private-line access is not bounded at both ends');
+  ok(/message-access/.test(host_), 'the host cannot grant or clear private-line access');
+  ok(/message_access && S\.person\.message_access\.active/.test(log), 'the private line is shown outside active host-set access');
+  ok(!/messageAccess/.test(host_), 'the host is prevented from replying after the access window closes');
   ok(/if \(!d\.run\.public_join\) wrap\.appendChild\(inviteForm\(\)\)/.test(host),
     'the public host page still offers private invitations');
   ok(/Ready to practise\?/.test(mail) && /Your log is ready/.test(mail),
@@ -454,7 +455,11 @@ check(16, 'one public log, with course-bounded access to John', () => {
     /practising with you this week, and what it has been like for them/.test(log) &&
     /<ol>/.test(log),
     'the public sign-up page does not explain the experience');
-  return 'open log, course door bounded, no invitation copy on the public path';
+  ok(/John will respond when he’s able/.test(log), 'the private line does not set the agreed response expectation');
+  ok(!/usually within a day or two/.test(log), 'the old response deadline remains');
+  ok(!/while your course is running|opens during a course|taking a course with John/.test(visibleText(log + host)),
+    'course language remains in the private-line interface');
+  return 'open log, host-set private line, no deadline, no invitation copy on the public path';
 });
 
 check(17, 'setup can read its timezone and reports a failed save', () => {

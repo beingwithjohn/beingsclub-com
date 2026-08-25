@@ -3,8 +3,8 @@
 One question a day — *did you practise?* — and, once answered, a seven-day view
 of who else answered it too, plus the notes people chose to write that
 day. The main Practice Log is one evergreen tool that anyone can begin from
-`/log/`; it has no participant directory. A course grants the private line to
-John for its dates rather than creating another copy of the log. An optional
+`/log/`; it has no participant directory. The host can grant the private line to
+John for a set time rather than creating another copy of the log. An optional
 timer offers five, ten, twenty, or a custom one-to-180-minute length. It ends
 with a gentle bell but never records the practice; the person still taps for
 themselves. While it runs, the page requests a screen wake lock and becomes a
@@ -31,8 +31,8 @@ Built to two shapes at once:
 | **fixed** | a cohort with a start date and a length. Everyone is on the same day number, and it freezes on the last day. Beyond Belief is one of these: 2026-09-16, thirty-five days. |
 
 They are the same code. Fixed runs remain supported for existing records and
-rehearsals, but new courses use the public evergreen log plus date-bounded
-message access. See `anchorOf` in `src/days.js` and `src/access.js`.
+rehearsals, while the public evergreen log uses date-bounded private-line
+access. See `anchorOf` in `src/days.js` and `src/access.js`.
 
 ---
 
@@ -49,7 +49,7 @@ practice-log/
     replies.js               private/shared replies and protected audio playback
     digest.js                opt-in Sunday collection of newly shared replies
     join.js                  public entry to the one evergreen log
-    access.js                date-bounded course access to John
+    access.js                date-bounded private-line access to John
     host.js                  John's API
     nudge.js                 the half-hourly send sweep
     mail/templates.js        the email templates
@@ -218,7 +218,7 @@ template is a rule one refactor away from being gone.
    show the cohort early because it is not sent it.
 2. **One tap, everything else optional.** The note is offered once a day and
    remembers being dismissed. The line to John appears only during the dates
-   John grants for a course, and remains in the path of none.
+   John grants for a set time, and remains in the path of none.
 3. **No streaks, ever.** Nothing counts forward. Unmarked days are drawn exactly
    like days that have not arrived. `test/checks.js` fails the build if any of
    twelve scoring words reaches the built app.

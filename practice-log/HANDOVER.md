@@ -12,9 +12,9 @@ build — "mirror it all into a database" — breaks three of them at once.
 ## 1. What it is
 
 A daily check-in anyone can begin. It asks one question a day — *did you
-practise?* — and, once answered, shows the others who answered it too. Courses
-do not get separate instances: John grants their participants the private line
-to him for the dates the course is running.
+practise?* — and, once answered, shows the others who answered it too. A group
+does not get a separate instance: John can grant a participant the private line
+to him for a host-set date window.
 
 Live now:
 
@@ -111,7 +111,7 @@ an optional “Set an intention?” pause. Not today starts immediately; Yes ope
 a blank field and Begin. The typed text lives only in that DOM field and is
 discarded before the countdown, never saved or shown during the sit. After its
 optional bell the same tap remains. The private line to John appears only inside an
-active course-access window and is in the path of none.
+active host-set window and is in the path of none.
 
 **3 · No streaks, ever.** Nothing counts forward, so nothing can be lost. Days
 that were not marked are drawn exactly like days that have not arrived, and are

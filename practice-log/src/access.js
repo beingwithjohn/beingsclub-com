@@ -1,4 +1,4 @@
-// Course access is an entitlement on a person, not a separate copy of the log.
+// Private-line access is an entitlement on a person, not a separate copy of the log.
 // Dates are inclusive local calendar dates. They compare lexically because the
 // stored shape is YYYY-MM-DD.
 
@@ -15,4 +15,3 @@ export function messageAccess(person, today) {
 
   return { active, from: from || null, until: until || null };
 }
-

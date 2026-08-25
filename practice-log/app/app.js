@@ -10,7 +10,7 @@
  *                                file could not show the cohort early if it
  *                                tried.
  *   2  One tap, everything else optional. The note is offered once a day and
- *                                remembers being dismissed. During a course,
+ *                                remembers being dismissed. During a host-set window,
  *                                the line to John is available but in the path
  *                                of none.
  *   3  No streaks, ever.         Nothing counts forward. Days that were not
@@ -398,7 +398,7 @@
       // Set apart and on ink, because it is the one thing nobody else reads.
       (S.person.message_access && S.person.message_access.active
         ? '<button class="item ink" id="m-john">Something just for John' +
-          '<small>Private, and open while your course is running</small></button>'
+          '<small>Private, while the line is open for you</small></button>'
         : '') +
     '</div>');
 
@@ -2081,9 +2081,9 @@
   // be visible behind the private door.
   function viewJohn() {
     if (!S.person.message_access || !S.person.message_access.active) {
-      var unavailable = h('<div class="centre"><h1 class="h1" style="max-width:17ch;">This line opens during a course.</h1>' +
-        '<p class="body" style="max-width:38ch;">The practice log itself remains yours before and after. ' +
-        'When you are taking a course with John, you can write to him here and receive a private reply.</p>' +
+      var unavailable = h('<div class="centre"><h1 class="h1" style="max-width:17ch;">This line isn’t open right now.</h1>' +
+        '<p class="body" style="max-width:38ch;">The practice log remains yours. ' +
+        'When John opens this line for you, you can write to him here and receive a private reply.</p>' +
         '<button class="btn" id="back">Back to the log</button></div>');
       shell(unavailable, {});
       unavailable.querySelector('#back').addEventListener('click', function () { go(null); });
@@ -2096,9 +2096,9 @@
         'Am I doing it wrong, or is that the point?"></textarea>' +
       '<div style="display:flex;align-items:center;gap:8px;" class="small">' +
         '<span style="width:6px;height:6px;border-radius:50%;background:var(--lilac);"></span>' +
-        '<span>Private, while your course is running</span></div>' +
+        '<span>Private, while the line is open for you</span></div>' +
       '<button class="btn on-ink" id="send">Send to John</button>' +
-      '<p class="small" id="msg" aria-live="polite">He answers by voice, usually within a day or two. ' +
+      '<p class="small" id="msg" aria-live="polite">John will respond when he’s able. ' +
       'If an answer would help others, he will re-ask it anonymously — never your words, never your name.</p>' +
     '</div>');
 
@@ -2122,7 +2122,7 @@
       message.textContent = 'Sending…';
       api('/api/message', { method: 'POST', body: { body: v } }).then(function () {
         q.value = '';
-        message.textContent = 'Sent. He answers by voice, usually within a day or two.';
+        message.textContent = 'Sent. John will respond when he’s able.';
       }).catch(function (error) {
         button.disabled = false;
         message.textContent = error.status === 409
