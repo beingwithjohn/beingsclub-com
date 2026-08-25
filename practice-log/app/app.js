@@ -43,6 +43,7 @@
   var timerAudio = null;
   var timerBell = null;
   var timerWakeLock = null;
+  var timerIntentionStep = null;
   var replyAudioUrls = {};
   var openPresence = null;
   var busy = false;
@@ -1202,6 +1203,7 @@
   function viewTimer() {
     var t = timerState();
     if (t.running && t.ends_at <= Date.now()) return finishTimer();
+    if (!t.started && timerIntentionStep) return viewTimerIntention(t);
 
     var inner;
     if (!t.started) {
@@ -1266,12 +1268,8 @@
       });
       inner.querySelector('#timer-start').addEventListener('click', function () {
         if (!Number.isInteger(t.minutes) || t.minutes < 1 || t.minutes > 180) return;
-        unlockBell();
-        t.started = true;
-        t.running = true;
-        t.remaining = t.minutes * 60000;
-        t.ends_at = Date.now() + t.remaining;
-        save(); render();
+        timerIntentionStep = 'ask';
+        render();
       });
     } else {
       inner = h('<div class="centre timer-running">' +
@@ -1312,6 +1310,63 @@
     document.getElementById('timer-close').addEventListener('click', cancelTimer);
   }
 
+  function viewTimerIntention(t) {
+    var writing = timerIntentionStep === 'write';
+    var inner = h('<div class="centre timer-intention">' +
+      '<div class="eyebrow">Before you begin</div>' +
+      '<h1 class="h1" style="max-width:14ch;">Set an intention?</h1>' +
+      (writing
+        ? '<textarea class="field" id="timer-intention" aria-label="Your intention" ' +
+            'rows="3" maxlength="100"></textarea>' +
+          '<div class="timer-actions"><button class="btn" id="timer-intention-begin" disabled>Begin</button></div>'
+        : '<div class="timer-actions">' +
+            '<button class="btn" id="timer-intention-yes">Yes</button>' +
+            '<button class="quiet" id="timer-intention-skip">Not today</button></div>') +
+    '</div>');
+
+    shell(inner, {
+      left: '<button class="barlink" id="timer-intention-back">← Timer</button>',
+      right: '<span class="barlab">Timer</span>', noMenu: true
+    });
+
+    document.getElementById('timer-intention-back').addEventListener('click', function () {
+      timerIntentionStep = null;
+      render();
+    });
+
+    if (!writing) {
+      inner.querySelector('#timer-intention-yes').addEventListener('click', function () {
+        timerIntentionStep = 'write';
+        render();
+      });
+      inner.querySelector('#timer-intention-skip').addEventListener('click', function () {
+        beginTimer(t);
+      });
+      return;
+    }
+
+    var input = inner.querySelector('#timer-intention');
+    var begin = inner.querySelector('#timer-intention-begin');
+    input.addEventListener('input', function () {
+      begin.disabled = !input.value.trim();
+    });
+    begin.addEventListener('click', function () {
+      if (!input.value.trim()) return;
+      beginTimer(t);
+    });
+    try { input.focus(); } catch (e) {}
+  }
+
+  function beginTimer(t) {
+    unlockBell();
+    timerIntentionStep = null;
+    t.started = true;
+    t.running = true;
+    t.remaining = t.minutes * 60000;
+    t.ends_at = Date.now() + t.remaining;
+    save(); render();
+  }
+
   function timerRemaining(t) {
     return t.running ? Math.max(0, t.ends_at - Date.now()) : Math.max(0, t.remaining);
   }
@@ -1341,6 +1396,7 @@
   function cancelTimer() {
     clearInterval(timerTick);
     releaseTimerWakeLock();
+    timerIntentionStep = null;
     L.timer = null;
     save(); go(null);
   }

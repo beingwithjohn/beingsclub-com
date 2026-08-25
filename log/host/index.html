@@ -323,6 +323,8 @@ main { flex: 1; display: flex; flex-direction: column; }
   text-wrap: balance;
 }
 .timer-actions { display: grid; gap: 8px; width: min(100%, 22rem); }
+.timer-intention { min-height: calc(100svh - 54px); }
+.timer-intention .field { width: min(100%, 28rem); min-height: 8rem; resize: vertical; }
 
 /* The screen remains on so an ordinary browser can finish the timer honestly.
    Keep the room low-light while it does, without borrowing the black/private

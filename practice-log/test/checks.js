@@ -568,6 +568,22 @@ check('21b', 'sharing invitations stay occasional and unpredictable', () => {
   return 'two to six hidden days per week; stable across devices; existing wording kept';
 });
 
+check('21c', 'the pre-timer intention is optional and leaves no record', () => {
+  const intention = /function viewTimerIntention\(t\)[\s\S]*?function timerRemaining\(t\)/.exec(log)?.[0] || '';
+  ok(/Set an intention\?/.test(intention) && /id=\\?"timer-intention-yes\\?"/.test(intention) &&
+    /id=\\?"timer-intention-skip\\?"[^>]*>Not today/.test(intention),
+    'the intention pause does not ask before the timer begins');
+  ok(/id=\\?"timer-intention\\?"/.test(intention) && !/placeholder=/.test(intention) &&
+    /id=\\?"timer-intention-begin\\?"[^>]*>Begin/.test(intention),
+    'the intention field does not use the approved blank field and Begin action');
+  ok(/timer-intention-skip[\s\S]*beginTimer\(t\)/.test(intention) &&
+    /timerIntentionStep = null;\s*t\.started = true/.test(intention),
+    'Not today does not begin immediately or the intention survives into the running timer');
+  ok(!/L\.[a-zA-Z_]*intention|t\.[a-zA-Z_]*intention|localStorage[\s\S]{0,80}intention/i.test(intention),
+    'the typed intention is being saved rather than disappearing at Begin');
+  return 'asked after Start; blank field; Begin or Not today; never stored';
+});
+
 check(22, 'giving is public, optional, and separate from the Practice Log', () => {
   ok(/href:\s*['"]\/giving\/['"]/.test(log), 'the log does not link to the giving page');
   ok(!/Pay what you (?:want|can)/i.test(log), 'old pay-what-you-want language remains in the log');

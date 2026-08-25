@@ -90,6 +90,15 @@ bell.” The bell is a short media clip primed by the Start tap, not a silent
 audio track spanning the sit. A normal browser cannot guarantee the bell after
 the phone is manually locked.
 
+Tapping Start first opens a separate pause before any countdown begins:
+
+> Set an intention?
+
+**Not today** begins the timer immediately. **Yes** opens a blank field with no
+placeholder and a **Begin** button. The intention is not saved anywhere and
+disappears completely when Begin starts the timer; it is not shown during or
+after practice.
+
 The public interface never calls the people using it a “cohort.” Settings
 describes the daily nudge as “One email a day, at the time you choose,” and
 describes the private link as the passwordless sign-in credential it is.

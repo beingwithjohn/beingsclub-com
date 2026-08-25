@@ -13,6 +13,11 @@ the iPhone media channel rather than the mute-switch-bound Web Audio channel.
 It does not run a silent audio track for the length of the sit. An ordinary
 browser cannot promise an end bell after somebody manually locks the screen,
 so the live status says plainly whether the screen is being kept awake.
+After a length is chosen and Start is tapped, the timer pauses on “Set an
+intention?” before beginning. “Not today” begins immediately; “Yes” opens a
+blank short field and “Begin”. The typed intention exists only in that field,
+is never written to browser or server storage, and disappears when the timer
+starts.
 The post-practice sharing invitation is not part of every sit. Each person has
 a stable, hidden selection of two to six invitation days in each anchored
 week; if they practise on fewer days, they may see fewer invitations. The

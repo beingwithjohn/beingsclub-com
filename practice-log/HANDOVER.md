@@ -106,8 +106,11 @@ aid and never records practice. While it runs, its low-light page requests a
 screen wake lock and reports whether that succeeded. The bell is a short
 HTML-media clip primed on Start (so a foreground iPhone can use the media
 channel even with its silent switch on), not a full-sit audio track. An ordinary
-browser cannot guarantee a bell after a manual screen lock. After its optional
-bell the same tap remains. The private line to John appears only inside an
+browser cannot guarantee a bell after a manual screen lock. Start first opens
+an optional “Set an intention?” pause. Not today starts immediately; Yes opens
+a blank field and Begin. The typed text lives only in that DOM field and is
+discarded before the countdown, never saved or shown during the sit. After its
+optional bell the same tap remains. The private line to John appears only inside an
 active course-access window and is in the path of none.
 
 **3 · No streaks, ever.** Nothing counts forward, so nothing can be lost. Days
