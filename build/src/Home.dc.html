@@ -7,115 +7,131 @@
 </head>
 <body>
 <x-dc>
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap">
-<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;}
-  body{margin:0;background:#FDFCF9;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden;}
-  img{display:block;max-width:100%;}
-  a{color:#171916;text-decoration:none;}
-  a:hover{color:#171916;}
-  ::selection{background:#F2ECFF;color:#171916;}
-  @keyframes bc-fade-in{to{opacity:1;}}
-  body:not(:has(.bc-layer)){opacity:0;animation:bc-fade-in 420ms cubic-bezier(.22,1,.36,1) 60ms forwards;}
-  @media (prefers-reduced-motion:reduce){body:not(:has(.bc-layer)){opacity:1;animation:none;}}
-  #bc-tagline{white-space:nowrap;max-width:100%;}
-  @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
-</style>
-<script src="page-transitions.js"></script>
-</helmet>
+<helmet></helmet>
 
-<div style="height:100svh;display:flex;flex-direction:column;background:#FDFCF9;position:relative;">
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(22px,4vh,48px);padding:clamp(28px,6vh,72px) clamp(24px,8vw,120px);min-height:0;overflow:hidden;">
-    <div ref="{{ logoRef }}" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:100%;display:flex;align-items:center;justify-content:center;line-height:0;flex:0 1 auto;min-height:0;"><img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;max-height:100%;object-fit:contain;"></div>
-    <div style="display:grid;gap:10px;justify-items:center;text-align:center;flex:0 0 auto;max-width:100%;">
-      <p style="margin:0;max-width:30ch;font-size:clamp(19px,2.8vh,26px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#171916;text-wrap:pretty;">A realisationhouse for the curious.</p>
-      <p id="bc-tagline" style="margin:0;font-size:clamp(15px,2.05vw,18px);line-height:1.55;letter-spacing:-0.008em;color:#75726A;text-wrap:pretty;">Gathering the curious to discover what matters and realise what is possible.</p>
-      <div class="bc-threshold-actions">
-        <a href="#leave-a-note" data-leave-note="1" class="bc-threshold-button" data-primary="1">Leave a note</a>
-        <a href="#member-access" data-member-login="1" class="bc-threshold-button">Member login</a>
+<div id="bc-app-public-scroll" style="position:absolute;inset:0;overflow-y:auto;background:#FFFFFF;animation:bc-app-appear .45s cubic-bezier(.22,1,.36,1) both;">
+  <div data-m="vh" style="position:relative;height:100vh;">
+    <span style="position:absolute;top:28px;left:10%;font-size:11px;letter-spacing:.3em;color:#75726A;">hello, being</span>
+    <span data-m="clock" style="position:absolute;top:28px;right:10%;font-size:11px;letter-spacing:.18em;color:#A5A198;z-index:6;">00:00</span>
+
+    <div data-m="hero" style="position:absolute;left:10%;top:50%;transform:translateY(-50%);display:grid;gap:30px;max-width:620px;">
+      <h1 style="margin:0;font-size:clamp(44px,5.2vw,76px);line-height:1.04;letter-spacing:-.04em;font-weight:600;color:#171916;">A <span data-public-word="1" style="cursor:help;">realisationhouse</span> for the <span style="font-weight:750;color:#5A4B7C;animation:bc-app-pulse 7s ease-in-out infinite;">curious</span>.</h1>
+      <p data-m="sub" style="margin:0;font-family:'Host Grotesk',system-ui,sans-serif;font-size:19px;font-weight:500;line-height:1.6;letter-spacing:-.01em;color:#4A473F;white-space:nowrap;">Gathering the curious to discover what matters and realise what is possible.</p>
+
+      <div data-m="noteslot" style="position:relative;min-height:92px;">
+        <div data-m="notecard" data-note-actions="1" style="position:absolute;top:0;left:0;display:grid;gap:14px;justify-items:start;">
+          <div data-m="btnrow" style="display:flex;gap:10px;">
+            <a href="#member-login" data-login-open="1" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#171916;background:#FFFFFF;border:1px solid #171916;padding:10px 24px;transition:all .18s ease;" style-hover="color:#FFFFFF;background:#5A4B7C;border-color:#5A4B7C;transform:translateY(-2px);box-shadow:0 4px 12px rgba(90,75,124,.3);">login</a>
+            <a href="#leave-a-note" data-note-open="1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:11px 24px;transition:background .18s ease;" style-hover="background:#3D3B35;">become a member</a>
+            <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#3E3357;background:#C9BEE8;padding:11px 24px;transition:background .18s ease;" style-hover="background:#B9A6E8;">public events ↗</a>
+          </div>
+          <span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;line-height:1.9;color:#A5A198;white-space:nowrap;">Beings Club is where curiosity connects. Stay curious.</span>
+        </div>
+
+        <form data-m="notecard" data-note-form="top" hidden style="position:absolute;top:0;left:0;display:grid;gap:12px;width:min(520px,86vw);background:#FFFFFF;z-index:2;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span>
+            <button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#A5A198;border:0;background:transparent;">×</button>
+          </div>
+          <div class="bc-app-note-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <input name="name" placeholder="Name" aria-label="Name" autocomplete="name" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;">
+            <input name="email" placeholder="Email" aria-label="Email" type="email" autocomplete="email" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;">
+          </div>
+          <textarea name="note" placeholder="Leave a note" aria-label="Leave a note" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;line-height:1.6;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;min-height:56px;resize:vertical;outline:none;"></textarea>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button type="submit" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:10px 22px;border:0;">send</button>
+            <span style="font-size:11px;color:#A5A198;">Membership is free and is offered only after conversation and a mutual yes — leave a note, and someone will write back.</span>
+          </div>
+          <span data-note-status="1" role="status" aria-live="polite" style="font-size:11px;color:#5A4B7C;"></span>
+        </form>
+
+        <div data-note-sent="top" hidden style="position:absolute;top:0;left:0;display:grid;gap:8px;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
+          <span style="width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#5A4B7C;padding:11px 24px;">note left</span>
+          <span style="font-size:11px;color:#A5A198;">Thank you. Membership is free and is offered only after conversation and a mutual yes — leave a note, and someone will write back.</span>
+        </div>
       </div>
-      <p class="bc-threshold-line">Beings Club is where curiosity connects. Stay curious.</p>
     </div>
 
-    <section class="bc-threshold-panel" data-note-panel="1" aria-label="Leave a note" hidden>
-      <div class="bc-threshold-panelhead">
-        <span>Leave a note</span>
-        <button type="button" data-panel-close="1" aria-label="Close">×</button>
-      </div>
-      <form data-threshold-form="1">
-        <div class="bc-threshold-fields">
-          <label><span>Name</span><input name="name" type="text" autocomplete="name" required></label>
-          <label><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
-        </div>
-        <label><span>Your note</span><textarea name="note" rows="4" required></textarea></label>
-        <div class="bc-threshold-submitrow">
-          <button type="submit">Send</button>
-          <p data-note-status="1" role="status" aria-live="polite"></p>
-        </div>
-      </form>
-      <p class="bc-threshold-small">Membership is freely offered after a conversation and a mutual yes. Leave a note and John will write back.</p>
-    </section>
+    <div id="bc-logo" data-public-logo="1" aria-label="Beings Club" style="position:absolute;right:9%;top:50%;transform:translateY(-50%);width:min(300px,22vw);opacity:.9;"><img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;"></div>
+    <span style="position:absolute;left:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#A5A198;">est. 2025</span>
+    <span style="position:absolute;right:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#A5A198;">for the benefit of all beings</span>
 
-    <section id="member-access" class="bc-threshold-panel" data-member-panel="1" aria-label="Member access" hidden>
-      <div class="bc-threshold-panelhead">
-        <span>Member login</span>
-        <button type="button" data-panel-close="1" aria-label="Close">×</button>
-      </div>
-      <h2>Member access is opening soon.</h2>
-      <p>The members’ area is staying closed while secure, invite-only access is built. Members will be emailed when it is ready.</p>
-      <button type="button" data-panel-close="1" class="bc-threshold-back">Back to Beings Club</button>
-    </section>
-  </div>
+    <div data-m="pop" data-word-pop="1" hidden style="position:fixed;transform:translate(14px,18px);z-index:20;pointer-events:none;width:300px;background:#FDFCF9;border:1px solid #DAD6CB;box-shadow:0 8px 28px rgba(23,25,22,.12);padding:18px 20px;display:grid;gap:8px;animation:bc-app-appear .2s cubic-bezier(.22,1,.36,1) both;">
+      <span style="font-size:14px;font-weight:600;color:#171916;">realisationhouse <span style="font-weight:400;color:#A5A198;font-size:12px;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span> <em style="font-weight:600;color:#5A4B7C;font-size:12px;">n.</em></span>
+      <span style="font-size:12.5px;line-height:1.7;color:#4A473F;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span>
+    </div>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:24px;padding:14px 40px;border-top:1px solid rgba(38,34,26,0.10);background:#F8F6F1;">
-    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
-    <div style="display:flex;align-items:center;gap:20px;">
-      <a href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:#75726A;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg></a>
-      <a href="https://x.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on X" style="display:inline-flex;color:#75726A;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg></a>
-      <a href="mailto:john@spacetobe.xyz" style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">john@spacetobe.xyz</a>
+    <div data-m="pop" data-logo-pop="1" hidden style="position:fixed;transform:translate(24px,-40px);z-index:20;pointer-events:none;width:440px;background:#FDFCF9;border:1px solid #DAD6CB;box-shadow:0 10px 36px rgba(23,25,22,.14);padding:30px 34px;display:grid;gap:14px;animation:bc-app-appear .2s cubic-bezier(.22,1,.36,1) both;">
+      <span style="font-size:19px;font-weight:600;color:#171916;">What is Beings Club?</span>
+      <span style="font-size:15px;line-height:1.75;color:#4A473F;">Every month beings gather to take time for ourselves and to meet one another. We begin with meditation. Following, members meet one-to-one and in groups of three. There are no prompts, no themes, and nothing to do except stay curious.</span>
+      <span style="font-size:13px;color:#4A473F;">Membership is free.</span>
+      <span style="font-size:12.5px;color:#A5A198;">for the benefit of all beings</span>
     </div>
   </div>
+
+  <div data-m="below" style="box-sizing:border-box;padding:50px 44px 140px 10%;">
+    <div style="display:grid;gap:56px;max-width:760px;">
+      <div style="display:grid;gap:18px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>
+        <p style="margin:0;font-size:clamp(24px,2.2vw,32px);font-weight:500;line-height:1.45;letter-spacing:-.02em;color:#4A473F;max-width:44ch;">Beings Club is where curiosity connects — a space for meditation and conversation.</p>
+      </div>
+      <div style="display:grid;gap:18px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>
+        <h2 style="margin:0;font-size:clamp(32px,3.2vw,50px);line-height:1.08;letter-spacing:-.04em;font-weight:600;color:#171916;">Every month, beings <span style="font-weight:750;color:#5A4B7C;">gather</span>.</h2>
+        <p style="margin:0;font-size:19px;font-weight:500;line-height:1.6;letter-spacing:-.01em;color:#4A473F;max-width:52ch;">Our monthly online meeting is called a Salon and it starts with meditation. Following, members meet one-to-one and in groups of three. There are no prescribed conversation topics. There is nothing to do except <b><span style="font-style:normal;">stay </span>curious<span style="font-weight:normal;">.</span></b></p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px 48px;border-top:1px solid #E7E4DB;padding-top:30px;">
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">duration</span><span style="font-size:15px;color:#4A473F;">About 90 minutes</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">rhythm</span><span style="font-size:15px;color:#4A473F;">Monthly</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">time</span><span style="font-size:15px;color:#4A473F;">7pm UK</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">where</span><span style="font-size:15px;color:#4A473F;">Online, from anywhere</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">cost</span><span style="font-size:15px;color:#4A473F;">Freely offered</span></div>
+      </div>
+      <div style="display:grid;gap:26px;">
+        <div style="display:grid;gap:10px;"><span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">how a salon unfolds</span><span style="font-size:15px;line-height:1.7;color:#75726A;">The form stays reliable so what happens inside it can be free.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:22px;"><span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;color:#5A4B7C;">01</span><span style="font-size:18px;font-weight:600;">We sit together</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Around twenty minutes of guided meditation practice — individual practice in a shared field. Nothing has to be believed: instructions are offered as an invitation, to experiment with and discover the reality of for yourself.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:22px;"><span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;color:#5A4B7C;">02</span><span style="font-size:18px;font-weight:600;">Three invitations</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Before the rooms open, three invitations:</span><div style="display:grid;gap:8px;font-size:15px;line-height:1.75;color:#75726A;padding-left:18px;"><span>1. To feel confident about sharing pronouns and/or correcting name pronunciation in real time, so that you are addressed how you prefer.</span><span>2. To arrive together without pressure to speak on entering each conversation room.</span><span>3. To stay curious.</span></div></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:22px;"><span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;color:#5A4B7C;">03</span><span style="font-size:18px;font-weight:600;">Curiosity connects</span><span style="font-size:15px;line-height:1.75;color:#75726A;">The first rooms open for thirty minutes as randomly assorted pairs. A two-minute countdown appears when the time is nearly up.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:22px;"><span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;color:#5A4B7C;">04</span><span style="font-size:18px;font-weight:600;">Again, in threes</span><span style="font-size:15px;line-height:1.75;color:#75726A;">The rooms open a second time as randomly assorted triads. Allocation is random, so you may find yourself with the same person...&nbsp;</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:22px;"><span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;color:#5A4B7C;">05</span><span style="font-size:18px;font-weight:600;">We close together</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Everyone comes back into one room to land, share, and digest together.</span></div>
+      </div>
+      <div style="background:#F2ECFF;padding:30px 34px;"><span style="font-size:19px;line-height:1.6;font-weight:600;color:#5A4B7C;letter-spacing:-.01em;">The things worth caring about make themselves known.</span></div>
+      <div style="display:grid;gap:24px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">How does membership work?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Membership is free and offered after an introductory conversation and a mutual yes.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">Is Beings Club only online or in-person too?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Monthly salons are online. In-person events happen more rarely.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">Are Salons recorded?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Nope. Salons exist for those who show up to them.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">Is Beings Club a religious thing?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Nope. We're a community of curious people, of multiple kinds of background.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">I've never meditated. Is that a problem?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Nope. Meditation instruction at Beings Club is accessible to all experience levels and you are not required to adopt any beliefs to practice. For those who want to go deeper, John offers more through&nbsp;<a href="https://spacetobe.xyz" target="_blank" rel="noopener" style="color:#5A4B7C;">Space to Be</a>.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">If it's free, how is it sustained?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Through generosity. Members are invited to contribute if and when they want to.</span></div>
+        <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">What if I can only come sometimes?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Live your life! Come when you can.</span></div>
+      </div>
+
+      <div style="display:grid;gap:16px;justify-items:start;">
+        <a href="#leave-a-note" data-foot-note-open="1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:13px 28px;" style-hover="background:#5A4B7C;">join the club</a>
+        <form data-note-form="foot" hidden style="display:grid;gap:12px;width:min(520px,86vw);animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span><button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#A5A198;border:0;background:transparent;">×</button></div>
+          <div class="bc-app-note-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><input name="name" placeholder="Name" aria-label="Name" autocomplete="name" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;"><input name="email" placeholder="Email" aria-label="Email" type="email" autocomplete="email" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;"></div>
+          <textarea name="note" placeholder="Leave a note" aria-label="Leave a note" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;line-height:1.6;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;min-height:56px;resize:vertical;outline:none;"></textarea>
+          <div style="display:flex;align-items:center;gap:14px;"><button type="submit" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:10px 22px;border:0;">send</button><span style="font-size:11px;color:#A5A198;">Membership is free and is offered only after conversation and a mutual yes — leave a note, and someone will write back.</span></div>
+          <span data-note-status="1" role="status" aria-live="polite" style="font-size:11px;color:#5A4B7C;"></span>
+        </form>
+        <div data-note-sent="foot" hidden style="display:grid;gap:8px;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;"><span style="width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#5A4B7C;padding:11px 24px;">note left</span><span style="font-size:11px;color:#A5A198;">Thank you. Membership is free and is offered only after conversation and a mutual yes — leave a note, and someone will write back.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="member-login" data-login-panel="1" hidden style="position:fixed;inset:0;z-index:30;background:#FFFFFF;display:flex;align-items:center;justify-content:center;">
+    <a href="#" data-login-close="1" style="cursor:pointer;position:absolute;top:28px;left:10%;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.14em;color:#A5A198;">← back</a>
+    <div style="display:grid;gap:22px;width:min(340px,86vw);animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
+      <span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">log in</span>
+      <h2 style="margin:0;font-size:28px;line-height:1.15;letter-spacing:-.03em;font-weight:600;color:#171916;">Member access is opening <span style="font-weight:750;color:#5A4B7C;">soon</span>.</h2>
+      <span style="font-size:12.5px;line-height:1.7;color:#75726A;">The members’ area is staying closed while secure, invite-only email access is built. Members will be emailed when it is ready.</span>
+      <a href="#" data-login-close="1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:11px 24px;">back to Beings Club</a>
+    </div>
+  </section>
 </div>
 
 </x-dc>
-<script type="text/x-dc" data-dc-script>
-class Component extends DCLogic {
-  logoRef = React.createRef();
-  state = {};
-
-  componentDidMount() {
-    const host = this.logoRef.current;
-    if (!host) return;
-    fetch('assets/beings-logo-outline.svg').then(r => r.text()).then(txt => {
-      const wrap = document.createElement('div');
-      wrap.innerHTML = txt;
-      const svg = wrap.querySelector('svg');
-      if (!svg) return;
-      const img = host.querySelector('img');
-      if (img) img.style.display = 'none';
-      host.appendChild(svg);
-      svg.removeAttribute('width'); svg.removeAttribute('height');
-      svg.style.width = '100%'; svg.style.height = 'auto'; svg.style.maxHeight = '100%'; svg.style.display = 'block';
-      const rings = Array.from(host.querySelectorAll('[data-ring]'));
-      if (!rings.length) return;
-      rings.forEach(p => {
-        p.style.transition = 'stroke-width .3s cubic-bezier(.22,1,.36,1)';
-        p.style.pointerEvents = 'none';
-        p.dataset.baseWidth = p.getAttribute('stroke-width') || '';
-      });
-      const outer = rings.reduce((a, b) => (+b.getAttribute('data-ring') > +a.getAttribute('data-ring') ? b : a));
-      outer.style.pointerEvents = 'fill';
-      outer.addEventListener('mouseenter', () => rings.forEach(p => { p.style.strokeWidth = '6.5'; }));
-      outer.addEventListener('mouseleave', () => rings.forEach(p => { p.style.strokeWidth = p.dataset.baseWidth || ''; }));
-    }).catch(() => {});
-  }
-
-  renderVals() { return { logoRef: this.logoRef }; }
-}
-</script>
 </body>
 </html>

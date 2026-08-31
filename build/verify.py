@@ -109,17 +109,18 @@ def audit(html, label):
        bool(active) and active.group(0).count('<h1') == 1)
     if label == 'index.html':
         home = active.group(0) if active else ''
-        ok(label + ": public threshold has the two intended actions",
-           'data-leave-note="1"' in home and '>Leave a note</a>' in home and
-           'data-member-login="1"' in home and '>Member login</a>' in home)
-        ok(label + ": leave-a-note form is simple and connected",
-           'data-threshold-form="1"' in home and
+        ok(label + ": public threshold matches the supplied app actions",
+           'data-login-open="1"' in home and '>login</a>' in home and
+           'data-note-open="1"' in home and '>become a member</a>' in home and
+           'https://lu.ma/beingsclub' in home and '>public events ↗</a>' in home)
+        ok(label + ": supplied leave-a-note forms are connected",
+           'data-note-form="top"' in home and 'data-note-form="foot"' in home and
            all(('name="%s"' % field) in home for field in ('name', 'email', 'note')) and
            "fetch('https://formspree.io/f/xpqkbpyv'" in js)
         ok(label + ": member access is honestly held closed",
-           'data-member-panel="1"' in home and
-           'Member access is opening soon.' in home and
-           'secure, invite-only access is built' in home and
+           'data-login-panel="1"' in home and
+           'Member access is opening' in home and
+           'secure, invite-only email access is built' in home and
            'type="password"' not in home)
         ok(label + ": public threshold does not expose the old programme map",
            all(('href="%s"' % route) not in home for route in ('/about/', '/salons/', '/sits/')))

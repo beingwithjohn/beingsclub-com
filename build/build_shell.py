@@ -75,34 +75,9 @@ def convert(body, key):
                             '<img src="/assets/beings-logo-outline.svg"')
 
     if key == 'home':
-        body = body.replace('ref="{{ logoRef }}"', 'id="bc-logo"')
-        stage = '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(22px,4vh,48px);padding:clamp(28px,6vh,72px) clamp(24px,8vw,120px);min-height:0;overflow:hidden;">'
-        assert stage in body, 'Home stage not found'
-        fields = '''<div class="bc-home-fields" aria-hidden="true">
-      <div class="bc-home-field" data-home-field="salons"></div>
-      <div class="bc-home-field" data-home-field="sits"></div>
-      <div class="bc-home-field" data-home-field="about"></div>
-      <div class="bc-home-field" data-home-field="door"></div>
-    </div>'''
-        floats = '''<div class="bc-floats" aria-hidden="true">
-      <figure class="bc-float" data-float="centre"><img loading="eager" fetchpriority="high" decoding="async" src="/assets/img/salons-rainbow-circle.jpg" alt=""></figure>
-      <figure class="bc-float" data-float="left"><img loading="lazy" decoding="async" src="/assets/img/about-aura.jpg" alt=""></figure>
-      <figure class="bc-float" data-float="right"><img loading="lazy" decoding="async" src="/assets/img/water-arch.jpg" alt=""></figure>
-      <figure class="bc-float" data-float="low-left"><img loading="lazy" decoding="async" src="/assets/img/field-rings.jpg" alt=""></figure>
-      <figure class="bc-float" data-float="low-right"><img loading="lazy" decoding="async" src="/assets/img/bb-leap.jpg" alt=""></figure>
-    </div>'''
-        body = body.replace(stage, stage[:-1] + ' data-home-stage="1">\n    ' + fields + '\n    ' + floats, 1)
-        # "The Door" is the longest label and wraps the door row to two lines on a
-        # phone; the article is dropped there so the four cells sit level.
-        body = body.replace('>The Door</a>', '><span class="bc-the">The </span>Door</a>')
-        body = body.replace('background:#F8F6F1;">', 'background:#F8F6F1;" data-homefoot="1">')
-        body = body.replace(';">{{ line }}</div>', ';" id="bc-line">For the benefit of all beings</div>')
-        body = body.replace('onMouseLeave="{{ leave }}"', 'data-doors="1"')
-        for k in ('salons', 'sits', 'about', 'door'):
-            body = body.replace('onMouseEnter="{{ enter_%s }}"' % k, 'data-door="%s"' % k)
-        home_statement = '<p style="margin:0;max-width:30ch;font-size:clamp(19px,2.8vh,26px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#171916;text-wrap:pretty;">A realisationhouse for the curious.</p>'
-        assert home_statement in body, 'Home statement not found'
-        body = body.replace(home_statement, home_statement.replace('<p ', '<h1 ').replace('</p>', '</h1>'), 1)
+        assert 'id="bc-app-public-scroll"' in body, 'App public landing not found'
+        assert 'data-note-form="top"' in body, 'App note form not found'
+        assert 'data-login-panel="1"' in body, 'App login gate not found'
 
     if key == 'join':
         door_heading = '<span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>'
@@ -512,51 +487,32 @@ CSS = """
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
 
-  /* Public threshold: two clear ways forward, with the note available now and
-     member access held closed until the invite-only backend exists. */
-  .bc-threshold-actions{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
-  .bc-threshold-button{display:inline-flex;align-items:center;justify-content:center;min-width:148px;padding:12px 22px;
-    border:1px solid #171916;background:rgba(253,252,249,.88);color:#171916;font-size:10px;font-weight:700;
-    line-height:1.2;letter-spacing:.22em;text-transform:uppercase;backdrop-filter:blur(8px);
-    transition:transform 220ms cubic-bezier(.22,1,.36,1),background 180ms ease,color 180ms ease,box-shadow 220ms ease;}
-  .bc-threshold-button[data-primary="1"]{background:#171916;color:#FDFCF9;}
-  #s-home .bc-threshold-button:hover,#s-home .bc-threshold-button:focus-visible{transform:translateY(-2px);
-    background:#5A4B7C;color:#FDFCF9;box-shadow:0 5px 18px rgba(90,75,124,.22);border-color:#5A4B7C;outline:none;}
-  .bc-threshold-line{margin:2px 0 0;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;
-    line-height:1.7;color:#75726A;}
-  .bc-threshold-panel{position:absolute!important;z-index:8!important;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:min(560px,calc(100% - 48px));max-height:calc(100% - 48px);overflow:auto;padding:clamp(24px,4vw,38px);
-    border:1px solid #DAD6CB;background:rgba(253,252,249,.97);box-shadow:0 18px 70px rgba(23,25,22,.18);
-    backdrop-filter:blur(18px);text-align:left;}
-  .bc-threshold-panel[hidden]{display:none!important;}
-  .bc-threshold-panelhead{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;
-    font-size:10.5px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:#5A4B7C;}
-  .bc-threshold-panelhead button{border:0;background:transparent;color:#75726A;font-size:25px;line-height:1;cursor:pointer;padding:0 3px;}
-  .bc-threshold-panel form{display:grid;gap:20px;}
-  .bc-threshold-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-  .bc-threshold-panel label{display:grid;gap:6px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#75726A;}
-  .bc-threshold-panel input,.bc-threshold-panel textarea{width:100%;border:0;border-bottom:1px solid #A5A198;
-    border-radius:0;background:transparent;color:#171916;font-size:15px;line-height:1.55;letter-spacing:0;text-transform:none;
-    padding:7px 0;outline:none;resize:vertical;}
-  .bc-threshold-panel input:focus,.bc-threshold-panel textarea:focus{border-color:#5A4B7C;}
-  .bc-threshold-submitrow{display:flex;align-items:center;gap:16px;min-height:39px;}
-  .bc-threshold-submitrow button,.bc-threshold-back{border:1px solid #171916;background:#171916;color:#FDFCF9;
-    padding:11px 22px;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;}
-  .bc-threshold-submitrow button:hover,.bc-threshold-back:hover{background:#5A4B7C;border-color:#5A4B7C;}
-  [data-note-status]{margin:0;font-size:12px;line-height:1.5;color:#5A4B7C;}
-  .bc-threshold-small{margin:20px 0 0;padding-top:18px;border-top:1px solid #E7E4DB;font-size:12px;line-height:1.7;color:#75726A;}
-  .bc-threshold-panel h2{margin:0 0 12px;max-width:17ch;font-size:clamp(25px,4vw,34px);font-weight:600;
-    line-height:1.08;letter-spacing:-.035em;text-wrap:balance;}
-  .bc-threshold-panel > p:not(.bc-threshold-small){margin:0 0 24px;max-width:45ch;font-size:15px;line-height:1.7;color:#5E5B54;}
-  @media (max-width:640px){
-    .bc-threshold-actions{margin-top:8px;}
-    .bc-threshold-button{min-width:134px;padding:11px 16px;font-size:9.5px;}
-    .bc-threshold-line{max-width:30ch;}
-    .bc-threshold-panel{width:calc(100% - 28px);max-height:calc(100% - 28px);padding:24px 20px;}
-    .bc-threshold-fields{grid-template-columns:1fr;gap:16px;}
-    [data-homefoot]{padding:12px 20px!important;}
-    [data-homefoot] > span{max-width:17ch;line-height:1.45;}
-    [data-homefoot] a[href^="mailto:"]{display:none;}
+  /* Public landing from the supplied Beings Club App design. */
+  [hidden]{display:none!important;}
+  @keyframes bc-app-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes bc-app-pulse{0%,70%,100%{color:#5A4B7C}85%{color:#8E7BBE}}
+  #s-home #bc-logo [data-ring]{transition:stroke-width .3s cubic-bezier(.22,1,.36,1);animation:bc-app-ring-current 8s ease-in-out infinite!important;}
+  #s-home #bc-logo [data-ring="16"]{animation-delay:.55s!important;}
+  #s-home #bc-logo [data-ring="30"]{animation-delay:1.1s!important;}
+  #s-home #bc-logo [data-ring="44"]{animation-delay:1.65s!important;}
+  #s-home #bc-logo:hover [data-ring]{animation:none!important;stroke-width:6.5;}
+  @keyframes bc-app-ring-current{0%,28%,100%{stroke:#171916;stroke-width:2.6;opacity:1}12%{stroke:#5A4B7C;stroke-width:4.1;opacity:.86}}
+  @media (max-width:1150px){
+    #s-home [data-m="sub"]{white-space:normal!important;max-width:44ch;}
+  }
+  @media (max-width:720px){
+    #s-home [data-m="clock"]{right:22px!important;}
+    #s-home [data-m="vh"]{height:auto!important;min-height:100svh;display:flow-root;}
+    #s-home [data-m="hero"]{position:relative!important;left:0!important;top:0!important;transform:none!important;max-width:none!important;margin:13vh 22px 60px!important;}
+    #s-home [data-m="hero"] h1{font-size:36px!important;}
+    #s-home [data-m="sub"]{white-space:normal!important;font-size:16px!important;}
+    #s-home [data-m="btnrow"]{flex-wrap:wrap!important;}
+    #s-home [data-m="noteslot"]{min-height:0!important;}
+    #s-home [data-m="notecard"]{position:static!important;}
+    #s-home #bc-logo{display:none!important;}
+    #s-home [data-m="below"]{padding:40px 22px 100px!important;}
+    #s-home [data-m="pop"]{left:20px!important;max-width:calc(100vw - 40px);}
+    #s-home .bc-app-note-fields{grid-template-columns:1fr!important;}
   }
 
   /* Ribbon study: the reference's image shelf, oversized editorial statement and
@@ -936,71 +892,94 @@ JS = r"""
   var logoHost = document.getElementById('bc-logo');
   if (logoHost) inlineLogo(logoHost);
 
-  // ---- public threshold panels ----
-  var notePanel = document.querySelector('[data-note-panel]');
-  var memberPanel = document.querySelector('[data-member-panel]');
-  var thresholdPanels = [notePanel, memberPanel].filter(Boolean);
-  var lastThresholdTrigger = null;
-  function closeThresholdPanels(restoreFocus) {
-    thresholdPanels.forEach(function (panel) { panel.hidden = true; });
-    if (restoreFocus && lastThresholdTrigger) lastThresholdTrigger.focus();
+  // ---- supplied app landing interactions ----
+  var publicScroll = document.getElementById('bc-app-public-scroll');
+  var loginPanel = document.querySelector('[data-login-panel]');
+  var loginTrigger = null;
+  function closeLogin(restore) {
+    if (loginPanel) loginPanel.hidden = true;
+    if (restore && loginTrigger) loginTrigger.focus();
   }
-  function openThresholdPanel(panel, trigger) {
-    if (!panel) return;
-    lastThresholdTrigger = trigger || null;
-    closeThresholdPanels(false);
-    panel.hidden = false;
-    var focusable = panel.querySelector('input,textarea,button,a[href]');
-    if (focusable) setTimeout(function () { focusable.focus(); }, 0);
-  }
-  [].forEach.call(document.querySelectorAll('[data-leave-note]'), function (trigger) {
+  [].forEach.call(document.querySelectorAll('[data-login-open]'), function (trigger) {
     trigger.addEventListener('click', function (e) {
-      if (!notePanel) return;
-      e.preventDefault();
-      openThresholdPanel(notePanel, trigger);
+      e.preventDefault(); loginTrigger = trigger;
+      if (loginPanel) loginPanel.hidden = false;
     });
   });
-  [].forEach.call(document.querySelectorAll('[data-member-login]'), function (trigger) {
-    trigger.addEventListener('click', function (e) {
-      e.preventDefault();
-      openThresholdPanel(memberPanel, trigger);
-    });
+  [].forEach.call(document.querySelectorAll('[data-login-close]'), function (trigger) {
+    trigger.addEventListener('click', function (e) { e.preventDefault(); closeLogin(true); });
   });
-  [].forEach.call(document.querySelectorAll('[data-panel-close]'), function (button) {
-    button.addEventListener('click', function () { closeThresholdPanels(true); });
+
+  var noteActions = document.querySelector('[data-note-actions]');
+  var topNote = document.querySelector('[data-note-form="top"]');
+  var footTrigger = document.querySelector('[data-foot-note-open]');
+  var footNote = document.querySelector('[data-note-form="foot"]');
+  function showNote(form, trigger) {
+    if (form === topNote && noteActions) noteActions.hidden = true;
+    if (form === footNote && footTrigger) footTrigger.hidden = true;
+    if (form) { form.hidden = false; var input = form.querySelector('input'); if (input) input.focus(); }
+  }
+  function hideNote(form) {
+    if (form) form.hidden = true;
+    if (form === topNote && noteActions) noteActions.hidden = false;
+    if (form === footNote && footTrigger) footTrigger.hidden = false;
+  }
+  [].forEach.call(document.querySelectorAll('[data-note-open]'), function (trigger) {
+    trigger.addEventListener('click', function (e) { e.preventDefault(); showNote(topNote, trigger); });
+  });
+  if (footTrigger) footTrigger.addEventListener('click', function (e) { e.preventDefault(); showNote(footNote, footTrigger); });
+  [].forEach.call(document.querySelectorAll('[data-note-close]'), function (button) {
+    button.addEventListener('click', function () { hideNote(button.closest('form')); });
+  });
+  [].forEach.call(document.querySelectorAll('[data-note-form]'), function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var status = form.querySelector('[data-note-status]');
+      var button = form.querySelector('button[type="submit"]');
+      var data = new FormData(form);
+      var name = String(data.get('name') || '').trim();
+      var email = String(data.get('email') || '').trim();
+      var note = String(data.get('note') || '').trim();
+      if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !note) {
+        if (status) status.textContent = 'A name, valid email and note, please.'; return;
+      }
+      if (button) button.disabled = true;
+      if (status) status.textContent = 'Sending…';
+      fetch('https://formspree.io/f/xpqkbpyv', {
+        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ intent: 'leave a note', name: name, email: email, note: note })
+      }).then(function (response) {
+        if (!response.ok) throw new Error('send failed');
+        var key = form.getAttribute('data-note-form');
+        form.hidden = true; form.reset();
+        var sent = document.querySelector('[data-note-sent="' + key + '"]'); if (sent) sent.hidden = false;
+      }).catch(function () {
+        if (button) button.disabled = false;
+        if (status) status.textContent = 'That did not send. Please email john@spacetobe.xyz.';
+      });
+    });
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && thresholdPanels.some(function (panel) { return panel && !panel.hidden; })) {
-      closeThresholdPanels(true);
-    }
+    if (e.key === 'Escape') { closeLogin(true); hideNote(topNote); hideNote(footNote); }
   });
-  var thresholdForm = document.querySelector('[data-threshold-form]');
-  if (thresholdForm) thresholdForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var status = thresholdForm.querySelector('[data-note-status]') || document.querySelector('[data-note-status]');
-    var button = thresholdForm.querySelector('button[type="submit"]');
-    var data = new FormData(thresholdForm);
-    var name = String(data.get('name') || '').trim();
-    var email = String(data.get('email') || '').trim();
-    var note = String(data.get('note') || '').trim();
-    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !note) {
-      if (status) status.textContent = 'A name, valid email and note, please.';
-      return;
-    }
-    if (button) button.disabled = true;
-    if (status) status.textContent = 'Sending…';
-    fetch('https://formspree.io/f/xpqkbpyv', {
-      method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ intent: 'leave a note', name: name, email: email, note: note })
-    }).then(function (response) {
-      if (!response.ok) throw new Error('send failed');
-      thresholdForm.reset();
-      if (status) status.textContent = 'Received, with thanks. John will write back.';
-    }).catch(function () {
-      if (button) button.disabled = false;
-      if (status) status.textContent = 'That did not send. Please email john@spacetobe.xyz.';
-    });
-  });
+
+  var clock = document.querySelector('#s-home [data-m="clock"]');
+  function setClock() {
+    if (!clock) return;
+    try { clock.textContent = new Intl.DateTimeFormat([], { hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); }
+    catch (e) { var d = new Date(); clock.textContent = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  }
+  setClock(); setInterval(setClock, 30000);
+
+  function wirePop(trigger, pop) {
+    if (!trigger || !pop) return;
+    function move(e) { pop.style.left = e.clientX + 'px'; pop.style.top = e.clientY + 'px'; }
+    trigger.addEventListener('mouseenter', function (e) { move(e); pop.hidden = false; });
+    trigger.addEventListener('mousemove', move);
+    trigger.addEventListener('mouseleave', function () { pop.hidden = true; });
+  }
+  wirePop(document.querySelector('[data-public-word]'), document.querySelector('[data-word-pop]'));
+  wirePop(document.querySelector('[data-public-logo]'), document.querySelector('[data-logo-pop]'));
 
   // The nav wordmark on inner screens: a CSS background until the SVG arrives (so
   // nothing shifts), then inlined so the outlines can thicken 9 -> 12 on hover.
