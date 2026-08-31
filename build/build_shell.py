@@ -500,6 +500,9 @@ CSS = """
   @media (max-width:1150px){
     #s-home [data-m="sub"]{white-space:normal!important;max-width:44ch;}
   }
+  @media (max-width:900px){
+    #s-home #bc-logo{display:none!important;}
+  }
   @media (max-width:720px){
     #s-home [data-m="clock"]{right:22px!important;}
     #s-home [data-m="vh"]{height:auto!important;min-height:100svh;display:flow-root;}
