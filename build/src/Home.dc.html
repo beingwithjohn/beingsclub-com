@@ -33,22 +33,46 @@
     <div ref="{{ logoRef }}" role="img" aria-label="Beings Club" style="width:min(760px,88vw);max-height:100%;display:flex;align-items:center;justify-content:center;line-height:0;flex:0 1 auto;min-height:0;"><img src="assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;max-height:100%;object-fit:contain;"></div>
     <div style="display:grid;gap:10px;justify-items:center;text-align:center;flex:0 0 auto;max-width:100%;">
       <p style="margin:0;max-width:30ch;font-size:clamp(19px,2.8vh,26px);font-weight:600;line-height:1.3;letter-spacing:-0.022em;color:#171916;text-wrap:pretty;">A realisationhouse for the curious.</p>
-      <p id="bc-tagline" style="margin:0;font-size:clamp(15px,2.05vw,18px);line-height:1.55;letter-spacing:-0.008em;color:#75726A;text-wrap:pretty;">We gather to realise what is possible — in ourselves, between us, and in the world.</p>
+      <p id="bc-tagline" style="margin:0;font-size:clamp(15px,2.05vw,18px);line-height:1.55;letter-spacing:-0.008em;color:#75726A;text-wrap:pretty;">Gathering the curious to discover what matters and realise what is possible.</p>
+      <div class="bc-threshold-actions">
+        <a href="#leave-a-note" data-leave-note="1" class="bc-threshold-button" data-primary="1">Leave a note</a>
+        <a href="#member-access" data-member-login="1" class="bc-threshold-button">Member login</a>
+      </div>
+      <p class="bc-threshold-line">Beings Club is where curiosity connects. Stay curious.</p>
     </div>
-  </div>
 
-  <div onMouseLeave="{{ leave }}">
-    <div style="padding:16px 40px;text-align:center;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#5A4B7C;background:#F2ECFF;border-top:1px solid rgba(38,34,26,0.10);">{{ line }}</div>
-    <div style="display:flex;align-items:stretch;border-top:1px solid rgba(38,34,26,0.10);">
-      <a href="Salons.dc.html" onMouseEnter="{{ enter_salons }}" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;" style-hover="background:#5A4B7C;color:#FDFCF9;">Salons</a>
-      <a href="Sits.dc.html" onMouseEnter="{{ enter_sits }}" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" style-hover="background:#5A4B7C;color:#FDFCF9;">Sits</a>
-      <a href="About.dc.html" onMouseEnter="{{ enter_about }}" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" style-hover="background:#5A4B7C;color:#FDFCF9;">About</a>
-      <a href="Join.dc.html" onMouseEnter="{{ enter_door }}" style="flex:1;padding:24px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-left:1px solid rgba(38,34,26,0.10);" style-hover="background:#5A4B7C;color:#FDFCF9;">The Door</a>
-    </div>
+    <section class="bc-threshold-panel" data-note-panel="1" aria-label="Leave a note" hidden>
+      <div class="bc-threshold-panelhead">
+        <span>Leave a note</span>
+        <button type="button" data-panel-close="1" aria-label="Close">×</button>
+      </div>
+      <form data-threshold-form="1">
+        <div class="bc-threshold-fields">
+          <label><span>Name</span><input name="name" type="text" autocomplete="name" required></label>
+          <label><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+        </div>
+        <label><span>Your note</span><textarea name="note" rows="4" required></textarea></label>
+        <div class="bc-threshold-submitrow">
+          <button type="submit">Send</button>
+          <p data-note-status="1" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+      <p class="bc-threshold-small">Membership is freely offered after a conversation and a mutual yes. Leave a note and John will write back.</p>
+    </section>
+
+    <section id="member-access" class="bc-threshold-panel" data-member-panel="1" aria-label="Member access" hidden>
+      <div class="bc-threshold-panelhead">
+        <span>Member login</span>
+        <button type="button" data-panel-close="1" aria-label="Close">×</button>
+      </div>
+      <h2>Member access is opening soon.</h2>
+      <p>The members’ area is staying closed while secure, invite-only access is built. Members will be emailed when it is ready.</p>
+      <button type="button" data-panel-close="1" class="bc-threshold-back">Back to Beings Club</button>
+    </section>
   </div>
 
   <div style="display:flex;justify-content:space-between;align-items:center;gap:24px;padding:14px 40px;border-top:1px solid rgba(38,34,26,0.10);background:#F8F6F1;">
-    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Beings Club</span>
+    <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">For the benefit of all beings</span>
     <div style="display:flex;align-items:center;gap:20px;">
       <a href="https://instagram.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on Instagram" style="display:inline-flex;color:#75726A;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"></circle></svg></a>
       <a href="https://x.com/beings_club" target="_blank" rel="noopener" aria-label="Beings Club on X" style="display:inline-flex;color:#75726A;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.966 6.817H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"></path></svg></a>
@@ -61,7 +85,7 @@
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   logoRef = React.createRef();
-  state = { hover: null };
+  state = {};
 
   componentDidMount() {
     const host = this.logoRef.current;
@@ -90,21 +114,7 @@ class Component extends DCLogic {
     }).catch(() => {});
   }
 
-  renderVals() {
-    const meta = {
-      salons: 'Where curiosity connects',
-      sits: 'For making meditation yours',
-      about: 'Why Beings Club exists',
-      door: 'Join the club'
-    };
-    const v = {
-      logoRef: this.logoRef,
-      line: this.state.hover ? meta[this.state.hover] : 'For the benefit of all beings',
-      leave: () => this.setState({ hover: null })
-    };
-    Object.keys(meta).forEach(k => { v['enter_' + k] = () => this.setState({ hover: k }); });
-    return v;
-  }
+  renderVals() { return { logoRef: this.logoRef }; }
 }
 </script>
 </body>

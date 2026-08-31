@@ -14,7 +14,7 @@ SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
 SCREENS = [
     ("home", "Home",
      "/", "Beings Club — a realisationhouse for the curious",
-     "Beings Club is a realisationhouse for the curious: monthly online Salons for conversation and small-group Sits for meditation. For the benefit of all beings."),
+     "Beings Club is an ongoing community and realisationhouse for the curious, gathering to discover what matters and realise what is possible."),
     ("about", "About",
      "/about/", "About — why Beings Club exists · Beings Club",
      "Curiosity connects people, ideas and new futures. Where Beings Club came from, and how what is important can reveal itself."),
@@ -91,21 +91,7 @@ def convert(body, key):
       <figure class="bc-float" data-float="low-left"><img loading="lazy" decoding="async" src="/assets/img/field-rings.jpg" alt=""></figure>
       <figure class="bc-float" data-float="low-right"><img loading="lazy" decoding="async" src="/assets/img/bb-leap.jpg" alt=""></figure>
     </div>'''
-        ribbon = '''<div class="bc-ribbon" aria-label="Explore Beings Club through images">
-      <div class="bc-ribbon-track">
-        <a class="bc-ribbon-card" href="/salons/" aria-label="Salons"><img loading="lazy" decoding="async" src="/assets/img/salons-rainbow-circle.jpg" alt=""><span>Salons</span></a>
-        <a class="bc-ribbon-card" href="/sits/" aria-label="Sits"><img loading="lazy" decoding="async" src="/assets/img/sits-shapes.jpg" alt=""><span>Sits</span></a>
-        <a class="bc-ribbon-card" href="/about/" aria-label="About"><img loading="lazy" decoding="async" src="/assets/img/about-aura.jpg" alt=""><span>About</span></a>
-        <a class="bc-ribbon-card" href="/join/" aria-label="The Door"><img loading="lazy" decoding="async" src="/assets/img/water-arch.jpg" alt=""><span>The Door</span></a>
-        <a class="bc-ribbon-card" href="/about/" aria-label="The field"><img loading="lazy" decoding="async" src="/assets/img/field-rings.jpg" alt=""><span>The field</span></a>
-        <a class="bc-ribbon-card" href="/salons/" aria-label="Gather"><img loading="lazy" decoding="async" src="/assets/img/tree-gathering.jpg" alt=""><span>Gather</span></a>
-        <a class="bc-ribbon-card" href="/sits/" aria-label="Practice"><img loading="lazy" decoding="async" src="/assets/img/ripples.jpg" alt=""><span>Practice</span></a>
-        <a class="bc-ribbon-card" href="/beyondbelief/" aria-label="Beyond Belief"><img loading="lazy" decoding="async" src="/assets/img/beyond-belief-cover.jpg" alt=""><span>Beyond Belief</span></a>
-        <a class="bc-ribbon-card" href="/beyondbelief/" aria-label="Take the leap"><img loading="lazy" decoding="async" src="/assets/img/bb-leap.jpg" alt=""><span>Take the leap</span></a>
-        <a class="bc-ribbon-card" href="/join/" aria-label="Enter"><img loading="lazy" decoding="async" src="/assets/img/vessel.jpg" alt=""><span>Enter</span></a>
-      </div>
-    </div>'''
-        body = body.replace(stage, stage[:-1] + ' data-home-stage="1">\n    ' + fields + '\n    ' + floats + '\n    ' + ribbon, 1)
+        body = body.replace(stage, stage[:-1] + ' data-home-stage="1">\n    ' + fields + '\n    ' + floats, 1)
         # "The Door" is the longest label and wraps the door row to two lines on a
         # phone; the article is dropped there so the four cells sit level.
         body = body.replace('>The Door</a>', '><span class="bc-the">The </span>Door</a>')
@@ -526,6 +512,53 @@ CSS = """
   #bc-tagline{white-space:nowrap;max-width:100%;}
   @media (max-width:640px){#bc-tagline{white-space:normal;max-width:30ch;}}
 
+  /* Public threshold: two clear ways forward, with the note available now and
+     member access held closed until the invite-only backend exists. */
+  .bc-threshold-actions{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .bc-threshold-button{display:inline-flex;align-items:center;justify-content:center;min-width:148px;padding:12px 22px;
+    border:1px solid #171916;background:rgba(253,252,249,.88);color:#171916;font-size:10px;font-weight:700;
+    line-height:1.2;letter-spacing:.22em;text-transform:uppercase;backdrop-filter:blur(8px);
+    transition:transform 220ms cubic-bezier(.22,1,.36,1),background 180ms ease,color 180ms ease,box-shadow 220ms ease;}
+  .bc-threshold-button[data-primary="1"]{background:#171916;color:#FDFCF9;}
+  #s-home .bc-threshold-button:hover,#s-home .bc-threshold-button:focus-visible{transform:translateY(-2px);
+    background:#5A4B7C;color:#FDFCF9;box-shadow:0 5px 18px rgba(90,75,124,.22);border-color:#5A4B7C;outline:none;}
+  .bc-threshold-line{margin:2px 0 0;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;
+    line-height:1.7;color:#75726A;}
+  .bc-threshold-panel{position:absolute!important;z-index:8!important;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(560px,calc(100% - 48px));max-height:calc(100% - 48px);overflow:auto;padding:clamp(24px,4vw,38px);
+    border:1px solid #DAD6CB;background:rgba(253,252,249,.97);box-shadow:0 18px 70px rgba(23,25,22,.18);
+    backdrop-filter:blur(18px);text-align:left;}
+  .bc-threshold-panel[hidden]{display:none!important;}
+  .bc-threshold-panelhead{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;
+    font-size:10.5px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:#5A4B7C;}
+  .bc-threshold-panelhead button{border:0;background:transparent;color:#75726A;font-size:25px;line-height:1;cursor:pointer;padding:0 3px;}
+  .bc-threshold-panel form{display:grid;gap:20px;}
+  .bc-threshold-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .bc-threshold-panel label{display:grid;gap:6px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#75726A;}
+  .bc-threshold-panel input,.bc-threshold-panel textarea{width:100%;border:0;border-bottom:1px solid #A5A198;
+    border-radius:0;background:transparent;color:#171916;font-size:15px;line-height:1.55;letter-spacing:0;text-transform:none;
+    padding:7px 0;outline:none;resize:vertical;}
+  .bc-threshold-panel input:focus,.bc-threshold-panel textarea:focus{border-color:#5A4B7C;}
+  .bc-threshold-submitrow{display:flex;align-items:center;gap:16px;min-height:39px;}
+  .bc-threshold-submitrow button,.bc-threshold-back{border:1px solid #171916;background:#171916;color:#FDFCF9;
+    padding:11px 22px;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;}
+  .bc-threshold-submitrow button:hover,.bc-threshold-back:hover{background:#5A4B7C;border-color:#5A4B7C;}
+  [data-note-status]{margin:0;font-size:12px;line-height:1.5;color:#5A4B7C;}
+  .bc-threshold-small{margin:20px 0 0;padding-top:18px;border-top:1px solid #E7E4DB;font-size:12px;line-height:1.7;color:#75726A;}
+  .bc-threshold-panel h2{margin:0 0 12px;max-width:17ch;font-size:clamp(25px,4vw,34px);font-weight:600;
+    line-height:1.08;letter-spacing:-.035em;text-wrap:balance;}
+  .bc-threshold-panel > p:not(.bc-threshold-small){margin:0 0 24px;max-width:45ch;font-size:15px;line-height:1.7;color:#5E5B54;}
+  @media (max-width:640px){
+    .bc-threshold-actions{margin-top:8px;}
+    .bc-threshold-button{min-width:134px;padding:11px 16px;font-size:9.5px;}
+    .bc-threshold-line{max-width:30ch;}
+    .bc-threshold-panel{width:calc(100% - 28px);max-height:calc(100% - 28px);padding:24px 20px;}
+    .bc-threshold-fields{grid-template-columns:1fr;gap:16px;}
+    [data-homefoot]{padding:12px 20px!important;}
+    [data-homefoot] > span{max-width:17ch;line-height:1.45;}
+    [data-homefoot] a[href^="mailto:"]{display:none;}
+  }
+
   /* Ribbon study: the reference's image shelf, oversized editorial statement and
      floating paper panel, translated into the existing Beings Club language. */
   .bc-ribbon{display:none;}
@@ -902,6 +935,72 @@ JS = r"""
   }
   var logoHost = document.getElementById('bc-logo');
   if (logoHost) inlineLogo(logoHost);
+
+  // ---- public threshold panels ----
+  var notePanel = document.querySelector('[data-note-panel]');
+  var memberPanel = document.querySelector('[data-member-panel]');
+  var thresholdPanels = [notePanel, memberPanel].filter(Boolean);
+  var lastThresholdTrigger = null;
+  function closeThresholdPanels(restoreFocus) {
+    thresholdPanels.forEach(function (panel) { panel.hidden = true; });
+    if (restoreFocus && lastThresholdTrigger) lastThresholdTrigger.focus();
+  }
+  function openThresholdPanel(panel, trigger) {
+    if (!panel) return;
+    lastThresholdTrigger = trigger || null;
+    closeThresholdPanels(false);
+    panel.hidden = false;
+    var focusable = panel.querySelector('input,textarea,button,a[href]');
+    if (focusable) setTimeout(function () { focusable.focus(); }, 0);
+  }
+  [].forEach.call(document.querySelectorAll('[data-leave-note]'), function (trigger) {
+    trigger.addEventListener('click', function (e) {
+      if (!notePanel) return;
+      e.preventDefault();
+      openThresholdPanel(notePanel, trigger);
+    });
+  });
+  [].forEach.call(document.querySelectorAll('[data-member-login]'), function (trigger) {
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      openThresholdPanel(memberPanel, trigger);
+    });
+  });
+  [].forEach.call(document.querySelectorAll('[data-panel-close]'), function (button) {
+    button.addEventListener('click', function () { closeThresholdPanels(true); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && thresholdPanels.some(function (panel) { return panel && !panel.hidden; })) {
+      closeThresholdPanels(true);
+    }
+  });
+  var thresholdForm = document.querySelector('[data-threshold-form]');
+  if (thresholdForm) thresholdForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var status = thresholdForm.querySelector('[data-note-status]') || document.querySelector('[data-note-status]');
+    var button = thresholdForm.querySelector('button[type="submit"]');
+    var data = new FormData(thresholdForm);
+    var name = String(data.get('name') || '').trim();
+    var email = String(data.get('email') || '').trim();
+    var note = String(data.get('note') || '').trim();
+    if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !note) {
+      if (status) status.textContent = 'A name, valid email and note, please.';
+      return;
+    }
+    if (button) button.disabled = true;
+    if (status) status.textContent = 'Sending…';
+    fetch('https://formspree.io/f/xpqkbpyv', {
+      method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ intent: 'leave a note', name: name, email: email, note: note })
+    }).then(function (response) {
+      if (!response.ok) throw new Error('send failed');
+      thresholdForm.reset();
+      if (status) status.textContent = 'Received, with thanks. John will write back.';
+    }).catch(function () {
+      if (button) button.disabled = false;
+      if (status) status.textContent = 'That did not send. Please email john@spacetobe.xyz.';
+    });
+  });
 
   // The nav wordmark on inner screens: a CSS background until the SVG arrives (so
   // nothing shifts), then inlined so the outlines can thicken 9 -> 12 on hover.

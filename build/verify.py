@@ -107,6 +107,22 @@ def audit(html, label):
     active = re.search(r'(?s)<div class="bc-layer" data-active="1".*?(?=<div class="bc-layer"|<div id="bc-intro")', html)
     ok(label + ": active screen has one primary heading",
        bool(active) and active.group(0).count('<h1') == 1)
+    if label == 'index.html':
+        home = active.group(0) if active else ''
+        ok(label + ": public threshold has the two intended actions",
+           'data-leave-note="1"' in home and '>Leave a note</a>' in home and
+           'data-member-login="1"' in home and '>Member login</a>' in home)
+        ok(label + ": leave-a-note form is simple and connected",
+           'data-threshold-form="1"' in home and
+           all(('name="%s"' % field) in home for field in ('name', 'email', 'note')) and
+           "fetch('https://formspree.io/f/xpqkbpyv'" in js)
+        ok(label + ": member access is honestly held closed",
+           'data-member-panel="1"' in home and
+           'Member access is opening soon.' in home and
+           'secure, invite-only access is built' in home and
+           'type="password"' not in home)
+        ok(label + ": public threshold does not expose the old programme map",
+           all(('href="%s"' % route) not in home for route in ('/about/', '/salons/', '/sits/')))
     ok(label + ": retired overall care framing is absent",
        "We hold each other as precious" not in html and
        "When people hold each other as precious" not in html)
