@@ -1,0 +1,264 @@
+import { json, bad } from '../api.js';
+import { sendClubCode } from '../mail/send.js';
+import {
+  bearerToken, keyedHash, normalizeEmail, randomCode, randomToken,
+  sameText, tokenHash, validChallenge, validCode,
+} from './security.js';
+
+const CODE_LIFETIME = 10 * 60;
+const SESSION_LIFETIME = 30 * 24 * 60 * 60;
+
+export async function clubRoute(request, env, ctx, url) {
+  if (!env.MEMBERS) return bad(503, 'members unavailable');
+  const path = url.pathname;
+  const method = request.method;
+
+  if (path === '/api/club/auth/request' && method === 'POST') {
+    return requestCode(request, env, ctx, await readJson(request));
+  }
+  if (path === '/api/club/auth/verify' && method === 'POST') {
+    return verifyCode(env, await readJson(request));
+  }
+
+  const who = await identifyMember(request, env);
+  if (!who) return bad(401, 'no');
+
+  if (path === '/api/club/session' && method === 'GET') return json({ member: shapeMember(who) });
+  if (path === '/api/club/auth/logout' && method === 'POST') {
+    await env.MEMBERS.prepare(
+      'UPDATE member_session SET revoked_at = ?1 WHERE id = ?2 AND revoked_at IS NULL',
+    ).bind(now(), who.session_id).run();
+    return json({ ok: true });
+  }
+
+  if (!who.is_host || !path.startsWith('/api/club/host/')) return bad(404, 'not found');
+
+  if (path === '/api/club/host/members' && method === 'GET') return listMembers(env);
+  if (path === '/api/club/host/members' && method === 'POST') {
+    return addMember(env, who, await readJson(request));
+  }
+  const remove = /^\/api\/club\/host\/members\/(\d+)$/.exec(path);
+  if (remove && method === 'DELETE') return disableMember(env, who, Number(remove[1]));
+
+  return bad(404, 'not found');
+}
+
+async function requestCode(request, env, ctx, body) {
+  // The response never confirms whether an address is approved. Unknown and
+  // rate-limited requests receive the same shape and a challenge that simply
+  // cannot be completed.
+  const responseChallenge = randomToken(24);
+  const email = normalizeEmail(body?.email);
+  if (!email) return json({ ok: true, challenge: responseChallenge });
+
+  const timestamp = now();
+  const emailHash = await keyedHash(env, 'email-rate', email);
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const ipHash = await keyedHash(env, 'ip-rate', ip);
+
+  const allowed = await mayRequest(env, emailHash, ipHash, timestamp);
+  if (!allowed) return json({ ok: true, challenge: responseChallenge });
+
+  const member = await env.MEMBERS.prepare(
+    `SELECT id, email, display_name FROM member
+      WHERE email = ?1 AND disabled_at IS NULL AND left_at IS NULL`,
+  ).bind(email).first();
+
+  const code = randomCode();
+  const codeHash = await keyedHash(env, 'login-code', `${responseChallenge}:${code}`);
+  await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
+      `INSERT INTO auth_request (email_hash, ip_hash, created_at) VALUES (?1, ?2, ?3)`,
+    ).bind(emailHash, ipHash, timestamp),
+    env.MEMBERS.prepare(
+      `INSERT INTO auth_challenge
+        (id, member_id, code_hash, created_at, expires_at)
+       VALUES (?1, ?2, ?3, ?4, ?5)`,
+    ).bind(responseChallenge, member?.id ?? null, codeHash, timestamp, timestamp + CODE_LIFETIME),
+  ]);
+
+  if (member) {
+    ctx.waitUntil(sendClubCode(env, {
+      email: member.email,
+      name: member.display_name,
+      code,
+    }));
+  }
+
+  // Old codes and request logs contain no useful plaintext; trimming them
+  // here prevents unbounded growth without introducing another cron.
+  ctx.waitUntil(env.MEMBERS.batch([
+    env.MEMBERS.prepare('DELETE FROM auth_challenge WHERE expires_at < ?1').bind(timestamp - 86400),
+    env.MEMBERS.prepare('DELETE FROM auth_request WHERE created_at < ?1').bind(timestamp - 86400),
+    env.MEMBERS.prepare('DELETE FROM member_session WHERE expires_at < ?1').bind(timestamp - 86400),
+  ]));
+
+  return json({ ok: true, challenge: responseChallenge });
+}
+
+async function mayRequest(env, emailHash, ipHash, timestamp) {
+  const since = timestamp - 3600;
+  const [emailCount, ipCount, latest] = await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
+      'SELECT COUNT(*) AS n FROM auth_request WHERE email_hash = ?1 AND created_at >= ?2',
+    ).bind(emailHash, since),
+    env.MEMBERS.prepare(
+      'SELECT COUNT(*) AS n FROM auth_request WHERE ip_hash = ?1 AND created_at >= ?2',
+    ).bind(ipHash, since),
+    env.MEMBERS.prepare(
+      'SELECT MAX(created_at) AS at FROM auth_request WHERE email_hash = ?1',
+    ).bind(emailHash),
+  ]);
+  const emailN = Number(emailCount.results?.[0]?.n || 0);
+  const ipN = Number(ipCount.results?.[0]?.n || 0);
+  const lastAt = Number(latest.results?.[0]?.at || 0);
+  return emailN < 5 && ipN < 20 && timestamp - lastAt >= 60;
+}
+
+async function verifyCode(env, body) {
+  const challenge = validChallenge(body?.challenge);
+  const code = validCode(body?.code);
+  if (!challenge || !code) return bad(401, 'invalid code');
+
+  const row = await env.MEMBERS.prepare(
+    `SELECT c.*, m.email, m.display_name, m.website, m.profile_line,
+            m.profile_image, m.is_host, m.disabled_at, m.left_at
+       FROM auth_challenge c
+       LEFT JOIN member m ON m.id = c.member_id
+      WHERE c.id = ?1`,
+  ).bind(challenge).first();
+
+  const timestamp = now();
+  const suppliedHash = await keyedHash(env, 'login-code', `${challenge}:${code}`);
+  const valid = row && row.member_id && row.consumed_at == null && row.attempts < 5
+    && row.expires_at >= timestamp && row.disabled_at == null && row.left_at == null
+    && sameText(row.code_hash, suppliedHash);
+
+  if (!valid) {
+    if (row && row.consumed_at == null && row.attempts < 5) {
+      await env.MEMBERS.prepare(
+        'UPDATE auth_challenge SET attempts = attempts + 1 WHERE id = ?1',
+      ).bind(challenge).run();
+    }
+    return bad(401, 'invalid code');
+  }
+
+  const consumed = await env.MEMBERS.prepare(
+    `UPDATE auth_challenge SET consumed_at = ?1
+      WHERE id = ?2 AND consumed_at IS NULL AND attempts < 5`,
+  ).bind(timestamp, challenge).run();
+  if ((consumed.meta?.changes ?? 0) !== 1) return bad(401, 'invalid code');
+
+  const token = randomToken();
+  await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
+      `INSERT INTO member_session
+        (member_id, token_hash, created_at, last_seen_at, expires_at)
+       VALUES (?1, ?2, ?3, ?3, ?4)`,
+    ).bind(row.member_id, await tokenHash(token), timestamp, timestamp + SESSION_LIFETIME),
+    env.MEMBERS.prepare(
+      `UPDATE member SET joined_at = COALESCE(joined_at, ?1), updated_at = ?1 WHERE id = ?2`,
+    ).bind(timestamp, row.member_id),
+  ]);
+
+  return json({ token, member: shapeMember(row) });
+}
+
+export async function identifyMember(request, env) {
+  const token = bearerToken(request);
+  if (!token) return null;
+  const timestamp = now();
+  const row = await env.MEMBERS.prepare(
+    `SELECT m.*, s.id AS session_id, s.expires_at AS session_expires_at,
+            s.last_seen_at AS session_last_seen_at
+       FROM member_session s JOIN member m ON m.id = s.member_id
+      WHERE s.token_hash = ?1 AND s.revoked_at IS NULL AND s.expires_at > ?2
+        AND m.disabled_at IS NULL AND m.left_at IS NULL`,
+  ).bind(await tokenHash(token), timestamp).first();
+  if (!row) return null;
+  if (timestamp - Number(row.session_last_seen_at || 0) > 3600) {
+    await env.MEMBERS.prepare(
+      'UPDATE member_session SET last_seen_at = ?1 WHERE id = ?2',
+    ).bind(timestamp, row.session_id).run();
+  }
+  return row;
+}
+
+async function listMembers(env) {
+  const rows = await env.MEMBERS.prepare(
+    `SELECT id, email, display_name, is_host, invited_at, joined_at,
+            disabled_at, left_at
+       FROM member ORDER BY is_host DESC, COALESCE(joined_at, invited_at), email`,
+  ).all();
+  return json({ members: (rows.results || []).map((member) => ({
+    id: member.id,
+    email: member.email,
+    name: member.display_name,
+    isHost: !!member.is_host,
+    status: member.disabled_at || member.left_at ? 'removed' : (member.joined_at ? 'joined' : 'invited'),
+    canRemove: !member.is_host,
+  })) });
+}
+
+async function addMember(env, who, body) {
+  const email = normalizeEmail(body?.email);
+  if (!email) return bad(400, 'email');
+  const timestamp = now();
+  await env.MEMBERS.prepare(
+    `INSERT INTO member (email, is_host, invited_at, created_at, updated_at)
+     VALUES (?1, 0, ?2, ?2, ?2)
+     ON CONFLICT(email) DO UPDATE SET
+       disabled_at = NULL, left_at = NULL, invited_at = ?2, updated_at = ?2`,
+  ).bind(email, timestamp).run();
+  const member = await env.MEMBERS.prepare(
+    'SELECT id, email, joined_at FROM member WHERE email = ?1',
+  ).bind(email).first();
+  return json({
+    member: {
+      id: member.id, email: member.email,
+      status: member.joined_at ? 'joined' : 'invited', canRemove: member.id !== who.id,
+    },
+  }, 201);
+}
+
+async function disableMember(env, who, id) {
+  if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  if (id === who.id) return bad(409, 'cannot remove yourself');
+  const timestamp = now();
+  const result = await env.MEMBERS.prepare(
+    `UPDATE member SET disabled_at = ?1, updated_at = ?1
+      WHERE id = ?2 AND is_host = 0 AND disabled_at IS NULL`,
+  ).bind(timestamp, id).run();
+  if ((result.meta?.changes ?? 0) !== 1) return bad(404, 'not found');
+  await env.MEMBERS.prepare(
+    'UPDATE member_session SET revoked_at = ?1 WHERE member_id = ?2 AND revoked_at IS NULL',
+  ).bind(timestamp, id).run();
+  return json({ ok: true });
+}
+
+function shapeMember(member) {
+  return {
+    id: member.member_id ?? member.id,
+    email: member.email,
+    name: member.display_name,
+    website: member.website,
+    line: member.profile_line,
+    image: member.profile_image,
+    isHost: !!member.is_host,
+  };
+}
+
+async function readJson(request) {
+  const type = request.headers.get('content-type') || '';
+  if (!type.includes('application/json')) return {};
+  try {
+    const text = await request.text();
+    return text ? JSON.parse(text) : {};
+  } catch {
+    return {};
+  }
+}
+
+function now() {
+  return Math.floor(Date.now() / 1000);
+}

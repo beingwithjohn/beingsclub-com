@@ -33,6 +33,23 @@ Stripe's two are unset. **Nothing secret is in the repo and nothing may be put
 there** — it is public and GitHub Pages serves it byte for byte. `test/checks.js`
 fails the build if that changes.
 
+### Beings Club members access
+
+The same Worker now also routes `/api/club/**`, but membership lives in its own
+D1 database, `beings-club-members` (`c82c1c04-9378-4642-874f-0c8eb3be3f55`).
+It shares this Worker only to use the existing Resend and `LINK_KEY` secrets;
+there are no foreign keys or queries across the two databases. The static
+client is generated from `members-app/app/` to `/members/`, and its private host
+page is `/members/host/`.
+
+Authentication is approved-email plus a six-digit code. Codes are keyed hashes,
+last ten minutes, allow five attempts, and can be used once. The request response
+does not reveal whether the email is approved. Sessions are random bearer tokens,
+stored only as hashes server-side, expire after 30 days, and are revoked when a
+member is removed. Every host route checks `is_host` in D1 on every request.
+`john@spacetobe.xyz` is seeded as the first approved member and host by
+`members-migrations/0001_members.sql`.
+
 Deploy: `npx wrangler deploy` from `practice-log/`. The client is built with
 `node app/build.js` and committed; pushing `main` publishes it.
 

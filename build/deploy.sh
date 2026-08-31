@@ -24,6 +24,7 @@ fi
 
 echo "==> regenerating"
 python3 build/build_shell.py >/dev/null
+node members-app/app/build.js >/dev/null
 
 echo "==> verifying the build"
 python3 build/verify.py

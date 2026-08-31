@@ -14,6 +14,7 @@ import { postGiving, postGivingPortal, stripeWebhook } from './giving.js';
 import { postLogin } from './login.js';
 import { postJoin } from './join.js';
 import { listReplies, getReplyAudio } from './replies.js';
+import { clubRoute } from './club/index.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -50,6 +51,10 @@ async function route(request, env, ctx, url) {
   const method = request.method;
 
   if (path === '/api/health' && method === 'GET') return json({ ok: true });
+
+  // Membership has its own database and its own short-lived sessions. It
+  // shares this Worker only to use the existing private mail configuration.
+  if (path.startsWith('/api/club/')) return clubRoute(request, env, ctx, url);
 
   // Giving is public and deliberately knows nothing about Practice Log
   // identity. Requiring the site's browser Origin prevents another page from
@@ -181,7 +186,7 @@ function corsHeaders(env, origin) {
   const allow = origin && allowedOrigin(env, origin) ? origin : allowedOrigins(env)[0] || '';
   return {
     'access-control-allow-origin': allow,
-    'access-control-allow-methods': 'GET,POST,PATCH,OPTIONS',
+    'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS',
     'access-control-allow-headers': 'authorization,content-type',
     'access-control-max-age': '86400',
     vary: 'origin',

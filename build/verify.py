@@ -110,17 +110,15 @@ def audit(html, label):
     if label == 'index.html':
         home = active.group(0) if active else ''
         ok(label + ": public threshold matches the supplied app actions",
-           'data-login-open="1"' in home and '>login</a>' in home and
+           'href="/members/"' in home and '>login</a>' in home and
            'data-note-open="1"' in home and '>become a member</a>' in home and
            'https://lu.ma/beingsclub' in home and '>public events ↗</a>' in home)
         ok(label + ": supplied leave-a-note forms are connected",
            'data-note-form="top"' in home and 'data-note-form="foot"' in home and
            all(('name="%s"' % field) in home for field in ('name', 'email', 'note')) and
            "fetch('https://formspree.io/f/xpqkbpyv'" in js)
-        ok(label + ": member access is honestly held closed",
-           'data-login-panel="1"' in home and
-           'Member access is opening' in home and
-           'secure, invite-only email access is built' in home and
+        ok(label + ": member access uses the private email-code entrance",
+           'href="/members/"' in home and 'data-login-panel="1"' not in home and
            'type="password"' not in home)
         ok(label + ": public threshold does not expose the old programme map",
            all(('href="%s"' % route) not in home for route in ('/about/', '/salons/', '/sits/')))
@@ -174,6 +172,43 @@ ok("generator runs clean", r.returncode == 0, r.stderr.strip()[-200:])
 after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in before}
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
+
+# The members area is intentionally absent from the public sitemap, but its
+# static client still needs the same generated-source and parse guarantees.
+MEMBER_FILES = ["members/index.html", "members/host/index.html",
+                "members/app.css", "members/app.js", "members/host.js"]
+members_before = {
+    p: io.open(os.path.join(ROOT, p), encoding="utf-8").read()
+    for p in MEMBER_FILES if os.path.exists(os.path.join(ROOT, p))
+}
+member_build = subprocess.run(["node", os.path.join(ROOT, "members-app", "app", "build.js")],
+                              capture_output=True, text=True, cwd=ROOT)
+ok("members app generator runs clean", member_build.returncode == 0,
+   member_build.stderr.strip()[-200:])
+members_after = {
+    p: io.open(os.path.join(ROOT, p), encoding="utf-8").read()
+    for p in MEMBER_FILES if os.path.exists(os.path.join(ROOT, p))
+}
+ok("members app has every generated file", set(members_after) == set(MEMBER_FILES))
+ok("members files match the generator", members_before == members_after,
+   "run node members-app/app/build.js")
+for member_page in ["members/index.html", "members/host/index.html"]:
+    html = members_after.get(member_page, "")
+    ok(member_page + ": kept out of search", 'name="robots" content="noindex,nofollow,noarchive"' in html)
+    ok(member_page + ": only approved API is connectable",
+       "connect-src https://practice-log.beingsclub.workers.dev" in html)
+    ok(member_page + ": has no inline executable script", "window.BC_MEMBERS_API" not in html)
+for member_script in ["members/app.js", "members/host.js"]:
+    good, err = js_parses(members_after.get(member_script, ""))
+    ok(member_script + ": parses", good, err)
+host_html = members_after.get("members/host/index.html", "")
+ok("private host page keeps the supplied Host tools design",
+   "Host <strong>tools</strong>." in host_html and "the list" in host_html and
+   "Only hosts see this page" in host_html and "add to the list" in host_html)
+login_html = members_after.get("members/index.html", "")
+ok("member login is passwordless and non-enumerating",
+   'autocomplete="one-time-code"' in login_html and 'type="password"' not in login_html and
+   "If <span id=\"email-shown\"></span> is on the list" in login_html)
 
 robots_path = os.path.join(ROOT, "robots.txt")
 sitemap_path = os.path.join(ROOT, "sitemap.xml")
@@ -299,7 +334,9 @@ if "--live" in sys.argv:
         with urllib.request.urlopen(ORIGIN + route) as resp:
             return resp.status, resp.read().decode("utf-8", "replace")
 
-    for route, local in list(zip(ROUTES, PAGES)) + [("/practice-map/", "practice-map/index.html"),
+    for route, local in list(zip(ROUTES, PAGES)) + [("/members/", "members/index.html"),
+                                                    ("/members/host/", "members/host/index.html"),
+                                                    ("/practice-map/", "practice-map/index.html"),
                                                     ("/giving/", "giving/index.html"),
                                                     ("/" + indexnow_key + ".txt", indexnow_key + ".txt"),
                                                     ("/robots.txt", "robots.txt"),

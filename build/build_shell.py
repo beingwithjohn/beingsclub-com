@@ -77,7 +77,7 @@ def convert(body, key):
     if key == 'home':
         assert 'id="bc-app-public-scroll"' in body, 'App public landing not found'
         assert 'data-note-form="top"' in body, 'App note form not found'
-        assert 'data-login-panel="1"' in body, 'App login gate not found'
+        assert 'href="/members/"' in body, 'Private members entrance not found'
 
     if key == 'join':
         door_heading = '<span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>'

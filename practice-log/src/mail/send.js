@@ -120,3 +120,23 @@ export async function sendWelcomeBack(env, person, url) {
   const mail = T.newLink({ person, url });
   return post(env, { to: person.email, from: club(env), ...mail });
 }
+
+/** Short-lived Beings Club login code. Never log or persist the plain code. */
+export async function sendClubCode(env, { email, name, code }) {
+  const greeting = name ? `Hello ${escapeHtml(name)},` : 'Hello, being,';
+  const subject = 'Your Beings Club code';
+  const text = `${name ? `Hello ${name},` : 'Hello, being,'}\n\nYour Beings Club code is ${code}. It expires in ten minutes and can be used once.\n\nIf you did not ask for this, you can ignore this email.\n\nStay curious,\nBeings Club`;
+  const html = `<div style="font-family:Arial,sans-serif;color:#171916;line-height:1.6;max-width:520px">`
+    + `<p>${greeting}</p><p>Your Beings Club code is</p>`
+    + `<p style="font-size:28px;font-weight:700;letter-spacing:.28em;color:#5A4B7C">${code}</p>`
+    + `<p>It expires in ten minutes and can be used once.</p>`
+    + `<p style="color:#75726A">If you did not ask for this, you can ignore this email.</p>`
+    + `<p>Stay curious,<br>Beings Club</p></div>`;
+  return post(env, { to: email, from: club(env), subject, text, html });
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[char]);
+}

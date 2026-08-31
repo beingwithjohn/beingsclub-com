@@ -13,6 +13,15 @@ database_name = "practice-log"
 # `wrangler d1 create practice-log` prints this. Paste it here; it is not a secret.
 database_id = "8cf3af32-666c-48fb-a943-9c38c393d24c"
 
+# Beings Club membership is deliberately kept out of the Practice Log data.
+# The two currently share this Worker only so member codes can use the already
+# configured mail sender without copying a secret into another service.
+[[d1_databases]]
+binding = "MEMBERS"
+database_name = "beings-club-members"
+database_id = "c82c1c04-9378-4642-874f-0c8eb3be3f55"
+migrations_dir = "members-migrations"
+
 # Private voice replies. The bucket has no public domain; audio is returned
 # only through an authenticated Practice Log request.
 [[r2_buckets]]

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="bc-members-api" content="https://practice-log.beingsclub.workers.dev">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data:; base-uri 'none'; form-action 'self'">
+  <title>Host tools · Beings Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/members/app.css">
+</head>
+<body class="app-body">
+  <div class="app-shell" id="host-shell" hidden>
+    <a class="greeting" href="/members/">good evening, John</a>
+    <span class="clock" id="clock"></span>
+
+    <nav class="member-nav" aria-label="Members area">
+      <span>next salon</span>
+      <span>field notes</span>
+      <span>shared ground</span>
+      <span>in-person</span>
+      <span>giving</span>
+      <span class="nav-break">profile</span>
+      <span>settings</span>
+      <a class="current" href="/members/host/" aria-current="page">host</a>
+      <button class="nav-signout" id="host-sign-out" type="button">sign out</button>
+    </nav>
+
+    <button class="menu-button" id="menu-button" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+    <div class="mobile-menu" id="mobile-menu" hidden>
+      <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
+      <span>next salon</span><span>field notes</span><span>shared ground</span><span>in-person</span><span>giving</span>
+      <span class="nav-break">profile</span><span>settings</span><a class="current" href="/members/host/">host</a>
+      <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
+    </div>
+
+    <main class="host-page">
+      <div class="host-content">
+        <h1>Host <strong>tools</strong>.</h1>
+        <p class="intro">Only hosts see this page. Add someone after a conversation and a mutual yes.</p>
+
+        <section class="host-section">
+          <h2>the list</h2>
+          <p>Anyone on the list can log in with that email. Adding someone does not send an invitation; it quietly opens the door.</p>
+          <form class="invite-form" id="invite-form" novalidate>
+            <label class="sr-only" for="invite-email">Email to add</label>
+            <input id="invite-email" name="email" type="email" autocomplete="off" placeholder="email@somewhere.com" required>
+            <button class="outline" type="submit">add to the list</button>
+          </form>
+          <span class="status" id="invite-status" role="status" aria-live="polite"></span>
+          <div class="member-list" id="member-list" aria-live="polite"></div>
+        </section>
+
+        <div class="host-foot">
+          <span>host tools · only hosts see this</span>
+          <span>for the benefit of all beings</span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="page-waiting" id="host-waiting">Stay curious...</div>
+  <script src="/members/host.js" defer></script>
+</body>
+</html>
