@@ -255,7 +255,8 @@ ok("member login is passwordless and non-enumerating",
    "If <span id=\"email-shown\"></span> is on the list" in login_html and
    '<a href="/#leave-a-note">Membership begins with a note</a>' in login_html)
 ok("first entry carries a concise, versioned member agreement",
-   'id="onboarding-page"' in login_html and 'id="agreement-form"' in login_html and
+   'id="welcome-page"' in login_html and 'id="agreement-form"' in login_html and
+   'data-welcome-step="3"' in login_html and
    'Bring your curiosity.' in login_html and
    'Curiosity is an orientation to experience that is open to discovery.' in login_html and
    'Keep people’s confidence.' in login_html and
@@ -264,13 +265,14 @@ ok("first entry carries a concise, versioned member agreement",
    'id="agreement-check" name="agreement" type="checkbox" required' in login_html and
    'I agree to these principles.' in login_html and
    'id="agreement-version" type="hidden" value="2026-09-01"' in login_html)
-ok("the required principles lead into the supplied five-part welcome",
-   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 5 and
+ok("the required principles sit inside the six-part welcome before the next Salon",
+   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 6 and
    'Curiosity</strong> connects.' in login_html and
    'The <strong>Salon</strong> is the heart of it.' in login_html and
    'guided curiosity practice' in login_html and
    'Freely <strong>offered</strong>.' in login_html and
-   "await enter(data.member, { welcome: true })" in members_after.get("members/app.js", ""))
+   "await enter(data.member, { welcomeStep: 4 })" in members_after.get("members/app.js", "") and
+   "if (!member?.agreementAccepted && welcomeStep < 3)" in members_after.get("members/app.js", ""))
 ok("member landing is Salon-first in the supplied dashboard language",
    'class="member-nav"' in login_html and 'a note from John' in login_html and
    'guided curiosity practice' in login_html and 'data-rsvp="in"' in login_html and

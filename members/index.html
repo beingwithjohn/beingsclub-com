@@ -47,46 +47,43 @@
 
   </main>
 
-  <section class="onboarding-page" id="onboarding-page" hidden>
-    <a class="back-link" href="/" id="onboarding-back">← back</a>
-    <form class="onboarding-card" id="agreement-form">
-      <span class="eyebrow">before you come in</span>
-      <h1>A few things <strong>before we begin.</strong></h1>
-      <p class="onboarding-intro">Beings Club is made by the people who participate. Here’s all we ask of you, in plain terms:</p>
-      <div class="agreement-list">
-        <p><strong>Bring your curiosity.</strong> Curiosity is an orientation to experience that is open to discovery. Bring that openness to yourself, to other people and to what might emerge.</p>
-        <p><strong>Keep people’s confidence.</strong> What someone shares in a Salon stays there. Carry your own discoveries onwards, but not another person’s story or identity without their permission.</p>
-        <p><strong>Let connection stay free.</strong> You may invite a conversation to continue beyond a Salon. Nobody owes their availability; if you cannot or do not want to meet, respond clearly and kindly.</p>
-      </div>
-      <p class="agreement-leaving">Membership continues until you choose to leave. You can leave at any time.</p>
-      <label class="agreement-check" for="agreement-check">
-        <input id="agreement-check" name="agreement" type="checkbox" required>
-        <span>I agree to these principles.</span>
-      </label>
-      <input id="agreement-version" type="hidden" value="2026-09-01">
-      <button class="primary" type="submit">enter</button>
-      <span class="status" id="agreement-status" role="status" aria-live="polite"></span>
-    </form>
-  </section>
-
   <section class="welcome-page" id="welcome-page" hidden>
     <button class="welcome-skip" id="welcome-skip" type="button">skip →</button>
-    <span class="welcome-count" id="welcome-count">1 / 5</span>
+    <span class="welcome-count" id="welcome-count">1 / 6</span>
     <div class="welcome-card">
       <article class="welcome-step" data-welcome-step="0">
         <h1>Welcome, <strong id="welcome-name">being</strong>.</h1>
-        <p>Beings Club is where curiosity connects. A few things worth knowing before you find your way around.</p>
+        <p>Beings Club is where curiosity connects.</p>
       </article>
       <article class="welcome-step" data-welcome-step="1" hidden>
         <h1><strong>Curiosity</strong> connects.</h1>
-        <p>We define curiosity as an orientation to experience that is open to discovery. Practised in this way, we create the conditions for connection—to ourselves, to each other and to what is possible.</p>
-        <small>the whole of it lives under about</small>
+        <p>At Beings Club, we define curiosity as an orientation to experience that is open to discovery. Curiosity connects us to ourselves, each other and what is possible.</p>
       </article>
       <article class="welcome-step" data-welcome-step="2" hidden>
         <h1>The <strong>Salon</strong> is the heart of it.</h1>
-        <p>Every month, beings gather to take time for ourselves and meet one another. We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts, no themes and nothing to do except stay curious.</p>
+        <p>The Salon is a monthly online space for practice and conversation. We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes—only an invitation to stay curious.</p>
       </article>
-      <article class="welcome-step" data-welcome-step="3" hidden>
+      <article class="welcome-step welcome-step--agreement" data-welcome-step="3" hidden>
+        <form class="welcome-agreement" id="agreement-form">
+          <span class="eyebrow">the principles</span>
+          <h1>A few things <strong>before we begin.</strong></h1>
+          <p class="onboarding-intro">Beings Club is made by the people who participate. Here’s all we ask of you, in plain terms:</p>
+          <div class="agreement-list">
+            <p><strong>Bring your curiosity.</strong> Curiosity is an orientation to experience that is open to discovery. Bring that openness to yourself, other people and what happens here.</p>
+            <p><strong>Keep people’s confidence.</strong> What someone shares in a Salon stays there. You can share your own experience afterwards, but not another person’s story or identity without their permission.</p>
+            <p><strong>Let connection stay free.</strong> You may invite a conversation to continue beyond a Salon. Nobody owes their availability; if you cannot or do not want to meet, respond clearly and kindly.</p>
+          </div>
+          <p class="agreement-leaving">You can leave at any time.</p>
+          <label class="agreement-check" for="agreement-check">
+            <input id="agreement-check" name="agreement" type="checkbox" required>
+            <span>I agree to these principles.</span>
+          </label>
+          <input id="agreement-version" type="hidden" value="2026-09-01">
+          <button class="secondary" type="submit">enter</button>
+          <span class="status" id="agreement-status" role="status" aria-live="polite"></span>
+        </form>
+      </article>
+      <article class="welcome-step" data-welcome-step="4" hidden>
         <h1 id="welcome-salon-heading">The next Salon will appear here when it is announced.</h1>
         <div class="welcome-facts">
           <span><small>rhythm</small>Monthly</span>
@@ -96,10 +93,10 @@
         </div>
         <small>nothing to prepare and nothing to bring</small>
       </article>
-      <article class="welcome-step" data-welcome-step="4" hidden>
+      <article class="welcome-step" data-welcome-step="5" hidden>
         <h1>Freely <strong>offered</strong>.</h1>
-        <p>Nothing is charged, now or ever, to be here. There’s a way to give if and when you want to, and skipping it changes nothing. The club is yours either way.</p>
-        <small>whenever you like, under giving</small>
+        <p>Membership is freely offered. You can give if and when you want to. Choosing not to give changes nothing about your membership.</p>
+        <small>giving is always optional</small>
       </article>
       <button class="secondary" id="welcome-next" type="button">next</button>
     </div>

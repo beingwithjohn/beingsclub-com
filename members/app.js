@@ -3,7 +3,6 @@
   const API = document.querySelector('meta[name="bc-members-api"]').content;
   const KEY = 'bc_member_session_v1';
   const loginPage = document.getElementById('login-page');
-  const onboardingPage = document.getElementById('onboarding-page');
   const welcomePage = document.getElementById('welcome-page');
   const memberApp = document.getElementById('member-app');
   const emailForm = document.getElementById('email-form');
@@ -62,25 +61,21 @@
 
   function showLogin(element) {
     memberApp.hidden = true;
-    onboardingPage.hidden = true;
     welcomePage.hidden = true;
     loginPage.hidden = false;
     [emailForm, codeForm, waiting].forEach((node) => { node.hidden = node !== element; });
-  }
-
-  function showOnboarding() {
-    loginPage.hidden = true;
-    memberApp.hidden = true;
-    welcomePage.hidden = true;
-    onboardingPage.hidden = false;
   }
 
   function renderWelcome() {
     document.querySelectorAll('[data-welcome-step]').forEach((node) => {
       node.hidden = Number(node.dataset.welcomeStep) !== welcomeStep;
     });
-    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 5`;
-    document.getElementById('welcome-next').textContent = welcomeStep === 4 ? 'enter the club' : 'next';
+    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 6`;
+    const nextButton = document.getElementById('welcome-next');
+    const skipButton = document.getElementById('welcome-skip');
+    nextButton.hidden = welcomeStep === 3;
+    nextButton.textContent = welcomeStep === 5 ? 'enter the club' : 'next';
+    skipButton.hidden = welcomeStep === 3;
     document.getElementById('welcome-name').textContent = member?.name || 'being';
     const heading = document.getElementById('welcome-salon-heading');
     heading.textContent = salon?.startsAt
@@ -88,12 +83,11 @@
       : 'The next Salon will appear here when it is announced.';
   }
 
-  function showWelcome() {
+  function showWelcome(step = 0) {
     loginPage.hidden = true;
-    onboardingPage.hidden = true;
     memberApp.hidden = true;
     welcomePage.hidden = false;
-    welcomeStep = 0;
+    welcomeStep = step;
     renderWelcome();
   }
 
@@ -518,7 +512,6 @@
 
   function showMemberApp() {
     loginPage.hidden = true;
-    onboardingPage.hidden = true;
     welcomePage.hidden = true;
     memberApp.hidden = false;
     document.getElementById('member-host-link').hidden = !member.isHost;
@@ -530,7 +523,7 @@
   async function enter(memberData, options = {}) {
     member = memberData;
     if (!member.agreementAccepted) {
-      showOnboarding();
+      showWelcome(0);
       return;
     }
     showLogin(waiting);
@@ -541,7 +534,7 @@
     salon = salonState.salon; fieldNotes = notesState; givingState = memberGiving;
     directoryState = directory; settingsState = settings;
     await new Promise((resolve) => setTimeout(resolve, 500));
-    if (options.welcome) showWelcome(); else showMemberApp();
+    if (Number.isInteger(options.welcomeStep)) showWelcome(options.welcomeStep); else showMemberApp();
   }
 
   async function setRsvp(status) {
@@ -809,7 +802,7 @@
     try {
       if (previewMode) {
         member.agreementAccepted = true; member.agreementVersion = '2026-09-01';
-        showWelcome();
+        showWelcome(4);
         return;
       }
       const data = await call('/api/club/agreement', {
@@ -819,14 +812,21 @@
           version: document.getElementById('agreement-version').value,
         }),
       });
-      await enter(data.member, { welcome: true });
+      await enter(data.member, { welcomeStep: 4 });
     } catch (_) {
       statusNode.textContent = 'Your agreement could not be saved. Nothing has changed; try again.';
     } finally { button.disabled = false; }
   });
-  document.getElementById('welcome-skip').addEventListener('click', finishWelcome);
+  document.getElementById('welcome-skip').addEventListener('click', () => {
+    if (!member?.agreementAccepted && welcomeStep < 3) {
+      welcomeStep = 3;
+      renderWelcome();
+      return;
+    }
+    finishWelcome();
+  });
   document.getElementById('welcome-next').addEventListener('click', () => {
-    if (welcomeStep >= 4) { finishWelcome(); return; }
+    if (welcomeStep >= 5) { finishWelcome(); return; }
     welcomeStep += 1;
     renderWelcome();
   });
@@ -934,7 +934,7 @@
         id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true,
         agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
       };
-      if (preview === 'onboarding') { showOnboarding(); return; }
+      if (preview === 'onboarding') { showWelcome(0); return; }
       salon = preview === 'empty' ? null : {
         id: 1,
         note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',
