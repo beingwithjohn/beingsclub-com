@@ -10,6 +10,21 @@ button{cursor:pointer}
 @keyframes stay{0%{opacity:0}30%,72%{opacity:1}100%{opacity:0}}
 
 .login-page{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#FFF}
+.onboarding-page{position:fixed;inset:0;overflow-y:auto;display:grid;place-items:center;background:#F0EEE8;padding:72px 24px}
+.onboarding-page>.back-link{position:fixed;top:26px;left:28px}
+.onboarding-card{width:min(760px,100%);display:grid;gap:24px;background:#FFF;padding:clamp(30px,6vw,64px);border:1px solid rgba(38,34,26,.12);box-shadow:0 20px 60px rgba(23,25,22,.08)}
+.onboarding-card h1{margin:0;max-width:15ch;font-size:clamp(36px,5.8vw,62px);font-weight:500;line-height:.98;letter-spacing:-.05em}
+.onboarding-card h1 strong{color:#5A4B7C;font-weight:700}
+.onboarding-intro{margin:0;max-width:48ch;font-size:18px;line-height:1.65;color:#4A473F}
+.agreement-list{display:grid;border-top:1px solid #E7E4DB}
+.agreement-list p{margin:0;padding:18px 0;font-size:14px;line-height:1.7;color:#75726A;border-bottom:1px solid #E7E4DB}
+.agreement-list strong{display:block;margin-bottom:5px;color:#171916;font-size:15px}
+.agreement-leaving{margin:0;font-size:12.5px;line-height:1.7;color:#75726A}
+.agreement-check{display:flex;align-items:flex-start;gap:11px;width:min(100%,520px);font-size:14px;line-height:1.5;color:#171916;cursor:pointer}
+.agreement-check input{flex:0 0 auto;width:17px;height:17px;margin:2px 0 0;accent-color:#5A4B7C}
+.agreement-check:focus-within{outline:2px solid rgba(90,75,124,.32);outline-offset:6px}
+.onboarding-card>.primary{justify-self:start}
+@media (max-width:42rem){.onboarding-page{place-items:start center;padding:72px 16px 28px}.onboarding-page>.back-link{left:20px}.onboarding-card{padding:28px 22px}}
 .back-link{position:absolute;top:28px;left:10%;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.14em;color:var(--soft)}
 .back-link:hover{color:var(--ink)}
 .login-card{display:grid;gap:22px;width:min(360px,86vw);animation:appear .4s cubic-bezier(.22,1,.36,1) both}
@@ -56,11 +71,13 @@ button{cursor:pointer}
 .salon-form-grid{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:26px}
 .salon-form label{display:grid;gap:5px}
 .salon-form label>span{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#75726A}
+.salon-form label>small{font-size:10.5px;line-height:1.55;color:var(--soft)}
 .salon-form input,.salon-form textarea{width:100%;font-size:13px;color:var(--ink);background:transparent;border:0;border-bottom:1px solid #DAD6CB;padding:8px 0;outline:0;border-radius:0}
 .salon-form textarea{border:1px solid #DAD6CB;padding:12px 14px;min-height:94px;resize:vertical;line-height:1.6}
 .salon-form input:focus,.salon-form textarea:focus{border-color:var(--violet)}
 .salon-form-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .salon-host-state{display:flex;gap:12px 24px;flex-wrap:wrap;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft)}
+.salon-next{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:#75726A}
 .salon-roster{display:grid}
 .salon-roster-row{display:flex;justify-content:space-between;gap:18px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
 .salon-roster-row span:last-child{color:var(--soft)}

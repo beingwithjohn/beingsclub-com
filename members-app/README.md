@@ -12,7 +12,7 @@ The private foundation and first complete member slice:
 - a host can prepare a Salon privately, with a note, London-anchored date/time
   and fallback Zoom link, then publish it to members deliberately;
 - publishing never sends an email — the announcement action remains visibly
-  separate and disabled until the rest of the members area is ready;
+  separate, becomes available only after publication and can be sent once;
 - members see the Salon in their own local time, can toggle Beings Club time,
   RSVP “in” or “not this time”, clear their response, and download a calendar
   event that points back to the private member page;
@@ -55,6 +55,9 @@ The private foundation and first complete member slice:
 - publishing a Salon and emailing its announcement are separate host actions;
   week/day reminders use the existing half-hour Worker schedule and an
   at-most-once send claim.
+- once a Salon has ended, the host can retain it as a completed gathering and
+  start a fresh draft; its RSVPs, attendance and Field Notes remain attached
+  to the completed Salon, while the next publication receives a fresh Zoom meeting.
 
 The static source is in `members-app/app/` and builds to `/members/`:
 

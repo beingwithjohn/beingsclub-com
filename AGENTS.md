@@ -4,11 +4,13 @@ Read this before changing anything. Most of it is here because something broke.
 
 ## The one rule
 
-**The six slug files are generated. Never hand-edit them.**
+**The public landing and retired route files are generated. Never hand-edit them.**
 
-`index.html`, `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/` are six copies of one
-document, produced by `build/build_shell.py` from design sources vendored in
-`build/src/*.dc.html`. Edit the generator, run it, commit
+`index.html` is the public landing. The retired `about/`, `salons/`, `join/`,
+`sits/`, `beyondbelief/` and `practice-map/` addresses are move pages produced
+by `build/build_shell.py`; the meditation routes point to Space to Be. The old
+design sources remain vendored in `build/src/*.dc.html` so the landing can
+retain the full club context. Edit the generator, run it, commit
 the result. If you edit a built file directly, the next build silently discards your work —
 and `verify.py` will fail with "built files match the generator" before that can ship.
 
@@ -25,11 +27,11 @@ exists" below.
 
 | Path | Generated? | Notes |
 |---|---|---|
-| `index.html`, `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/` | **yes** | six copies of the app shell, one per route |
-| `404.html` | no | hand-maintained, must match the shell's nav/footer |
-| `practice-map/` | no | hand-maintained standalone page |
+| `index.html` | **yes** | members-first public landing |
+| `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/`, `practice-map/` | **yes** | retired addresses with noindex move pages |
+| `404.html` | no | hand-maintained utility with the simplified public map |
 | `giving/` | no | hand-maintained public giving page; payment API lives in `practice-log/` |
-| `beyondbelief/companion/`, `.../print/` | no | hand-maintained standalone pages |
+| `beyondbelief/companion/`, `.../print/` | **yes** | move pages to the Space to Be companion |
 | `log/` | no | Practice Log prototype, not linked from the site |
 | `practice-log/` | no | a separate agent's build; `node_modules` is gitignored |
 | `build/` | — | the generator, the verifier, the deploy script |
@@ -38,12 +40,11 @@ exists" below.
 Hosting is GitHub Pages from `main` on `beingwithjohn/beingsclub-com`, CNAME
 `beingsclub.com`, HTTPS enforced. No server, no build step on the host, no secrets in the repo.
 
-## How the app shell works
+## How the public shell works
 
-All six screens are inlined into every page as `.bc-layer` divs. Exactly one carries
-`data-active="1"`; navigation crossfades between them and pushes real paths via the History
-API. Each of the six files is generated with its own `<title>`, description, canonical and
-`og:url`, so deep links and social previews are correct even though the markup is shared.
+The historical six screens remain inlined into `index.html` as `.bc-layer` divs so the landing
+retains its complete source material and design history. Only the home layer is active and the
+others are `data-nosnippet`. Old paths are generated move pages, not alternative public maps.
 
 Consequences worth knowing:
 - A change to any screen lands in **all six files**. That is why you regenerate rather than edit.
@@ -95,9 +96,8 @@ someone is looking. That is intended.
 
 ## Standalone pages
 
-`404.html`, `practice-map/` and `giving/` are hand-maintained but must wear the same header and footer
-as the shell, byte for byte — `verify.py` compares them. If you change the shell's nav or
-footer in the generator, run the build and copy the new markup into both, or the build fails.
+`404.html` and `giving/` are hand-maintained utilities. Their public map is deliberately only
+Home and Members; `verify.py` enforces that they do not recreate the retired public navigation.
 
 They also need `data-navmark="1"` on the logo span and `<script src="/assets/navmark.js" defer>`,
 which gives the wordmark the same stroke-weight hover the shell has.
@@ -118,42 +118,41 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
   "Curiosity connects" and "Stay curious".
 - "realise things of value" is John's chosen conceptual phrase. Its current public form is
   "things of value can be realised in reality"; keep the realisation wordplay.
-- Never promise a headcount for Beyond Belief — "ten people max", "a group of other people".
-- The Sits CTA points at `/beyondbelief`, never straight to Luma.
+- Beyond Belief now belongs to Space to Be. Beings Club's former course, companion,
+  practice-map and Sits addresses are compatibility redirects; do not restore their offers here.
 
 ## Search discovery invariants
 
-- Every generated route owns its title, description, canonical URL, social card and JSON-LD
-  graph even though the visual shell is shared. Keep inactive layers `data-nosnippet`.
+- The landing owns its title, description, canonical URL, social card and JSON-LD graph.
+  Keep its inactive historical layers `data-nosnippet`; compatibility routes stay noindex.
 - The public Search Console URL-prefix property is verified by the
   `google-site-verification` marker emitted by `build/build_shell.py`; do not remove it.
-- John is identified publicly as `John`, matching the visible About copy. Do not add a surname
+- John is identified publicly as `John`, matching the visible membership copy. Do not add a surname
   or external identity links to `Person` structured data without John's explicit approval.
-- Salons and Sits are `Service` entities. Beyond Belief is a `Course` with one dated
-  `CourseInstance`; update its structured dates whenever the visible course dates move.
-- Keep `sitemap.xml` complete and give each URL an honest `lastmod` only after a significant
-  content, structured-data or linking change.
+- The landing owns the public `WebSite`, `Organization`, `Person` and `WebPage` graph.
+  Beyond Belief's `Course` data now lives at Space to Be.
+- `sitemap.xml` lists public canonical pages, not noindex member utilities or compatibility
+  redirects. Give each listed URL an honest `lastmod` only after a significant change.
 - `build/deploy.sh` notifies IndexNow only after live verification. Keep the public key file
   and `build/notify_indexnow.py` together; notification failure is a warning, never a reason
   to misreport a healthy deployment as failed.
 
 ## Open threads
 
-- **The practice map wants restructuring.** A reader's feedback: the document calls itself a
+- **The Space to Be practice map wants restructuring.** A reader's feedback: the document calls itself a
   map and behaves like an essay — a linear scroll where the relationships between
   body/heart/mind × cultivate/rest/reveals are never shown as relationships. The proposal
   John was considering: put an actual grid near the top, move the "if overwhelmed / if angry
-  / if scattered" entry points up with it, cut nothing. Applies to `practice-map/`,
-  `beyondbelief/companion/` and the Space to Be copy.
-- **Beyond Belief's day has moved twice.** It is currently **Tuesdays from 15 September 2026**.
-  Note that the weekday and the dates are coupled: 16 September 2026 was a Wednesday, so any
-  change of day re-derives all six meeting dates, the 35-day range and the advertised run.
-  The dates live in the `key == 'beyondbelief'` block of the generator, in the `sits` block,
-  and in both companions (hand-maintained).
+  / if scattered" entry points up with it, cut nothing. Work on the canonical files in the
+  Space to Be repo, not these redirects.
+- **Beyond Belief's canonical dates and course data now live in Space to Be.** Keep the
+  compatibility redirects here stable; update the Space to Be page, structured data,
+  companion and sitemap together when a run changes.
 - **The Practice Log** is one public evergreen tool. Courses grant the private line to John
   for a date window; they do not need separate runs. Stripe's one-off and monthly paths are
   built; the account secrets, webhook events and customer portal still need connecting. The
-  other operational work is a D1 backup habit and tightening DMARC after aligned delivery.
+  production D1 databases have Time Travel active; verify a current bookmark before migrations.
+  Tightening DMARC waits until aligned delivery has been observed.
 - **The 82MB blob in git history** (see #4).
 
 ## Security constraints John has set

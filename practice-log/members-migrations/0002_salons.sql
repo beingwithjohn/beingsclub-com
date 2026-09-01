@@ -1,5 +1,5 @@
 -- A Salon is drafted privately, then deliberately published to members.
--- Announcement email is a separate action and is intentionally not wired yet.
+-- Announcement email is a separate, deliberate action after publication.
 
 CREATE TABLE salon (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

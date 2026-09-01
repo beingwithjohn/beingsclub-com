@@ -12,9 +12,19 @@ import io, os, re, sys, json, subprocess, tempfile, urllib.request
 
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGIN = "https://beingsclub.com"
-PAGES  = ["index.html", "about/index.html", "salons/index.html",
-          "sits/index.html", "beyondbelief/index.html", "join/index.html"]
-ROUTES = ["/", "/about/", "/salons/", "/sits/", "/beyondbelief/", "/join/"]
+PAGES = ["index.html"]
+REDIRECT_PAGES = {
+    "about/index.html": "https://beingsclub.com/#about",
+    "salons/index.html": "https://beingsclub.com/#salon",
+    "join/index.html": "https://beingsclub.com/#membership",
+    "sits/index.html": "https://spacetobe.xyz/beyond-belief/",
+    "beyondbelief/index.html": "https://spacetobe.xyz/beyond-belief/",
+    "beyondbelief/companion/index.html": "https://spacetobe.xyz/beyond-belief/companion/",
+    "beyondbelief/companion/print/index.html": "https://spacetobe.xyz/beyond-belief/companion/print/",
+    "practice-map/index.html": "https://spacetobe.xyz/practice-map/",
+}
+GENERATED_PAGES = PAGES + list(REDIRECT_PAGES)
+ROUTES = ["/"]
 
 fails, checks = [], 0
 
@@ -77,14 +87,7 @@ def audit(html, label):
         structured_ok = False
     ok(label + ": structured data parses", structured_ok)
     node_types = {node.get('@type') for node in graph if isinstance(node, dict)}
-    expected_types = {
-        'index.html': {'WebSite', 'Organization', 'Person', 'WebPage'},
-        'about/index.html': {'AboutPage', 'Person'},
-        'salons/index.html': {'WebPage', 'Service'},
-        'sits/index.html': {'WebPage', 'Service'},
-        'beyondbelief/index.html': {'WebPage', 'Person', 'Course'},
-        'join/index.html': {'ContactPage'},
-    }
+    expected_types = {'index.html': {'WebSite', 'Organization', 'Person', 'WebPage'}}
     ok(label + ": structured data names the page's real entities",
        expected_types.get(label, set()).issubset(node_types),
        "found: " + ", ".join(sorted(t for t in node_types if isinstance(t, str))))
@@ -173,13 +176,21 @@ for p in PAGES:
     audit(io.open(path, encoding="utf-8").read(), p)
 
 # the slug copies are generated; they must not have been hand-edited
-before = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in PAGES if os.path.exists(os.path.join(ROOT, p))}
+before = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in GENERATED_PAGES if os.path.exists(os.path.join(ROOT, p))}
 r = subprocess.run([sys.executable, os.path.join(ROOT, "build", "build_shell.py")],
                    capture_output=True, text=True, cwd=ROOT)
 ok("generator runs clean", r.returncode == 0, r.stderr.strip()[-200:])
 after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in before}
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
+
+for path, destination in REDIRECT_PAGES.items():
+    html = after.get(path, "")
+    ok(path + ": preserves the retired address with a safe move",
+       '<meta name="robots" content="noindex,follow">' in html and
+       ('<link rel="canonical" href="' + destination + '">') in html and
+       'location.replace(' in html and
+       ('href="' + destination + '"') in html)
 
 # The members area is intentionally absent from the public sitemap, but its
 # static client still needs the same generated-source and parse guarantees.
@@ -213,9 +224,20 @@ host_html = members_after.get("members/host/index.html", "")
 ok("private host page keeps the supplied Host tools design",
    "Host <strong>tools</strong>." in host_html and "the list" in host_html and
    "Only hosts see this page" in host_html and "add to the list" in host_html)
+ok("the host list distinguishes quiet access from an invitation",
+   "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", ""))
 ok("host controls keep drafting, publishing and email as separate actions",
    'id="salon-form"' in host_html and 'id="publish-salon"' in host_html and
-   'type="button" disabled>email announcement</button>' in host_html)
+   'type="button" disabled>email announcement</button>' in host_html and
+   "publishSalon.disabled = currentSalon?.status === 'published'" in members_after.get("members/host.js", ""))
+ok("host publishing offers automatic Zoom creation with a manual fallback",
+   'Zoom join link · optional fallback' in host_html and
+   'Leave this blank for a fresh Zoom meeting' in host_html and
+   'id="salon-zoom-url" type="url" inputmode="url"' in host_html and
+   'id="salon-zoom-url" type="url" inputmode="url" placeholder="Created automatically when you publish" required' not in host_html)
+ok("host can retain a completed Salon and start the next one",
+   'id="salon-next"' in host_html and 'id="start-next-salon"' in host_html and
+   'The gathering is kept with its RSVPs and Field Notes.' in host_html)
 ok("host can open attendee-only Field Note invitations and moderate the archive",
    'id="attendance-list"' in host_html and 'id="open-field-note-invitations"' in host_html and
    'id="host-field-note-archive"' in host_html and
@@ -227,6 +249,16 @@ login_html = members_after.get("members/index.html", "")
 ok("member login is passwordless and non-enumerating",
    'autocomplete="one-time-code"' in login_html and 'type="password"' not in login_html and
    "If <span id=\"email-shown\"></span> is on the list" in login_html)
+ok("first entry carries a concise, versioned member agreement",
+   'id="onboarding-page"' in login_html and 'id="agreement-form"' in login_html and
+   'Bring your curiosity.' in login_html and
+   'Curiosity is an orientation to experience that is open to discovery.' in login_html and
+   'Keep people’s confidence.' in login_html and
+   'Let connection stay free.' in login_html and
+   'You can leave at any time.' in login_html and
+   'id="agreement-check" name="agreement" type="checkbox" required' in login_html and
+   'I agree to these principles.' in login_html and
+   'id="agreement-version" type="hidden" value="2026-09-01"' in login_html)
 ok("member landing is Salon-first in the supplied dashboard language",
    'class="member-nav"' in login_html and 'a note from John' in login_html and
    'guided curiosity practice' in login_html and 'data-rsvp="in"' in login_html and
@@ -286,6 +318,19 @@ settings_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "settin
                        encoding="utf-8").read()
 mailer_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "mailer.js"),
                      encoding="utf-8").read()
+zoom_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "zoom.js"),
+                   encoding="utf-8").read()
+agreement_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "agreement.js"),
+                        encoding="utf-8").read()
+club_router = io.open(os.path.join(ROOT, "practice-log", "src", "club", "index.js"),
+                      encoding="utf-8").read()
+salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
+                     encoding="utf-8").read()
+ok("removing somebody revokes access and removes future gathering state",
+   "DELETE FROM salon_rsvp WHERE member_id" in club_router and
+   "DELETE FROM salon_attendance WHERE member_id" in club_router and
+   'active_member.disabled_at IS NULL' in salons_api and
+   'active_member.left_at IS NULL' in salons_api)
 ok("Club email settings do not silence requested access codes",
    'sendClubCode' not in settings_api and 'salonAnnounced: true' in settings_api and
    'fieldNotes: true' in settings_api)
@@ -297,11 +342,27 @@ ok("leaving revokes access and honours each Field Note archive choice",
 ok("Salon announcement and reminder mail is member-controlled and at-most-once",
    'club_send_log' in mailer_api and "COALESCE(p.quiet, 0) = 0" in mailer_api and
    'salon_announced' in mailer_api and 'salon_week' in mailer_api and 'salon_day' in mailer_api)
+ok("Salon publishing creates a locked-down Zoom meeting without storing the host URL",
+   'account_credentials' in zoom_api and "method: 'POST'" in zoom_api and
+   'mute_upon_entry: true' in zoom_api and 'waiting_room: true' in zoom_api and
+   'join_before_host: false' in zoom_api and "auto_recording: 'none'" in zoom_api and
+   'data?.start_url' not in zoom_api)
+ok("completed Salons are retained before a fresh draft and Zoom meeting",
+   "path === '/api/club/host/salon/close'" in club_router and
+   "status = 'closed'" in salons_api and 'hasEnded: salonHasEnded' in salons_api and
+   "status IN ('draft', 'published')" in salons_api)
+ok("the member agreement gates every private surface server-side",
+   "MEMBER_AGREEMENT_VERSION = '2026-09-01'" in agreement_api and
+   "path === '/api/club/agreement'" in club_router and
+   "if (!agreementAccepted(who)) return bad(403, 'agreement required')" in club_router and
+   club_router.index("path === '/api/club/agreement'") <
+   club_router.index("if (!agreementAccepted(who))") <
+   club_router.index("path === '/api/club/salon'"))
 ok("public Salons use the complete practice-and-conversation framing",
-   'A monthly online gathering and guided curiosity practice. A space for practice and conversation' in
-   members_after.get("members/index.html", "") or
-   'A monthly online gathering and guided curiosity practice. A space for practice and conversation' in
-   io.open(os.path.join(ROOT, "salons", "index.html"), encoding="utf-8").read())
+   'starts with a guided curiosity practice' in
+   io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read() and
+   'a space for practice and conversation' in
+   io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read())
 
 robots_path = os.path.join(ROOT, "robots.txt")
 sitemap_path = os.path.join(ROOT, "sitemap.xml")
@@ -328,28 +389,18 @@ ok("IndexNow notifier parses and uses the public key",
 deploy_source = io.open(os.path.join(ROOT, "build", "deploy.sh"), encoding="utf-8").read()
 ok("verified deploys notify participating search engines",
    'python3 build/notify_indexnow.py "${HEAD_SHA}^" "$HEAD_SHA"' in deploy_source)
-public_urls = {ORIGIN + route for route in ROUTES + ["/practice-map/", "/giving/", "/beyondbelief/companion/"]}
+public_urls = {ORIGIN + route for route in ROUTES}
 listed_urls = set(re.findall(r"<loc>(https://[^<]+)</loc>", sitemap))
 ok("sitemap lists every public canonical page", listed_urls == public_urls,
    "missing or extra: " + ", ".join(sorted(public_urls ^ listed_urls)))
 dated_urls = dict(re.findall(r"<url><loc>(https://[^<]+)</loc><lastmod>(\d{4}-\d{2}-\d{2})</lastmod></url>", sitemap))
 ok("sitemap gives every public page an accurate freshness signal",
-   set(dated_urls) == public_urls and all(date <= '2026-08-25' for date in dated_urls.values()))
+   set(dated_urls) == public_urls and all(date <= '2026-09-01' for date in dated_urls.values()))
 for archive in ["archive-refined.html", "archive-v4-dark-plates.html"]:
     archive_html = io.open(os.path.join(ROOT, archive), encoding="utf-8").read()
     ok(archive + ": excluded from search", '<meta name="robots" content="noindex,follow">' in archive_html)
-companion = io.open(os.path.join(ROOT, "beyondbelief/companion/index.html"), encoding="utf-8").read()
-companion_print = io.open(os.path.join(ROOT, "beyondbelief/companion/print/index.html"), encoding="utf-8").read()
-ok("Beyond Belief companion has a canonical URL",
-   '<link rel="canonical" href="https://beingsclub.com/beyondbelief/companion/">' in companion)
-ok("Beyond Belief print view consolidates into its companion",
-   '<meta name="robots" content="noindex,follow">' in companion_print and
-   '<link rel="canonical" href="https://beingsclub.com/beyondbelief/companion/">' in companion_print)
-
-# Pages outside the app shell (404, the Practice Map, Giving) wear the same header and
-# footer. They are hand-maintained, so nothing but this check keeps them in step. Their
-# complete nav has no current-page mark because none represents one of the four main doors.
-STANDALONE = ["404.html", "practice-map/index.html", "giving/index.html"]
+# The only hand-maintained public utilities keep the simplified Home / Members map.
+STANDALONE = ["404.html", "giving/index.html"]
 
 def chrome(html, tag):
     m = re.search(r"(?s)<%s.*?</%s>" % (tag, tag), html)
@@ -358,7 +409,6 @@ def chrome(html, tag):
 def nav_chrome(html):
     return re.sub(r' aria-current="[^"]+"', '', chrome(html, "nav"))
 
-shell = io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
 navjs = os.path.join(ROOT, "assets", "navmark.js")
 good, err = js_parses(io.open(navjs, encoding="utf-8").read()) if os.path.exists(navjs) else (False, "missing")
 ok("assets/navmark.js parses", good, err)
@@ -368,15 +418,17 @@ for p in STANDALONE:
     if not os.path.exists(path):
         ok(p + ": exists", False); continue
     html = io.open(path, encoding="utf-8").read()
-    ok(p + ": header matches the shell", nav_chrome(html) == nav_chrome(shell))
-    ok(p + ": footer matches the shell", chrome(html, "footer") == chrome(shell, "footer"))
+    ok(p + ": header keeps the simplified public map",
+       'href="/">Home</a>' in html and 'href="/members/">' in html and
+       all(('href="%s"' % route) not in nav_chrome(html)
+           for route in ('/about/', '/salons/', '/sits/', '/join/')))
     ok(p + ": wordmark hover wired up",
        'data-navmark' in html and '/assets/navmark.js' in html)
     ok(p + ": no relative asset paths",
        'url(\'assets/' not in html and 'src="assets/' not in html)
     if p != "404.html":
-        ok(p + ": index previews are open",
-           '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">' in html)
+        ok(p + ": member utility is kept out of public search",
+           '<meta name="robots" content="noindex,follow">' in html)
         structured = re.search(r'(?s)<script type="application/ld\+json">(.*?)</script>', html)
         try:
             structured_ok = bool(structured) and json.loads(structured.group(1)).get('@context') == 'https://schema.org'

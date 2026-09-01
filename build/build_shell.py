@@ -34,7 +34,21 @@ SCREENS = [
 BY_FILE = {f: (k, slug) for k, f, slug, _, _ in SCREENS}
 ORIGIN  = "https://beingsclub.com"
 GOOGLE_SITE_VERIFICATION = "R9A-mzN2zV4y6kUaLWKVq6W0wVo7KhnF9uYZFrnF-60"
-JOHN_ID = ORIGIN + "/about/#john"
+JOHN_ID = ORIGIN + "/#john"
+
+# The public club now lives on one members-first landing page. Keep the old
+# addresses useful for bookmarks and search results, but consolidate Beings
+# Club context into the landing and move meditation teaching to Space to Be.
+REDIRECTS = {
+    "/about/": (ORIGIN + "/#about", "Beings Club"),
+    "/salons/": (ORIGIN + "/#salon", "Beings Club Salons"),
+    "/join/": (ORIGIN + "/#membership", "Become a Beings Club member"),
+    "/sits/": ("https://spacetobe.xyz/beyond-belief/", "Beyond Belief · Space to Be"),
+    "/beyondbelief/": ("https://spacetobe.xyz/beyond-belief/", "Beyond Belief · Space to Be"),
+    "/beyondbelief/companion/": ("https://spacetobe.xyz/beyond-belief/companion/", "Beyond Belief companion · Space to Be"),
+    "/beyondbelief/companion/print/": ("https://spacetobe.xyz/beyond-belief/companion/print/", "Beyond Belief print companion · Space to Be"),
+    "/practice-map/": ("https://spacetobe.xyz/practice-map/", "Practice map · Space to Be"),
+}
 
 hover_rules, hover_seen = [], {}
 
@@ -103,9 +117,33 @@ def convert(body, key):
              'required to adopt any beliefs to practice.',
              'The guided curiosity practice is accessible at every level and you are not required to adopt '
              'any beliefs.', 'Salon answer'),
+            ('The things worth caring about make themselves known.',
+             'What is important reveals itself.', 'what matters line'),
+            ('Membership is free and offered after an introductory conversation and a mutual yes.',
+             'Membership begins with a conversation with John and a mutual sense of fit. It is free and '
+             'ongoing until you choose to leave.', 'membership answer'),
+            ('Monthly salons are online. In-person events happen more rarely.',
+             'Salons are online. Occasional in-person gatherings may be announced separately.',
+             'in-person answer'),
         ]:
             assert old in body, 'Home %s not found' % what
             body = body.replace(old, new, 1)
+
+        helper = ('Membership is free and is offered only after conversation and a mutual yes — '
+                  'leave a note, and someone will write back.')
+        assert body.count(helper) == 4, 'Home membership helper count changed'
+        body = body.replace(helper,
+                            'Membership is free and begins with a conversation and a mutual yes — '
+                            'John will write back.')
+
+        # Stable anchors let old public URLs arrive at the relevant part of the
+        # single landing page without recreating a public programme map.
+        body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>',
+                            '<span id="about" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>', 1)
+        body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>',
+                            '<span id="salon" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>', 1)
+        body = body.replace('<div style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>',
+                            '<div id="membership" style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>', 1)
 
     if key == 'join':
         door_heading = '<span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>'
@@ -1294,8 +1332,8 @@ def page(key, slug, title, desc):
     }
     person = {
         '@type': 'Person', '@id': JOHN_ID, 'name': 'John',
-        'url': ORIGIN + '/about/', 'jobTitle': 'Host and meditation teacher',
-        'description': 'John hosts Beings Club Salons and teaches its Sits.',
+        'url': ORIGIN + '/#john', 'jobTitle': 'Host',
+        'description': 'John hosts Beings Club and its monthly online Salons.',
         'worksFor': organization_ref,
     }
     graph = [webpage]
@@ -1405,11 +1443,43 @@ def page(key, slug, title, desc):
     return ('<!DOCTYPE html>\n<html lang="en" data-screen="%s">\n<head>\n%s\n<style>%s</style>\n</head>\n<body>\n%s\n<script>%s</script>\n</body>\n</html>\n'
             % (key, head, CSS, body, JS))
 
+def redirect_page(destination, label):
+    """A static-host-safe move page with one canonical destination."""
+    esc = lambda s: (s.replace('&', '&amp;').replace('"', '&quot;')
+                      .replace('<', '&lt;').replace('>', '&gt;'))
+    destination_attr = esc(destination)
+    label_text = esc(label)
+    return '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{label}</title>
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="{destination}">
+<meta http-equiv="refresh" content="0; url={destination}">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<script>location.replace({destination_json});</script>
+</head>
+<body>
+<main><p>This page has moved to <a href="{destination}">{label}</a>.</p></main>
+</body>
+</html>
+'''.format(label=label_text, destination=destination_attr,
+           destination_json=json.dumps(destination))
+
 written = []
 for key, _, slug, title, desc in SCREENS:
     out = os.path.join(SITE, 'index.html' if slug == '/' else slug.strip('/') + '/index.html')
     os.makedirs(os.path.dirname(out), exist_ok=True)
     html = page(key, slug, title, desc)
+    io.open(out, 'w', encoding='utf-8').write(html)
+    written.append((slug, out, len(html)))
+
+for slug, (destination, label) in REDIRECTS.items():
+    out = os.path.join(SITE, slug.strip('/') + '/index.html')
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    html = redirect_page(destination, label)
     io.open(out, 'w', encoding='utf-8').write(html)
     written.append((slug, out, len(html)))
 

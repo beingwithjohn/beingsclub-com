@@ -602,10 +602,9 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   'the page does not offer exactly GBP and USD, with pounds selected first');
   ok(/This work is freely given/.test(giving) && /Giving nothing creates no debt/.test(giving),
     'the page does not preserve the Dana freedom test');
-  ok(/offers Salons, Sits and the [^<]*<a[^>]+>Practice Log<\/a>/.test(giving) &&
-    !/offers practices, gatherings/.test(giving), 'the giving page does not use the site’s own language');
-  ok(/href="\/log\/"[^>]*>Practice Log<\/a>/.test(giving),
-    'the giving page does not introduce first-time visitors to the Practice Log');
+  ok(/offers its monthly Salons and shared member space/.test(giving) &&
+    !/offers Salons, Sits|offers practices, gatherings/.test(giving),
+    'the giving page does not match the members-first architecture');
   ok(/More support may let Beings Club do more/.test(giving) &&
     /does not buy the giver more access, attention or standing/.test(giving),
   'the page is not honest about capacity while separating gifts from privilege');
@@ -629,7 +628,7 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   ok(/giving_subscription/.test(givingMigration) && !/REFERENCES person/.test(givingMigration) &&
     /lower\(email\) = lower\(\?1\)/.test(givingApi),
   'monthly management either cannot match the giver or attaches giving to a Practice Log person');
-  return 'standalone /giving/; one-off first; GBP or USD; Stripe management from Settings';
+  return 'member-linked /giving/; one-off first; GBP or USD; Stripe management from Settings';
 });
 
 check(23, 'deleting a Practice Log erases identity and presence', () => {

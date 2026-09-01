@@ -91,6 +91,18 @@ Paste the printed `database_id` into `wrangler.toml`. It is not a secret.
 npm run db:remote      # applies every unapplied migration, in order
 ```
 
+Membership has its own migration stream and release command:
+
+```bash
+npm run db:members:local
+npm run db:members:remote
+```
+
+Both production databases use D1 Time Travel. Confirm it before every schema
+release with `npx wrangler d1 time-travel info DATABASE_NAME`; this gives a
+point-in-time bookmark without exposing member data. Never run a restore as a
+routine deploy step — it overwrites the production database.
+
 Recordings use a private R2 bucket. It has no public address; the Worker reads
 an object only after checking the person's Practice Log link.
 
@@ -116,6 +128,28 @@ shell when running `seed/seed.js`.
 ```bash
 npm run deploy
 ```
+
+Salon publication can create its own fresh Zoom meeting. Create and activate a
+Zoom **Server-to-Server OAuth** app owned by the account that hosts the Salons,
+grant only the granular `meeting:write:meeting:admin` scope (or the classic
+`meeting:write:admin` scope on an older app), then set these Worker secrets:
+
+```bash
+npx wrangler secret put ZOOM_ACCOUNT_ID
+npx wrangler secret put ZOOM_CLIENT_ID
+npx wrangler secret put ZOOM_CLIENT_SECRET
+```
+
+`ZOOM_HOST_USER_ID` is the host email and remains a non-secret value in
+`wrangler.toml`. Publishing requests `POST /users/{userId}/meetings`, stores the
+participant `join_url` and meeting ID, and deliberately discards Zoom's
+short-lived host `start_url`. Meetings use a waiting room, muted entry, no
+automatic recording and no join-before-host. A manual Zoom link remains the
+fallback when automatic creation is unavailable.
+
+The host API reports whether all four Zoom values are present. Until then the
+host page accurately requires a manual Zoom link; it does not present automatic
+creation as available merely because the code has shipped.
 
 Note the origin it prints. If it is not
 `https://practice-log.beingsclub.workers.dev`, rebuild the app against it:

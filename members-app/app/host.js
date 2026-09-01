@@ -10,9 +10,13 @@
   const salonForm = document.getElementById('salon-form');
   const salonStatus = document.getElementById('salon-status');
   const publishSalon = document.getElementById('publish-salon');
+  const saveSalonButton = document.getElementById('save-salon');
+  const salonNext = document.getElementById('salon-next');
+  const startNextSalon = document.getElementById('start-next-salon');
   const emailAnnouncement = document.getElementById('email-announcement');
   let pendingRemove = null;
   let currentSalon = null;
+  let autoZoom = false;
   let previewMode = false;
   let fieldNoteHostState = { salon: null, candidates: [], groups: [] };
   const imageObjectUrls = new Set();
@@ -55,7 +59,7 @@
       if (member.name) identity.append(text('span', 'member-name', member.name));
       const actions = document.createElement('div'); actions.className = 'member-actions';
       const state = member.isHost ? 'host' : member.status;
-      actions.append(text('span', `member-status ${state}`, state));
+      actions.append(text('span', `member-status ${state}`, state === 'on_list' ? 'on list' : state));
       if (member.canRemove) {
         if (pendingRemove === member.id) {
           const keep = text('button', 'confirm-button', 'keep'); keep.type = 'button';
@@ -111,16 +115,26 @@
 
   function renderSalon(data) {
     currentSalon = data.salon;
+    autoZoom = !!data.capabilities?.autoZoom;
     const rsvps = data.rsvps || [];
     const state = document.getElementById('salon-state');
     const summary = document.getElementById('salon-rsvp-summary');
     const roster = document.getElementById('salon-roster');
+    const zoomInput = document.getElementById('salon-zoom-url');
+    document.getElementById('salon-zoom-label').textContent = autoZoom
+      ? 'Zoom join link · optional fallback' : 'Zoom join link';
+    document.getElementById('salon-zoom-help').textContent = autoZoom
+      ? 'Leave this blank for a fresh Zoom meeting. Paste a secure Zoom link only when you need the fallback.'
+      : 'Automatic creation is not connected yet, so add a secure Zoom link before publishing.';
+    zoomInput.placeholder = autoZoom ? 'Created automatically when you publish' : 'https://…';
     roster.replaceChildren();
 
     if (!currentSalon) {
       salonForm.reset(); document.getElementById('salon-id').value = '';
+      salonForm.querySelectorAll('input:not([type="hidden"]),textarea').forEach((field) => { field.disabled = false; });
       state.textContent = 'No Salon is being prepared.'; summary.textContent = '';
       publishSalon.textContent = 'publish to members';
+      publishSalon.disabled = false; saveSalonButton.disabled = false; salonNext.hidden = true;
       emailAnnouncement.disabled = true; emailAnnouncement.textContent = 'email announcement';
       document.getElementById('announcement-copy').textContent = 'Publish the Salon before announcing it.';
       return;
@@ -131,13 +145,23 @@
     document.getElementById('salon-date').value = local.date;
     document.getElementById('salon-start-time').value = local.time;
     document.getElementById('salon-host-note').value = currentSalon.note || '';
-    document.getElementById('salon-zoom-url').value = currentSalon.zoomUrl || '';
-    state.textContent = currentSalon.status === 'published'
-      ? 'Published to members.' : 'Saved privately as a draft.';
-    publishSalon.textContent = currentSalon.status === 'published' ? 'published' : 'publish to members';
-    emailAnnouncement.disabled = currentSalon.status !== 'published' || !!currentSalon.announcementSentAt;
+    zoomInput.value = currentSalon.zoomUrl || '';
+    salonForm.querySelectorAll('input:not([type="hidden"]),textarea').forEach((field) => { field.disabled = !!currentSalon.hasEnded; });
+    state.textContent = currentSalon.hasEnded
+      ? 'This Salon has ended.'
+      : currentSalon.status === 'published'
+      ? `Published to members.${currentSalon.zoomManaged ? ' Fresh Zoom meeting created.' : ''}`
+      : 'Saved privately as a draft.';
+    publishSalon.textContent = currentSalon.hasEnded
+      ? 'Salon ended' : currentSalon.status === 'published' ? 'published' : 'publish to members';
+    publishSalon.disabled = currentSalon.status === 'published';
+    saveSalonButton.disabled = !!currentSalon.hasEnded;
+    salonNext.hidden = !currentSalon.hasEnded;
+    emailAnnouncement.disabled = !!currentSalon.hasEnded || currentSalon.status !== 'published' || !!currentSalon.announcementSentAt;
     emailAnnouncement.textContent = currentSalon.announcementSentAt ? 'announcement sent' : 'email announcement';
-    document.getElementById('announcement-copy').textContent = currentSalon.announcementSentAt
+    document.getElementById('announcement-copy').textContent = currentSalon.hasEnded
+      ? 'This Salon has ended. Its gathering remains here and in Field Notes.'
+      : currentSalon.announcementSentAt
       ? 'Sent once. Week and day reminders follow each member’s settings.'
       : currentSalon.status === 'published'
         ? 'Separate from publishing. Sends once only to members who chose announcement email.'
@@ -337,9 +361,32 @@
       const data = await call('/api/club/host/salon/publish', {
         method: 'POST', body: JSON.stringify({ id: saved.id }),
       });
-      renderSalon(data); salonStatus.textContent = 'Published to members. No email has been sent.';
+      renderSalon(data);
+      salonStatus.textContent = data.salon?.zoomManaged
+        ? 'Fresh Zoom meeting created and published to members. No email has been sent.'
+        : 'Published to members with the fallback Zoom link. No email has been sent.';
     } catch (error) { salonStatus.textContent = error.message || 'The Salon could not be published.'; }
-    finally { publishSalon.disabled = false; }
+    finally { publishSalon.disabled = currentSalon?.status === 'published'; }
+  });
+
+  startNextSalon.addEventListener('click', async () => {
+    if (!currentSalon?.hasEnded) return;
+    salonStatus.textContent = ''; startNextSalon.disabled = true;
+    try {
+      if (previewMode) {
+        renderSalon({ salon: null, rsvps: [], capabilities: { autoZoom } });
+      } else {
+        renderSalon(await call('/api/club/host/salon/close', {
+          method: 'POST', body: JSON.stringify({ id: currentSalon.id }),
+        }));
+        await loadFieldNoteHost();
+      }
+      salonStatus.textContent = 'The completed Salon is kept. You can prepare the next one.';
+      document.getElementById('salon-date').focus();
+    } catch (error) {
+      salonStatus.textContent = error.message === 'Salon has not ended'
+        ? 'The current Salon has not ended yet.' : 'The next Salon could not be started. Nothing has changed.';
+    } finally { startNextSalon.disabled = false; }
   });
 
   emailAnnouncement.addEventListener('click', async () => {
@@ -409,12 +456,14 @@
       updateClock();
       render([{ id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canRemove: false }]);
       renderSalon({
+        capabilities: { autoZoom: true },
         salon: {
           id: 1,
           note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',
           startsAt: '2026-09-30T18:00:00.000Z', timezone: 'Europe/London',
-          durationMinutes: 90, zoomUrl: 'https://zoom.us/j/123456789',
+          durationMinutes: 90, zoomUrl: null, zoomManaged: false,
           status: 'draft', announcementSentAt: null, rsvpCount: 3,
+          hasEnded: false,
         },
         rsvps: [
           { name: 'Mira', email: 'mira@example.com', status: 'in' },
@@ -447,6 +496,7 @@
     try {
       const data = await call('/api/club/session');
       if (!data.member.isHost) { location.replace('/members/'); return; }
+      if (!data.member.agreementAccepted) { location.replace('/members/?onboarding=1'); return; }
       updateClock(); setInterval(updateClock, 30000);
       await Promise.all([loadMembers(), loadSalon(), loadFieldNoteHost(), loadTestimonialQueue()]);
       waiting.hidden = true; shell.hidden = false;

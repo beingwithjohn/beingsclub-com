@@ -28,12 +28,11 @@ migrations_dir = "members-migrations"
 binding = "AUDIO"
 bucket_name = "practice-log-audio"
 
-# Private member images will use an R2 bucket once R2 is enabled on the
-# Cloudflare account. Until then, image endpoints fail closed with 503 while
-# profiles, text/link Field Notes and every other member feature remain live.
-# [[r2_buckets]]
-# binding = "MEMBER_MEDIA"
-# bucket_name = "beings-club-member-media"
+# Private member profile and Field Note images. The bucket has no public
+# domain; images are returned only through authenticated member requests.
+[[r2_buckets]]
+binding = "MEMBER_MEDIA"
+bucket_name = "beings-club-member-media"
 
 [vars]
 # The app's own origin. The API only accepts browser calls from here.
@@ -48,6 +47,7 @@ GIVING_URL = "https://beingsclub.com/giving/"
 MAIL_FROM = "Beings Club <practice@beingsclub.com>"
 MAIL_FROM_HOST = "John Ooi <practice@beingsclub.com>"
 MAIL_REPLY_TO = "john@spacetobe.xyz"
+ZOOM_HOST_USER_ID = "john@spacetobe.xyz"
 
 # Secrets — set with `wrangler secret put`, never written here:
 #   RESEND_API_KEY   the Resend key
@@ -57,3 +57,6 @@ MAIL_REPLY_TO = "john@spacetobe.xyz"
 #   STRIPE_SECRET_KEY      optional. Without it the giving page says so
 #                          politely and nothing else changes.
 #   STRIPE_WEBHOOK_SECRET  from the Stripe dashboard, for /api/stripe/webhook
+#   ZOOM_ACCOUNT_ID        Server-to-Server OAuth app account ID
+#   ZOOM_CLIENT_ID         Server-to-Server OAuth app client ID
+#   ZOOM_CLIENT_SECRET     Server-to-Server OAuth app client secret

@@ -11,9 +11,11 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:local": "wrangler d1 migrations apply practice-log --local",
-    "db:remote": "wrangler d1 migrations apply practice-log --remote"
+    "db:remote": "wrangler d1 migrations apply practice-log --remote",
+    "db:members:local": "wrangler d1 migrations apply beings-club-members --local",
+    "db:members:remote": "wrangler d1 migrations apply beings-club-members --remote"
   },
   "devDependencies": {
-    "wrangler": "^3.90.0"
+    "wrangler": "^4.127.1"
   }
 }

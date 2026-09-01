@@ -5,7 +5,8 @@ import {
   sameText, tokenHash, validChallenge, validCode,
 } from './security.js';
 import {
-  getHostSalon, getMemberSalon, publishHostSalon, saveHostSalon, setMemberRsvp,
+  closeCompletedSalon, getHostSalon, getMemberSalon, publishHostSalon,
+  saveHostSalon, setMemberRsvp,
 } from './salons.js';
 import {
   createFieldNote, dismissFieldNoteInvitation, getFieldNoteImage,
@@ -21,6 +22,9 @@ import {
   getMemberSettings, leaveClub, signOutEverywhere, updateMemberSettings,
 } from './settings.js';
 import { announceSalon } from './mailer.js';
+import {
+  acceptMemberAgreement, agreementAccepted, MEMBER_AGREEMENT_VERSION,
+} from './agreement.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -47,6 +51,10 @@ export async function clubRoute(request, env, ctx, url) {
     ).bind(now(), who.session_id).run();
     return json({ ok: true });
   }
+  if (path === '/api/club/agreement' && method === 'POST') {
+    return acceptMemberAgreement(env, who, await readJson(request));
+  }
+  if (!agreementAccepted(who)) return bad(403, 'agreement required');
 
   if (path === '/api/club/salon' && method === 'GET') return getMemberSalon(env, who);
   const rsvp = /^\/api\/club\/salons\/(\d+)\/rsvp$/.exec(path);
@@ -104,6 +112,9 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (path === '/api/club/host/salon/publish' && method === 'POST') {
     return publishHostSalon(env, await readJson(request));
+  }
+  if (path === '/api/club/host/salon/close' && method === 'POST') {
+    return closeCompletedSalon(env, await readJson(request));
   }
   if (path === '/api/club/host/salon/announce' && method === 'POST') {
     const body = await readJson(request);
@@ -216,7 +227,8 @@ async function verifyCode(env, body) {
 
   const row = await env.MEMBERS.prepare(
     `SELECT c.*, m.email, m.display_name, m.website, m.profile_line,
-            m.profile_image, m.is_host, m.disabled_at, m.left_at
+            m.profile_image, m.is_host, m.disabled_at, m.left_at,
+            m.agreement_version, m.agreement_accepted_at
        FROM auth_challenge c
        LEFT JOIN member m ON m.id = c.member_id
       WHERE c.id = ?1`,
@@ -289,7 +301,7 @@ async function listMembers(env) {
     email: member.email,
     name: member.display_name,
     isHost: !!member.is_host,
-    status: member.disabled_at ? 'removed' : member.left_at ? 'left' : (member.joined_at ? 'joined' : 'invited'),
+    status: member.disabled_at ? 'removed' : member.left_at ? 'left' : (member.joined_at ? 'joined' : 'on_list'),
     canRemove: !member.is_host,
   })) });
 }
@@ -321,7 +333,7 @@ async function addMember(env, who, body) {
   return json({
     member: {
       id: member.id, email: member.email,
-      status: member.joined_at ? 'joined' : 'invited', canRemove: member.id !== who.id,
+      status: member.joined_at ? 'joined' : 'on_list', canRemove: member.id !== who.id,
     },
   }, 201);
 }
@@ -335,9 +347,13 @@ async function disableMember(env, who, id) {
       WHERE id = ?2 AND is_host = 0 AND disabled_at IS NULL`,
   ).bind(timestamp, id).run();
   if ((result.meta?.changes ?? 0) !== 1) return bad(404, 'not found');
-  await env.MEMBERS.prepare(
-    'UPDATE member_session SET revoked_at = ?1 WHERE member_id = ?2 AND revoked_at IS NULL',
-  ).bind(timestamp, id).run();
+  await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
+      'UPDATE member_session SET revoked_at = ?1 WHERE member_id = ?2 AND revoked_at IS NULL',
+    ).bind(timestamp, id),
+    env.MEMBERS.prepare('DELETE FROM salon_rsvp WHERE member_id = ?1').bind(id),
+    env.MEMBERS.prepare('DELETE FROM salon_attendance WHERE member_id = ?1').bind(id),
+  ]);
   return json({ ok: true });
 }
 
@@ -350,6 +366,8 @@ function shapeMember(member) {
     line: member.profile_line,
     hasImage: !!member.profile_image,
     isHost: !!member.is_host,
+    agreementAccepted: agreementAccepted(member),
+    agreementVersion: MEMBER_AGREEMENT_VERSION,
   };
 }
 

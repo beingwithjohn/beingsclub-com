@@ -62,8 +62,9 @@
               <textarea id="salon-host-note" maxlength="2400" placeholder="A few lines for this gathering." required></textarea>
             </label>
             <label>
-              <span>Zoom join link · fallback until automatic creation is connected</span>
-              <input id="salon-zoom-url" type="url" inputmode="url" placeholder="https://zoom.us/j/…" required>
+              <span id="salon-zoom-label">Zoom join link · optional fallback</span>
+              <input id="salon-zoom-url" type="url" inputmode="url" placeholder="Created automatically when you publish">
+              <small id="salon-zoom-help">Leave this blank for a fresh Zoom meeting. Paste a secure Zoom link only when you need the fallback.</small>
             </label>
             <div class="salon-form-actions">
               <button class="outline" id="save-salon" type="submit">save draft</button>
@@ -73,6 +74,10 @@
           <div class="salon-host-state">
             <span id="salon-state">No Salon is being prepared.</span>
             <span id="salon-rsvp-summary"></span>
+          </div>
+          <div class="salon-next" id="salon-next" hidden>
+            <span>The gathering is kept with its RSVPs and Field Notes.</span>
+            <button class="outline" id="start-next-salon" type="button">start the next Salon</button>
           </div>
           <span class="status" id="salon-status" role="status" aria-live="polite"></span>
           <div class="salon-roster" id="salon-roster"></div>

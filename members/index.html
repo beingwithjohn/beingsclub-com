@@ -47,6 +47,28 @@
 
   </main>
 
+  <section class="onboarding-page" id="onboarding-page" hidden>
+    <a class="back-link" href="/" id="onboarding-back">← back</a>
+    <form class="onboarding-card" id="agreement-form">
+      <span class="eyebrow">before you come in</span>
+      <h1>A few things <strong>before we begin.</strong></h1>
+      <p class="onboarding-intro">Beings Club is made by the people who participate. Here’s all we ask of you, in plain terms:</p>
+      <div class="agreement-list">
+        <p><strong>Bring your curiosity.</strong> Curiosity is an orientation to experience that is open to discovery. Bring that openness to yourself, to other people and to what might emerge.</p>
+        <p><strong>Keep people’s confidence.</strong> What someone shares in a Salon stays there. Carry your own discoveries onwards, but not another person’s story or identity without their permission.</p>
+        <p><strong>Let connection stay free.</strong> You may invite a conversation to continue beyond a Salon. Nobody owes their availability; if you cannot or do not want to meet, respond clearly and kindly.</p>
+      </div>
+      <p class="agreement-leaving">Membership continues until you choose to leave. You can leave at any time.</p>
+      <label class="agreement-check" for="agreement-check">
+        <input id="agreement-check" name="agreement" type="checkbox" required>
+        <span>I agree to these principles.</span>
+      </label>
+      <input id="agreement-version" type="hidden" value="2026-09-01">
+      <button class="primary" type="submit">enter</button>
+      <span class="status" id="agreement-status" role="status" aria-live="polite"></span>
+    </form>
+  </section>
+
   <section class="app-shell member-shell" id="member-app" hidden>
     <span class="greeting" id="member-greeting">good evening, being</span>
     <span class="clock" id="member-clock"></span>

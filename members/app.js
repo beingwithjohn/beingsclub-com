@@ -3,6 +3,7 @@
   const API = document.querySelector('meta[name="bc-members-api"]').content;
   const KEY = 'bc_member_session_v1';
   const loginPage = document.getElementById('login-page');
+  const onboardingPage = document.getElementById('onboarding-page');
   const memberApp = document.getElementById('member-app');
   const emailForm = document.getElementById('email-form');
   const codeForm = document.getElementById('code-form');
@@ -59,8 +60,15 @@
 
   function showLogin(element) {
     memberApp.hidden = true;
+    onboardingPage.hidden = true;
     loginPage.hidden = false;
     [emailForm, codeForm, waiting].forEach((node) => { node.hidden = node !== element; });
+  }
+
+  function showOnboarding() {
+    loginPage.hidden = true;
+    memberApp.hidden = true;
+    onboardingPage.hidden = false;
   }
 
   async function requestCode() {
@@ -479,6 +487,7 @@
 
   function showMemberApp() {
     loginPage.hidden = true;
+    onboardingPage.hidden = true;
     memberApp.hidden = false;
     document.getElementById('member-host-link').hidden = !member.isHost;
     document.getElementById('mobile-host-link').hidden = !member.isHost;
@@ -488,6 +497,10 @@
 
   async function enter(memberData) {
     member = memberData;
+    if (!member.agreementAccepted) {
+      showOnboarding();
+      return;
+    }
     showLogin(waiting);
     const [salonState, notesState, memberGiving, directory, settings] = await Promise.all([
       call('/api/club/salon'), call('/api/club/field-notes'), call('/api/club/giving'),
@@ -755,6 +768,30 @@
   document.getElementById('try-again').addEventListener('click', () => {
     clearInterval(countdown); challenge = null; codeStatus.textContent = ''; showLogin(emailForm); emailInput.focus();
   });
+  document.getElementById('agreement-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!event.currentTarget.checkValidity()) { event.currentTarget.reportValidity(); return; }
+    const statusNode = document.getElementById('agreement-status');
+    const button = event.currentTarget.querySelector('button[type="submit"]');
+    statusNode.textContent = ''; button.disabled = true;
+    try {
+      if (previewMode) {
+        member.agreementAccepted = true; member.agreementVersion = '2026-09-01';
+        statusNode.textContent = 'Agreed. In the live member area this opens your profile next.';
+        return;
+      }
+      const data = await call('/api/club/agreement', {
+        method: 'POST',
+        body: JSON.stringify({
+          accepted: true,
+          version: document.getElementById('agreement-version').value,
+        }),
+      });
+      await enter(data.member);
+    } catch (_) {
+      statusNode.textContent = 'Your agreement could not be saved. Nothing has changed; try again.';
+    } finally { button.disabled = false; }
+  });
   resend.addEventListener('click', async () => {
     if (resend.disabled) return;
     codeStatus.textContent = '';
@@ -855,7 +892,11 @@
       ? new URLSearchParams(location.search).get('preview') : null;
     if (preview) {
       previewMode = true;
-      member = { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true };
+      member = {
+        id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true,
+        agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
+      };
+      if (preview === 'onboarding') { showOnboarding(); return; }
       salon = preview === 'empty' ? null : {
         id: 1,
         note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',
