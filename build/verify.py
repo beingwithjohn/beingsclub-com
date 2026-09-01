@@ -294,6 +294,14 @@ ok("member directory is contextual rather than social infrastructure",
    'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
    'never contact details, activity or a way to message people' in login_html and
    'member count' not in login_html.lower())
+ok("the original ambient member drawer complements the full directory",
+   'id="directory-randomise"' in login_html and 'randomise order ↻' in login_html and
+   'id="members-drawer"' in login_html and 'id="members-drawer-minimise"' in login_html and
+   'id="members-drawer-resize"' in login_html and 'open the members page →' in login_html and
+   "function randomiseDirectory()" in members_after.get("members/app.js", "") and
+   "const drawerVisible = name === 'salon';" in members_after.get("members/app.js", "") and
+   "window.innerWidth < 1200 ? 'minimised' : 'compact'" in members_after.get("members/app.js", "") and
+   "button.addEventListener('mouseenter', show); button.addEventListener('focus', show);" in members_after.get("members/app.js", ""))
 ok("member profile requires only a chosen name",
    'data-member-view="profile"' in login_html and 'id="profile-form"' in login_html and
    'id="profile-name"' in login_html and 'required' in login_html and

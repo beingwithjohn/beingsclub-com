@@ -305,6 +305,7 @@
           <span class="eyebrow">members</span>
           <h1>People you may <strong>meet here</strong>.</h1>
           <p>Members principally encounter each other through Salons and what they choose to share. This is simply a little more context—never contact details, activity or a way to message people.</p>
+          <button class="text-button directory-randomise" id="directory-randomise" type="button">randomise order ↻</button>
         </header>
         <section class="directory-grid" id="directory-grid" aria-live="polite"></section>
       </div>
@@ -423,6 +424,32 @@
         </footer>
       </div>
     </main>
+
+    <aside class="members-drawer is-compact" id="members-drawer" aria-label="Members" hidden>
+      <button class="members-drawer-tab" id="members-drawer-tab" type="button" aria-expanded="false" hidden>all members ⤤</button>
+      <div class="members-drawer-panel" id="members-drawer-panel">
+        <header class="members-drawer-head">
+          <div class="members-drawer-controls">
+            <button id="members-drawer-minimise" type="button" aria-label="Minimise members">−</button>
+            <button id="members-drawer-resize" type="button" aria-label="Expand members">⤢</button>
+          </div>
+          <span id="members-drawer-count">members</span>
+        </header>
+        <div class="members-drawer-grid" id="members-drawer-grid" aria-label="Members"></div>
+        <div class="members-drawer-detail" id="members-drawer-detail" aria-live="polite">
+          <div class="members-drawer-portrait" id="members-drawer-portrait">
+            <img id="members-drawer-image" alt="" hidden>
+            <span id="members-drawer-fallback" aria-hidden="true"></span>
+          </div>
+          <div class="members-drawer-words">
+            <strong id="members-drawer-name"></strong>
+            <a id="members-drawer-website" target="_blank" rel="noopener noreferrer" hidden></a>
+            <span id="members-drawer-line"></span>
+          </div>
+        </div>
+        <a class="members-drawer-all" href="#members" data-member-view="members">open the members page →</a>
+      </div>
+    </aside>
   </section>
   <script src="/members/app.js" defer></script>
 </body>

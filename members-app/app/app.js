@@ -34,7 +34,13 @@
   let profileImageData = null;
   let removeProfileImage = false;
   let welcomeStep = 0;
+  let directoryOrder = [];
+  let membersDrawerMode = window.innerWidth < 1200 ? 'minimised' : 'compact';
+  let membersDrawerTouched = false;
+  let membersDrawerPinnedId = null;
+  let membersDrawerActiveId = null;
   const imageObjectUrls = new Set();
+  const drawerImageObjectUrls = new Set();
 
   function token() { try { return localStorage.getItem(KEY); } catch (_) { return null; } }
   function saveToken(value) { try { localStorage.setItem(KEY, value); } catch (_) {} }
@@ -337,22 +343,49 @@
     return String(name || '?').trim().charAt(0).toUpperCase() || '?';
   }
 
-  async function loadMemberImage(person, image, fallback) {
+  async function loadMemberImage(person, image, fallback, urlSet = imageObjectUrls) {
     if (previewMode && person.previewImage) {
       image.src = person.previewImage; image.hidden = false; fallback.hidden = true; return;
     }
     try {
       const blob = await callBlob(`/api/club/members/${person.id}/image`);
-      const url = URL.createObjectURL(blob); imageObjectUrls.add(url);
+      const url = URL.createObjectURL(blob); urlSet.add(url);
       image.src = url; image.hidden = false; fallback.hidden = true;
     } catch (_) { image.hidden = true; fallback.hidden = false; }
+  }
+
+  function orderedDirectoryMembers() {
+    const members = directoryState.members || [];
+    const ids = new Set(members.map((person) => String(person.id)));
+    directoryOrder = directoryOrder.filter((id) => ids.has(String(id)));
+    members.forEach((person) => {
+      if (!directoryOrder.some((id) => String(id) === String(person.id))) directoryOrder.push(person.id);
+    });
+    const positions = new Map(directoryOrder.map((id, index) => [String(id), index]));
+    return [...members].sort((a, b) => positions.get(String(a.id)) - positions.get(String(b.id)));
+  }
+
+  function randomiseDirectory() {
+    const before = orderedDirectoryMembers().map((person) => person.id);
+    if (before.length < 2) return;
+    const next = [...before];
+    for (let index = next.length - 1; index > 0; index -= 1) {
+      const chosen = Math.floor(Math.random() * (index + 1));
+      [next[index], next[chosen]] = [next[chosen], next[index]];
+    }
+    if (next.every((id, index) => String(id) === String(before[index]))) next.push(next.shift());
+    directoryOrder = next;
+    renderDirectory();
+    if (!document.getElementById('members-drawer').hidden) renderMembersDrawer();
   }
 
   function renderDirectory() {
     for (const url of imageObjectUrls) URL.revokeObjectURL(url);
     imageObjectUrls.clear();
     const grid = document.getElementById('directory-grid'); grid.replaceChildren();
-    (directoryState.members || []).forEach((person) => {
+    const people = orderedDirectoryMembers();
+    document.getElementById('directory-randomise').disabled = people.length < 2;
+    people.forEach((person) => {
       const card = document.createElement('article'); card.className = 'directory-card';
       if (person.isMe) card.classList.add('is-me');
       const portrait = document.createElement('div'); portrait.className = 'directory-portrait';
@@ -373,6 +406,97 @@
       if (person.isMe) words.append(makeText('span', 'directory-you', 'you'));
       card.append(portrait, words); grid.append(card);
     });
+  }
+
+  function drawerPerson(id) {
+    return (directoryState.members || []).find((person) => String(person.id) === String(id)) || null;
+  }
+
+  function renderMembersDrawerDetail(person, imageSrc = '') {
+    const portrait = document.getElementById('members-drawer-portrait');
+    const image = document.getElementById('members-drawer-image');
+    const fallback = document.getElementById('members-drawer-fallback');
+    const name = document.getElementById('members-drawer-name');
+    const website = document.getElementById('members-drawer-website');
+    const line = document.getElementById('members-drawer-line');
+    membersDrawerActiveId = person?.id ?? null;
+    if (!person) {
+      portrait.hidden = true; image.hidden = true; image.removeAttribute('src');
+      name.textContent = `${(directoryState.members || []).length} beings`;
+      website.hidden = true; website.removeAttribute('href');
+      line.textContent = 'hover, focus or choose a member';
+      return;
+    }
+    portrait.hidden = false;
+    fallback.textContent = memberInitial(person.name);
+    if (imageSrc) { image.src = imageSrc; image.alt = `${person.name}’s profile image`; image.hidden = false; fallback.hidden = true; }
+    else { image.hidden = true; image.removeAttribute('src'); fallback.hidden = false; }
+    name.textContent = person.name;
+    if (person.website) {
+      website.href = person.website; website.hidden = false;
+      try { website.textContent = `${new URL(person.website).hostname.replace(/^www\./, '')} ↗`; }
+      catch (_) { website.textContent = 'website ↗'; }
+    } else { website.hidden = true; website.removeAttribute('href'); }
+    line.textContent = person.line || (person.isMe ? 'you' : '');
+  }
+
+  function renderMembersDrawer() {
+    for (const url of drawerImageObjectUrls) URL.revokeObjectURL(url);
+    drawerImageObjectUrls.clear();
+    const people = orderedDirectoryMembers();
+    const grid = document.getElementById('members-drawer-grid'); grid.replaceChildren();
+    document.getElementById('members-drawer-count').textContent = `members · ${people.length} ${people.length === 1 ? 'being' : 'beings'}`;
+    people.forEach((person) => {
+      const button = document.createElement('button');
+      button.className = 'members-drawer-avatar'; button.type = 'button';
+      button.setAttribute('aria-label', `Meet ${person.name}`); button.title = person.name;
+      button.classList.toggle('is-pinned', String(person.id) === String(membersDrawerPinnedId));
+      const fallback = makeText('span', '', memberInitial(person.name));
+      const image = document.createElement('img'); image.alt = ''; image.hidden = true;
+      button.append(fallback, image); grid.append(button);
+      const show = () => renderMembersDrawerDetail(person, image.hidden ? '' : image.src);
+      const restore = () => {
+        const pinned = drawerPerson(membersDrawerPinnedId);
+        if (pinned) {
+          const pinnedButton = [...grid.children].find((node) => node.dataset.memberId === String(pinned.id));
+          const pinnedImage = pinnedButton?.querySelector('img');
+          renderMembersDrawerDetail(pinned, pinnedImage && !pinnedImage.hidden ? pinnedImage.src : '');
+        } else renderMembersDrawerDetail(null);
+      };
+      button.dataset.memberId = String(person.id);
+      button.addEventListener('mouseenter', show); button.addEventListener('focus', show);
+      button.addEventListener('mouseleave', restore); button.addEventListener('blur', restore);
+      button.addEventListener('click', () => {
+        membersDrawerPinnedId = String(person.id) === String(membersDrawerPinnedId) ? null : person.id;
+        renderMembersDrawer();
+      });
+      if (person.hasImage || person.previewImage) {
+        loadMemberImage(person, image, fallback, drawerImageObjectUrls).then(() => {
+          if (String(membersDrawerActiveId) === String(person.id) && !image.hidden) renderMembersDrawerDetail(person, image.src);
+        });
+      }
+    });
+    const pinned = drawerPerson(membersDrawerPinnedId);
+    if (pinned) {
+      const pinnedButton = [...grid.children].find((node) => node.dataset.memberId === String(pinned.id));
+      const pinnedImage = pinnedButton?.querySelector('img');
+      renderMembersDrawerDetail(pinned, pinnedImage && !pinnedImage.hidden ? pinnedImage.src : '');
+    } else renderMembersDrawerDetail(null);
+  }
+
+  function setMembersDrawerMode(mode) {
+    membersDrawerMode = mode;
+    const drawer = document.getElementById('members-drawer');
+    drawer.classList.toggle('is-minimised', mode === 'minimised');
+    drawer.classList.toggle('is-compact', mode === 'compact');
+    drawer.classList.toggle('is-expanded', mode === 'expanded');
+    const panel = document.getElementById('members-drawer-panel');
+    const tab = document.getElementById('members-drawer-tab');
+    panel.hidden = mode === 'minimised'; tab.hidden = mode !== 'minimised';
+    tab.setAttribute('aria-expanded', mode === 'minimised' ? 'false' : 'true');
+    const resize = document.getElementById('members-drawer-resize');
+    resize.textContent = mode === 'expanded' ? '⤡' : '⤢';
+    resize.setAttribute('aria-label', mode === 'expanded' ? 'Make members compact' : 'Expand members');
   }
 
   function renderProfile() {
@@ -508,6 +632,10 @@
     if (directory) renderDirectory();
     if (profile) renderProfile();
     if (settings) renderSettings();
+    const drawer = document.getElementById('members-drawer');
+    const drawerVisible = name === 'salon';
+    drawer.hidden = !drawerVisible;
+    if (drawerVisible) { setMembersDrawerMode(membersDrawerMode); renderMembersDrawer(); }
   }
 
   function showMemberApp() {
@@ -904,6 +1032,17 @@
     document.getElementById('profile-image-fallback').hidden = false;
     document.getElementById('profile-image-remove').hidden = true;
   });
+  document.getElementById('directory-randomise').addEventListener('click', randomiseDirectory);
+  document.getElementById('members-drawer-tab').addEventListener('click', () => {
+    membersDrawerTouched = true; setMembersDrawerMode('compact');
+  });
+  document.getElementById('members-drawer-minimise').addEventListener('click', () => {
+    membersDrawerTouched = true; setMembersDrawerMode('minimised');
+  });
+  document.getElementById('members-drawer-resize').addEventListener('click', () => {
+    membersDrawerTouched = true;
+    setMembersDrawerMode(membersDrawerMode === 'expanded' ? 'compact' : 'expanded');
+  });
   [
     'email-salon-announced', 'email-salon-week', 'email-salon-day',
     'email-field-notes', 'email-quiet',
@@ -917,6 +1056,10 @@
   document.getElementById('leave-cancel').addEventListener('click', closeLeaveFlow);
   document.getElementById('leave-form').addEventListener('submit', submitLeave);
   window.addEventListener('hashchange', () => showView(member?.name ? viewFromHash() : 'profile'));
+  window.addEventListener('resize', () => {
+    if (membersDrawerTouched) return;
+    setMembersDrawerMode(window.innerWidth < 1200 ? 'minimised' : 'compact');
+  });
 
   const menu = document.getElementById('mobile-menu');
   const menuButton = document.getElementById('menu-button');
