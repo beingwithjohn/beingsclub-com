@@ -107,6 +107,12 @@ def audit(html, label):
     active = re.search(r'(?s)<div class="bc-layer" data-active="1".*?(?=<div class="bc-layer"|<div id="bc-intro")', html)
     ok(label + ": active screen has one primary heading",
        bool(active) and active.group(0).count('<h1') == 1)
+    ok(label + ": Salons name the opening as guided curiosity practice",
+       "guided curiosity practice" in html and
+       "Every Salon begins with meditation" not in html and
+       "starts with meditation" not in html and
+       "guided meditation practice" not in html and
+       "I've never meditated" not in html)
     if label == 'index.html':
         home = active.group(0) if active else ''
         ok(label + ": public threshold matches the supplied app actions",
@@ -205,10 +211,95 @@ host_html = members_after.get("members/host/index.html", "")
 ok("private host page keeps the supplied Host tools design",
    "Host <strong>tools</strong>." in host_html and "the list" in host_html and
    "Only hosts see this page" in host_html and "add to the list" in host_html)
+ok("host controls keep drafting, publishing and email as separate actions",
+   'id="salon-form"' in host_html and 'id="publish-salon"' in host_html and
+   'type="button" disabled>email announcement</button>' in host_html)
+ok("host can open attendee-only Field Note invitations and moderate the archive",
+   'id="attendance-list"' in host_html and 'id="open-field-note-invitations"' in host_html and
+   'id="host-field-note-archive"' in host_html and
+   'email arrives once where enabled' in host_html)
+ok("host testimonial queue is editorial and never auto-publishes",
+   'id="testimonial-queue"' in host_html and 'Copy what you want to use' in host_html and
+   'Nothing here generates a notification' in host_html)
 login_html = members_after.get("members/index.html", "")
 ok("member login is passwordless and non-enumerating",
    'autocomplete="one-time-code"' in login_html and 'type="password"' not in login_html and
    "If <span id=\"email-shown\"></span> is on the list" in login_html)
+ok("member landing is Salon-first in the supplied dashboard language",
+   'class="member-nav"' in login_html and 'a note from John' in login_html and
+   'guided curiosity practice' in login_html and 'data-rsvp="in"' in login_html and
+   'data-rsvp="not_this_time"' in login_html and 'id="calendar-link"' in login_html and
+   'id="member-host-link"' in login_html)
+ok("Field Notes are grouped by Salon and cannot become a response feed",
+   'id="field-note-archive"' in login_html and 'id="field-note-composer"' in login_html and
+   'data-member-view="field-notes"' in login_html and
+   'there are no responses, reactions or comments' in login_html and
+   'Nobody can respond.' in login_html)
+ok("member Giving offers one quiet, explicitly permitted testimonial each month",
+   'data-member-view="giving"' in login_html and 'id="testimonial-form"' in login_html and
+   'one testimonial each calendar month' in login_html and
+   'will never notify or remind you' in login_html and
+   'across any of its public channels' in login_html and
+   'lightly edited or excerpted without changing their meaning' in login_html and
+   'id="testimonial-edit"' in login_html and 'id="testimonial-withdraw"' in login_html)
+ok("member directory is contextual rather than social infrastructure",
+   'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
+   'never contact details, activity or a way to message people' in login_html and
+   'member count' not in login_html.lower())
+ok("member profile requires only a chosen name",
+   'data-member-view="profile"' in login_html and 'id="profile-form"' in login_html and
+   'id="profile-name"' in login_html and 'required' in login_html and
+   'A photograph, one line of context and a website are entirely optional' in login_html and
+   'This is never shown to other members' in login_html)
+ok("member Settings carries the supplied quiet-email language and later defaults",
+   'data-member-view="settings"' in login_html and 'id="settings-page"' in login_html and
+   'id="email-salon-announced"' in login_html and 'id="email-salon-week"' in login_html and
+   'id="email-salon-day"' in login_html and 'id="email-field-notes"' in login_html and
+   'Quiet, for now' in login_html and 'Access codes still arrive when you ask for one' in login_html)
+ok("leaving lets members decide what happens to existing Field Notes",
+   'value="keep_signed"' in login_html and 'value="anonymise"' in login_html and
+   'value="remove"' in login_html and 'Pending testimonial words are withdrawn' in login_html and
+   'id="leave-confirm"' in login_html)
+field_notes_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "field-notes.js"),
+                          encoding="utf-8").read()
+ok("anonymous Field Notes remain attributable only through host tools",
+   'anonymous && !host ? null' in field_notes_api and
+   'anonymousToMembers: anonymous && host' in field_notes_api and
+   'member_id = ?2' in field_notes_api)
+testimonial_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "testimonials.js"),
+                          encoding="utf-8").read()
+ok("testimonials create no notification or automatic public placement",
+   'sendClub' not in testimonial_api and 'sendField' not in testimonial_api and
+   "status = 'pending'" in testimonial_api and 'public-any-channel-light-edit-v1' in testimonial_api)
+profiles_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "profiles.js"),
+                       encoding="utf-8").read()
+ok("directory includes only active members with a chosen name",
+   'joined_at IS NOT NULL' in profiles_api and 'disabled_at IS NULL' in profiles_api and
+   'left_at IS NULL' in profiles_api and "TRIM(display_name) <> ''" in profiles_api)
+directory_shape = profiles_api.split('function shapeDirectoryMember', 1)[1]
+ok("directory never exposes another member email or image storage key",
+   'email:' not in directory_shape and 'profile_image:' not in directory_shape and
+   'hasImage:' in directory_shape)
+settings_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "settings.js"),
+                       encoding="utf-8").read()
+mailer_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "mailer.js"),
+                     encoding="utf-8").read()
+ok("Club email settings do not silence requested access codes",
+   'sendClubCode' not in settings_api and 'salonAnnounced: true' in settings_api and
+   'fieldNotes: true' in settings_api)
+ok("leaving revokes access and honours each Field Note archive choice",
+   "'keep_signed', 'anonymise', 'remove'" in settings_api and
+   "SET is_anonymous = 1" in settings_api and
+   "DELETE FROM field_note WHERE member_id" in settings_api and
+   "UPDATE member_session SET revoked_at" in settings_api)
+ok("Salon announcement and reminder mail is member-controlled and at-most-once",
+   'club_send_log' in mailer_api and "COALESCE(p.quiet, 0) = 0" in mailer_api and
+   'salon_announced' in mailer_api and 'salon_week' in mailer_api and 'salon_day' in mailer_api)
+ok("public Salons use the complete practice-and-conversation framing",
+   'A monthly online gathering and guided curiosity practice. A space for practice and conversation' in
+   members_after.get("members/index.html", "") or
+   'A monthly online gathering and guided curiosity practice. A space for practice and conversation' in
+   io.open(os.path.join(ROOT, "salons", "index.html"), encoding="utf-8").read())
 
 robots_path = os.path.join(ROOT, "robots.txt")
 sitemap_path = os.path.join(ROOT, "sitemap.xml")

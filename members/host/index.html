@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="bc-members-api" content="https://practice-log.beingsclub.workers.dev">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data:; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
   <title>Host tools · Beings Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,13 +19,13 @@
     <span class="clock" id="clock"></span>
 
     <nav class="member-nav" aria-label="Members area">
-      <span>next salon</span>
-      <span>field notes</span>
-      <span>shared ground</span>
+      <a href="/members/">next salon</a>
+      <a href="/members/#field-notes">field notes</a>
+      <a href="/members/#members">members</a>
       <span>in-person</span>
-      <span>giving</span>
-      <span class="nav-break">profile</span>
-      <span>settings</span>
+      <a href="/members/#giving">giving</a>
+      <a class="nav-break" href="/members/#profile">profile</a>
+      <a href="/members/#settings">settings</a>
       <a class="current" href="/members/host/" aria-current="page">host</a>
       <button class="nav-signout" id="host-sign-out" type="button">sign out</button>
     </nav>
@@ -33,15 +33,72 @@
     <button class="menu-button" id="menu-button" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
     <div class="mobile-menu" id="mobile-menu" hidden>
       <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
-      <span>next salon</span><span>field notes</span><span>shared ground</span><span>in-person</span><span>giving</span>
-      <span class="nav-break">profile</span><span>settings</span><a class="current" href="/members/host/">host</a>
+      <a href="/members/">next salon</a><a href="/members/#field-notes">field notes</a><a href="/members/#members">members</a><span>in-person</span><a href="/members/#giving">giving</a>
+      <a class="nav-break" href="/members/#profile">profile</a><a href="/members/#settings">settings</a><a class="current" href="/members/host/">host</a>
       <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
     </div>
 
     <main class="host-page">
       <div class="host-content">
         <h1>Host <strong>tools</strong>.</h1>
-        <p class="intro">Only hosts see this page. Add someone after a conversation and a mutual yes.</p>
+        <p class="intro">Only hosts see this page. Prepare the next Salon here, then publish it when the doorway is ready.</p>
+
+        <section class="host-section">
+          <h2>next salon</h2>
+          <form class="salon-form" id="salon-form" novalidate>
+            <input id="salon-id" type="hidden">
+            <div class="salon-form-grid">
+              <label>
+                <span>date · Beings Club time</span>
+                <input id="salon-date" type="date" required>
+              </label>
+              <label>
+                <span>time · GMT or BST</span>
+                <input id="salon-start-time" type="time" required>
+              </label>
+            </div>
+            <label>
+              <span>your note · appears above RSVP</span>
+              <textarea id="salon-host-note" maxlength="2400" placeholder="A few lines for this gathering." required></textarea>
+            </label>
+            <label>
+              <span>Zoom join link · fallback until automatic creation is connected</span>
+              <input id="salon-zoom-url" type="url" inputmode="url" placeholder="https://zoom.us/j/…" required>
+            </label>
+            <div class="salon-form-actions">
+              <button class="outline" id="save-salon" type="submit">save draft</button>
+              <button class="primary" id="publish-salon" type="button">publish to members</button>
+            </div>
+          </form>
+          <div class="salon-host-state">
+            <span id="salon-state">No Salon is being prepared.</span>
+            <span id="salon-rsvp-summary"></span>
+          </div>
+          <span class="status" id="salon-status" role="status" aria-live="polite"></span>
+          <div class="salon-roster" id="salon-roster"></div>
+          <div class="announcement-hold">
+            <button class="outline" id="email-announcement" type="button" disabled>email announcement</button>
+            <span id="announcement-copy">Separate from publishing. Sends once only to members who chose announcement email.</span>
+          </div>
+        </section>
+
+        <section class="host-section">
+          <h2>field notes</h2>
+          <p id="field-note-host-intro">After a Salon, mark the members who were there. Their invitation appears inside the member area immediately; email arrives once where enabled.</p>
+          <form class="attendance-form" id="attendance-form">
+            <div class="attendance-list" id="attendance-list"></div>
+            <button class="outline" id="open-field-note-invitations" type="submit">open invitations</button>
+          </form>
+          <span class="status" id="attendance-status" role="status" aria-live="polite"></span>
+          <div class="host-field-note-archive" id="host-field-note-archive"></div>
+        </section>
+
+        <section class="host-section">
+          <h2>testimonial queue</h2>
+          <p>Words offered quietly through Giving. Nothing here generates a notification. Copy what you want to use, then mark it used or pass.</p>
+          <div class="testimonial-queue" id="testimonial-queue"></div>
+          <span class="status" id="testimonial-queue-status" role="status" aria-live="polite"></span>
+        </section>
 
         <section class="host-section">
           <h2>the list</h2>

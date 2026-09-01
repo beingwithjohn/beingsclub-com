@@ -2,10 +2,11 @@
   'use strict';
   const API = document.querySelector('meta[name="bc-members-api"]').content;
   const KEY = 'bc_member_session_v1';
+  const loginPage = document.getElementById('login-page');
+  const memberApp = document.getElementById('member-app');
   const emailForm = document.getElementById('email-form');
   const codeForm = document.getElementById('code-form');
   const waiting = document.getElementById('waiting');
-  const holding = document.getElementById('member-holding');
   const emailInput = document.getElementById('email');
   const codeInput = document.getElementById('code');
   const emailStatus = document.getElementById('email-status');
@@ -14,6 +15,24 @@
   let challenge = null;
   let email = '';
   let countdown = null;
+  let member = null;
+  let salon = null;
+  let fieldNotes = { prompt: null, groups: [] };
+  let givingState = { testimonial: null, canSubmit: true, suggestedName: '' };
+  let directoryState = { profile: null, members: [] };
+  let settingsState = {
+    email: { salonAnnounced: true, salonWeek: true, salonDay: true, fieldNotes: true, quiet: false },
+    account: { email: '', joinedAt: null, isHost: false },
+  };
+  let showClubTime = false;
+  let previewMode = false;
+  let editingNote = null;
+  let chosenImageData = null;
+  let removeExistingImage = false;
+  let editingTestimonial = false;
+  let profileImageData = null;
+  let removeProfileImage = false;
+  const imageObjectUrls = new Set();
 
   function token() { try { return localStorage.getItem(KEY); } catch (_) { return null; } }
   function saveToken(value) { try { localStorage.setItem(KEY, value); } catch (_) {} }
@@ -30,8 +49,18 @@
     return data;
   }
 
-  function show(element) {
-    [emailForm, codeForm, waiting, holding].forEach((node) => { node.hidden = node !== element; });
+  async function callBlob(path) {
+    const response = await fetch(`${API}${path}`, {
+      headers: { authorization: `Bearer ${token() || ''}` },
+    });
+    if (!response.ok) throw new Error('image unavailable');
+    return response.blob();
+  }
+
+  function showLogin(element) {
+    memberApp.hidden = true;
+    loginPage.hidden = false;
+    [emailForm, codeForm, waiting].forEach((node) => { node.hidden = node !== element; });
   }
 
   async function requestCode() {
@@ -41,7 +70,7 @@
     challenge = data.challenge;
     document.getElementById('email-shown').textContent = email;
     codeInput.value = '';
-    show(codeForm);
+    showLogin(codeForm);
     codeInput.focus();
     startResendClock();
   }
@@ -64,52 +93,667 @@
     }, 1000);
   }
 
-  async function enter(member) {
-    show(waiting);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    if (member.isHost) location.replace('/members/host/');
-    else {
-      document.getElementById('member-name').textContent = member.name || 'being';
-      show(holding);
+  function updateClock() {
+    const current = new Date();
+    const days = ['su', 'mo', 'tu', 'we', 'th', 'fr', 'sa'];
+    const month = current.toLocaleString('en-GB', { month: 'short' }).toLowerCase();
+    document.getElementById('member-clock').textContent = `${days[current.getDay()]} ${current.getDate()} ${month} ${String(current.getFullYear()).slice(2)} · ${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
+    const greeting = current.getHours() < 12 ? 'morning' : current.getHours() < 18 ? 'afternoon' : 'evening';
+    document.getElementById('member-greeting').textContent = `good ${greeting}, ${member?.name || 'being'}`;
+  }
+
+  function formatSalonTime(iso, timeZone) {
+    const date = new Date(iso);
+    const day = new Intl.DateTimeFormat('en-GB', {
+      timeZone, weekday: 'long', day: 'numeric', month: 'long',
+    }).format(date);
+    const rawTime = new Intl.DateTimeFormat('en-GB', {
+      timeZone, hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short',
+    }).format(date);
+    const time = rawTime.replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
+    return `${day}, ${time}`;
+  }
+
+  function renderTime() {
+    if (!salon) return;
+    const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const zone = showClubTime ? 'Europe/London' : localZone;
+    const sameZone = localZone === 'Europe/London';
+    document.getElementById('salon-time').textContent = formatSalonTime(salon.startsAt, zone);
+    document.getElementById('time-hint').textContent = sameZone
+      ? 'your local time · Beings Club time'
+      : (showClubTime ? 'Beings Club time · select for your local time' : 'your local time · select for Beings Club time');
+  }
+
+  function renderPresence() {
+    const count = Number(salon?.rsvpCount || 0);
+    const dots = document.getElementById('rsvp-dots');
+    dots.replaceChildren();
+    for (let index = 0; index < Math.min(count, 3); index += 1) {
+      const dot = document.createElement('span'); dot.textContent = '?'; dots.append(dot);
+    }
+    document.getElementById('rsvp-count').textContent = count === 0
+      ? 'no responses yet'
+      : count === 1 ? 'one being is in' : `${count} beings are in`;
+  }
+
+  function renderRsvp() {
+    const mine = salon?.myRsvp || null;
+    document.getElementById('rsvp-actions').hidden = mine !== null;
+    document.getElementById('rsvp-going').hidden = mine !== 'in';
+    document.getElementById('rsvp-not-going').hidden = mine !== 'not_this_time';
+    renderPresence();
+  }
+
+  function renderDoor() {
+    const link = document.getElementById('join-room');
+    const waitingCopy = document.getElementById('door-waiting');
+    if (salon?.zoomUrl) {
+      link.href = salon.zoomUrl; link.hidden = false; waitingCopy.hidden = true;
+    } else {
+      link.removeAttribute('href'); link.hidden = true; waitingCopy.hidden = false;
+      const opens = salon?.joinAvailableAt ? formatSalonTime(salon.joinAvailableAt,
+        Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC') : null;
+      waitingCopy.textContent = opens
+        ? `The room opens from this page at ${opens}.`
+        : 'The room opens from this page ten minutes before.';
     }
   }
 
-  emailForm.addEventListener('submit', async (event) => {
+  function renderSalon() {
+    document.getElementById('salon-empty').hidden = !!salon;
+    document.getElementById('salon-view').hidden = !salon;
+    if (!salon) return;
+    document.getElementById('salon-note').textContent = salon.note;
+    document.getElementById('salon-duration').textContent = `About ${salon.durationMinutes} minutes`;
+    renderTime(); renderRsvp(); renderDoor();
+  }
+
+  function monthLabel(iso) {
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London', month: 'long', year: 'numeric',
+    }).format(new Date(iso));
+  }
+
+  function makeText(tag, className, value) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    node.textContent = value;
+    return node;
+  }
+
+  async function loadNoteImage(note, image) {
+    if (previewMode) return;
+    try {
+      const blob = await callBlob(`/api/club/field-notes/${note.id}/image`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url); image.src = url;
+    } catch (_) { image.remove(); }
+  }
+
+  function resetComposer() {
+    editingNote = null; chosenImageData = null; removeExistingImage = false;
+    document.getElementById('field-note-form').reset();
+    document.getElementById('field-note-image-preview').hidden = true;
+    document.getElementById('field-note-image-preview').removeAttribute('src');
+    document.getElementById('field-note-alt-wrap').hidden = true;
+    document.getElementById('field-note-image-remove').hidden = true;
+    document.getElementById('field-note-image-name').textContent = 'JPEG, PNG, GIF or WebP · up to 5MB';
+    document.getElementById('field-note-share').textContent = 'share field note';
+    document.getElementById('field-note-cancel-edit').hidden = true;
+    document.getElementById('field-note-dismiss').hidden = !fieldNotes.prompt;
+    document.getElementById('composer-eyebrow').textContent = 'an invitation from the Salon';
+    document.getElementById('composer-title').textContent = 'What stayed with you?';
+  }
+
+  function beginEdit(note) {
+    editingNote = note; chosenImageData = null; removeExistingImage = false;
+    const composer = document.getElementById('field-note-composer'); composer.hidden = false;
+    document.getElementById('field-note-body').value = note.body || '';
+    document.getElementById('field-note-link').value = note.linkUrl || '';
+    document.getElementById('field-note-alt').value = note.imageAlt || '';
+    document.querySelector(`input[name="field-note-attribution"][value="${note.isAnonymous ? 'anonymous' : 'signed'}"]`).checked = true;
+    document.getElementById('composer-eyebrow').textContent = monthLabel(note.salonStartsAt);
+    document.getElementById('composer-title').textContent = 'Edit your Field Note';
+    document.getElementById('field-note-share').textContent = 'save changes';
+    document.getElementById('field-note-cancel-edit').hidden = false;
+    document.getElementById('field-note-dismiss').hidden = true;
+    if (note.hasImage) {
+      document.getElementById('field-note-image-name').textContent = 'Current image';
+      document.getElementById('field-note-image-remove').hidden = false;
+      document.getElementById('field-note-alt-wrap').hidden = false;
+    }
+    composer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderFieldNotes() {
+    for (const url of imageObjectUrls) URL.revokeObjectURL(url);
+    imageObjectUrls.clear();
+    const archive = document.getElementById('field-note-archive'); archive.replaceChildren();
+    const composer = document.getElementById('field-note-composer');
+    if (!editingNote) {
+      resetComposer(); composer.hidden = !fieldNotes.prompt;
+      if (fieldNotes.prompt) {
+        document.getElementById('composer-eyebrow').textContent = `${monthLabel(fieldNotes.prompt.salonStartsAt)} Salon`;
+      }
+    }
+    const groups = fieldNotes.groups || [];
+    document.getElementById('field-notes-empty').hidden = groups.length !== 0;
+    groups.forEach((group) => {
+      const section = document.createElement('section'); section.className = 'field-note-group';
+      const head = document.createElement('header'); head.className = 'field-note-group-head';
+      head.append(makeText('span', 'eyebrow', 'Salon'), makeText('h2', '', monthLabel(group.salonStartsAt)));
+      const grid = document.createElement('div'); grid.className = 'field-note-grid';
+      group.notes.forEach((note) => {
+        note.salonStartsAt = group.salonStartsAt;
+        const article = document.createElement('article'); article.className = 'field-note-card';
+        if (note.hasImage) {
+          const image = document.createElement('img'); image.className = 'field-note-card-image';
+          image.alt = note.imageAlt || ''; article.append(image); loadNoteImage(note, image);
+        }
+        if (note.body) article.append(makeText('p', 'field-note-card-body', note.body));
+        if (note.linkUrl) {
+          const link = document.createElement('a'); link.className = 'field-note-card-link';
+          link.href = note.linkUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          try { link.textContent = `${new URL(note.linkUrl).hostname.replace(/^www\./, '')} ↗`; }
+          catch (_) { link.textContent = 'open reference ↗'; }
+          article.append(link);
+        }
+        const foot = document.createElement('footer'); foot.className = 'field-note-card-foot';
+        foot.append(makeText('span', '', note.isAnonymous ? 'shared anonymously' : (note.author || 'A being')));
+        if (note.editedAt) foot.append(makeText('span', '', 'edited'));
+        if (note.isMine) {
+          const actions = document.createElement('span'); actions.className = 'field-note-own-actions';
+          const edit = makeText('button', '', 'edit'); edit.type = 'button'; edit.addEventListener('click', () => beginEdit(note));
+          const remove = makeText('button', '', 'remove'); remove.type = 'button'; remove.addEventListener('click', () => removeNote(note));
+          actions.append(edit, remove); foot.append(actions);
+        }
+        article.append(foot); grid.append(article);
+      });
+      section.append(head, grid); archive.append(section);
+    });
+  }
+
+  function renderGiving() {
+    const form = document.getElementById('testimonial-form');
+    const current = document.getElementById('testimonial-current');
+    const testimonial = givingState.testimonial;
+    const canWrite = givingState.canSubmit || editingTestimonial;
+    form.hidden = !canWrite;
+    current.hidden = !testimonial || editingTestimonial;
+    if (canWrite && !editingTestimonial) {
+      form.reset();
+      document.getElementById('testimonial-name').value = givingState.suggestedName || member?.name || '';
+      document.getElementById('testimonial-submit').textContent = 'offer these words';
+      document.getElementById('testimonial-cancel-edit').hidden = true;
+    }
+    if (!testimonial) return;
+    document.getElementById('testimonial-current-body').textContent = testimonial.body;
+    document.getElementById('testimonial-current-name').textContent = `— ${testimonial.attributionName}`;
+    const pending = testimonial.status === 'pending';
+    document.getElementById('testimonial-current-actions').hidden = !pending;
+    document.querySelector('.testimonial-current-state').textContent = pending
+      ? 'with John · awaiting consideration' : 'this month’s offering';
+    const resolved = document.getElementById('testimonial-resolved-copy');
+    resolved.hidden = pending;
+    resolved.textContent = testimonial.status === 'withdrawn'
+      ? 'Withdrawn. The opportunity will appear again next month.'
+      : 'These words have left the private queue. Thank you for offering them.';
+  }
+
+  function memberInitial(name) {
+    return String(name || '?').trim().charAt(0).toUpperCase() || '?';
+  }
+
+  async function loadMemberImage(person, image, fallback) {
+    if (previewMode && person.previewImage) {
+      image.src = person.previewImage; image.hidden = false; fallback.hidden = true; return;
+    }
+    try {
+      const blob = await callBlob(`/api/club/members/${person.id}/image`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url);
+      image.src = url; image.hidden = false; fallback.hidden = true;
+    } catch (_) { image.hidden = true; fallback.hidden = false; }
+  }
+
+  function renderDirectory() {
+    for (const url of imageObjectUrls) URL.revokeObjectURL(url);
+    imageObjectUrls.clear();
+    const grid = document.getElementById('directory-grid'); grid.replaceChildren();
+    (directoryState.members || []).forEach((person) => {
+      const card = document.createElement('article'); card.className = 'directory-card';
+      if (person.isMe) card.classList.add('is-me');
+      const portrait = document.createElement('div'); portrait.className = 'directory-portrait';
+      const fallback = makeText('span', 'directory-fallback', memberInitial(person.name));
+      const image = document.createElement('img'); image.alt = `${person.name}’s profile image`; image.hidden = true;
+      portrait.append(fallback, image);
+      if (person.hasImage || person.previewImage) loadMemberImage(person, image, fallback);
+      const words = document.createElement('div'); words.className = 'directory-words';
+      const name = makeText('h2', '', person.name); words.append(name);
+      if (person.line) words.append(makeText('p', '', person.line));
+      if (person.website) {
+        const link = document.createElement('a'); link.href = person.website;
+        link.target = '_blank'; link.rel = 'noopener noreferrer';
+        try { link.textContent = `${new URL(person.website).hostname.replace(/^www\./, '')} ↗`; }
+        catch (_) { link.textContent = 'website ↗'; }
+        words.append(link);
+      }
+      if (person.isMe) words.append(makeText('span', 'directory-you', 'you'));
+      card.append(portrait, words); grid.append(card);
+    });
+  }
+
+  function renderProfile() {
+    const profile = directoryState.profile || {
+      id: member?.id, email: member?.email, name: member?.name || '', line: '', website: '', hasImage: false,
+    };
+    profileImageData = null; removeProfileImage = false;
+    document.getElementById('profile-form').reset();
+    document.getElementById('profile-name').value = profile.name || '';
+    document.getElementById('profile-line').value = profile.line || '';
+    document.getElementById('profile-website').value = profile.website || '';
+    document.getElementById('profile-email').textContent = profile.email || member?.email || '';
+    document.getElementById('profile-image-fallback').textContent = memberInitial(profile.name);
+    document.getElementById('profile-image-fallback').hidden = false;
+    const image = document.getElementById('profile-image-preview'); image.hidden = true; image.removeAttribute('src');
+    document.getElementById('profile-image-remove').hidden = !profile.hasImage;
+    if (profile.hasImage || profile.previewImage) {
+      loadMemberImage(profile, image, document.getElementById('profile-image-fallback'));
+    }
+  }
+
+  function renderSettings() {
+    const preferences = settingsState.email;
+    document.getElementById('email-salon-announced').checked = !!preferences.salonAnnounced;
+    document.getElementById('email-salon-week').checked = !!preferences.salonWeek;
+    document.getElementById('email-salon-day').checked = !!preferences.salonDay;
+    document.getElementById('email-field-notes').checked = !!preferences.fieldNotes;
+    document.getElementById('email-quiet').checked = !!preferences.quiet;
+    document.getElementById('salon-email-options').classList.toggle('settings-email-muted', !!preferences.quiet);
+    document.getElementById('field-note-email-row').classList.toggle('settings-email-muted', !!preferences.quiet);
+    document.getElementById('settings-account-email').textContent = settingsState.account?.email || member?.email || '';
+    document.getElementById('settings-email-note').textContent = preferences.quiet
+      ? 'Everything is quiet · turn off the last switch to hear from us again.'
+      : (!preferences.salonAnnounced && !preferences.salonWeek && !preferences.salonDay && !preferences.fieldNotes)
+        ? 'No optional Club email · this member area is the only door.'
+        : 'Every Club email ends with a link back to this page.';
+  }
+
+  function emailPreferencesFromPage() {
+    return {
+      salonAnnounced: document.getElementById('email-salon-announced').checked,
+      salonWeek: document.getElementById('email-salon-week').checked,
+      salonDay: document.getElementById('email-salon-day').checked,
+      fieldNotes: document.getElementById('email-field-notes').checked,
+      quiet: document.getElementById('email-quiet').checked,
+    };
+  }
+
+  async function saveEmailSettings() {
+    const statusNode = document.getElementById('settings-email-status');
+    const previous = settingsState.email; const emailSettings = emailPreferencesFromPage();
+    settingsState.email = emailSettings; renderSettings(); statusNode.textContent = 'Saving…';
+    try {
+      if (!previewMode) settingsState = await call('/api/club/settings', {
+        method: 'PATCH', body: JSON.stringify({ email: emailSettings }),
+      });
+      renderSettings(); statusNode.textContent = 'Saved.';
+    } catch (_) {
+      settingsState.email = previous; renderSettings(); statusNode.textContent = 'That change could not be saved. Try again.';
+    }
+  }
+
+  async function signOutAll() {
+    if (!window.confirm('Sign out every device, including this one?')) return;
+    const statusNode = document.getElementById('settings-access-status'); statusNode.textContent = '';
+    const button = document.getElementById('sign-out-all'); button.disabled = true;
+    try {
+      if (!previewMode) await call('/api/club/settings/sign-out-all', { method: 'POST', body: '{}' });
+      if (previewMode) { statusNode.textContent = 'In the live member area, every device would now be signed out.'; return; }
+      forgetToken(); location.replace('/members/?signed-out=all');
+    } catch (_) { statusNode.textContent = 'Your sessions could not be ended. Try again.'; }
+    finally { button.disabled = false; }
+  }
+
+  function closeLeaveFlow() {
+    const form = document.getElementById('leave-form'); form.hidden = true; form.reset();
+    document.querySelector('input[name="leave-note-policy"][value="keep_signed"]').checked = true;
+    document.getElementById('leave-intro').hidden = false;
+    document.getElementById('leave-status').textContent = '';
+  }
+
+  async function submitLeave(event) {
     event.preventDefault();
-    emailStatus.textContent = '';
+    const form = document.getElementById('leave-form');
+    const statusNode = document.getElementById('leave-status'); statusNode.textContent = '';
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const payload = {
+      notePolicy: new FormData(form).get('leave-note-policy'),
+      confirm: document.getElementById('leave-confirm').value,
+    };
+    const button = document.getElementById('leave-submit'); button.disabled = true;
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'Preview only. In the live member area this would take effect immediately.';
+        return;
+      }
+      await call('/api/club/settings/leave', { method: 'POST', body: JSON.stringify(payload) });
+      forgetToken(); location.replace('/members/?left=1');
+    } catch (error) {
+      statusNode.textContent = error.message === 'last host'
+        ? 'The last host cannot leave until another host has been appointed.'
+        : 'Leaving could not be completed. Nothing has changed; try again.';
+    } finally { button.disabled = false; }
+  }
+
+  function viewFromHash() {
+    return ({
+      '#field-notes': 'field-notes', '#giving': 'giving', '#members': 'members', '#profile': 'profile',
+      '#settings': 'settings',
+    })[location.hash] || 'salon';
+  }
+
+  function showView(name) {
+    const field = name === 'field-notes';
+    const giving = name === 'giving';
+    const directory = name === 'members';
+    const profile = name === 'profile';
+    const settings = name === 'settings';
+    document.getElementById('salon-page').hidden = field || giving || directory || profile || settings;
+    document.getElementById('field-notes-page').hidden = !field;
+    document.getElementById('giving-page').hidden = !giving;
+    document.getElementById('directory-page').hidden = !directory;
+    document.getElementById('profile-page').hidden = !profile;
+    document.getElementById('settings-page').hidden = !settings;
+    document.querySelectorAll('[data-member-view]').forEach((link) => {
+      const selected = field ? 'field-notes' : giving ? 'giving' : directory ? 'members' : profile ? 'profile' : settings ? 'settings' : 'salon';
+      const current = link.dataset.memberView === selected;
+      link.classList.toggle('current', current);
+      if (current) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+    });
+    if (field) renderFieldNotes();
+    if (giving) renderGiving();
+    if (directory) renderDirectory();
+    if (profile) renderProfile();
+    if (settings) renderSettings();
+  }
+
+  function showMemberApp() {
+    loginPage.hidden = true;
+    memberApp.hidden = false;
+    document.getElementById('member-host-link').hidden = !member.isHost;
+    document.getElementById('mobile-host-link').hidden = !member.isHost;
+    updateClock(); renderSalon();
+    showView(member.name ? viewFromHash() : 'profile');
+  }
+
+  async function enter(memberData) {
+    member = memberData;
+    showLogin(waiting);
+    const [salonState, notesState, memberGiving, directory, settings] = await Promise.all([
+      call('/api/club/salon'), call('/api/club/field-notes'), call('/api/club/giving'),
+      call('/api/club/directory'), call('/api/club/settings'),
+    ]);
+    salon = salonState.salon; fieldNotes = notesState; givingState = memberGiving;
+    directoryState = directory; settingsState = settings;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    showMemberApp();
+  }
+
+  async function setRsvp(status) {
+    if (!salon) return;
+    const statusNode = document.getElementById('rsvp-status');
+    statusNode.textContent = '';
+    try {
+      if (previewMode) {
+        if (salon.myRsvp === 'in') salon.rsvpCount = Math.max(0, salon.rsvpCount - 1);
+        salon.myRsvp = status;
+        if (status === 'in') salon.rsvpCount += 1;
+        renderRsvp(); return;
+      }
+      const state = await call(`/api/club/salons/${salon.id}/rsvp`, {
+        method: 'POST', body: JSON.stringify({ status }),
+      });
+      salon = state.salon; renderRsvp();
+    } catch (error) {
+      statusNode.textContent = error.status === 409
+        ? 'The Salon has already begun.' : 'Your response could not be saved. Try again.';
+    }
+  }
+
+  function calendarText() {
+    const start = new Date(salon.startsAt);
+    const end = new Date(start.getTime() + salon.durationMinutes * 60000);
+    const stamp = (date) => date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    return [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Beings Club//Salon//EN',
+      'BEGIN:VEVENT', `UID:salon-${salon.id}@beingsclub.com`,
+      `DTSTAMP:${stamp(new Date())}`, `DTSTART:${stamp(start)}`, `DTEND:${stamp(end)}`,
+      'SUMMARY:Beings Club Salon',
+      'DESCRIPTION:The Salon doorway opens at beingsclub.com/members/ ten minutes before.',
+      'URL:https://beingsclub.com/members/', 'END:VEVENT', 'END:VCALENDAR', '',
+    ].join('\r\n');
+  }
+
+  function downloadCalendar() {
+    if (!salon) return;
+    const url = URL.createObjectURL(new Blob([calendarText()], { type: 'text/calendar;charset=utf-8' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'beings-club-salon.ics';
+    document.body.append(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
+  }
+
+  async function signOut() {
+    if (!previewMode) {
+      try { await call('/api/club/auth/logout', { method: 'POST', body: '{}' }); } catch (_) {}
+    }
+    forgetToken(); location.replace('/members/');
+  }
+
+  async function reloadFieldNotes() {
+    if (previewMode) { renderFieldNotes(); return; }
+    fieldNotes = await call('/api/club/field-notes'); renderFieldNotes();
+  }
+
+  function readImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function removeNote(note) {
+    if (!window.confirm('Remove this Field Note? This cannot be undone.')) return;
+    const statusNode = document.getElementById('field-note-status'); statusNode.textContent = '';
+    try {
+      if (previewMode) {
+        const group = fieldNotes.groups.find((entry) => entry.salonId === note.salonId);
+        group.notes = group.notes.filter((entry) => entry.id !== note.id);
+      } else {
+        await call(`/api/club/field-notes/${note.id}`, { method: 'DELETE', body: '{}' });
+        fieldNotes = await call('/api/club/field-notes');
+      }
+      editingNote = null; renderFieldNotes();
+    } catch (_) { statusNode.textContent = 'That Field Note could not be removed. Try again.'; }
+  }
+
+  async function submitFieldNote(event) {
+    event.preventDefault();
+    const statusNode = document.getElementById('field-note-status'); statusNode.textContent = '';
+    const link = document.getElementById('field-note-link');
+    if (link.value && !link.checkValidity()) { link.reportValidity(); return; }
+    const body = document.getElementById('field-note-body').value.trim();
+    if (!body && !link.value.trim() && !chosenImageData && !(editingNote?.hasImage && !removeExistingImage)) {
+      statusNode.textContent = 'Add a thought, link or image first.'; return;
+    }
+    const payload = {
+      body,
+      linkUrl: link.value,
+      imageData: chosenImageData,
+      imageAlt: document.getElementById('field-note-alt').value,
+      removeImage: removeExistingImage,
+      isAnonymous: document.querySelector('input[name="field-note-attribution"]:checked').value === 'anonymous',
+    };
+    const button = document.getElementById('field-note-share'); button.disabled = true;
+    try {
+      if (previewMode) {
+        if (editingNote) Object.assign(editingNote, payload, { linkUrl: payload.linkUrl || null, editedAt: new Date().toISOString() });
+        else fieldNotes.prompt = null;
+      } else if (editingNote) {
+        await call(`/api/club/field-notes/${editingNote.id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+      } else {
+        await call('/api/club/field-notes', {
+          method: 'POST', body: JSON.stringify({ ...payload, salonId: fieldNotes.prompt.salonId }),
+        });
+      }
+      editingNote = null;
+      if (!previewMode) fieldNotes = await call('/api/club/field-notes');
+      renderFieldNotes();
+    } catch (error) {
+      statusNode.textContent = error.message === 'image' ? 'That image could not be used.' : 'Your Field Note could not be shared. Try again.';
+    } finally { button.disabled = false; }
+  }
+
+  async function dismissInvitation() {
+    if (!fieldNotes.prompt) return;
+    const button = document.getElementById('field-note-dismiss'); button.disabled = true;
+    try {
+      if (!previewMode) {
+        await call(`/api/club/field-note-invitations/${fieldNotes.prompt.salonId}/dismiss`, { method: 'POST', body: '{}' });
+        fieldNotes = await call('/api/club/field-notes');
+      } else fieldNotes.prompt = null;
+      renderFieldNotes();
+    } catch (_) { document.getElementById('field-note-status').textContent = 'The invitation could not be dismissed. Try again.'; }
+    finally { button.disabled = false; }
+  }
+
+  async function loadGiving() {
+    if (!previewMode) givingState = await call('/api/club/giving');
+    renderGiving();
+  }
+
+  async function submitTestimonial(event) {
+    event.preventDefault();
+    const form = document.getElementById('testimonial-form');
+    const statusNode = document.getElementById('testimonial-status'); statusNode.textContent = '';
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const payload = {
+      name: document.getElementById('testimonial-name').value,
+      body: document.getElementById('testimonial-body').value,
+      consent: document.getElementById('testimonial-consent').checked,
+    };
+    const button = document.getElementById('testimonial-submit'); button.disabled = true;
+    try {
+      if (previewMode) {
+        givingState.testimonial = {
+          id: givingState.testimonial?.id || 1,
+          attributionName: payload.name.trim(), body: payload.body.trim(),
+          status: 'pending', canEdit: true,
+        };
+        givingState.canSubmit = false;
+      } else if (editingTestimonial) {
+        await call(`/api/club/testimonials/${givingState.testimonial.id}`, {
+          method: 'PATCH', body: JSON.stringify(payload),
+        });
+      } else {
+        await call('/api/club/testimonials', { method: 'POST', body: JSON.stringify(payload) });
+      }
+      editingTestimonial = false; await loadGiving();
+    } catch (error) {
+      statusNode.textContent = error.message === 'already offered this month'
+        ? 'You have already offered words this month.'
+        : 'Your words could not be saved. Try again.';
+    } finally { button.disabled = false; }
+  }
+
+  function editTestimonial() {
+    if (!givingState.testimonial?.canEdit) return;
+    editingTestimonial = true; renderGiving();
+    document.getElementById('testimonial-name').value = givingState.testimonial.attributionName;
+    document.getElementById('testimonial-body').value = givingState.testimonial.body;
+    document.getElementById('testimonial-consent').checked = false;
+    document.getElementById('testimonial-submit').textContent = 'save these words';
+    document.getElementById('testimonial-cancel-edit').hidden = false;
+    document.getElementById('testimonial-body').focus();
+  }
+
+  async function withdrawTestimonial() {
+    if (!givingState.testimonial?.canEdit) return;
+    if (!window.confirm('Withdraw these words from John’s private queue?')) return;
+    const statusNode = document.getElementById('testimonial-status'); statusNode.textContent = '';
+    try {
+      if (previewMode) {
+        givingState.testimonial.status = 'withdrawn'; givingState.testimonial.canEdit = false;
+      } else {
+        await call(`/api/club/testimonials/${givingState.testimonial.id}`, { method: 'DELETE', body: '{}' });
+      }
+      editingTestimonial = false; await loadGiving();
+    } catch (_) { statusNode.textContent = 'These words could not be withdrawn. Try again.'; }
+  }
+
+  async function submitProfile(event) {
+    event.preventDefault();
+    const form = document.getElementById('profile-form');
+    const statusNode = document.getElementById('profile-status'); statusNode.textContent = '';
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const payload = {
+      name: document.getElementById('profile-name').value,
+      line: document.getElementById('profile-line').value,
+      website: document.getElementById('profile-website').value,
+      imageData: profileImageData,
+      removeImage: removeProfileImage,
+    };
+    const button = document.getElementById('profile-save'); button.disabled = true;
+    try {
+      if (previewMode) {
+        const profile = directoryState.profile;
+        Object.assign(profile, {
+          name: payload.name.trim(), line: payload.line.trim(), website: payload.website.trim(),
+          hasImage: profileImageData ? true : (removeProfileImage ? false : profile.hasImage),
+          previewImage: profileImageData || (removeProfileImage ? null : profile.previewImage),
+        });
+        const existing = directoryState.members.find((person) => person.id === profile.id);
+        if (existing) Object.assign(existing, profile, { isMe: true });
+      } else {
+        directoryState = await call('/api/club/profile', { method: 'PATCH', body: JSON.stringify(payload) });
+      }
+      member.name = directoryState.profile.name;
+      member.line = directoryState.profile.line;
+      member.website = directoryState.profile.website;
+      member.hasImage = directoryState.profile.hasImage;
+      givingState.suggestedName = member.name;
+      updateClock(); renderProfile(); statusNode.textContent = 'Profile saved.';
+    } catch (error) {
+      statusNode.textContent = error.message === 'image'
+        ? 'That image could not be used.' : 'Your profile could not be saved. Try again.';
+    } finally { button.disabled = false; }
+  }
+
+  emailForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); emailStatus.textContent = '';
     email = emailInput.value.trim().toLowerCase();
     if (!emailInput.checkValidity()) { emailInput.reportValidity(); return; }
-    const button = emailForm.querySelector('button[type="submit"]');
-    button.disabled = true;
+    const button = emailForm.querySelector('button[type="submit"]'); button.disabled = true;
     try { await requestCode(); }
     catch (_) { emailStatus.textContent = 'Something went wrong. Please try again.'; }
     finally { button.disabled = false; }
   });
 
-  codeInput.addEventListener('input', () => {
-    codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 6);
-  });
-
+  codeInput.addEventListener('input', () => { codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 6); });
   codeForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    codeStatus.textContent = '';
+    event.preventDefault(); codeStatus.textContent = '';
     if (!/^\d{6}$/.test(codeInput.value)) { codeStatus.textContent = 'Enter all six digits.'; return; }
-    const button = codeForm.querySelector('button[type="submit"]');
-    button.disabled = true;
+    const button = codeForm.querySelector('button[type="submit"]'); button.disabled = true;
     try {
       const data = await call('/api/club/auth/verify', {
         method: 'POST', body: JSON.stringify({ challenge, code: codeInput.value }),
       });
-      saveToken(data.token);
-      await enter(data.member);
+      saveToken(data.token); await enter(data.member);
     } catch (_) {
-      codeStatus.textContent = 'That code didn’t work. Check it and try again.';
-      codeInput.select();
+      codeStatus.textContent = 'That code didn’t work. Check it and try again.'; codeInput.select();
     } finally { button.disabled = false; }
   });
 
   document.getElementById('try-again').addEventListener('click', () => {
-    clearInterval(countdown); challenge = null; codeStatus.textContent = ''; show(emailForm); emailInput.focus();
+    clearInterval(countdown); challenge = null; codeStatus.textContent = ''; showLogin(emailForm); emailInput.focus();
   });
   resend.addEventListener('click', async () => {
     if (resend.disabled) return;
@@ -117,15 +761,169 @@
     try { await requestCode(); codeStatus.textContent = 'Another code is on its way, if this address is on the list.'; }
     catch (_) { codeStatus.textContent = 'Something went wrong. Please try again.'; }
   });
-  document.getElementById('sign-out').addEventListener('click', async () => {
-    try { await call('/api/club/auth/logout', { method: 'POST', body: '{}' }); } catch (_) {}
-    forgetToken(); location.reload();
+  document.querySelectorAll('[data-rsvp]').forEach((button) => button.addEventListener('click', () => setRsvp(button.dataset.rsvp)));
+  document.getElementById('rsvp-clear').addEventListener('click', () => setRsvp(null));
+  document.getElementById('rsvp-clear-not').addEventListener('click', () => setRsvp(null));
+  document.getElementById('calendar-link').addEventListener('click', downloadCalendar);
+  document.getElementById('salon-time').addEventListener('click', () => { showClubTime = !showClubTime; renderTime(); });
+  document.getElementById('sign-out').addEventListener('click', signOut);
+  document.getElementById('mobile-sign-out').addEventListener('click', signOut);
+  document.getElementById('field-note-form').addEventListener('submit', submitFieldNote);
+  document.getElementById('field-note-dismiss').addEventListener('click', dismissInvitation);
+  document.getElementById('field-note-cancel-edit').addEventListener('click', () => {
+    editingNote = null; renderFieldNotes();
+  });
+  document.getElementById('field-note-image').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const statusNode = document.getElementById('field-note-status'); statusNode.textContent = '';
+    if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      statusNode.textContent = 'Choose a JPEG, PNG, GIF or WebP no larger than 5MB.'; event.target.value = ''; return;
+    }
+    try {
+      chosenImageData = await readImage(file); removeExistingImage = false;
+      const preview = document.getElementById('field-note-image-preview'); preview.src = chosenImageData; preview.hidden = false;
+      document.getElementById('field-note-image-name').textContent = file.name;
+      document.getElementById('field-note-image-remove').hidden = false;
+      document.getElementById('field-note-alt-wrap').hidden = false;
+    } catch (_) { statusNode.textContent = 'That image could not be read.'; }
+  });
+  document.getElementById('field-note-image-remove').addEventListener('click', () => {
+    chosenImageData = null; removeExistingImage = !!editingNote?.hasImage;
+    document.getElementById('field-note-image').value = '';
+    document.getElementById('field-note-image-preview').hidden = true;
+    document.getElementById('field-note-image-preview').removeAttribute('src');
+    document.getElementById('field-note-image-name').textContent = removeExistingImage ? 'Image will be removed' : 'JPEG, PNG, GIF or WebP · up to 5MB';
+    document.getElementById('field-note-image-remove').hidden = true;
+    document.getElementById('field-note-alt-wrap').hidden = true;
+  });
+  document.getElementById('testimonial-form').addEventListener('submit', submitTestimonial);
+  document.getElementById('testimonial-edit').addEventListener('click', editTestimonial);
+  document.getElementById('testimonial-withdraw').addEventListener('click', withdrawTestimonial);
+  document.getElementById('testimonial-cancel-edit').addEventListener('click', () => {
+    editingTestimonial = false; renderGiving();
+  });
+  document.getElementById('profile-form').addEventListener('submit', submitProfile);
+  document.getElementById('profile-name').addEventListener('input', (event) => {
+    document.getElementById('profile-image-fallback').textContent = memberInitial(event.target.value);
+  });
+  document.getElementById('profile-image-input').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const statusNode = document.getElementById('profile-status'); statusNode.textContent = '';
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      statusNode.textContent = 'Choose a JPEG, PNG or WebP no larger than 5MB.'; event.target.value = ''; return;
+    }
+    try {
+      profileImageData = await readImage(file); removeProfileImage = false;
+      const image = document.getElementById('profile-image-preview');
+      image.src = profileImageData; image.hidden = false;
+      document.getElementById('profile-image-fallback').hidden = true;
+      document.getElementById('profile-image-remove').hidden = false;
+    } catch (_) { statusNode.textContent = 'That image could not be read.'; }
+  });
+  document.getElementById('profile-image-remove').addEventListener('click', () => {
+    profileImageData = null; removeProfileImage = true;
+    document.getElementById('profile-image-input').value = '';
+    const image = document.getElementById('profile-image-preview'); image.hidden = true; image.removeAttribute('src');
+    document.getElementById('profile-image-fallback').hidden = false;
+    document.getElementById('profile-image-remove').hidden = true;
+  });
+  [
+    'email-salon-announced', 'email-salon-week', 'email-salon-day',
+    'email-field-notes', 'email-quiet',
+  ].forEach((id) => document.getElementById(id).addEventListener('change', saveEmailSettings));
+  document.getElementById('sign-out-all').addEventListener('click', signOutAll);
+  document.getElementById('leave-open').addEventListener('click', () => {
+    document.getElementById('leave-intro').hidden = true;
+    document.getElementById('leave-form').hidden = false;
+    document.querySelector('input[name="leave-note-policy"]:checked').focus();
+  });
+  document.getElementById('leave-cancel').addEventListener('click', closeLeaveFlow);
+  document.getElementById('leave-form').addEventListener('submit', submitLeave);
+  window.addEventListener('hashchange', () => showView(member?.name ? viewFromHash() : 'profile'));
+
+  const menu = document.getElementById('mobile-menu');
+  const menuButton = document.getElementById('menu-button');
+  menuButton.addEventListener('click', () => { menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); });
+  document.getElementById('menu-close').addEventListener('click', () => {
+    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); menuButton.focus();
   });
 
   (async () => {
-    if (!token()) { emailInput.focus(); return; }
-    show(waiting);
+    const preview = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? new URLSearchParams(location.search).get('preview') : null;
+    if (preview) {
+      previewMode = true;
+      member = { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true };
+      salon = preview === 'empty' ? null : {
+        id: 1,
+        note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',
+        startsAt: '2026-09-30T18:00:00.000Z',
+        timezone: 'Europe/London', durationMinutes: 90, rsvpCount: 11, myRsvp: null,
+        joinAvailableAt: '2026-09-30T17:50:00.000Z', zoomUrl: null,
+      };
+      fieldNotes = {
+        prompt: {
+          salonId: 2, salonStartsAt: '2026-08-27T18:00:00.000Z',
+          promptedAt: '2026-08-27T20:00:00.000Z',
+        },
+        groups: [
+          {
+            salonId: 1, salonStartsAt: '2026-07-30T18:00:00.000Z', notes: [
+              { id: 1, body: 'I noticed how quickly an ordinary question became a different kind of attention.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: false, author: 'Mira', isMine: false, publishedAt: '2026-07-31T10:00:00.000Z', editedAt: null },
+              { id: 2, body: 'What if uncertainty is less a problem to solve than somewhere to meet?', linkUrl: 'https://en.wikipedia.org/wiki/Negative_capability', hasImage: false, imageAlt: null, isAnonymous: true, author: null, isMine: false, publishedAt: '2026-07-31T12:00:00.000Z', editedAt: null },
+              { id: 3, body: 'The line I kept: attention is already a form of relationship.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: false, author: 'John', isMine: true, publishedAt: '2026-08-01T09:00:00.000Z', editedAt: null },
+            ],
+          },
+          {
+            salonId: 3, salonStartsAt: '2026-06-25T18:00:00.000Z', notes: [
+              { id: 4, body: 'Beginning again.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: true, author: null, isMine: false, publishedAt: '2026-06-26T09:00:00.000Z', editedAt: null },
+            ],
+          },
+        ],
+      };
+      givingState = {
+        month: '2026-08', testimonial: null, canSubmit: true,
+        suggestedName: 'John', consentVersion: 'public-any-channel-light-edit-v1',
+      };
+      directoryState = {
+        profile: {
+          id: 1, email: 'john@spacetobe.xyz', name: 'John',
+          line: 'Holding Beings Club.', website: 'https://spacetobe.xyz/', hasImage: false,
+        },
+        members: [
+          { id: 1, name: 'John', line: 'Holding Beings Club.', website: 'https://spacetobe.xyz/', hasImage: false, isMe: true },
+          { id: 2, name: 'Mira', line: 'Working with sound, attention and the spaces between.', website: 'https://example.com/', hasImage: true, previewImage: '/assets/img/about-aura.jpg', isMe: false },
+          { id: 3, name: 'Noor', line: 'In motion between technology, care and collective imagination.', website: null, hasImage: false, isMe: false },
+          { id: 4, name: 'Sam', line: null, website: 'https://example.org/', hasImage: true, previewImage: '/assets/img/salons-rainbow-circle.jpg', isMe: false },
+          { id: 5, name: 'Leila', line: 'Curious about cities, memory and how people gather.', website: null, hasImage: false, isMe: false },
+        ],
+      };
+      settingsState = {
+        email: {
+          salonAnnounced: true, salonWeek: true, salonDay: true,
+          fieldNotes: true, quiet: false,
+        },
+        account: { email: 'john@spacetobe.xyz', joinedAt: '2026-08-01T12:00:00.000Z', isHost: true },
+      };
+      showMemberApp(); return;
+    }
+    if (!token()) {
+      showLogin(emailForm);
+      const params = new URLSearchParams(location.search);
+      if (params.get('left') === '1') emailStatus.textContent = 'You have left Beings Club. If you ever want to return, leave John a note.';
+      if (params.get('signed-out') === 'all') emailStatus.textContent = 'Every device has been signed out.';
+      emailInput.focus(); return;
+    }
+    showLogin(waiting);
     try { const data = await call('/api/club/session'); await enter(data.member); }
-    catch (_) { forgetToken(); show(emailForm); emailInput.focus(); }
+    catch (_) { forgetToken(); showLogin(emailForm); emailInput.focus(); }
   })();
+
+  setInterval(updateClock, 30000);
+  setInterval(async () => {
+    if (!member || previewMode || !salon || salon.zoomUrl) return;
+    try { const state = await call('/api/club/salon'); salon = state.salon; renderSalon(); } catch (_) {}
+  }, 30000);
 })();

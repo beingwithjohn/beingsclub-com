@@ -15,6 +15,7 @@ import { postLogin } from './login.js';
 import { postJoin } from './join.js';
 import { listReplies, getReplyAudio } from './replies.js';
 import { clubRoute } from './club/index.js';
+import { runClubMail } from './club/mailer.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -42,7 +43,11 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runNudges(env, event.scheduledTime || Date.now()));
+    const scheduledTime = event.scheduledTime || Date.now();
+    ctx.waitUntil(Promise.all([
+      runNudges(env, scheduledTime),
+      runClubMail(env, scheduledTime),
+    ]));
   },
 };
 

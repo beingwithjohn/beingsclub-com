@@ -28,6 +28,13 @@ migrations_dir = "members-migrations"
 binding = "AUDIO"
 bucket_name = "practice-log-audio"
 
+# Private member images will use an R2 bucket once R2 is enabled on the
+# Cloudflare account. Until then, image endpoints fail closed with 503 while
+# profiles, text/link Field Notes and every other member feature remain live.
+# [[r2_buckets]]
+# binding = "MEMBER_MEDIA"
+# bucket_name = "beings-club-member-media"
+
 [vars]
 # The app's own origin. The API only accepts browser calls from here.
 # Comma-separated for more than one. An entry may end in `:*` to allow any port

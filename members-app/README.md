@@ -1,6 +1,6 @@
 # Beings Club members entrance
 
-The first private slice of the members area:
+The private foundation and first complete member slice:
 
 - an approved email asks for a six-digit, ten-minute, single-use code;
 - the public response is identical whether or not the address is approved;
@@ -8,8 +8,53 @@ The first private slice of the members area:
 - only a host session can read or change the approved-address list;
 - the host page is static, but no member data is in it — the private API
   returns that only after checking the session and host role;
-- the wider members area remains a private holding page until its features are
-  ready.
+- every approved person, including a host, lands in the same member dashboard;
+- a host can prepare a Salon privately, with a note, London-anchored date/time
+  and fallback Zoom link, then publish it to members deliberately;
+- publishing never sends an email — the announcement action remains visibly
+  separate and disabled until the rest of the members area is ready;
+- members see the Salon in their own local time, can toggle Beings Club time,
+  RSVP “in” or “not this time”, clear their response, and download a calendar
+  event that points back to the private member page;
+- RSVP presence is anonymous to members and attributable to the host;
+- the Zoom URL is withheld by the API until ten minutes before the Salon,
+  regardless of RSVP state.
+- after a completed Salon, the host marks attendees and opens a Field Note
+  invitation for those people only;
+- that invitation appears in the member area and is sent once by email, then
+  remains until the member shares or dismisses it;
+- a Field Note can hold text, a secure link, a private image, or any
+  combination, and appears immediately either signed or anonymous;
+- members can edit or remove their own note, but cannot respond, react or
+  comment on anybody's;
+- the archive is grouped by Salon/month and kept indefinitely;
+- anonymous notes remain unattributed in the member archive while the host can
+  see their author and remove any note where necessary.
+- Giving includes a quiet testimonial opportunity alongside financial giving:
+  one offering per member per Beings Club calendar month, never promoted by an
+  email, notification or reminder;
+- testimonial submission explicitly permits public use with the chosen name
+  across any Beings Club channel, including light editing or excerpting that
+  does not change the meaning;
+- testimonials enter a private host queue rather than appearing publicly;
+  while pending, their author can edit or withdraw them, and the host can copy,
+  mark used or pass.
+- every active member appears in the private directory by their chosen name;
+  a photograph, one contextual line and an HTTPS website are optional;
+- the directory exposes no email address, contact details, activity, presence,
+  ranking or member-to-member messaging, and profile images remain private;
+- a member without a chosen name is taken to Profile before the rest of the
+  member area, so signed Field Notes and testimonials have a deliberate identity.
+- Settings offers announcement, one-week and one-day Salon email choices, plus
+  the one-off Field Note invitation; all four default on for a new member;
+- “Quiet, for now” silences optional Club mail without affecting requested
+  six-digit access codes, and every Club email links back to Settings;
+- members can revoke every session and can leave the Club immediately, choosing
+  whether their existing Field Notes remain signed, become anonymous or are
+  permanently removed; a last remaining host cannot accidentally leave;
+- publishing a Salon and emailing its announcement are separate host actions;
+  week/day reminders use the existing half-hour Worker schedule and an
+  at-most-once send claim.
 
 The static source is in `members-app/app/` and builds to `/members/`:
 
@@ -27,7 +72,18 @@ Membership data is in the separate Cloudflare D1 database
 `beings-club-members`. The current Worker shares the already-configured Beings
 Club mail sender; it does not share Practice Log tables. Its migration is
 `practice-log/members-migrations/0001_members.sql`, which seeds
-`john@spacetobe.xyz` as the first approved address and host.
+`john@spacetobe.xyz` as the first approved address and host. Salon and RSVP
+state is added by `0002_salons.sql`.
+Field Note attendance, invitations and archive state are added by
+`0003_field_notes.sql`. Images are held in the private
+`beings-club-member-media` R2 bucket and are served only through an
+authenticated member request.
+The private monthly testimonial queue is added by `0004_testimonials.sql`.
+Member email choices, at-most-once Club send claims and the leaving policy are
+added by `0005_member_settings.sql`.
+Profile fields are part of the original member table, so the directory needs no
+additional migration. Profile photographs share the authenticated private R2
+media path used by Field Notes.
 
 Apply migrations before deploying the Worker:
 

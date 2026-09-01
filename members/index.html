@@ -6,14 +6,14 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="bc-members-api" content="https://practice-log.beingsclub.workers.dev">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data:; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
   <title>Members · Beings Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/members/app.css">
 </head>
-<body>
+<body class="app-body">
   <main class="login-page" id="login-page">
     <a class="back-link" href="/">← back</a>
 
@@ -45,13 +45,330 @@
       <span>Stay curious...</span>
     </div>
 
-    <section class="login-card" id="member-holding" hidden>
-      <span class="eyebrow">members</span>
-      <h1>Welcome, <strong id="member-name">being</strong>.</h1>
-      <p class="body-copy">Your access is ready. The wider members’ area is still taking shape, and you’ll hear when there is more to enter.</p>
-      <button class="secondary" id="sign-out" type="button">sign out</button>
-    </section>
   </main>
+
+  <section class="app-shell member-shell" id="member-app" hidden>
+    <span class="greeting" id="member-greeting">good evening, being</span>
+    <span class="clock" id="member-clock"></span>
+
+    <nav class="member-nav" aria-label="Members area">
+      <a class="current" href="#salon" data-member-view="salon" aria-current="page">next salon</a>
+      <a href="#field-notes" data-member-view="field-notes">field notes</a>
+      <a href="#members" data-member-view="members">members</a>
+      <span>in-person</span>
+      <a href="#giving" data-member-view="giving">giving</a>
+      <a class="nav-break" href="#profile" data-member-view="profile">profile</a>
+      <a href="#settings" data-member-view="settings">settings</a>
+      <a id="member-host-link" href="/members/host/" hidden>host</a>
+      <button class="nav-signout" id="sign-out" type="button">sign out</button>
+    </nav>
+
+    <button class="menu-button" id="menu-button" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+    <div class="mobile-menu" id="mobile-menu" hidden>
+      <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
+      <a class="current" href="#salon" data-member-view="salon">next salon</a>
+      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><span>in-person</span><a href="#giving" data-member-view="giving">giving</a>
+      <a class="nav-break" href="#profile" data-member-view="profile">profile</a><a href="#settings" data-member-view="settings">settings</a>
+      <a id="mobile-host-link" href="/members/host/" hidden>host</a>
+      <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
+    </div>
+
+    <main class="salon-page" id="salon-page">
+      <section class="salon-empty" id="salon-empty" hidden>
+        <span class="eyebrow">next salon</span>
+        <h1>The next one is <strong>taking shape</strong>.</h1>
+        <p>You’ll hear when it is ready. In the meantime, the things already shared remain in Field Notes.</p>
+      </section>
+
+      <section class="salon-view" id="salon-view" hidden>
+        <img class="salon-art" src="/assets/img/bb-leap.jpg" alt="A figure leaping across a hillside, trailing a plume of colour">
+        <div class="salon-hero">
+          <blockquote class="host-note">
+            <span>a note from John</span>
+            <p id="salon-note"></p>
+          </blockquote>
+
+          <div class="salon-heading">
+            <span class="eyebrow">the next salon</span>
+            <h1>The next <strong>Salon</strong> is <button class="time-toggle" id="salon-time" type="button"></button></h1>
+            <span class="time-hint" id="time-hint">your local time · select to see Beings Club time</span>
+          </div>
+
+          <p class="salon-intro">We begin with a guided curiosity practice. Following, members meet one-to-one and in groups of three — no prompts, no themes, nothing to do except stay curious.</p>
+
+          <div class="rsvp-panel">
+            <div class="rsvp-actions" id="rsvp-actions">
+              <button class="rsvp-button" data-rsvp="in" type="button">i’m in</button>
+              <button class="rsvp-quiet" data-rsvp="not_this_time" type="button">not this time</button>
+            </div>
+            <div class="rsvp-going" id="rsvp-going" hidden>
+              <span class="rsvp-confirmed">you’re in</span>
+              <button class="rsvp-clear" id="rsvp-clear" type="button" title="change your response" aria-label="Change your response">×</button>
+              <button class="calendar-link" id="calendar-link" type="button">add to calendar ↓</button>
+            </div>
+            <div class="rsvp-not-going" id="rsvp-not-going" hidden>
+              <span>not this time</span>
+              <button class="rsvp-clear" id="rsvp-clear-not" type="button">change</button>
+            </div>
+            <div class="rsvp-presence">
+              <div class="rsvp-dots" id="rsvp-dots" aria-hidden="true"></div>
+              <span id="rsvp-count"></span>
+            </div>
+            <span class="status" id="rsvp-status" role="status" aria-live="polite"></span>
+          </div>
+
+          <div class="salon-door">
+            <a class="join-room" id="join-room" target="_blank" rel="noopener" hidden>enter the Salon ↗</a>
+            <span id="door-waiting">The room opens from this page ten minutes before.</span>
+          </div>
+
+          <div class="salon-facts">
+            <div><span>where</span><strong>Online</strong><a href="https://zoom.us/download" target="_blank" rel="noopener">get Zoom ↗</a></div>
+            <div><span>duration</span><strong id="salon-duration">About 90 minutes</strong></div>
+            <div><span>cost</span><strong>Freely offered</strong></div>
+          </div>
+
+          <div class="salon-foot">
+            <span>Nothing to prepare and nothing to bring.</span>
+            <span>Admission is not guaranteed if arriving late.</span>
+            <span>Nothing is recorded.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <main class="field-notes-page" id="field-notes-page" hidden>
+      <div class="field-notes-content">
+        <header class="field-notes-heading">
+          <span class="eyebrow">field notes</span>
+          <h1>What the Salons <strong>leave behind</strong>.</h1>
+          <p>Thoughts, questions, images and references members chose to share. Field Notes are not a conversation: there are no responses, reactions or comments.</p>
+        </header>
+
+        <section class="field-note-composer" id="field-note-composer" hidden>
+          <div class="composer-intro">
+            <span class="eyebrow" id="composer-eyebrow">an invitation from the Salon</span>
+            <h2 id="composer-title">What stayed with you?</h2>
+            <p id="composer-invitation">You’re invited to share something of what you discovered at the Salon this month: a thought, question, image, reference or anything else from the Salon. Please respect the privacy and confidentiality of your conversations and remember that members who were not at the Salon will also be able to see what you share.</p>
+          </div>
+          <form class="field-note-form" id="field-note-form" novalidate>
+            <textarea id="field-note-body" maxlength="5000" placeholder="A thought, question, reference, or anything else..."></textarea>
+            <label class="field-note-link-label">
+              <span>link · optional</span>
+              <input id="field-note-link" type="url" inputmode="url" placeholder="https://">
+            </label>
+            <div class="field-note-image-row">
+              <label class="image-picker" for="field-note-image">add an image</label>
+              <input class="sr-only" id="field-note-image" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+              <span id="field-note-image-name">JPEG, PNG, GIF or WebP · up to 5MB</span>
+              <button class="text-button" id="field-note-image-remove" type="button" hidden>remove image</button>
+            </div>
+            <img class="field-note-image-preview" id="field-note-image-preview" alt="" hidden>
+            <label class="field-note-alt" id="field-note-alt-wrap" hidden>
+              <span>image description · optional</span>
+              <input id="field-note-alt" type="text" maxlength="240" placeholder="Describe the image for someone who cannot see it">
+            </label>
+            <fieldset class="field-note-attribution">
+              <legend>How should it appear?</legend>
+              <label><input type="radio" name="field-note-attribution" value="signed" checked> with my name</label>
+              <label><input type="radio" name="field-note-attribution" value="anonymous"> anonymously</label>
+            </fieldset>
+            <p class="field-note-notice">Your Field Note will appear immediately. If you share anonymously, other members won’t see your name. A note can still be traced to you by the host and removed where necessary to protect privacy, confidentiality or the space. Nobody can respond.</p>
+            <div class="field-note-form-actions">
+              <button class="primary" id="field-note-share" type="submit">share field note</button>
+              <button class="text-button" id="field-note-cancel-edit" type="button" hidden>cancel editing</button>
+              <button class="text-button" id="field-note-dismiss" type="button">dismiss this invitation</button>
+            </div>
+            <span class="status" id="field-note-status" role="status" aria-live="polite"></span>
+          </form>
+        </section>
+
+        <section class="field-note-archive" id="field-note-archive" aria-live="polite"></section>
+        <p class="field-notes-empty" id="field-notes-empty" hidden>Nothing has been left here yet.</p>
+      </div>
+    </main>
+
+    <main class="giving-page" id="giving-page" hidden>
+      <div class="giving-content">
+        <header class="giving-heading">
+          <span class="eyebrow">giving</span>
+          <h1>Giving keeps the <strong>door open</strong>.</h1>
+          <p>Beings Club is freely offered. If something here has been valuable, there are different ways to give something back.</p>
+        </header>
+
+        <section class="giving-options">
+          <article class="giving-option financial-giving">
+            <span class="eyebrow">financial giving</span>
+            <h2>Support the space.</h2>
+            <p>Give once or monthly, in whatever amount feels right.</p>
+            <a class="outline" href="/giving/">give financially ↗</a>
+          </article>
+
+          <article class="giving-option testimonial-giving">
+            <span class="eyebrow">offer a few words</span>
+            <h2>Share a testimonial.</h2>
+            <p>You may offer one testimonial each calendar month. This invitation simply lives here to be discovered; Beings Club will never notify or remind you about it.</p>
+
+            <form class="testimonial-form" id="testimonial-form" novalidate>
+              <label>
+                <span>the name it may appear under</span>
+                <input id="testimonial-name" type="text" maxlength="80" autocomplete="name" required>
+              </label>
+              <label>
+                <span>your words</span>
+                <textarea id="testimonial-body" maxlength="2000" placeholder="Something you would be happy for others to read..." required></textarea>
+              </label>
+              <label class="testimonial-consent">
+                <input id="testimonial-consent" type="checkbox" required>
+                <span>I give Beings Club permission to publish these words with my name across any of its public channels. They may be lightly edited or excerpted without changing their meaning.</span>
+              </label>
+              <div class="testimonial-actions">
+                <button class="primary" id="testimonial-submit" type="submit">offer these words</button>
+                <button class="text-button" id="testimonial-cancel-edit" type="button" hidden>cancel editing</button>
+              </div>
+              <span class="status" id="testimonial-status" role="status" aria-live="polite"></span>
+            </form>
+
+            <div class="testimonial-current" id="testimonial-current" hidden>
+              <span class="testimonial-current-state">with John · awaiting consideration</span>
+              <blockquote id="testimonial-current-body"></blockquote>
+              <span id="testimonial-current-name"></span>
+              <div class="testimonial-actions" id="testimonial-current-actions">
+                <button class="text-button" id="testimonial-edit" type="button">edit</button>
+                <button class="text-button" id="testimonial-withdraw" type="button">withdraw</button>
+              </div>
+              <p id="testimonial-resolved-copy" hidden></p>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <main class="directory-page" id="directory-page" hidden>
+      <div class="directory-content">
+        <header class="directory-heading">
+          <span class="eyebrow">members</span>
+          <h1>People you may <strong>meet here</strong>.</h1>
+          <p>Members principally encounter each other through Salons and what they choose to share. This is simply a little more context—never contact details, activity or a way to message people.</p>
+        </header>
+        <section class="directory-grid" id="directory-grid" aria-live="polite"></section>
+      </div>
+    </main>
+
+    <main class="profile-page" id="profile-page" hidden>
+      <div class="profile-content">
+        <header class="profile-heading">
+          <span class="eyebrow">profile</span>
+          <h1>How you <strong>appear here</strong>.</h1>
+          <p>Your chosen name is the only thing every member shares. A photograph, one line of context and a website are entirely optional.</p>
+        </header>
+
+        <section class="profile-editor">
+          <div class="profile-portrait-editor">
+            <div class="profile-image-frame" id="profile-image-frame">
+              <img id="profile-image-preview" alt="Your current profile image" hidden>
+              <span id="profile-image-fallback" aria-hidden="true"></span>
+            </div>
+            <div class="profile-image-actions">
+              <label class="image-picker" for="profile-image-input">choose an image</label>
+              <input class="sr-only" id="profile-image-input" type="file" accept="image/jpeg,image/png,image/webp">
+              <button class="text-button" id="profile-image-remove" type="button" hidden>remove</button>
+              <span>JPEG, PNG or WebP · up to 5MB</span>
+            </div>
+          </div>
+
+          <form class="profile-form" id="profile-form" novalidate>
+            <label>
+              <span>chosen name · required</span>
+              <input id="profile-name" type="text" maxlength="60" autocomplete="name" required>
+            </label>
+            <label>
+              <span>one line of context · optional</span>
+              <input id="profile-line" type="text" maxlength="180" placeholder="Something that helps another member place you">
+            </label>
+            <label>
+              <span>website · optional</span>
+              <input id="profile-website" type="url" inputmode="url" placeholder="https://">
+            </label>
+            <p class="profile-email">You sign in with <strong id="profile-email"></strong>. This is never shown to other members.</p>
+            <button class="primary" id="profile-save" type="submit">save profile</button>
+            <span class="status" id="profile-status" role="status" aria-live="polite"></span>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <main class="settings-page" id="settings-page" hidden>
+      <div class="settings-content">
+        <header class="settings-heading">
+          <span class="eyebrow">settings</span>
+          <h1>Choose what <strong>reaches you</strong>.</h1>
+          <p>Club emails are optional. Access codes still arrive when you ask for one, because they are how you enter.</p>
+        </header>
+
+        <section class="settings-section" aria-labelledby="settings-email-title">
+          <h2 id="settings-email-title">email</h2>
+          <div class="settings-group" id="salon-email-options">
+            <div class="settings-group-copy">
+              <strong>Salons</strong>
+              <span>Email me about the next Salon—</span>
+            </div>
+            <label class="setting-choice"><input id="email-salon-announced" type="checkbox"><span>when it is announced</span></label>
+            <label class="setting-choice"><input id="email-salon-week" type="checkbox"><span>one week before</span></label>
+            <label class="setting-choice"><input id="email-salon-day" type="checkbox"><span>one day before</span></label>
+          </div>
+          <label class="setting-row" id="field-note-email-row">
+            <span><strong>Field Notes</strong><small>One invitation after a Salon you attended. It also remains inside the member area until you share or dismiss it.</small></span>
+            <input id="email-field-notes" type="checkbox" aria-label="Email Field Note invitations">
+          </label>
+          <label class="setting-row quiet-setting">
+            <span><strong>Quiet, for now</strong><small>Silence all optional Club email until you come back here. Nothing else changes.</small></span>
+            <input id="email-quiet" type="checkbox" aria-label="Silence optional Club email">
+          </label>
+          <p class="settings-note" id="settings-email-note">Every Club email ends with a link back to this page.</p>
+          <span class="status" id="settings-email-status" role="status" aria-live="polite"></span>
+        </section>
+
+        <section class="settings-section" aria-labelledby="settings-access-title">
+          <h2 id="settings-access-title">access</h2>
+          <div class="settings-copy-row">
+            <span><strong>Signed in as</strong><small id="settings-account-email"></small></span>
+            <button class="outline" id="sign-out-all" type="button">sign out everywhere</button>
+          </div>
+          <p class="settings-note">This ends every open member session, including this one. You can return with a fresh six-digit code.</p>
+          <span class="status" id="settings-access-status" role="status" aria-live="polite"></span>
+        </section>
+
+        <section class="settings-section leave-section" aria-labelledby="settings-leave-title">
+          <h2 id="settings-leave-title">leaving for good</h2>
+          <div id="leave-intro">
+            <p>Membership continues until you choose to leave. Leaving removes you from the member directory and future gatherings, silences Club email and signs you out everywhere.</p>
+            <button class="text-button" id="leave-open" type="button">leave Beings Club</button>
+          </div>
+          <form class="leave-form" id="leave-form" hidden novalidate>
+            <fieldset>
+              <legend>What should happen to Field Notes you already shared?</legend>
+              <label><input type="radio" name="leave-note-policy" value="keep_signed" checked><span><strong>Keep them signed</strong><small>Your chosen name remains on past signed Field Notes.</small></span></label>
+              <label><input type="radio" name="leave-note-policy" value="anonymise"><span><strong>Make them anonymous</strong><small>The notes remain, but other members no longer see your name.</small></span></label>
+              <label><input type="radio" name="leave-note-policy" value="remove"><span><strong>Remove them</strong><small>Your past Field Notes and their images are permanently removed.</small></span></label>
+            </fieldset>
+            <p>Pending testimonial words are withdrawn. Past RSVP and attendance records are removed. To confirm, type <strong>LEAVE</strong>.</p>
+            <label class="leave-confirm"><span class="sr-only">Type LEAVE to confirm</span><input id="leave-confirm" type="text" autocomplete="off" placeholder="LEAVE" pattern="LEAVE" required></label>
+            <div class="leave-actions">
+              <button class="primary" id="leave-submit" type="submit">confirm leaving</button>
+              <button class="text-button" id="leave-cancel" type="button">stay</button>
+            </div>
+            <span class="status" id="leave-status" role="status" aria-live="polite"></span>
+          </form>
+        </section>
+
+        <footer class="settings-foot">
+          <span>changes save as you make them</span>
+          <span>freely offered · nothing recorded beyond what the space needs</span>
+        </footer>
+      </div>
+    </main>
+  </section>
   <script src="/members/app.js" defer></script>
 </body>
 </html>

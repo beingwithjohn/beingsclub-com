@@ -135,6 +135,101 @@ export async function sendClubCode(env, { email, name, code }) {
   return post(env, { to: email, from: club(env), subject, text, html });
 }
 
+/** One invitation after John marks somebody as having attended a Salon. */
+export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt }) {
+  const date = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London', month: 'long', year: 'numeric',
+  }).format(new Date(Number(salonStartsAt) * 1000));
+  const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
+  const subject = `A Field Note from the ${date} Salon`;
+  const url = 'https://beingsclub.com/members/#field-notes';
+  const settingsUrl = 'https://beingsclub.com/members/#settings';
+  const invitation = 'You’re invited to share something of what you discovered at the Salon: a thought, question, image, reference or anything else.';
+  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${invitation}\n\nPlease respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share. Nobody can respond to a Field Note.\n\nShare or dismiss the invitation inside Beings Club:\n${url}\n\nChoose what we send you:\n${settingsUrl}\n\nIn any case, stay curious\nfor the benefit of all beings`;
+  const html = clubEmailLayout({
+    preheader: 'Something from the Salon, if you would like to share it.',
+    heading: 'That was this month’s <span style="color:#5A4B7C">Salon</span>.',
+    body: `<p style="margin:0 0 16px">${greeting}</p><p style="margin:0 0 16px">${escapeHtml(invitation)}</p>`
+      + '<p style="margin:0">Please respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share. Nobody can respond to a Field Note.</p>',
+    actionUrl: url,
+    actionLabel: 'leave a Field Note',
+    settingsUrl,
+  });
+  return post(env, { to: email, from: club(env), subject, text, html });
+}
+
+/** The three member-controlled Salon emails: announcement, week and day. */
+export async function sendClubSalonEmail(env, {
+  email, name, salonStartsAt, hostNote, kind,
+}) {
+  const when = clubSalonTime(salonStartsAt);
+  const settingsUrl = 'https://beingsclub.com/members/#settings';
+  const salonUrl = 'https://beingsclub.com/members/#salon';
+  const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
+  const versions = {
+    announcement: {
+      subject: `The next Salon · ${when}`,
+      preheader: `The next Salon has been announced for ${when}.`,
+      heading: 'The next <span style="color:#5A4B7C">Salon</span>.',
+      opening: `The next Salon has taken shape. We’ll gather ${when}.`,
+    },
+    week: {
+      subject: `The Salon is one week away · ${when}`,
+      preheader: `One week until the next Salon.`,
+      heading: 'One week until the next <span style="color:#5A4B7C">Salon</span>.',
+      opening: `A quiet note that we gather in one week: ${when}.`,
+    },
+    day: {
+      subject: `The Salon is tomorrow · ${when}`,
+      preheader: `The next Salon is tomorrow.`,
+      heading: 'The Salon is <span style="color:#5A4B7C">tomorrow</span>.',
+      opening: `A quiet note that we gather tomorrow: ${when}.`,
+    },
+  };
+  const version = versions[kind] || versions.announcement;
+  const note = String(hostNote || '').trim();
+  const description = 'We begin with a guided curiosity practice, then meet one-to-one and in groups of three. A space for practice and conversation; nothing to prepare and nothing to bring.';
+  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${version.opening}\n\n${note ? `${note}\n\n` : ''}${description}\n\nOpen the Salon to RSVP or add it to your calendar:\n${salonUrl}\n\nChoose what we send you:\n${settingsUrl}\n\nIn any case, stay curious\nfor the benefit of all beings`;
+  const html = clubEmailLayout({
+    preheader: version.preheader,
+    heading: version.heading,
+    body: `<p style="margin:0 0 16px">${greeting}</p><p style="margin:0 0 16px">${escapeHtml(version.opening)}</p>`
+      + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
+      + `<p style="margin:0">${escapeHtml(description)}</p>`,
+    actionUrl: salonUrl,
+    actionLabel: 'open the Salon',
+    settingsUrl,
+  });
+  return post(env, { to: email, from: club(env), subject: version.subject, text, html });
+}
+
+export function clubSalonTime(seconds) {
+  const date = new Date(Number(seconds) * 1000);
+  const day = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London', weekday: 'long', day: 'numeric', month: 'long',
+  }).format(date);
+  const time = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London', hour: 'numeric', minute: '2-digit', hour12: true,
+    timeZoneName: 'short',
+  }).format(date).replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
+  return `${day}, ${time}`;
+}
+
+function clubEmailLayout({ preheader, heading, body, actionUrl, actionLabel, settingsUrl }) {
+  return `<!doctype html><html lang="en"><body style="margin:0;padding:0;background:#F7F5EF">`
+    + `<span style="display:none;font-size:1px;color:#F7F5EF;max-height:0;opacity:0;overflow:hidden">${escapeHtml(preheader)}</span>`
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F5EF"><tr><td align="center" style="padding:36px 16px">'
+    + '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#FDFCF9">'
+    + '<tr><td style="padding:44px 48px 0"><img src="https://beingsclub.com/assets/beings-logo-outline.png" alt="Beings Club" width="180" style="display:block;width:180px;max-width:100%;height:auto;border:0"></td></tr>'
+    + `<tr><td style="padding:28px 48px 0;font-family:Helvetica,Arial,sans-serif;font-size:34px;font-weight:bold;letter-spacing:-1px;line-height:40px;color:#171916">${heading}</td></tr>`
+    + `<tr><td style="padding:20px 48px 0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:27px;color:#4A473F">${body}</td></tr>`
+    + `<tr><td style="padding:30px 48px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#171916"><a href="${actionUrl}" style="display:block;padding:14px 32px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;text-decoration:none">${escapeHtml(actionLabel)}</a></td></tr></table></td></tr>`
+    + '<tr><td style="padding:36px 48px 44px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E7E4DB">'
+    + '<tr><td style="padding-top:22px;font-family:Courier New,Courier,monospace;font-size:11px;line-height:19px;color:#A5A198">in any case, stay curious<br>for the benefit of all beings</td></tr>'
+    + `<tr><td style="padding-top:18px;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:18px;color:#A5A198">Beings Club · London, United Kingdom · <a href="${settingsUrl}" style="color:#A5A198;text-decoration:underline">choose what we send you</a></td></tr>`
+    + '</table></td></tr></table></td></tr></table></body></html>';
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

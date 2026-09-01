@@ -4,6 +4,23 @@ import {
   bearerToken, keyedHash, normalizeEmail, randomCode, randomToken,
   sameText, tokenHash, validChallenge, validCode,
 } from './security.js';
+import {
+  getHostSalon, getMemberSalon, publishHostSalon, saveHostSalon, setMemberRsvp,
+} from './salons.js';
+import {
+  createFieldNote, dismissFieldNoteInvitation, getFieldNoteImage,
+  getHostFieldNotes, getMemberFieldNotes, hostRemoveFieldNote,
+  inviteFieldNoteAttendees, removeOwnFieldNote, updateFieldNote,
+} from './field-notes.js';
+import {
+  createTestimonial, getHostTestimonials, getMemberGiving, resolveTestimonial,
+  updateTestimonial, withdrawTestimonial,
+} from './testimonials.js';
+import { getDirectory, getProfileImage, updateProfile } from './profiles.js';
+import {
+  getMemberSettings, leaveClub, signOutEverywhere, updateMemberSettings,
+} from './settings.js';
+import { announceSalon } from './mailer.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -31,8 +48,85 @@ export async function clubRoute(request, env, ctx, url) {
     return json({ ok: true });
   }
 
+  if (path === '/api/club/salon' && method === 'GET') return getMemberSalon(env, who);
+  const rsvp = /^\/api\/club\/salons\/(\d+)\/rsvp$/.exec(path);
+  if (rsvp && method === 'POST') {
+    return setMemberRsvp(env, who, Number(rsvp[1]), await readJson(request));
+  }
+  if (path === '/api/club/field-notes' && method === 'GET') return getMemberFieldNotes(env, who);
+  if (path === '/api/club/field-notes' && method === 'POST') {
+    return createFieldNote(env, who, await readJson(request));
+  }
+  const fieldNoteImage = /^\/api\/club\/field-notes\/(\d+)\/image$/.exec(path);
+  if (fieldNoteImage && method === 'GET') return getFieldNoteImage(env, Number(fieldNoteImage[1]));
+  const fieldNote = /^\/api\/club\/field-notes\/(\d+)$/.exec(path);
+  if (fieldNote && method === 'PATCH') {
+    return updateFieldNote(env, who, Number(fieldNote[1]), await readJson(request));
+  }
+  if (fieldNote && method === 'DELETE') return removeOwnFieldNote(env, who, Number(fieldNote[1]));
+  const dismissFieldNote = /^\/api\/club\/field-note-invitations\/(\d+)\/dismiss$/.exec(path);
+  if (dismissFieldNote && method === 'POST') {
+    return dismissFieldNoteInvitation(env, who, Number(dismissFieldNote[1]));
+  }
+  if (path === '/api/club/giving' && method === 'GET') return getMemberGiving(env, who);
+  if (path === '/api/club/testimonials' && method === 'POST') {
+    return createTestimonial(env, who, await readJson(request));
+  }
+  const testimonial = /^\/api\/club\/testimonials\/(\d+)$/.exec(path);
+  if (testimonial && method === 'PATCH') {
+    return updateTestimonial(env, who, Number(testimonial[1]), await readJson(request));
+  }
+  if (testimonial && method === 'DELETE') {
+    return withdrawTestimonial(env, who, Number(testimonial[1]));
+  }
+  if (path === '/api/club/directory' && method === 'GET') return getDirectory(env, who);
+  if (path === '/api/club/profile' && method === 'PATCH') {
+    return updateProfile(env, who, await readJson(request));
+  }
+  if (path === '/api/club/settings' && method === 'GET') return getMemberSettings(env, who);
+  if (path === '/api/club/settings' && method === 'PATCH') {
+    return updateMemberSettings(env, who, await readJson(request));
+  }
+  if (path === '/api/club/settings/sign-out-all' && method === 'POST') {
+    return signOutEverywhere(env, who);
+  }
+  if (path === '/api/club/settings/leave' && method === 'POST') {
+    return leaveClub(env, who, await readJson(request));
+  }
+  const profileImage = /^\/api\/club\/members\/(\d+)\/image$/.exec(path);
+  if (profileImage && method === 'GET') return getProfileImage(env, Number(profileImage[1]));
+
   if (!who.is_host || !path.startsWith('/api/club/host/')) return bad(404, 'not found');
 
+  if (path === '/api/club/host/salon' && method === 'GET') return getHostSalon(env);
+  if (path === '/api/club/host/salon' && method === 'POST') {
+    return saveHostSalon(env, who, await readJson(request));
+  }
+  if (path === '/api/club/host/salon/publish' && method === 'POST') {
+    return publishHostSalon(env, await readJson(request));
+  }
+  if (path === '/api/club/host/salon/announce' && method === 'POST') {
+    const body = await readJson(request);
+    return announceSalon(env, Number(body?.id), ctx);
+  }
+  if (path === '/api/club/host/field-notes' && method === 'GET') return getHostFieldNotes(env);
+  const inviteFieldNotes = /^\/api\/club\/host\/salons\/(\d+)\/field-note-invitations$/.exec(path);
+  if (inviteFieldNotes && method === 'POST') {
+    return inviteFieldNoteAttendees(
+      env, who, Number(inviteFieldNotes[1]), await readJson(request), ctx,
+    );
+  }
+  const removeFieldNote = /^\/api\/club\/host\/field-notes\/(\d+)$/.exec(path);
+  if (removeFieldNote && method === 'DELETE') {
+    return hostRemoveFieldNote(env, Number(removeFieldNote[1]));
+  }
+  if (path === '/api/club/host/testimonials' && method === 'GET') return getHostTestimonials(env);
+  const resolveTestimonialPath = /^\/api\/club\/host\/testimonials\/(\d+)\/resolve$/.exec(path);
+  if (resolveTestimonialPath && method === 'POST') {
+    return resolveTestimonial(
+      env, who, Number(resolveTestimonialPath[1]), await readJson(request),
+    );
+  }
   if (path === '/api/club/host/members' && method === 'GET') return listMembers(env);
   if (path === '/api/club/host/members' && method === 'POST') {
     return addMember(env, who, await readJson(request));
@@ -195,7 +289,7 @@ async function listMembers(env) {
     email: member.email,
     name: member.display_name,
     isHost: !!member.is_host,
-    status: member.disabled_at || member.left_at ? 'removed' : (member.joined_at ? 'joined' : 'invited'),
+    status: member.disabled_at ? 'removed' : member.left_at ? 'left' : (member.joined_at ? 'joined' : 'invited'),
     canRemove: !member.is_host,
   })) });
 }
@@ -204,12 +298,23 @@ async function addMember(env, who, body) {
   const email = normalizeEmail(body?.email);
   if (!email) return bad(400, 'email');
   const timestamp = now();
+  const existing = await env.MEMBERS.prepare(
+    'SELECT id, left_at FROM member WHERE email = ?1',
+  ).bind(email).first();
   await env.MEMBERS.prepare(
     `INSERT INTO member (email, is_host, invited_at, created_at, updated_at)
      VALUES (?1, 0, ?2, ?2, ?2)
      ON CONFLICT(email) DO UPDATE SET
-       disabled_at = NULL, left_at = NULL, invited_at = ?2, updated_at = ?2`,
+       disabled_at = NULL, left_at = NULL, leave_note_policy = NULL,
+       invited_at = ?2, updated_at = ?2`,
   ).bind(email, timestamp).run();
+  if (existing?.left_at) {
+    await env.MEMBERS.prepare(
+      `UPDATE member_email_pref SET salon_announced = 1, salon_week = 1,
+         salon_day = 1, field_notes = 1, quiet = 0, updated_at = ?1
+       WHERE member_id = ?2`,
+    ).bind(timestamp, existing.id).run();
+  }
   const member = await env.MEMBERS.prepare(
     'SELECT id, email, joined_at FROM member WHERE email = ?1',
   ).bind(email).first();
@@ -243,7 +348,7 @@ function shapeMember(member) {
     name: member.display_name,
     website: member.website,
     line: member.profile_line,
-    image: member.profile_image,
+    hasImage: !!member.profile_image,
     isHost: !!member.is_host,
   };
 }

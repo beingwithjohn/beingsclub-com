@@ -20,7 +20,7 @@ SCREENS = [
      "Curiosity connects people, ideas and new futures. Where Beings Club came from, and how what is important can reveal itself."),
     ("salons", "Salons",
      "/salons/", "Salons — where curiosity connects · Beings Club",
-     "A monthly gathering online. Meditation, then conversation in randomly assorted pairs and threes. Nothing to prepare."),
+     "A monthly online gathering and guided curiosity practice. A space for practice and conversation in randomly assorted pairs and threes."),
     ("sits", "Sits",
      "/sits/", "Sits — meditation for the curious · Beings Club",
      "Small online meditation groups for curious people and sceptics: daily practice, weekly live meetings, contemplative roots and nothing asked as belief."),
@@ -78,6 +78,36 @@ def convert(body, key):
         assert 'id="bc-app-public-scroll"' in body, 'App public landing not found'
         assert 'data-note-form="top"' in body, 'App note form not found'
         assert 'href="/members/"' in body, 'Private members entrance not found'
+
+        # Salons are framed through the purpose of the opening practice rather
+        # than through a meditation category. Beyond Belief and Sits still name
+        # meditation plainly because teaching it is the substance of those offers.
+        for old, new, what in [
+            ('We begin with meditation.',
+             'We begin with a guided curiosity practice.', 'summary card'),
+            ('Beings Club is where curiosity connects — a space for meditation and conversation.',
+             'Beings Club is where curiosity connects — a space for practice and conversation.',
+             'club description'),
+            ('Our monthly online meeting is called a Salon and it starts with meditation.',
+             'Our monthly online meeting is called a Salon and it starts with a guided curiosity practice.',
+             'Salon introduction'),
+            ('>We sit together</span>',
+             '>We practice together</span>', 'Salon first step'),
+            ('Around twenty minutes of guided meditation practice — individual practice in a shared field. '
+             'Nothing has to be believed: instructions are offered as an invitation, to experiment with and '
+             'discover the reality of for yourself.',
+             'Around twenty minutes of guided curiosity practice — individual practice in a shared field. '
+             'Instructions are offered as invitations, to experiment with and discover for yourself.',
+             'Salon practice description'),
+            (">I've never meditated. Is that a problem?</span>",
+             '>Do I need any experience?</span>', 'Salon question'),
+            ('Meditation instruction at Beings Club is accessible to all experience levels and you are not '
+             'required to adopt any beliefs to practice.',
+             'The guided curiosity practice is accessible at every level and you are not required to adopt '
+             'any beliefs.', 'Salon answer'),
+        ]:
+            assert old in body, 'Home %s not found' % what
+            body = body.replace(old, new, 1)
 
     if key == 'join':
         door_heading = '<span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>'
@@ -226,6 +256,21 @@ def convert(body, key):
         rooms = 'Randomly allocated, 1:1 or in threes.'
         assert rooms in body, 'salons step 02 allocation line not found'
         body = body.replace(rooms, 'Randomly allocated, one-to-one and in threes.', 1)
+        # Name the opening for what it invites, rather than categorising it as
+        # meditation. This keeps Salons distinct from the meditation teaching
+        # offered through Sits and Beyond Belief.
+        for old, new, what in [
+            ('Every Salon begins with meditation.',
+             'Every Salon begins with a guided curiosity practice.', 'opening paragraph'),
+            ('>We sit together</h3>',
+             '>We practice together</h3>', 'first-step heading'),
+            ('About twenty minutes of meditation to open — individual practice, held in a shared field.',
+             'About twenty minutes of guided curiosity practice to open — individual practice, held in a '
+             'shared field. Instructions are offered as invitations to experiment and discover for yourself.',
+             'first step'),
+        ]:
+            assert old in body, 'Salons %s not found' % what
+            body = body.replace(old, new, 1)
         # All three steps now open "We —": sit, explore, close. The middle one
         # named a place while the others named an act.
         heading = '>Conversation rooms</h3>'
@@ -248,7 +293,7 @@ def convert(body, key):
         body = body.replace(stale, '<span data-next-salon="1">' + next_salon + '</span>', 1)
         salons_intro = ('<p style="margin:0;font-size:19px;line-height:1.7;color:#43403A;'
                         'text-wrap:pretty;">Every month we gather to take time for ourselves and '
-                        'to meet one another. Every Salon begins with meditation.</p>')
+                        'to meet one another. Every Salon begins with a guided curiosity practice.</p>')
         assert salons_intro in body, 'Salons opening paragraph not found'
         body = body.replace(salons_intro,
             '<p class="bc-now-line" data-next-salon="1">' + next_salon + '</p>\n      ' +
