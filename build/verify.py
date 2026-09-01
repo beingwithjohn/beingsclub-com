@@ -115,6 +115,8 @@ def audit(html, label):
        "I've never meditated" not in html)
     if label == 'index.html':
         home = active.group(0) if active else ''
+        ok(label + ": the Beings Club logo has no information hover",
+           'data-public-logo' not in home and 'data-logo-pop' not in home)
         ok(label + ": public threshold matches the supplied app actions",
            'href="/members/"' in home and '>login</a>' in home and
            'data-note-open="1"' in home and '>become a member</a>' in home and

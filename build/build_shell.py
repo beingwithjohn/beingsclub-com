@@ -83,8 +83,6 @@ def convert(body, key):
         # than through a meditation category. Beyond Belief and Sits still name
         # meditation plainly because teaching it is the substance of those offers.
         for old, new, what in [
-            ('We begin with meditation.',
-             'We begin with a guided curiosity practice.', 'summary card'),
             ('Beings Club is where curiosity connects — a space for meditation and conversation.',
              'Beings Club is where curiosity connects — a space for practice and conversation.',
              'club description'),
@@ -1027,7 +1025,6 @@ JS = r"""
     trigger.addEventListener('mouseleave', function () { pop.hidden = true; });
   }
   wirePop(document.querySelector('[data-public-word]'), document.querySelector('[data-word-pop]'));
-  wirePop(document.querySelector('[data-public-logo]'), document.querySelector('[data-logo-pop]'));
 
   // The nav wordmark on inner screens: a CSS background until the SVG arrives (so
   // nothing shifts), then inlined so the outlines can thicken 9 -> 12 on hover.

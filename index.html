@@ -436,7 +436,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       </div>
     </div>
 
-    <div id="bc-logo" data-public-logo="1" aria-label="Beings Club" style="position:absolute;right:9%;top:50%;transform:translateY(-50%);width:min(300px,22vw);opacity:.9;"><img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;"></div>
+    <div id="bc-logo" aria-label="Beings Club" style="position:absolute;right:9%;top:50%;transform:translateY(-50%);width:min(300px,22vw);opacity:.9;"><img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;"></div>
     <span style="position:absolute;left:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#A5A198;">est. 2025</span>
     <span style="position:absolute;right:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#A5A198;">for the benefit of all beings</span>
 
@@ -445,12 +445,6 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       <span style="font-size:12.5px;line-height:1.7;color:#4A473F;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span>
     </div>
 
-    <div data-m="pop" data-logo-pop="1" hidden style="position:fixed;transform:translate(24px,-40px);z-index:20;pointer-events:none;width:440px;background:#FDFCF9;border:1px solid #DAD6CB;box-shadow:0 10px 36px rgba(23,25,22,.14);padding:30px 34px;display:grid;gap:14px;animation:bc-app-appear .2s cubic-bezier(.22,1,.36,1) both;">
-      <span style="font-size:19px;font-weight:600;color:#171916;">What is Beings Club?</span>
-      <span style="font-size:15px;line-height:1.75;color:#4A473F;">Every month beings gather to take time for ourselves and to meet one another. We begin with a guided curiosity practice. Following, members meet one-to-one and in groups of three. There are no prompts, no themes, and nothing to do except stay curious.</span>
-      <span style="font-size:13px;color:#4A473F;">Membership is free.</span>
-      <span style="font-size:12.5px;color:#A5A198;">for the benefit of all beings</span>
-    </div>
   </div>
 
   <div data-m="below" style="box-sizing:border-box;padding:50px 44px 140px 10%;">
@@ -1251,7 +1245,6 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     trigger.addEventListener('mouseleave', function () { pop.hidden = true; });
   }
   wirePop(document.querySelector('[data-public-word]'), document.querySelector('[data-word-pop]'));
-  wirePop(document.querySelector('[data-public-logo]'), document.querySelector('[data-logo-pop]'));
 
   // The nav wordmark on inner screens: a CSS background until the SVG arrives (so
   // nothing shifts), then inlined so the outlines can thicken 9 -> 12 on hover.
