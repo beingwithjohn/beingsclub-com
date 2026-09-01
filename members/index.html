@@ -23,7 +23,7 @@
       <label class="sr-only" for="email">Email</label>
       <input id="email" name="email" type="email" autocomplete="email" placeholder="Email" required>
       <button class="primary" type="submit">continue</button>
-      <span class="aside">New here? Membership begins with a note on the landing page.</span>
+      <span class="aside">New here? <a href="/#leave-a-note">Membership begins with a note</a>.</span>
       <span class="status" id="email-status" role="status" aria-live="polite"></span>
     </form>
 
@@ -67,6 +67,42 @@
       <button class="primary" type="submit">enter</button>
       <span class="status" id="agreement-status" role="status" aria-live="polite"></span>
     </form>
+  </section>
+
+  <section class="welcome-page" id="welcome-page" hidden>
+    <button class="welcome-skip" id="welcome-skip" type="button">skip →</button>
+    <span class="welcome-count" id="welcome-count">1 / 5</span>
+    <div class="welcome-card">
+      <article class="welcome-step" data-welcome-step="0">
+        <h1>Welcome, <strong id="welcome-name">being</strong>.</h1>
+        <p>Beings Club is where curiosity connects. A few things worth knowing before you find your way around.</p>
+      </article>
+      <article class="welcome-step" data-welcome-step="1" hidden>
+        <h1><strong>Curiosity</strong> connects.</h1>
+        <p>We define curiosity as an orientation to experience that is open to discovery. Practised in this way, we create the conditions for connection—to ourselves, to each other and to what is possible.</p>
+        <small>the whole of it lives under about</small>
+      </article>
+      <article class="welcome-step" data-welcome-step="2" hidden>
+        <h1>The <strong>Salon</strong> is the heart of it.</h1>
+        <p>Every month, beings gather to take time for ourselves and meet one another. We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts, no themes and nothing to do except stay curious.</p>
+      </article>
+      <article class="welcome-step" data-welcome-step="3" hidden>
+        <h1 id="welcome-salon-heading">The next Salon will appear here when it is announced.</h1>
+        <div class="welcome-facts">
+          <span><small>rhythm</small>Monthly</span>
+          <span><small>duration</small>About 90 minutes</span>
+          <span><small>where</small>Online, from anywhere</span>
+          <span><small>cost</small>Freely offered</span>
+        </div>
+        <small>nothing to prepare and nothing to bring</small>
+      </article>
+      <article class="welcome-step" data-welcome-step="4" hidden>
+        <h1>Freely <strong>offered</strong>.</h1>
+        <p>Nothing is charged, now or ever, to be here. There’s a way to give if and when you want to, and skipping it changes nothing. The club is yours either way.</p>
+        <small>whenever you like, under giving</small>
+      </article>
+      <button class="secondary" id="welcome-next" type="button">next</button>
+    </div>
   </section>
 
   <section class="app-shell member-shell" id="member-app" hidden>

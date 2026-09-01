@@ -384,10 +384,9 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   [data-vh="0"]:hover{color:#FFFFFF !important;background:#5A4B7C !important;border-color:#5A4B7C !important}
   [data-vh="1"]:hover{background:#3D3B35 !important}
   [data-vh="2"]:hover{background:#B9A6E8 !important}
-  [data-vh="3"]:hover{background:#5A4B7C !important}
-  [data-vh="4"]:hover{color:#171916 !important}
-  [data-vh="5"]:hover{background:#F8F6F1 !important}
-  [data-vh="6"]:hover{background:#5A4B7C !important;color:#FDFCF9 !important}
+  [data-vh="3"]:hover{color:#171916 !important}
+  [data-vh="4"]:hover{background:#F8F6F1 !important}
+  [data-vh="5"]:hover{background:#5A4B7C !important;color:#FDFCF9 !important}
 </style>
 </head>
 <body>
@@ -486,7 +485,11 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       </div>
 
       <div style="display:grid;gap:16px;justify-items:start;">
-        <a href="#leave-a-note" data-foot-note-open="1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:13px 28px;" data-vh="3">join the club</a>
+        <div data-note-actions="foot" style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="/members/" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#171916;background:#FFFFFF;border:1px solid #171916;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="0">login</a>
+          <a href="#leave-a-note" data-foot-note-open="1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:11px 24px;transition:background .18s ease;" data-vh="1">become a member</a>
+          <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#3E3357;background:#C9BEE8;padding:11px 24px;transition:background .18s ease;" data-vh="2">public events ↗</a>
+        </div>
         <form data-note-form="foot" hidden style="display:grid;gap:12px;width:min(520px,86vw);animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span><button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#A5A198;border:0;background:transparent;">×</button></div>
           <div class="bc-app-note-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><input name="name" placeholder="Name" aria-label="Name" autocomplete="name" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;"><input name="email" placeholder="Email" aria-label="Email" type="email" autocomplete="email" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;"></div>
@@ -514,7 +517,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 
   <header style="padding:clamp(48px,9vh,88px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);display:grid;gap:22px;">
     <span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">About</span>
-    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a <span id="bc-rh" role="button" tabindex="0" aria-label="realisationhouse, definition" data-rh-on="1" data-rh-off="1" data-rh-on="1" data-rh-off="1" data-rh-toggle="1" data-rh-key="1" style="position:relative;display:inline-block;cursor:help;color:transparent;-webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;" data-vh="4">realisationhouse</span></span> for the curious.</h1>
+    <h1 style="margin:0;max-width:26ch;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.15;letter-spacing:-0.028em;text-wrap:pretty;">Beings Club is a <span id="bc-rh" role="button" tabindex="0" aria-label="realisationhouse, definition" data-rh-on="1" data-rh-off="1" data-rh-on="1" data-rh-off="1" data-rh-toggle="1" data-rh-key="1" style="position:relative;display:inline-block;cursor:help;color:transparent;-webkit-text-stroke:1.4px #171916;transition:color 180ms ease;outline:none;" data-vh="3">realisationhouse</span></span> for the curious.</h1>
     <p style="margin:0;max-width:52ch;font-size:19px;line-height:1.7;color:#43403A;text-wrap:pretty;">At Beings Club we define curiosity as an orientation to experience that is open to discovery.<span data-curiosity-lead="1" style="display:block;margin-top:10px;font-weight:600;color:#171916;">Together, we explore two principles in curiosity.</span></p>
   <span class="bc-rh-tip" id="bc-rh-tip" role="tooltip"><span style="display:block;"><strong style="font-weight:600;color:#171916;">realisationhouse</strong><span style="margin-left:8px;font-size:14px;color:#75726A;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span><em style="margin-left:6px;font-weight:600;color:#5A4B7C;">n.</em></span><span style="display:block;margin-top:8px;color:#43403A;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span>
   </header>
@@ -592,15 +595,15 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   </section>
 
   <section style="display:flex;align-items:stretch;border-bottom:1px solid rgba(38,34,26,0.10);">
-    <a href="/salons/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;" data-vh="5">
+    <a href="/salons/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;" data-vh="4">
       <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Salons</span>
       <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Where curiosity connects</span>
     </a>
-    <a href="/sits/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="5">
+    <a href="/sits/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="4">
       <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">Sits</span>
       <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#75726A;">Meditation for the curious</span>
     </a>
-    <a href="/join/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="6">
+    <a href="/join/" style="flex:1;padding:28px clamp(24px,5vw,56px);display:grid;gap:6px;border-left:1px solid rgba(38,34,26,0.10);" data-vh="5">
       <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em;">The Door</span>
       <span style="font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;opacity:0.62;">Join the club</span>
     </a>
@@ -609,7 +612,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Joining starts with a conversation.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="6">Leave us a note <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="5">Leave us a note <span aria-hidden="true">→</span></a>
     </div>
   </section>
 
@@ -713,7 +716,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;"><span data-next-salon="1">The next Salon is Wednesday, September 30th, 7pm UK.</span></p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="6">Come to the next one <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="5">Come to the next one <span aria-hidden="true">→</span></a>
       <a class="bc-secondary-link" href="/about/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Why this exists <span aria-hidden="true">→</span></a>
     </div>
   </section>
@@ -761,7 +764,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       <p style="margin:0;max-width:50ch;font-size:18px;line-height:1.7;color:#43403A;text-wrap:pretty;">A 35-day experiment in trusting yourself. Each week takes up one principle as a lens to bring into practice, not an idea to believe — and you're paired with a different lab partner to share the exploration with each week.</p>
       <p style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.02em;line-height:1.5;">Curiosity. Care. Responsibility. Play. Rest.</p>
       <div style="margin-top:2px;">
-        <a href="/beyondbelief/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:14px 24px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="6">Learn more <span aria-hidden="true">→</span></a>
+        <a href="/beyondbelief/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:14px 24px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="5">Learn more <span aria-hidden="true">→</span></a>
       </div>
     </div>
     <figure data-sidefig="1" style="flex:0 0 auto;width:min(21rem,42%);margin:0;align-self:stretch;overflow:hidden;line-height:0;">
@@ -801,7 +804,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Beyond Belief.<br>Thirty-five days. One practice.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="6">Take a place <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="5">Take a place <span aria-hidden="true">→</span></a>
       <a class="bc-secondary-link" href="/salons/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;">Start with a Salon instead <span aria-hidden="true">→</span></a>
     </div>
   </section>
@@ -971,7 +974,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <section style="padding:clamp(28px,4.5vh,44px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,0.10);background:#F2ECFF;display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between;">
     <p style="margin:0;max-width:22ch;font-size:clamp(20px,2.6vw,26px);font-weight:600;line-height:1.25;letter-spacing:-0.025em;text-wrap:pretty;">Thirty-five days. One practice.</p>
     <div style="display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;">
-      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="6">Take a place <span aria-hidden="true">→</span></a>
+      <a href="/join/" style="display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:15px 26px;border:1px solid #5A4B7C;color:#5A4B7C;" data-vh="5">Take a place <span aria-hidden="true">→</span></a>
       <a class="bc-secondary-link" href="/sits/" style="font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5A4B7C;"><span aria-hidden="true">←</span> Back to Sits</a>
     </div>
   </section>
@@ -1178,22 +1181,24 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 
   var noteActions = document.querySelector('[data-note-actions]');
   var topNote = document.querySelector('[data-note-form="top"]');
+  var footActions = document.querySelector('[data-note-actions="foot"]');
   var footTrigger = document.querySelector('[data-foot-note-open]');
   var footNote = document.querySelector('[data-note-form="foot"]');
   function showNote(form, trigger) {
     if (form === topNote && noteActions) noteActions.hidden = true;
-    if (form === footNote && footTrigger) footTrigger.hidden = true;
+    if (form === footNote && footActions) footActions.hidden = true;
     if (form) { form.hidden = false; var input = form.querySelector('input'); if (input) input.focus(); }
   }
   function hideNote(form) {
     if (form) form.hidden = true;
     if (form === topNote && noteActions) noteActions.hidden = false;
-    if (form === footNote && footTrigger) footTrigger.hidden = false;
+    if (form === footNote && footActions) footActions.hidden = false;
   }
   [].forEach.call(document.querySelectorAll('[data-note-open]'), function (trigger) {
     trigger.addEventListener('click', function (e) { e.preventDefault(); showNote(topNote, trigger); });
   });
   if (footTrigger) footTrigger.addEventListener('click', function (e) { e.preventDefault(); showNote(footNote, footTrigger); });
+  if (location.hash === '#leave-a-note') showNote(topNote, null);
   [].forEach.call(document.querySelectorAll('[data-note-close]'), function (button) {
     button.addEventListener('click', function () { hideNote(button.closest('form')); });
   });

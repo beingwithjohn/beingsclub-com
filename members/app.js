@@ -4,6 +4,7 @@
   const KEY = 'bc_member_session_v1';
   const loginPage = document.getElementById('login-page');
   const onboardingPage = document.getElementById('onboarding-page');
+  const welcomePage = document.getElementById('welcome-page');
   const memberApp = document.getElementById('member-app');
   const emailForm = document.getElementById('email-form');
   const codeForm = document.getElementById('code-form');
@@ -33,6 +34,7 @@
   let editingTestimonial = false;
   let profileImageData = null;
   let removeProfileImage = false;
+  let welcomeStep = 0;
   const imageObjectUrls = new Set();
 
   function token() { try { return localStorage.getItem(KEY); } catch (_) { return null; } }
@@ -61,6 +63,7 @@
   function showLogin(element) {
     memberApp.hidden = true;
     onboardingPage.hidden = true;
+    welcomePage.hidden = true;
     loginPage.hidden = false;
     [emailForm, codeForm, waiting].forEach((node) => { node.hidden = node !== element; });
   }
@@ -68,7 +71,35 @@
   function showOnboarding() {
     loginPage.hidden = true;
     memberApp.hidden = true;
+    welcomePage.hidden = true;
     onboardingPage.hidden = false;
+  }
+
+  function renderWelcome() {
+    document.querySelectorAll('[data-welcome-step]').forEach((node) => {
+      node.hidden = Number(node.dataset.welcomeStep) !== welcomeStep;
+    });
+    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 5`;
+    document.getElementById('welcome-next').textContent = welcomeStep === 4 ? 'enter the club' : 'next';
+    document.getElementById('welcome-name').textContent = member?.name || 'being';
+    const heading = document.getElementById('welcome-salon-heading');
+    heading.textContent = salon?.startsAt
+      ? `The next one is ${formatSalonTime(salon.startsAt, Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')}.`
+      : 'The next Salon will appear here when it is announced.';
+  }
+
+  function showWelcome() {
+    loginPage.hidden = true;
+    onboardingPage.hidden = true;
+    memberApp.hidden = true;
+    welcomePage.hidden = false;
+    welcomeStep = 0;
+    renderWelcome();
+  }
+
+  function finishWelcome() {
+    welcomePage.hidden = true;
+    showMemberApp();
   }
 
   async function requestCode() {
@@ -488,6 +519,7 @@
   function showMemberApp() {
     loginPage.hidden = true;
     onboardingPage.hidden = true;
+    welcomePage.hidden = true;
     memberApp.hidden = false;
     document.getElementById('member-host-link').hidden = !member.isHost;
     document.getElementById('mobile-host-link').hidden = !member.isHost;
@@ -495,7 +527,7 @@
     showView(member.name ? viewFromHash() : 'profile');
   }
 
-  async function enter(memberData) {
+  async function enter(memberData, options = {}) {
     member = memberData;
     if (!member.agreementAccepted) {
       showOnboarding();
@@ -509,7 +541,7 @@
     salon = salonState.salon; fieldNotes = notesState; givingState = memberGiving;
     directoryState = directory; settingsState = settings;
     await new Promise((resolve) => setTimeout(resolve, 500));
-    showMemberApp();
+    if (options.welcome) showWelcome(); else showMemberApp();
   }
 
   async function setRsvp(status) {
@@ -777,7 +809,7 @@
     try {
       if (previewMode) {
         member.agreementAccepted = true; member.agreementVersion = '2026-09-01';
-        statusNode.textContent = 'Agreed. In the live member area this opens your profile next.';
+        showWelcome();
         return;
       }
       const data = await call('/api/club/agreement', {
@@ -787,10 +819,16 @@
           version: document.getElementById('agreement-version').value,
         }),
       });
-      await enter(data.member);
+      await enter(data.member, { welcome: true });
     } catch (_) {
       statusNode.textContent = 'Your agreement could not be saved. Nothing has changed; try again.';
     } finally { button.disabled = false; }
+  });
+  document.getElementById('welcome-skip').addEventListener('click', finishWelcome);
+  document.getElementById('welcome-next').addEventListener('click', () => {
+    if (welcomeStep >= 4) { finishWelcome(); return; }
+    welcomeStep += 1;
+    renderWelcome();
   });
   resend.addEventListener('click', async () => {
     if (resend.disabled) return;

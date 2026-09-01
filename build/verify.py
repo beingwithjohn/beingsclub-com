@@ -124,6 +124,10 @@ def audit(html, label):
            'href="/members/"' in home and '>login</a>' in home and
            'data-note-open="1"' in home and '>become a member</a>' in home and
            'https://lu.ma/beingsclub' in home and '>public events ↗</a>' in home)
+        ok(label + ": the closing invitation repeats all three public actions",
+           'data-note-actions="foot"' in home and
+           home.count('>login</a>') >= 2 and home.count('>become a member</a>') >= 2 and
+           home.count('>public events ↗</a>') >= 2)
         ok(label + ": supplied leave-a-note forms are connected",
            'data-note-form="top"' in home and 'data-note-form="foot"' in home and
            all(('name="%s"' % field) in home for field in ('name', 'email', 'note')) and
@@ -248,7 +252,8 @@ ok("host testimonial queue is editorial and never auto-publishes",
 login_html = members_after.get("members/index.html", "")
 ok("member login is passwordless and non-enumerating",
    'autocomplete="one-time-code"' in login_html and 'type="password"' not in login_html and
-   "If <span id=\"email-shown\"></span> is on the list" in login_html)
+   "If <span id=\"email-shown\"></span> is on the list" in login_html and
+   '<a href="/#leave-a-note">Membership begins with a note</a>' in login_html)
 ok("first entry carries a concise, versioned member agreement",
    'id="onboarding-page"' in login_html and 'id="agreement-form"' in login_html and
    'Bring your curiosity.' in login_html and
@@ -259,6 +264,13 @@ ok("first entry carries a concise, versioned member agreement",
    'id="agreement-check" name="agreement" type="checkbox" required' in login_html and
    'I agree to these principles.' in login_html and
    'id="agreement-version" type="hidden" value="2026-09-01"' in login_html)
+ok("the required principles lead into the supplied five-part welcome",
+   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 5 and
+   'Curiosity</strong> connects.' in login_html and
+   'The <strong>Salon</strong> is the heart of it.' in login_html and
+   'guided curiosity practice' in login_html and
+   'Freely <strong>offered</strong>.' in login_html and
+   "await enter(data.member, { welcome: true })" in members_after.get("members/app.js", ""))
 ok("member landing is Salon-first in the supplied dashboard language",
    'class="member-nav"' in login_html and 'a note from John' in login_html and
    'guided curiosity practice' in login_html and 'data-rsvp="in"' in login_html and

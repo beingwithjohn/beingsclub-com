@@ -996,22 +996,24 @@ JS = r"""
 
   var noteActions = document.querySelector('[data-note-actions]');
   var topNote = document.querySelector('[data-note-form="top"]');
+  var footActions = document.querySelector('[data-note-actions="foot"]');
   var footTrigger = document.querySelector('[data-foot-note-open]');
   var footNote = document.querySelector('[data-note-form="foot"]');
   function showNote(form, trigger) {
     if (form === topNote && noteActions) noteActions.hidden = true;
-    if (form === footNote && footTrigger) footTrigger.hidden = true;
+    if (form === footNote && footActions) footActions.hidden = true;
     if (form) { form.hidden = false; var input = form.querySelector('input'); if (input) input.focus(); }
   }
   function hideNote(form) {
     if (form) form.hidden = true;
     if (form === topNote && noteActions) noteActions.hidden = false;
-    if (form === footNote && footTrigger) footTrigger.hidden = false;
+    if (form === footNote && footActions) footActions.hidden = false;
   }
   [].forEach.call(document.querySelectorAll('[data-note-open]'), function (trigger) {
     trigger.addEventListener('click', function (e) { e.preventDefault(); showNote(topNote, trigger); });
   });
   if (footTrigger) footTrigger.addEventListener('click', function (e) { e.preventDefault(); showNote(footNote, footTrigger); });
+  if (location.hash === '#leave-a-note') showNote(topNote, null);
   [].forEach.call(document.querySelectorAll('[data-note-close]'), function (button) {
     button.addEventListener('click', function () { hideNote(button.closest('form')); });
   });
