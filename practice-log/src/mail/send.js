@@ -137,6 +137,40 @@ export async function sendClubCode(env, { email, name, code }) {
   return post(env, { to: email, from: club(env), subject, text, html });
 }
 
+/** Short-lived code for the membership threshold, before anybody is a member. */
+export async function sendProspectCode(env, { email, code }) {
+  const subject = 'Your Beings Club conversation code';
+  const text = `Hello,\n\nYour code is ${code}. It expires in ten minutes and can be used once.\n\nUse it to return to the private place where you can book a first conversation with John, the host of Beings Club.\n\nIf you did not ask for this, you can ignore this email.\n\nStay curious,\nBeings Club`;
+  const html = `<div style="font-family:Arial,sans-serif;color:#171916;line-height:1.6;max-width:520px">`
+    + '<p>Hello,</p><p>Your Beings Club conversation code is</p>'
+    + `<p style="font-size:28px;font-weight:700;letter-spacing:.28em;color:#5A4B7C">${code}</p>`
+    + '<p>It expires in ten minutes and can be used once.</p>'
+    + '<p>Use it to return to the private place where you can book a first conversation with John, the host of Beings Club.</p>'
+    + '<p style="color:#75726A">If you did not ask for this, you can ignore this email.</p>'
+    + '<p>Stay curious,<br>Beings Club</p></div>';
+  return post(env, { to: email, from: club(env), subject, text, html });
+}
+
+/** A private request for a more workable first-conversation time. */
+export async function sendProspectTimeNote(env, { email, note, idempotencyKey }) {
+  const to = String(env.HOST_NOTIFY_EMAIL || env.MAIL_REPLY_TO || '').trim();
+  if (!to) return false;
+  const url = 'https://beingsclub.com/members/host/#prospects';
+  const subject = `Another conversation time · ${email}`;
+  const text = `${email} could not find a workable conversation time and wrote:\n\n${note}\n\nOpen the host tools:\n${url}`;
+  const html = clubEmailLayout({
+    preheader: `${email} is looking for another conversation time.`,
+    heading: 'Could another time <span style="color:#5A4B7C">work</span>?',
+    body: `<p style="margin:0 0 16px"><strong>${escapeHtml(email)}</strong> wrote:</p>`
+      + `<p style="margin:0;white-space:pre-wrap">${escapeHtml(note)}</p>`,
+    actionUrl: url,
+    actionLabel: 'open host tools',
+    settingsUrl: url,
+    footerLinkLabel: 'host tools',
+  });
+  return post(env, { to, from: club(env), subject, text, html, idempotencyKey });
+}
+
 /** A personal invitation after John adds somebody through the host tools. */
 export async function sendClubInvitation(env, { email, idempotencyKey }) {
   const url = 'https://beingsclub.com/members/';

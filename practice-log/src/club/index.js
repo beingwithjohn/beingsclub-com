@@ -27,6 +27,11 @@ import {
 } from './agreement.js';
 import { postGiving, postGivingPortal } from '../giving.js';
 import { completeOnboarding } from './onboarding.js';
+import {
+  enterGrantedProspect, getProspectState, grantProspect, identifyProspect,
+  listProspects, recordProspectBooking, requestProspectCode,
+  saveProspectTimeNote, verifyProspectCode,
+} from './prospects.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -41,6 +46,35 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (path === '/api/club/auth/verify' && method === 'POST') {
     return verifyCode(env, await readJson(request));
+  }
+  if (path === '/api/club/prospect/auth/request' && method === 'POST') {
+    return requestProspectCode(request, env, ctx, await readJson(request));
+  }
+  if (path === '/api/club/prospect/auth/verify' && method === 'POST') {
+    return verifyProspectCode(env, await readJson(request));
+  }
+  if (path.startsWith('/api/club/prospect/')) {
+    const prospect = await identifyProspect(request, env);
+    if (!prospect) return bad(401, 'no');
+    if (path === '/api/club/prospect/session' && method === 'GET') {
+      return getProspectState(env, prospect);
+    }
+    if (path === '/api/club/prospect/booking' && method === 'POST') {
+      return recordProspectBooking(env, prospect, await readJson(request));
+    }
+    if (path === '/api/club/prospect/note' && method === 'POST') {
+      return saveProspectTimeNote(env, prospect, await readJson(request));
+    }
+    if (path === '/api/club/prospect/enter' && method === 'POST') {
+      return enterGrantedProspect(env, prospect);
+    }
+    if (path === '/api/club/prospect/logout' && method === 'POST') {
+      await env.MEMBERS.prepare(
+        'UPDATE prospect_session SET revoked_at = ?1 WHERE id = ?2 AND revoked_at IS NULL',
+      ).bind(now(), prospect.session_id).run();
+      return json({ ok: true });
+    }
+    return bad(404, 'not found');
   }
 
   const who = await identifyMember(request, env);
@@ -155,6 +189,11 @@ export async function clubRoute(request, env, ctx, url) {
   if (path === '/api/club/host/members' && method === 'GET') return listMembers(env);
   if (path === '/api/club/host/members' && method === 'POST') {
     return addMember(env, who, await readJson(request));
+  }
+  if (path === '/api/club/host/prospects' && method === 'GET') return listProspects(env);
+  const grant = /^\/api\/club\/host\/prospects\/(\d+)\/grant$/.exec(path);
+  if (grant && method === 'POST') {
+    return grantProspect(env, who, Number(grant[1]));
   }
   const inviteMember = /^\/api\/club\/host\/members\/(\d+)\/invite$/.exec(path);
   if (inviteMember && method === 'POST') {

@@ -2,21 +2,36 @@
   'use strict';
   const API = document.querySelector('meta[name="bc-members-api"]').content;
   const KEY = 'bc_member_session_v1';
+  const PROSPECT_KEY = 'bc_prospect_session_v1';
   const loginPage = document.getElementById('login-page');
   const welcomePage = document.getElementById('welcome-page');
   const memberApp = document.getElementById('member-app');
+  const prospectApp = document.getElementById('prospect-app');
   const emailForm = document.getElementById('email-form');
   const codeForm = document.getElementById('code-form');
+  const prospectEmailForm = document.getElementById('prospect-email-form');
+  const prospectCodeForm = document.getElementById('prospect-code-form');
   const waiting = document.getElementById('waiting');
   const emailInput = document.getElementById('email');
   const codeInput = document.getElementById('code');
   const emailStatus = document.getElementById('email-status');
   const codeStatus = document.getElementById('code-status');
   const resend = document.getElementById('resend');
+  const prospectEmailInput = document.getElementById('prospect-email');
+  const prospectCodeInput = document.getElementById('prospect-code');
+  const prospectEmailStatus = document.getElementById('prospect-email-status');
+  const prospectCodeStatus = document.getElementById('prospect-code-status');
+  const prospectResend = document.getElementById('prospect-resend');
   let challenge = null;
   let email = '';
   let countdown = null;
   let member = null;
+  let prospect = null;
+  let prospectChallenge = null;
+  let prospectEmail = '';
+  let prospectCountdown = null;
+  let calMounted = false;
+  let prospectMessageSource = 'calendar';
   let salon = null;
   let fieldNotes = { prompt: null, groups: [] };
   let givingState = { testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null };
@@ -57,10 +72,24 @@
   function token() { try { return localStorage.getItem(KEY); } catch (_) { return null; } }
   function saveToken(value) { try { localStorage.setItem(KEY, value); } catch (_) {} }
   function forgetToken() { try { localStorage.removeItem(KEY); } catch (_) {} }
+  function prospectToken() { try { return localStorage.getItem(PROSPECT_KEY); } catch (_) { return null; } }
+  function saveProspectToken(value) { try { localStorage.setItem(PROSPECT_KEY, value); } catch (_) {} }
+  function forgetProspectToken() { try { localStorage.removeItem(PROSPECT_KEY); } catch (_) {} }
 
   async function call(path, options = {}) {
     const headers = { 'content-type': 'application/json', ...(options.headers || {}) };
     const saved = token();
+    if (saved) headers.authorization = `Bearer ${saved}`;
+    const response = await fetch(`${API}${path}`, { ...options, headers });
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok) throw Object.assign(new Error(data.error || 'request failed'), { status: response.status });
+    return data;
+  }
+
+  async function prospectCall(path, options = {}) {
+    const headers = { 'content-type': 'application/json', ...(options.headers || {}) };
+    const saved = prospectToken();
     if (saved) headers.authorization = `Bearer ${saved}`;
     const response = await fetch(`${API}${path}`, { ...options, headers });
     let data = {};
@@ -79,9 +108,11 @@
 
   function showLogin(element) {
     memberApp.hidden = true;
+    prospectApp.hidden = true;
     welcomePage.hidden = true;
     loginPage.hidden = false;
-    [emailForm, codeForm, waiting].forEach((node) => { node.hidden = node !== element; });
+    [emailForm, codeForm, prospectEmailForm, prospectCodeForm, waiting]
+      .forEach((node) => { node.hidden = node !== element; });
   }
 
   function renderWelcome() {
@@ -107,9 +138,161 @@
   function showWelcome(step = 0) {
     loginPage.hidden = true;
     memberApp.hidden = true;
+    prospectApp.hidden = true;
     welcomePage.hidden = false;
     welcomeStep = step;
     renderWelcome();
+  }
+
+  function showProspectPreview(state = 'calendar') {
+    loginPage.hidden = true;
+    welcomePage.hidden = true;
+    memberApp.hidden = true;
+    prospectApp.hidden = false;
+    const booked = state === 'booked';
+    document.getElementById('prospect-granted').hidden = true;
+    document.getElementById('prospect-calendar').hidden = booked;
+    document.getElementById('prospect-booked').hidden = !booked;
+    document.getElementById('prospect-calendar-mock').hidden = false;
+    document.getElementById('prospect-cal-live').hidden = true;
+    document.getElementById('prospect-live-fallback').hidden = true;
+    document.querySelector('.prospect-preview-switch').hidden = false;
+    document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
+      button.classList.toggle('current', button.dataset.prospectPreview === state);
+    });
+    const params = new URLSearchParams(location.search);
+    params.set('preview', 'prospective');
+    if (booked) params.set('state', 'booked');
+    else params.delete('state');
+    history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
+  }
+
+  function showProspectMessage(open) {
+    document.querySelector('.prospect-calendar-head').hidden = open;
+    document.getElementById('prospect-calendar-mock').hidden = open || !previewMode;
+    document.getElementById('prospect-cal-live').hidden = open || previewMode;
+    document.getElementById('prospect-live-fallback').hidden = open || previewMode;
+    document.getElementById('prospect-message').hidden = !open;
+    if (open) document.getElementById('prospect-message-body').focus();
+  }
+
+  function initialiseCalLoader() {
+    if (window.Cal) return;
+    ((context, source, initName) => {
+      const queue = (api, args) => api.q.push(args);
+      const documentRef = context.document;
+      context.Cal = context.Cal || function calQueue() {
+        const cal = context.Cal;
+        const args = arguments;
+        if (!cal.loaded) {
+          cal.ns = {}; cal.q = cal.q || [];
+          const script = documentRef.createElement('script'); script.src = source;
+          documentRef.head.appendChild(script); cal.loaded = true;
+        }
+        if (args[0] === initName) {
+          const api = function namespacedCal() { queue(api, arguments); };
+          const namespace = args[1]; api.q = api.q || [];
+          if (typeof namespace === 'string') { cal.ns[namespace] = api; queue(api, args); }
+          else queue(cal, args);
+          return;
+        }
+        queue(cal, args);
+      };
+    })(window, 'https://app.cal.com/embed/embed.js', 'init');
+  }
+
+  function mountCal(rescheduleUid = null) {
+    const target = document.getElementById('prospect-cal-live');
+    target.replaceChildren();
+    initialiseCalLoader();
+    const namespace = 'beingsClubConversation';
+    if (!calMounted) {
+      window.Cal('init', namespace, { origin: 'https://cal.com' });
+      calMounted = true;
+    }
+    const cal = window.Cal.ns[namespace];
+    const config = {
+      layout: 'month_view', theme: 'light', email: prospect.email,
+      ...(rescheduleUid ? { rescheduleUid } : {}),
+    };
+    cal('inline', {
+      elementOrSelector: '#prospect-cal-live',
+      calLink: 'beingwithjohn/beings-club-chat', config,
+    });
+    cal('ui', {
+      hideEventTypeDetails: true,
+      showTimezoneWhenEventDetailsHidden: true,
+      styles: { body: { background: '#FCFBF8' } },
+    });
+    if (!mountCal.listening) {
+      const capture = async (event) => {
+        const data = event?.detail?.data || {};
+        if (!data.uid || !data.startTime || !data.endTime) return;
+        try {
+          const response = await prospectCall('/api/club/prospect/booking', {
+            method: 'POST', body: JSON.stringify({
+              uid: data.uid, title: data.title,
+              startTime: data.startTime, endTime: data.endTime,
+              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+            }),
+          });
+          prospect = response.prospect;
+          renderProspect();
+        } catch (_) {
+          document.getElementById('prospect-booked-note').textContent = 'Your booking was made in Cal.com. Refresh this page if the details do not appear here.';
+        }
+      };
+      cal('on', { action: 'bookingSuccessfulV2', callback: capture });
+      cal('on', { action: 'rescheduleBookingSuccessfulV2', callback: capture });
+      mountCal.listening = true;
+    }
+  }
+
+  function localBookingParts(iso) {
+    const date = new Date(iso);
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: zone }).format(date);
+    const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', timeZone: zone }).format(date);
+    const time = new Intl.DateTimeFormat('en-GB', {
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: zone, timeZoneName: 'short',
+    }).format(date).replace(/^24:/, '00:');
+    return { weekday, day, time };
+  }
+
+  function bookingCalendarData(booking) {
+    const start = new Date(booking.startTime); const end = new Date(booking.endTime);
+    const stamp = (date) => date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const escape = (value) => String(value || '').replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
+    return `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Beings Club//First Conversation//EN\r\nBEGIN:VEVENT\r\nUID:${escape(booking.uid)}\r\nDTSTAMP:${stamp(new Date())}\r\nDTSTART:${stamp(start)}\r\nDTEND:${stamp(end)}\r\nSUMMARY:${escape(booking.title || 'A first conversation with John')}\r\nDESCRIPTION:${escape('A first conversation about Beings Club.')}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+  }
+
+  function renderProspect() {
+    loginPage.hidden = true; welcomePage.hidden = true; memberApp.hidden = true;
+    prospectApp.hidden = false;
+    document.querySelector('.prospect-preview-switch').hidden = true;
+    document.getElementById('prospect-message').hidden = true;
+    document.querySelector('.prospect-calendar-head').hidden = false;
+    const granted = !!prospect?.granted;
+    const booking = prospect?.booking;
+    const booked = !!booking && booking.status !== 'cancelled';
+    document.getElementById('prospect-granted').hidden = !granted;
+    document.getElementById('prospect-calendar').hidden = granted || booked;
+    document.getElementById('prospect-booked').hidden = granted || !booked;
+    document.getElementById('prospect-calendar-mock').hidden = true;
+    document.getElementById('prospect-cal-live').hidden = granted || booked;
+    document.getElementById('prospect-live-fallback').hidden = granted || booked;
+    if (granted) return;
+    if (!booked) { mountCal(); return; }
+    const parts = localBookingParts(booking.startTime);
+    document.getElementById('prospect-booked-weekday').textContent = parts.weekday;
+    document.getElementById('prospect-booked-date').textContent = parts.day;
+    document.getElementById('prospect-booked-time').textContent = parts.time;
+    document.getElementById('prospect-booked-note').textContent = booking.verified
+      ? 'You’ll also receive the details by email.'
+      : 'Booked · waiting for Cal.com to finish confirming the details here.';
+    const calendar = document.getElementById('prospect-calendar-link');
+    calendar.href = URL.createObjectURL(new Blob([bookingCalendarData(booking)], { type: 'text/calendar' }));
+    calendar.download = 'beings-club-first-conversation.ics';
   }
 
   async function finishWelcome() {
@@ -140,6 +323,18 @@
     startResendClock();
   }
 
+  async function requestProspectCode() {
+    const data = await prospectCall('/api/club/prospect/auth/request', {
+      method: 'POST', body: JSON.stringify({ email: prospectEmail }),
+    });
+    prospectChallenge = data.challenge;
+    document.getElementById('prospect-email-shown').textContent = prospectEmail;
+    prospectCodeInput.value = '';
+    showLogin(prospectCodeForm);
+    prospectCodeInput.focus();
+    startProspectResendClock();
+  }
+
   function startResendClock() {
     clearInterval(countdown);
     let seconds = 60;
@@ -154,6 +349,22 @@
       } else {
         const node = document.getElementById('resend-count');
         if (node) node.textContent = String(seconds);
+      }
+    }, 1000);
+  }
+
+  function startProspectResendClock() {
+    clearInterval(prospectCountdown);
+    let seconds = 60;
+    prospectResend.disabled = true;
+    prospectResend.innerHTML = `send another code · <span id="prospect-resend-count">${seconds}</span>s`;
+    prospectCountdown = setInterval(() => {
+      seconds -= 1;
+      if (seconds <= 0) {
+        clearInterval(prospectCountdown); prospectResend.disabled = false;
+        prospectResend.textContent = 'send another code';
+      } else {
+        document.getElementById('prospect-resend-count').textContent = String(seconds);
       }
     }, 1000);
   }
@@ -1095,6 +1306,52 @@
   document.getElementById('try-again').addEventListener('click', () => {
     clearInterval(countdown); challenge = null; codeStatus.textContent = ''; showLogin(emailForm); emailInput.focus();
   });
+  prospectEmailForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); prospectEmailStatus.textContent = '';
+    prospectEmail = prospectEmailInput.value.trim().toLowerCase();
+    if (!prospectEmailInput.checkValidity()) { prospectEmailInput.reportValidity(); return; }
+    const button = prospectEmailForm.querySelector('button[type="submit"]'); button.disabled = true;
+    try {
+      if (previewMode) {
+        document.getElementById('prospect-email-shown').textContent = prospectEmail;
+        showLogin(prospectCodeForm); prospectCodeInput.focus();
+      } else await requestProspectCode();
+    }
+    catch (_) { prospectEmailStatus.textContent = 'Something went wrong. Please try again.'; }
+    finally { button.disabled = false; }
+  });
+  prospectCodeInput.addEventListener('input', () => {
+    prospectCodeInput.value = prospectCodeInput.value.replace(/\D/g, '').slice(0, 6);
+  });
+  prospectCodeForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); prospectCodeStatus.textContent = '';
+    if (!/^\d{6}$/.test(prospectCodeInput.value)) {
+      prospectCodeStatus.textContent = 'Enter all six digits.'; return;
+    }
+    const button = prospectCodeForm.querySelector('button[type="submit"]'); button.disabled = true;
+    try {
+      if (previewMode) { showProspectPreview('calendar'); return; }
+      const data = await prospectCall('/api/club/prospect/auth/verify', {
+        method: 'POST', body: JSON.stringify({
+          challenge: prospectChallenge, code: prospectCodeInput.value,
+        }),
+      });
+      saveProspectToken(data.token); prospect = data.prospect; renderProspect();
+    } catch (_) {
+      prospectCodeStatus.textContent = 'That code didn’t work. Check it and try again.';
+      prospectCodeInput.select();
+    } finally { button.disabled = false; }
+  });
+  document.getElementById('prospect-try-again').addEventListener('click', () => {
+    clearInterval(prospectCountdown); prospectChallenge = null;
+    prospectCodeStatus.textContent = ''; showLogin(prospectEmailForm); prospectEmailInput.focus();
+  });
+  prospectResend.addEventListener('click', async () => {
+    if (prospectResend.disabled) return;
+    prospectCodeStatus.textContent = '';
+    try { await requestProspectCode(); prospectCodeStatus.textContent = 'Another code is on its way.'; }
+    catch (_) { prospectCodeStatus.textContent = 'Something went wrong. Please try again.'; }
+  });
   document.getElementById('agreement-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!event.currentTarget.checkValidity()) { event.currentTarget.reportValidity(); return; }
@@ -1301,6 +1558,70 @@
   document.getElementById('menu-close').addEventListener('click', () => {
     menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); menuButton.focus();
   });
+  document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
+    button.addEventListener('click', () => showProspectPreview(button.dataset.prospectPreview));
+  });
+  document.querySelectorAll('[data-prospect-time]').forEach((button) => {
+    button.addEventListener('click', () => {
+      document.querySelectorAll('[data-prospect-time]').forEach((option) => {
+        option.classList.toggle('selected', option === button);
+        option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
+      });
+      document.getElementById('prospect-confirm').textContent = `confirm ${button.textContent.trim()}`;
+    });
+  });
+  document.getElementById('prospect-confirm').addEventListener('click', () => showProspectPreview('booked'));
+  document.getElementById('prospect-change-time').addEventListener('click', () => {
+    if (previewMode) { showProspectPreview('calendar'); return; }
+    document.getElementById('prospect-booked').hidden = true;
+    document.getElementById('prospect-calendar').hidden = false;
+    document.getElementById('prospect-cal-live').hidden = false;
+    document.getElementById('prospect-live-fallback').hidden = false;
+    mountCal(prospect?.booking?.rescheduleUid || prospect?.booking?.uid || null);
+  });
+  document.getElementById('prospect-message-open').addEventListener('click', () => {
+    prospectMessageSource = 'calendar'; showProspectMessage(true);
+  });
+  document.getElementById('prospect-message-open-live').addEventListener('click', () => {
+    prospectMessageSource = 'calendar'; showProspectMessage(true);
+  });
+  document.getElementById('prospect-message-cancel').addEventListener('click', () => showProspectMessage(false));
+  document.getElementById('prospect-message').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const statusNode = document.getElementById('prospect-message-status');
+    const note = document.getElementById('prospect-message-body');
+    if (!note.checkValidity()) { note.reportValidity(); return; }
+    const button = event.currentTarget.querySelector('button[type="submit"]'); button.disabled = true;
+    if (previewMode) {
+      statusNode.textContent = 'Preview only · this note would be sent privately to John.';
+      button.disabled = false; return;
+    }
+    try {
+      const data = await prospectCall('/api/club/prospect/note', {
+        method: 'POST', body: JSON.stringify({ note: note.value }),
+      });
+      prospect = data.prospect;
+      statusNode.textContent = data.sent
+        ? 'Sent privately to John.'
+        : 'Saved here. Email delivery is delayed, but John can see it in the host tools.';
+      note.value = '';
+    } catch (_) { statusNode.textContent = 'That note could not be sent. Try again.'; }
+    finally { button.disabled = false; }
+  });
+  document.getElementById('prospect-sign-out').addEventListener('click', async () => {
+    if (!previewMode) {
+      try { await prospectCall('/api/club/prospect/logout', { method: 'POST', body: '{}' }); } catch (_) {}
+      forgetProspectToken();
+    }
+    location.href = '/members/?join=1';
+  });
+  document.getElementById('prospect-enter-club').addEventListener('click', async () => {
+    const statusNode = document.getElementById('prospect-enter-status'); statusNode.textContent = '';
+    try {
+      const data = await prospectCall('/api/club/prospect/enter', { method: 'POST', body: '{}' });
+      saveToken(data.token); forgetProspectToken(); member = data.member; showWelcome(0);
+    } catch (_) { statusNode.textContent = 'The member entrance could not open. Try again.'; }
+  });
 
   (async () => {
     const previewParams = new URLSearchParams(location.search);
@@ -1308,6 +1629,18 @@
       ? previewParams.get('preview') : null;
     if (preview) {
       previewMode = true;
+      if (preview === 'prospective') {
+        if (previewParams.get('step') === 'email') {
+          showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
+        }
+        if (previewParams.get('step') === 'code') {
+          prospectEmail = 'you@example.com';
+          document.getElementById('prospect-email-shown').textContent = prospectEmail;
+          showLogin(prospectCodeForm); prospectCodeInput.focus(); return;
+        }
+        showProspectPreview(previewParams.get('state') === 'booked' ? 'booked' : 'calendar');
+        return;
+      }
       member = {
         id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true,
         agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
@@ -1368,6 +1701,19 @@
         account: { email: 'john@spacetobe.xyz', joinedAt: '2026-08-01T12:00:00.000Z', isHost: true },
       };
       showMemberApp(); return;
+    }
+    const joining = previewParams.get('join') === '1';
+    if (joining || (!token() && prospectToken())) {
+      if (!prospectToken()) {
+        showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
+      }
+      showLogin(waiting);
+      try {
+        const data = await prospectCall('/api/club/prospect/session');
+        prospect = data.prospect; renderProspect(); return;
+      } catch (_) {
+        forgetProspectToken(); showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
+      }
     }
     if (!token()) {
       showLogin(emailForm);

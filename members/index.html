@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="bc-members-api" content="https://practice-log.beingsclub.workers.dev">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://app.cal.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev https://app.cal.com https://cal.com; frame-src https://app.cal.com https://cal.com; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
   <title>Members · Beings Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,8 +23,33 @@
       <label class="sr-only" for="email">Email</label>
       <input id="email" name="email" type="email" autocomplete="email" placeholder="Email" required>
       <button class="primary" type="submit">continue</button>
-      <span class="aside">New here? <a href="/#leave-a-note">Membership begins with a note</a>.</span>
+      <span class="aside">New here? <a href="/members/?join=1">Membership begins with a conversation</a>.</span>
       <span class="status" id="email-status" role="status" aria-live="polite"></span>
+    </form>
+
+    <form class="login-card prospect-login-card" id="prospect-email-form" hidden novalidate>
+      <span class="eyebrow">membership</span>
+      <h1>Membership begins with a <strong>conversation</strong>.</h1>
+      <p class="body-copy">Enter your email and we’ll send you a six-digit code. This gives you a private place to book a first conversation with John, the host of Beings Club. Where there’s a mutual yes after you’ve spoken, membership begins.</p>
+      <label class="sr-only" for="prospect-email">Email</label>
+      <input id="prospect-email" name="email" type="email" autocomplete="email" placeholder="Email" required>
+      <button class="primary" type="submit">continue</button>
+      <span class="aside">Already a member? <a href="/members/">Log in</a>.</span>
+      <span class="status" id="prospect-email-status" role="status" aria-live="polite"></span>
+    </form>
+
+    <form class="login-card" id="prospect-code-form" hidden novalidate>
+      <span class="eyebrow">check your email</span>
+      <h1>Enter your <strong>code</strong>.</h1>
+      <p class="body-copy">We’ve sent a six-digit code to <span id="prospect-email-shown"></span>. Once confirmed, you can choose a time for a first conversation.</p>
+      <label class="sr-only" for="prospect-code">Six-digit code</label>
+      <input class="code-input" id="prospect-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required>
+      <button class="primary" type="submit">continue</button>
+      <div class="quiet-actions">
+        <button class="text-button" id="prospect-try-again" type="button">use another email</button>
+        <button class="text-button" id="prospect-resend" type="button" disabled>send another code · <span id="prospect-resend-count">60</span>s</button>
+      </div>
+      <span class="status" id="prospect-code-status" role="status" aria-live="polite"></span>
     </form>
 
     <form class="login-card" id="code-form" hidden novalidate>
@@ -100,6 +125,133 @@
       </article>
       <button class="secondary" id="welcome-next" type="button">next</button>
     </div>
+  </section>
+
+  <section class="app-shell prospect-shell" id="prospect-app" hidden>
+    <span class="greeting">good afternoon, being</span>
+    <span class="prospect-status">membership · a first conversation</span>
+
+    <nav class="member-nav prospect-nav" aria-label="Membership preview">
+      <span class="current">membership</span>
+      <span class="prospect-locked">next salon</span>
+      <span class="prospect-locked">field notes</span>
+      <span class="prospect-locked">members</span>
+      <span class="prospect-locked">in person</span>
+      <span class="prospect-locked">giving</span>
+      <span class="nav-break prospect-locked">profile</span>
+      <span class="prospect-locked">settings</span>
+      <button class="prospect-signout" id="prospect-sign-out" type="button">sign out</button>
+    </nav>
+
+    <div class="prospect-preview-switch" aria-label="Preview state">
+      <button class="current" type="button" data-prospect-preview="calendar">calendar</button>
+      <button type="button" data-prospect-preview="booked">confirmed</button>
+    </div>
+
+    <main class="prospect-page">
+      <section class="prospect-intro">
+        <span class="eyebrow">membership</span>
+        <h1>Membership begins with a <strong>conversation</strong>.</h1>
+        <p>Meet John, the host of Beings Club, for 25 minutes and see whether joining feels right on both sides. If there’s a mutual yes, the member area opens afterwards.</p>
+        <aside class="prospect-host-note">
+          <span class="eyebrow">who you’ll meet</span>
+          <p>John brings contemplative practice into curious, non-doctrinal spaces through Beings Club and <a href="https://spacetobe.xyz" target="_blank" rel="noopener">Space to Be ↗</a>.</p>
+        </aside>
+      </section>
+
+      <section class="prospect-calendar" id="prospect-calendar">
+        <header class="prospect-calendar-head">
+          <div>
+            <span class="eyebrow">a first conversation</span>
+            <h2>Choose a time.</h2>
+          </div>
+          <span>25 minutes · Google Meet</span>
+        </header>
+
+        <div class="prospect-cal-live" id="prospect-cal-live" hidden></div>
+        <div class="prospect-live-fallback" id="prospect-live-fallback" hidden>
+          <button class="text-button" id="prospect-message-open-live" type="button">No time here works? Send John a note.</button>
+        </div>
+
+        <div class="prospect-calendar-body" id="prospect-calendar-mock">
+          <div class="prospect-month">
+            <div class="prospect-month-head">
+              <button type="button" aria-label="Previous month">←</button>
+              <strong>September 2026</strong>
+              <button type="button" aria-label="Next month">→</button>
+            </div>
+            <div class="prospect-weekdays" aria-hidden="true">
+              <span>m</span><span>t</span><span>w</span><span>t</span><span>f</span><span>s</span><span>s</span>
+            </div>
+            <div class="prospect-days" aria-label="September 2026">
+              <span></span><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><span>5</span><span>6</span>
+              <button type="button">7</button><button type="button">8</button><button type="button">9</button><button class="selected" type="button" aria-pressed="true">10</button><button type="button">11</button><span>12</span><span>13</span>
+              <button type="button">14</button><button type="button">15</button><button type="button">16</button><button type="button">17</button><button type="button">18</button><span>19</span><span>20</span>
+              <button type="button">21</button><button type="button">22</button><button type="button">23</button><button type="button">24</button><button type="button">25</button><span>26</span><span>27</span>
+              <button type="button">28</button><button type="button">29</button><button type="button">30</button>
+            </div>
+            <span class="prospect-timezone">Europe / London · BST</span>
+          </div>
+
+          <div class="prospect-times">
+            <div>
+              <span class="eyebrow">Thursday</span>
+              <h3>10 September</h3>
+              <small>Times shown in your timezone</small>
+            </div>
+            <div class="prospect-time-list">
+              <button type="button" data-prospect-time>18:30</button>
+              <button class="selected" type="button" data-prospect-time aria-pressed="true">19:00</button>
+              <button type="button" data-prospect-time>19:30</button>
+            </div>
+            <button class="primary prospect-confirm" id="prospect-confirm" type="button">confirm 19:00</button>
+            <button class="text-button prospect-message-open" id="prospect-message-open" type="button">No time here works? Send John a note.</button>
+          </div>
+        </div>
+
+        <form class="prospect-message" id="prospect-message" hidden>
+          <div>
+            <span class="eyebrow">find another time</span>
+            <h3>Send John a note.</h3>
+            <p>Time zones and availability can make things difficult. Share yours and a few times that might work; John will see whether there’s another possibility.</p>
+          </div>
+          <label for="prospect-message-body">
+            <span>your note</span>
+            <textarea id="prospect-message-body" placeholder="I’m in… and I’m generally available…" required></textarea>
+          </label>
+          <div class="prospect-message-actions">
+            <button class="primary" type="submit">send this note</button>
+            <button class="text-button" id="prospect-message-cancel" type="button">back to the calendar</button>
+          </div>
+          <span class="status" id="prospect-message-status" role="status" aria-live="polite"></span>
+        </form>
+      </section>
+
+      <section class="prospect-booked" id="prospect-booked" hidden>
+        <span class="eyebrow">a first conversation</span>
+        <h2><span id="prospect-booked-weekday">Thursday</span><br><strong id="prospect-booked-date">10 September</strong></h2>
+        <button class="prospect-booked-time" id="prospect-booked-time" type="button" title="Your local time">19:00 BST</button>
+        <p>25 minutes · Google Meet</p>
+        <span class="prospect-booked-note" id="prospect-booked-note">You’ll also receive the details by email.</span>
+        <div class="prospect-booked-actions">
+          <a class="secondary" id="prospect-calendar-link" href="#">add to calendar</a>
+          <button class="text-button" id="prospect-change-time" type="button">change this time ↗</button>
+        </div>
+      </section>
+
+      <section class="prospect-booked prospect-granted" id="prospect-granted" hidden>
+        <span class="eyebrow">a mutual yes</span>
+        <h2>Membership<br><strong>begins.</strong></h2>
+        <p>John has opened Beings Club to you. The welcome and member principles are waiting inside.</p>
+        <button class="primary" id="prospect-enter-club" type="button">enter Beings Club</button>
+        <span class="status" id="prospect-enter-status" role="status" aria-live="polite"></span>
+      </section>
+
+      <footer class="prospect-foot">
+        <span aria-hidden="true">↳</span>
+        <p>The member area remains private until you and John have spoken and there is a mutual yes.</p>
+      </footer>
+    </main>
   </section>
 
   <section class="app-shell member-shell" id="member-app" hidden>

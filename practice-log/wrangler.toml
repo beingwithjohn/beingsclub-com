@@ -58,6 +58,7 @@ ZOOM_HOST_USER_ID = "john@spacetobe.xyz"
 #   STRIPE_SECRET_KEY      optional. Without it the giving page says so
 #                          politely and nothing else changes.
 #   STRIPE_WEBHOOK_SECRET  from the Stripe dashboard, for /api/stripe/webhook
+#   CAL_WEBHOOK_SECRET     secret chosen for the Cal.com booking webhook
 #   ZOOM_ACCOUNT_ID        Server-to-Server OAuth app account ID
 #   ZOOM_CLIENT_ID         Server-to-Server OAuth app client ID
 #   ZOOM_CLIENT_SECRET     Server-to-Server OAuth app client secret

@@ -19,6 +19,7 @@
   let autoZoom = false;
   let previewMode = false;
   let fieldNoteHostState = { salon: null, candidates: [], groups: [] };
+  let prospectHostState = [];
   const imageObjectUrls = new Set();
 
   function token() { try { return localStorage.getItem(KEY); } catch (_) { return null; } }
@@ -290,6 +291,59 @@
     renderTestimonialQueue(await call('/api/club/host/testimonials'));
   }
 
+  function renderProspects(data) {
+    prospectHostState = data.prospects || [];
+    const listNode = document.getElementById('prospect-host-list'); listNode.replaceChildren();
+    if (!prospectHostState.length) {
+      listNode.append(text('p', 'prospect-host-empty', 'Nobody is waiting.'));
+      return;
+    }
+    prospectHostState.forEach((prospect) => {
+      const card = document.createElement('article'); card.className = 'prospect-host-card';
+      const main = document.createElement('div'); main.className = 'prospect-host-main';
+      main.append(text('strong', '', prospect.email));
+      if (prospect.booking?.startTime) {
+        const when = new Intl.DateTimeFormat('en-GB', {
+          dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/London',
+        }).format(new Date(prospect.booking.startTime));
+        main.append(text('span', '', `${when} · ${prospect.booking.verified ? 'confirmed by Cal.com' : 'awaiting Cal.com'}`));
+      } else main.append(text('span', '', 'No conversation booked yet.'));
+      if (prospect.alternateTimeNote) main.append(text('blockquote', '', prospect.alternateTimeNote));
+      const actions = document.createElement('div'); actions.className = 'prospect-host-actions';
+      if (prospect.granted) {
+        actions.append(text('em', '', 'membership granted'));
+      } else {
+        const grant = text('button', 'outline', 'grant membership'); grant.type = 'button';
+        grant.addEventListener('click', () => grantProspect(prospect.id, grant)); actions.append(grant);
+      }
+      card.append(main, actions); listNode.append(card);
+    });
+  }
+
+  async function loadProspects() {
+    renderProspects(await call('/api/club/host/prospects'));
+  }
+
+  async function grantProspect(id, button) {
+    const statusNode = document.getElementById('prospect-host-status'); statusNode.textContent = '';
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        const prospect = prospectHostState.find((item) => item.id === id);
+        if (prospect) prospect.granted = true;
+        renderProspects({ prospects: prospectHostState });
+        statusNode.textContent = 'Preview: membership opens and one invitation is sent.';
+        return;
+      }
+      const data = await call(`/api/club/host/prospects/${id}/grant`, { method: 'POST', body: '{}' });
+      await Promise.all([loadProspects(), loadMembers()]);
+      statusNode.textContent = data.invitationSent
+        ? 'Membership granted and invitation sent.'
+        : 'Membership granted. The invitation email needs another attempt from the list below.';
+    } catch (_) { statusNode.textContent = 'Membership could not be granted. Try again.'; }
+    finally { button.disabled = false; }
+  }
+
   async function resolveQueuedTestimonial(id, state) {
     const statusNode = document.getElementById('testimonial-queue-status'); statusNode.textContent = '';
     try {
@@ -532,6 +586,10 @@
         memberName: 'Mira', email: 'mira@example.com',
         submittedAt: '2026-08-28T12:00:00.000Z', updatedAt: '2026-08-28T12:00:00.000Z',
       }] });
+      renderProspects({ prospects: [
+        { id: 1, email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false },
+        { id: 2, email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: false },
+      ] });
       waiting.hidden = true; shell.hidden = false; return;
     }
     if (!token()) { location.replace('/members/'); return; }
@@ -540,7 +598,7 @@
       if (!data.member.isHost) { location.replace('/members/'); return; }
       if (!data.member.agreementAccepted) { location.replace('/members/?onboarding=1'); return; }
       updateClock(); setInterval(updateClock, 30000);
-      await Promise.all([loadMembers(), loadSalon(), loadFieldNoteHost(), loadTestimonialQueue()]);
+      await Promise.all([loadMembers(), loadSalon(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects()]);
       waiting.hidden = true; shell.hidden = false;
     } catch (_) { forgetToken(); location.replace('/members/'); }
   })();

@@ -122,7 +122,7 @@ def audit(html, label):
            'data-public-logo' not in home and 'data-logo-pop' not in home)
         ok(label + ": public threshold matches the supplied app actions",
            'href="/members/"' in home and '>login</a>' in home and
-           'data-note-open="1"' in home and '>become a member</a>' in home and
+           'href="/members/?join=1"' in home and '>become a member</a>' in home and
            'https://lu.ma/beingsclub' in home and '>public events ↗</a>' in home)
         ok(label + ": the closing invitation repeats all three public actions",
            'data-note-actions="foot"' in home and
@@ -133,10 +133,22 @@ def audit(html, label):
            all(('name="%s"' % field) in home for field in ('name', 'email', 'note')) and
            "fetch('https://formspree.io/f/xpqkbpyv'" in js)
         ok(label + ": member access uses the private email-code entrance",
-           'href="/members/"' in home and 'data-login-panel="1"' not in home and
+           'href="/members/"' in home and 'href="/members/?join=1"' in home and
+           'data-login-panel="1"' not in home and
            'type="password"' not in home)
         ok(label + ": public threshold does not expose the old programme map",
            all(('href="%s"' % route) not in home for route in ('/about/', '/salons/', '/sits/')))
+        ok(label + ": John is present in his own words before the closing invitation",
+           'id="john" class="bc-john-letter"' in home and
+           'src="/assets/img/john-letter.jpeg"' in home and
+           'John · host of Beings Club' in home and
+           'I’ve been hosting Beings Club since January 2025' in home and
+           'href="https://spacetobe.xyz"' in home and
+           'href="https://j-hn.info"' in home and
+           'href="https://x.com/beingwithjohn"' in home and
+           'href="https://instagram.com/beingwithjohn"' in home and
+           'href="https://wonderfool.substack.com"' in home and
+           home.find('id="john"') < home.find('data-note-actions="foot"'))
     ok(label + ": retired overall care framing is absent",
        "We hold each other as precious" not in html and
        "When people hold each other as precious" not in html)
@@ -259,7 +271,7 @@ login_html = members_after.get("members/index.html", "")
 ok("member login is passwordless and non-enumerating",
    'autocomplete="one-time-code"' in login_html and 'type="password"' not in login_html and
    "If <span id=\"email-shown\"></span> is on the list" in login_html and
-   '<a href="/#leave-a-note">Membership begins with a note</a>' in login_html)
+   '<a href="/members/?join=1">Membership begins with a conversation</a>' in login_html)
 ok("first entry carries a concise, versioned member agreement",
    'id="welcome-page"' in login_html and 'id="agreement-form"' in login_html and
    'data-welcome-step="3"' in login_html and

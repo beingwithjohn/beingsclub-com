@@ -133,8 +133,18 @@ def convert(body, key):
                   'leave a note, and someone will write back.')
         assert body.count(helper) == 4, 'Home membership helper count changed'
         body = body.replace(helper,
-                            'Membership is free and begins with a conversation and a mutual yes — '
-                            'John will write back.')
+                            'Membership is free and begins with a conversation and a mutual yes.')
+
+        # Becoming a member now begins at the private email-code threshold.
+        # Existing members keep the separate login entrance beside it.
+        for old, new, what in [
+            ('href="#leave-a-note" data-note-open="1"',
+             'href="/members/?join=1"', 'top membership action'),
+            ('href="#leave-a-note" data-foot-note-open="1"',
+             'href="/members/?join=1"', 'closing membership action'),
+        ]:
+            assert body.count(old) == 1, 'Home %s not found once' % what
+            body = body.replace(old, new, 1)
 
         # Stable anchors let old public URLs arrive at the relevant part of the
         # single landing page without recreating a public programme map.
@@ -144,6 +154,50 @@ def convert(body, key):
                             '<span id="salon" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>', 1)
         body = body.replace('<div style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>',
                             '<div id="membership" style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>', 1)
+
+        # A personal letter lets the public threshold feel held by a real
+        # person without turning John into a conventional credentials block.
+        closing_actions = ('<div style="display:grid;gap:16px;justify-items:start;">\n'
+                           '        <div data-note-actions="foot"')
+        assert body.count(closing_actions) == 1, 'Home closing actions not found once'
+        john_letter = '''<section id="john" class="bc-john-letter">
+        <span class="bc-john-letter-label">A note from John</span>
+        <aside class="bc-john-aside" aria-label="More from John">
+          <figure class="bc-john-portrait">
+            <img src="/assets/img/john-letter.jpeg" alt="John, host of Beings Club" loading="lazy" decoding="async">
+            <figcaption>John · host of Beings Club</figcaption>
+          </figure>
+          <nav class="bc-john-links" aria-label="Work with and follow John">
+            <a class="bc-john-practical-link" href="https://spacetobe.xyz" target="_blank" rel="noopener">
+              <span>Work with me one-to-one</span><small>Space to Be ↗</small>
+            </a>
+            <a class="bc-john-practical-link" href="https://j-hn.info" target="_blank" rel="noopener">
+              <span>More about John</span><small>j-hn.info ↗</small>
+            </a>
+            <div class="bc-john-socials">
+              <span>Elsewhere</span>
+              <div>
+                <a href="https://x.com/beingwithjohn" target="_blank" rel="noopener">X ↗</a>
+                <a href="https://instagram.com/beingwithjohn" target="_blank" rel="noopener">Instagram ↗</a>
+                <a href="https://wonderfool.substack.com" target="_blank" rel="noopener">Wonderfool ↗</a>
+              </div>
+            </div>
+          </nav>
+        </aside>
+        <div class="bc-john-letter-words">
+          <p>Hello,</p>
+          <p>My name is John, and I’ve been hosting Beings Club since January 2025. I’m trained as a mindfulness meditation teacher, and I work with people one-to-one.</p>
+          <p>Beings Club is a different kind of space: a space where curiosity is allowed to lead. I think that’s important. It supports us to discover both who we are as individuals and who we might be together.</p>
+          <p>Curiosity is a powerful force—when we offer it to ourselves, and when we offer it to each other.</p>
+          <p>I hope that, if you decide to join Beings Club, you’ll find it a valuable place where many things become more possible.</p>
+          <p>More recently, I’ve started referring to Beings Club as a realisationhouse. I believe curiosity helps us realise things, whether that means new ways of seeing ourselves, tangible and practical possibilities, artistic creations, or new realities in our lives.</p>
+          <p class="bc-john-signoff">Stay curious,<br><strong>John</strong></p>
+        </div>
+      </section>
+
+      <div style="display:grid;gap:16px;justify-items:start;">
+        <div data-note-actions="foot"'''
+        body = body.replace(closing_actions, john_letter, 1)
 
     if key == 'join':
         door_heading = '<span style="font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#75726A;">The Door · leave us a note</span>'
@@ -572,6 +626,32 @@ CSS = """
   [hidden]{display:none!important;}
   @keyframes bc-app-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes bc-app-pulse{0%,70%,100%{color:#5A4B7C}85%{color:#8E7BBE}}
+  .bc-john-letter{display:flow-root;width:min(1120px,80vw);padding:34px 0;border-top:1px solid #E7E4DB;
+    border-bottom:1px solid #E7E4DB;}
+  .bc-john-aside{float:right;display:grid;gap:20px;width:240px;margin:0 0 18px clamp(48px,8vw,128px);}
+  .bc-john-portrait{margin:0;display:grid;gap:10px;}
+  .bc-john-portrait img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#171916;}
+  .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;
+    line-height:1.5;letter-spacing:.12em;color:#A5A198;}
+  .bc-john-letter-label{display:block;margin-bottom:18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
+  .bc-john-letter-words{display:block;}
+  .bc-john-letter-words p{margin:0 0 15px;font-size:15px;line-height:1.76;color:#4A473F;}
+  .bc-john-letter-words p:last-child{margin-bottom:0;}
+  .bc-john-letter-words p:first-child{font-size:20px;font-weight:600;letter-spacing:-.02em;color:#171916;}
+  .bc-john-signoff{padding-top:4px;}
+  .bc-john-signoff strong{font-weight:650;color:#171916;}
+  .bc-john-links{display:grid;border-top:1px solid #E7E4DB;}
+  .bc-john-practical-link{display:grid;gap:4px;padding:12px 0;border-bottom:1px solid #E7E4DB;color:#171916;text-decoration:none;}
+  .bc-john-practical-link span{font-size:12px;font-weight:650;line-height:1.4;}
+  .bc-john-practical-link small{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;line-height:1.5;
+    letter-spacing:.1em;color:#8F8B82;}
+  .bc-john-practical-link:hover span,.bc-john-practical-link:focus-visible span{color:#5A4B7C;}
+  .bc-john-socials{display:grid;gap:8px;padding-top:13px;}
+  .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;letter-spacing:.16em;
+    text-transform:uppercase;color:#A5A198;}
+  .bc-john-socials>div{display:flex;flex-wrap:wrap;gap:6px 12px;}
+  .bc-john-socials a{font-size:10px;color:#6F6961;text-decoration:none;border-bottom:1px solid #D8D4CA;}
+  .bc-john-socials a:hover,.bc-john-socials a:focus-visible{color:#5A4B7C;border-color:#5A4B7C;}
   #s-home #bc-logo [data-ring]{transition:stroke-width .3s cubic-bezier(.22,1,.36,1);animation:bc-app-ring-current 8s ease-in-out infinite!important;}
   #s-home #bc-logo [data-ring="16"]{animation-delay:.55s!important;}
   #s-home #bc-logo [data-ring="30"]{animation-delay:1.1s!important;}
@@ -597,6 +677,8 @@ CSS = """
     #s-home [data-m="below"]{padding:40px 22px 100px!important;}
     #s-home [data-m="pop"]{left:20px!important;max-width:calc(100vw - 40px);}
     #s-home .bc-app-note-fields{grid-template-columns:1fr!important;}
+    .bc-john-letter{width:100%;padding:30px 0;}
+    .bc-john-aside{float:none;width:min(240px,72vw);margin:0 0 26px;}
   }
 
   /* Ribbon study: the reference's image shelf, oversized editorial statement and

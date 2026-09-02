@@ -129,6 +129,15 @@ button{cursor:pointer}
 .testimonial-queue-head em{font:400 10px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--violet)}
 .testimonial-queue-card blockquote{margin:0;font-size:15px;line-height:1.65;white-space:pre-wrap;color:#312E29}
 .testimonial-queue-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.prospect-host-list{display:grid;border-top:1px solid var(--line)}
+.prospect-host-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px;padding:18px 0;border-bottom:1px solid var(--line)}
+.prospect-host-main{display:grid;gap:5px;min-width:0}
+.prospect-host-main strong{font-size:13px;overflow-wrap:anywhere}
+.prospect-host-main span{font-size:11px;line-height:1.55;color:var(--soft)}
+.prospect-host-main blockquote{margin:8px 0 0;padding:11px 14px;border-left:2px solid var(--violet);background:#F8F4FF;font-size:12px;line-height:1.65;white-space:pre-wrap;color:var(--body)}
+.prospect-host-actions{display:grid;align-content:start;justify-items:end;gap:7px}
+.prospect-host-actions em{font:400 9.5px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-host-empty{margin:12px 0;font-size:12px;color:var(--soft)}
 .invite-form{display:flex;gap:14px;align-items:end;flex-wrap:wrap}
 .invite-form input{font-size:13px;flex:1;min-width:200px;padding:8px 0}
 .outline{font-size:10.5px;color:var(--violet);background:#FFF;border:1px solid var(--violet);padding:9px 18px}
@@ -151,6 +160,77 @@ button{cursor:pointer}
 .host-foot{display:grid;gap:3px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft);margin-top:30px}
 .page-waiting{position:fixed;inset:0;display:grid;place-items:center;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.34em;color:#75726A;animation:stay 3s ease-in-out infinite}
 .menu-button,.mobile-menu{display:none}
+
+.prospect-shell{background:#FFF}
+.prospect-shell::before{content:'';position:absolute;inset:0 0 auto;height:72px;z-index:5;pointer-events:none;background:linear-gradient(#FFF 0%,#FFF 58%,rgba(255,255,255,.94) 76%,rgba(255,255,255,0) 100%)}
+.prospect-status{position:absolute;top:28px;right:10%;z-index:6;font-size:10px;letter-spacing:.22em;color:var(--soft)}
+.prospect-nav .prospect-locked{position:relative;opacity:.34;filter:blur(1.2px);user-select:none}
+.prospect-nav .prospect-locked::after{content:'';position:absolute;inset:0}
+.prospect-signout{margin:18px 0 0 9px!important;padding:0!important;width:max-content;border:0!important;border-bottom:1px solid #DAD6CB!important;background:transparent!important;font-size:10px!important;letter-spacing:.18em!important;color:var(--soft)!important}
+.prospect-preview-switch{position:absolute;right:10%;bottom:28px;z-index:8;display:flex;gap:14px;align-items:center;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;letter-spacing:.12em;color:var(--soft)}
+.prospect-preview-switch::before{content:'local preview ·';color:#BBB6AC}
+.prospect-preview-switch button{border:0;border-bottom:1px solid transparent;background:transparent;padding:2px 0;color:inherit;font:inherit;letter-spacing:inherit}
+.prospect-preview-switch button.current{color:var(--violet);border-bottom-color:rgba(90,75,124,.4)}
+.prospect-page{position:absolute;inset:0;overflow-y:auto;padding:14vh 8vw 100px 24%;display:grid;grid-template-columns:minmax(260px,.72fr) minmax(500px,1.28fr);gap:44px 68px;align-content:start}
+.prospect-intro{display:grid;align-content:start;gap:18px;padding-top:4px}
+.prospect-intro h1{margin:0;font-size:clamp(34px,4.25vw,68px);line-height:1.01;letter-spacing:-.055em;font-weight:600}
+.prospect-intro h1 strong{font-weight:750;color:var(--violet)}
+.prospect-intro p{margin:0;max-width:39ch;font-size:15px;line-height:1.72;color:var(--body)}
+.prospect-host-note{display:grid;gap:8px;margin-top:7px;padding-top:18px;border-top:1px solid var(--line)}
+.prospect-host-note p{font-size:12.5px;line-height:1.7;color:var(--soft)}
+.prospect-host-note a{color:var(--violet);border-bottom:1px solid rgba(90,75,124,.28)}
+.prospect-calendar{border:1px solid #DEDAD0;background:#FCFBF8;box-shadow:0 22px 60px rgba(48,42,34,.08);animation:appear .45s cubic-bezier(.22,1,.36,1) both}
+.prospect-calendar-head{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:27px 30px 23px;border-bottom:1px solid var(--line)}
+.prospect-calendar-head>div{display:grid;gap:8px}
+.prospect-calendar-head h2{margin:0;font-size:27px;line-height:1.1;letter-spacing:-.035em}
+.prospect-calendar-head>span{font-size:11px;color:var(--soft)}
+.prospect-calendar-body{display:grid;grid-template-columns:minmax(290px,1.2fr) minmax(190px,.8fr);min-height:365px}
+.prospect-cal-live{min-height:520px;background:#FCFBF8;overflow:hidden}
+.prospect-cal-live iframe{width:100%!important;min-height:520px!important;border:0!important;background:#FCFBF8!important}
+.prospect-live-fallback{padding:0 30px 28px;background:#FCFBF8;text-align:right}
+.prospect-month{display:grid;align-content:start;gap:18px;padding:26px 30px 24px;border-right:1px solid var(--line)}
+.prospect-month-head{display:grid;grid-template-columns:28px 1fr 28px;align-items:center;text-align:center}
+.prospect-month-head strong{font-size:13px;font-weight:650}
+.prospect-month-head button{border:0;background:transparent;color:var(--soft);padding:5px}
+.prospect-weekdays,.prospect-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
+.prospect-weekdays span{font:500 9px/1 ui-monospace,'SF Mono',Menlo,monospace;text-transform:uppercase;color:var(--soft)}
+.prospect-days button,.prospect-days span{display:grid;place-items:center;min-width:32px;height:32px;border:0;border-radius:50%;background:transparent;font-size:11px;color:var(--ink)}
+.prospect-days span{color:#C8C4BA}
+.prospect-days button:hover{background:#EEEAF6;color:var(--violet)}
+.prospect-days button.selected{background:var(--violet);color:#FFF}
+.prospect-timezone{margin-top:4px;font:400 9.5px/1.5 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-times{display:grid;align-content:start;gap:22px;padding:27px 24px}
+.prospect-times>div:first-child{display:grid;gap:5px}
+.prospect-times h3{margin:0;font-size:22px;letter-spacing:-.03em}
+.prospect-times small{font-size:10px;color:var(--soft)}
+.prospect-time-list{display:grid;gap:8px}
+.prospect-time-list button{border:1px solid #DAD6CB;background:#FFF;padding:10px 14px;color:var(--body);font-size:11px}
+.prospect-time-list button:hover,.prospect-time-list button.selected{color:#FFF;background:var(--violet);border-color:var(--violet)}
+.prospect-confirm{justify-self:stretch;width:100%;text-align:center}
+.prospect-message-open{justify-self:start;text-align:left;line-height:1.55;letter-spacing:.04em}
+.prospect-message{display:grid;grid-template-columns:minmax(210px,.7fr) minmax(300px,1.3fr);gap:28px 42px;padding:32px 30px;background:#FCFBF8;animation:appear .35s cubic-bezier(.22,1,.36,1) both}
+.prospect-message>div:first-child{display:grid;align-content:start;gap:9px}
+.prospect-message h3{margin:0;font-size:26px;line-height:1.1;letter-spacing:-.035em}
+.prospect-message p{margin:2px 0 0;font-size:12.5px;line-height:1.65;color:var(--body)}
+.prospect-message label{display:grid;gap:8px}
+.prospect-message label>span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+.prospect-message textarea{width:100%;min-height:128px;resize:vertical;border:1px solid #DAD6CB;background:#FFF;padding:14px;font-size:13px;line-height:1.65;color:var(--ink);outline:0}
+.prospect-message textarea:focus{border-color:var(--violet)}
+.prospect-message-actions{grid-column:2;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.prospect-message>.status{grid-column:2}
+.prospect-booked{min-height:505px;padding:54px 58px;display:grid;align-content:center;justify-items:start;gap:15px;background:linear-gradient(145deg,#FAF8FF,#F1ECFA);border:1px solid #DED7EA;box-shadow:0 22px 60px rgba(48,42,34,.08);animation:appear .45s cubic-bezier(.22,1,.36,1) both}
+.prospect-booked h2{margin:5px 0 0;font-size:clamp(42px,5.6vw,76px);line-height:.94;letter-spacing:-.06em;font-weight:600}
+.prospect-booked h2 strong{font-weight:750;color:var(--violet)}
+.prospect-booked-time{border:0;border-bottom:1px solid rgba(90,75,124,.35);background:transparent;padding:0 0 3px;font-size:20px;font-weight:650;color:var(--ink)}
+.prospect-booked p{margin:4px 0 0;font-size:13px;color:var(--body)}
+.prospect-booked-note{font:400 10px/1.55 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-booked-actions{display:flex;align-items:center;gap:18px;margin-top:18px;flex-wrap:wrap}
+.prospect-booked-actions .secondary{display:inline-block}
+.prospect-granted p{margin:4px 0 0;max-width:44ch;font-size:14px;line-height:1.7;color:var(--body)}
+.prospect-granted>.primary{margin-top:16px}
+.prospect-foot{grid-column:2;display:flex;gap:11px;align-items:start;padding:0 4px;color:var(--soft)}
+.prospect-foot>span{color:var(--violet)}
+.prospect-foot p{margin:0;max-width:62ch;font:400 10px/1.65 ui-monospace,'SF Mono',Menlo,monospace}
 
 .member-shell{background:#FFF}
 .member-shell::before{content:'';position:absolute;inset:0 0 auto;height:72px;z-index:5;pointer-events:none;background:linear-gradient(#FFF 0%,#FFF 58%,rgba(255,255,255,.94) 76%,rgba(255,255,255,0) 100%)}
@@ -305,7 +385,7 @@ button{cursor:pointer}
 .directory-randomise{width:max-content;margin-top:4px;color:var(--violet)}
 .directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 18px}
 .directory-card{display:grid;gap:16px;align-content:start;min-width:0}
-.directory-portrait{position:relative;aspect-ratio:4/3;overflow:hidden;background:#F1EEE7;display:grid;place-items:center}
+.directory-portrait{position:relative;width:min(100%,180px);aspect-ratio:1;overflow:hidden;background:#F1EEE7;display:grid;place-items:center}
 .directory-card:nth-child(3n+2) .directory-portrait{background:#F0EBFB}
 .directory-card:nth-child(3n+3) .directory-portrait{background:#EDF3EE}
 .directory-portrait img{width:100%;height:100%;object-fit:cover;filter:saturate(.84)}
@@ -418,6 +498,10 @@ button{cursor:pointer}
   .directory-content,.profile-content,.settings-content{padding-left:30%;padding-right:30px}
   .directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .profile-editor{grid-template-columns:1fr}
+  .prospect-page{padding-left:30%;padding-right:30px;grid-template-columns:1fr;gap:30px}
+  .prospect-intro{max-width:620px}
+  .prospect-foot{grid-column:1}
+  .prospect-preview-switch{right:30px}
 }
 
 @media(max-width:720px){
@@ -434,6 +518,8 @@ button{cursor:pointer}
   .menu-close{position:absolute;top:14px;right:14px;border:0;background:transparent;font-size:26px;line-height:1;padding:8px 12px;color:var(--soft)}
   .host-page{padding:12vh 22px 80px}
   .member-row{align-items:flex-start}
+  .prospect-host-card{grid-template-columns:1fr}
+  .prospect-host-actions{justify-items:start}
   .member-actions{gap:8px}
   .attendance-row{grid-template-columns:20px minmax(0,1fr)}
   .attendance-row em{grid-column:2}
@@ -466,9 +552,24 @@ button{cursor:pointer}
   .profile-editor{grid-template-columns:1fr;padding:24px 20px;gap:30px}
   .profile-cropper-card{padding:22px 18px}
   .setting-row,.settings-copy-row{gap:18px}
+  .prospect-status{right:22px;top:28px;font-size:8.5px}
+  .prospect-nav{display:none}
+  .prospect-page{position:relative;inset:auto;padding:13vh 22px 90px;grid-template-columns:1fr;gap:32px;min-height:100vh}
+  .prospect-intro h1{font-size:clamp(38px,12vw,56px)}
+  .prospect-calendar-head{align-items:start;flex-direction:column;padding:24px 20px 20px}
+  .prospect-calendar-body{grid-template-columns:1fr}
+  .prospect-month{padding:24px 20px;border-right:0;border-bottom:1px solid var(--line)}
+  .prospect-days button,.prospect-days span{min-width:0}
+  .prospect-times{padding:24px 20px}
+  .prospect-message{grid-template-columns:1fr;padding:26px 20px}
+  .prospect-message-actions,.prospect-message>.status{grid-column:1}
+  .prospect-booked{min-height:460px;padding:42px 28px}
+  .prospect-foot{grid-column:1}
+  .prospect-preview-switch{position:relative;right:auto;bottom:auto;grid-column:1;grid-row:4;justify-self:start;margin-top:6px}
 }
 
 @media(max-width:430px){.directory-grid{grid-template-columns:1fr}}
+@media(max-width:430px){.directory-portrait{width:150px}}
 @media(max-width:520px){.member-shell .clock{display:none}}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}

@@ -16,6 +16,7 @@ import { postJoin } from './join.js';
 import { listReplies, getReplyAudio } from './replies.js';
 import { clubRoute } from './club/index.js';
 import { runClubMail } from './club/mailer.js';
+import { calWebhook } from './club/prospects.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -56,6 +57,10 @@ async function route(request, env, ctx, url) {
   const method = request.method;
 
   if (path === '/api/health' && method === 'GET') return json({ ok: true });
+
+  // Cal.com calls this directly. The request has no browser session and is
+  // accepted only when its raw body matches the configured HMAC signature.
+  if (path === '/api/cal/webhook' && method === 'POST') return calWebhook(env, request);
 
   // Membership has its own database and its own short-lived sessions. It
   // shares this Worker only to use the existing private mail configuration.
