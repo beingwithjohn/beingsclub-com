@@ -514,14 +514,20 @@ button{cursor:pointer}
   .prospect-calendar-head{padding:20px 26px 17px}
   .prospect-calendar-head>div{gap:6px}
   .prospect-calendar-head h2{font-size:24px}
+  .prospect-calendar-head>span{font-size:12px}
   .prospect-timezone-row{padding:8px 26px}
+  .prospect-timezone-row{font-size:11px}
   .prospect-calendar-body{min-height:310px}
   .prospect-month{gap:12px;padding:18px 24px 17px}
-  .prospect-days button,.prospect-days span{height:30px}
+  .prospect-month-head strong{font-size:15px}
+  .prospect-weekdays span{font-size:10px}
+  .prospect-days button,.prospect-days span{width:42px;height:42px;min-width:0;justify-self:center;font-size:12.5px}
   .prospect-times{gap:14px;padding:19px 20px}
   .prospect-times h3{font-size:20px}
+  .prospect-times small{font-size:11px}
   .prospect-time-list{gap:6px}
-  .prospect-time-list button{padding:7px 12px}
+  .prospect-time-list button{padding:8px 12px;font-size:12.5px}
+  .prospect-calendar-status{font-size:10.5px}
 }
 
 @media(min-width:721px) and (max-width:980px){
