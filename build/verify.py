@@ -128,11 +128,11 @@ def audit(html, label):
            'data-public-logo' not in home and 'data-logo-pop' not in home)
         ok(label + ": public threshold matches the supplied app actions",
            'href="/members/"' in home and '>login</a>' in home and
-           'href="/members/?join=1"' in home and '>become a member</a>' in home and
+           'href="/members/?join=1"' in home and '>join</a>' in home and
            'https://lu.ma/beingsclub' in home and '>public events ↗</a>' in home)
         ok(label + ": the closing invitation repeats all three public actions",
            'data-note-actions="foot"' in home and
-           home.count('>login</a>') >= 2 and home.count('>become a member</a>') >= 2 and
+           home.count('>login</a>') >= 2 and home.count('>join</a>') >= 2 and
            home.count('>public events ↗</a>') >= 2)
         ok(label + ": supplied leave-a-note forms are connected",
            'data-note-form="top"' in home and 'data-note-form="foot"' in home and
