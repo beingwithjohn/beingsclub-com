@@ -65,6 +65,12 @@ def audit(html, label):
        '#bc-intro{' in html and 'opacity:0;visibility:hidden;pointer-events:none;' in html)
     ok(label + ": intro times itself out without JS",
        '@keyframes bc-intro-guard' in html and 'animation:bc-intro-guard' in html)
+    ok(label + ": warm intro paper matches the revealed page",
+       bool(re.search(r'#bc-intro\{[^}]*background:#FDFCF9;', html)) and
+       'body{margin:0;overflow:hidden;background:#FDFCF9;' in html and
+       '.bc-shell{position:relative;height:100svh;overflow:hidden;background:#FDFCF9;}' in html and
+       'id="bc-app-public-scroll" style="position:absolute;inset:0;overflow-y:auto;background:#FDFCF9;' in html and
+       'background:#FFFFFF' not in html)
     # and it must be decided before first paint, or the page flashes then covers
     hgood, herr = js_parses(head_script_of(html))
     ok(label + ": intro decided in <head>",
@@ -268,10 +274,17 @@ ok("host testimonial queue is editorial and never auto-publishes",
    'id="testimonial-queue"' in host_html and 'Copy what you want to use' in host_html and
    'Nothing here generates a notification' in host_html)
 login_html = members_after.get("members/index.html", "")
-ok("member login is passwordless and non-enumerating",
+ok("member login distinguishes access and hands non-members to joining",
    'autocomplete="one-time-code"' in login_html and 'type="password"' not in login_html and
-   "If <span id=\"email-shown\"></span> is on the list" in login_html and
+   "A six-digit code is on its way to <span id=\"email-shown\"></span>" in login_html and
+   "That email isn’t on the member list." in members_after.get("members/app.js", "") and
+   "preview === 'login-error'" in members_after.get("members/app.js", "") and
+   "sessionStorage.setItem(JOIN_EMAIL_KEY, emailAddress)" in members_after.get("members/app.js", "") and
    '<a href="/members/?join=1">Membership begins with a conversation</a>' in login_html)
+ok("member surfaces keep one uninterrupted warm paper",
+   "--paper:#FDFCF9" in members_after.get("members/app.css", "") and
+   "background:#FFF" not in members_after.get("members/app.css", "") and
+   "background:#FFFFFF" not in members_after.get("members/app.css", ""))
 ok("first entry carries a concise, versioned member agreement",
    'id="welcome-page"' in login_html and 'id="agreement-form"' in login_html and
    'data-welcome-step="3"' in login_html and

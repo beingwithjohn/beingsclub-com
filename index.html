@@ -37,7 +37,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 <style>
   *{box-sizing:border-box;}
   html,body{height:100%;}
-  body{margin:0;overflow:hidden;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  body{margin:0;overflow:hidden;background:#FDFCF9;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
   img{display:block;max-width:100%;}
   a{color:#171916;text-decoration:none;}
   a:hover{color:#5A4B7C;}
@@ -73,7 +73,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     color:#43403A;text-wrap:pretty;}
 
   /* the six layers */
-  .bc-shell{position:relative;height:100svh;overflow:hidden;background:#F0EEE8;}
+  .bc-shell{position:relative;height:100svh;overflow:hidden;background:#FDFCF9;}
   .bc-layer{position:absolute;inset:0;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;
     scrollbar-width:none;opacity:0;visibility:hidden;pointer-events:none;
     transition:opacity 700ms cubic-bezier(.33,0,.67,1),visibility 0s linear 700ms;}
@@ -420,7 +420,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 <body>
 <div class="bc-shell" id="bc-shell">
 <div class="bc-layer" data-active="1" id="s-home" data-screen="home">
-<div id="bc-app-public-scroll" style="position:absolute;inset:0;overflow-y:auto;background:#FFFFFF;animation:bc-app-appear .45s cubic-bezier(.22,1,.36,1) both;">
+<div id="bc-app-public-scroll" style="position:absolute;inset:0;overflow-y:auto;background:#FDFCF9;animation:bc-app-appear .45s cubic-bezier(.22,1,.36,1) both;">
   <div data-m="vh" style="position:relative;height:100vh;">
     <span style="position:absolute;top:28px;left:10%;font-size:11px;letter-spacing:.3em;color:#75726A;">hello, being</span>
     <span data-m="clock" style="position:absolute;top:28px;right:10%;font-size:11px;letter-spacing:.18em;color:#A5A198;z-index:6;">00:00</span>
@@ -432,14 +432,14 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       <div data-m="noteslot" style="position:relative;min-height:92px;">
         <div data-m="notecard" data-note-actions="1" style="position:absolute;top:0;left:0;display:grid;gap:14px;justify-items:start;">
           <div data-m="btnrow" style="display:flex;gap:10px;">
-            <a href="/members/" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#171916;background:#FFFFFF;border:1px solid #171916;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="0">login</a>
+            <a href="/members/" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#171916;background:#FDFCF9;border:1px solid #171916;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="0">login</a>
             <a href="/members/?join=1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:11px 24px;transition:background .18s ease;" data-vh="1">become a member</a>
             <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#3E3357;background:#C9BEE8;padding:11px 24px;transition:background .18s ease;" data-vh="2">public events ↗</a>
           </div>
           <span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;line-height:1.9;color:#A5A198;white-space:nowrap;">Beings Club is where curiosity connects. Stay curious.</span>
         </div>
 
-        <form data-m="notecard" data-note-form="top" hidden style="position:absolute;top:0;left:0;display:grid;gap:12px;width:min(520px,86vw);background:#FFFFFF;z-index:2;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
+        <form data-m="notecard" data-note-form="top" hidden style="position:absolute;top:0;left:0;display:grid;gap:12px;width:min(520px,86vw);background:#FDFCF9;z-index:2;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span>
             <button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#A5A198;border:0;background:transparent;">×</button>
@@ -550,7 +550,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 
       <div style="display:grid;gap:16px;justify-items:start;">
         <div data-note-actions="foot" style="display:flex;gap:10px;flex-wrap:wrap;">
-          <a href="/members/" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#171916;background:#FFFFFF;border:1px solid #171916;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="0">login</a>
+          <a href="/members/" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#171916;background:#FDFCF9;border:1px solid #171916;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="0">login</a>
           <a href="/members/?join=1" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:11px 24px;transition:background .18s ease;" data-vh="1">become a member</a>
           <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#3E3357;background:#C9BEE8;padding:11px 24px;transition:background .18s ease;" data-vh="2">public events ↗</a>
         </div>

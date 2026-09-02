@@ -146,6 +146,13 @@ def convert(body, key):
             assert body.count(old) == 1, 'Home %s not found once' % what
             body = body.replace(old, new, 1)
 
+        # One uninterrupted warm paper across the intro, revealed landing,
+        # note cards and light buttons avoids a white flash or inset white
+        # islands when the opening screen gives way to the page.
+        public_white = 'background:#FFFFFF'
+        assert body.count(public_white) == 4, 'Home white surfaces changed unexpectedly'
+        body = body.replace(public_white, 'background:#FDFCF9')
+
         # Stable anchors let old public URLs arrive at the relevant part of the
         # single landing page without recreating a public programme map.
         body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>',
@@ -571,7 +578,7 @@ for key, f, slug, _, _ in SCREENS:
 CSS = """
   *{box-sizing:border-box;}
   html,body{height:100%;}
-  body{margin:0;overflow:hidden;background:#F0EEE8;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  body{margin:0;overflow:hidden;background:#FDFCF9;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;color:#171916;line-height:1.5;-webkit-font-smoothing:antialiased;}
   img{display:block;max-width:100%;}
   a{color:#171916;text-decoration:none;}
   a:hover{color:#5A4B7C;}
@@ -607,7 +614,7 @@ CSS = """
     color:#43403A;text-wrap:pretty;}
 
   /* the six layers */
-  .bc-shell{position:relative;height:100svh;overflow:hidden;background:#F0EEE8;}
+  .bc-shell{position:relative;height:100svh;overflow:hidden;background:#FDFCF9;}
   .bc-layer{position:absolute;inset:0;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;
     scrollbar-width:none;opacity:0;visibility:hidden;pointer-events:none;
     transition:opacity 700ms cubic-bezier(.33,0,.67,1),visibility 0s linear 700ms;}

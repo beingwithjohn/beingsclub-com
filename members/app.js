@@ -3,6 +3,7 @@
   const API = document.querySelector('meta[name="bc-members-api"]').content;
   const KEY = 'bc_member_session_v1';
   const PROSPECT_KEY = 'bc_prospect_session_v1';
+  const JOIN_EMAIL_KEY = 'bc_join_email_v1';
   const loginPage = document.getElementById('login-page');
   const welcomePage = document.getElementById('welcome-page');
   const memberApp = document.getElementById('member-app');
@@ -311,16 +312,37 @@
     showMemberApp();
   }
 
+  function showNonMember(emailAddress) {
+    showLogin(emailForm);
+    emailInput.value = emailAddress;
+    const link = document.createElement('a');
+    link.href = '/members/?join=1';
+    link.textContent = 'Become a member →';
+    link.addEventListener('click', () => {
+      try { sessionStorage.setItem(JOIN_EMAIL_KEY, emailAddress); } catch (_) {}
+    });
+    emailStatus.replaceChildren(
+      document.createTextNode('That email isn’t on the member list. '), link,
+    );
+  }
+
   async function requestCode() {
     const data = await call('/api/club/auth/request', {
       method: 'POST', body: JSON.stringify({ email }),
     });
+    if (data.limited) return 'limited';
+    if (data.eligible === false) {
+      showNonMember(email);
+      return 'ineligible';
+    }
+    if (data.eligible !== true) throw new Error('login eligibility unavailable');
     challenge = data.challenge;
     document.getElementById('email-shown').textContent = email;
     codeInput.value = '';
     showLogin(codeForm);
     codeInput.focus();
     startResendClock();
+    return 'sent';
   }
 
   async function requestProspectCode() {
@@ -1283,7 +1305,10 @@
     email = emailInput.value.trim().toLowerCase();
     if (!emailInput.checkValidity()) { emailInput.reportValidity(); return; }
     const button = emailForm.querySelector('button[type="submit"]'); button.disabled = true;
-    try { await requestCode(); }
+    try {
+      const result = await requestCode();
+      if (result === 'limited') emailStatus.textContent = 'Please wait a minute before requesting another code.';
+    }
     catch (_) { emailStatus.textContent = 'Something went wrong. Please try again.'; }
     finally { button.disabled = false; }
   });
@@ -1396,7 +1421,11 @@
   resend.addEventListener('click', async () => {
     if (resend.disabled) return;
     codeStatus.textContent = '';
-    try { await requestCode(); codeStatus.textContent = 'Another code is on its way, if this address is on the list.'; }
+    try {
+      const result = await requestCode();
+      if (result === 'sent') codeStatus.textContent = 'Another code is on its way.';
+      if (result === 'limited') codeStatus.textContent = 'Please wait a minute before requesting another code.';
+    }
     catch (_) { codeStatus.textContent = 'Something went wrong. Please try again.'; }
   });
   document.querySelectorAll('[data-rsvp]').forEach((button) => button.addEventListener('click', () => setRsvp(button.dataset.rsvp)));
@@ -1629,6 +1658,11 @@
       ? previewParams.get('preview') : null;
     if (preview) {
       previewMode = true;
+      if (preview === 'login-error') {
+        email = 'you@example.com';
+        showNonMember(email);
+        return;
+      }
       if (preview === 'prospective') {
         if (previewParams.get('step') === 'email') {
           showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
@@ -1705,6 +1739,14 @@
     const joining = previewParams.get('join') === '1';
     if (joining || (!token() && prospectToken())) {
       if (!prospectToken()) {
+        try {
+          const joinEmail = sessionStorage.getItem(JOIN_EMAIL_KEY);
+          if (joinEmail) {
+            prospectEmailInput.value = joinEmail;
+            prospectEmail = joinEmail;
+            sessionStorage.removeItem(JOIN_EMAIL_KEY);
+          }
+        } catch (_) {}
         showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
       }
       showLogin(waiting);

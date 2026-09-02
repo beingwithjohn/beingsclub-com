@@ -206,12 +206,12 @@ export async function clubRoute(request, env, ctx, url) {
 }
 
 async function requestCode(request, env, ctx, body) {
-  // The response never confirms whether an address is approved. Unknown and
-  // rate-limited requests receive the same shape and a challenge that simply
-  // cannot be completed.
+  // Membership eligibility is returned only inside the existing request
+  // throttle. This deliberately supports the public login-to-joining handoff
+  // while preventing an address list from being probed without limit.
   const responseChallenge = randomToken(24);
   const email = normalizeEmail(body?.email);
-  if (!email) return json({ ok: true, challenge: responseChallenge });
+  if (!email) return json({ ok: true, challenge: responseChallenge, eligible: false });
 
   const timestamp = now();
   const emailHash = await keyedHash(env, 'email-rate', email);
@@ -219,12 +219,20 @@ async function requestCode(request, env, ctx, body) {
   const ipHash = await keyedHash(env, 'ip-rate', ip);
 
   const allowed = await mayRequest(env, emailHash, ipHash, timestamp);
-  if (!allowed) return json({ ok: true, challenge: responseChallenge });
+  if (!allowed) return json({ ok: true, challenge: responseChallenge, limited: true });
 
   const member = await env.MEMBERS.prepare(
     `SELECT id, email, display_name FROM member
       WHERE email = ?1 AND disabled_at IS NULL AND left_at IS NULL`,
   ).bind(email).first();
+
+  if (!member) {
+    await env.MEMBERS.prepare(
+      'INSERT INTO auth_request (email_hash, ip_hash, created_at) VALUES (?1, ?2, ?3)',
+    ).bind(emailHash, ipHash, timestamp).run();
+    ctx.waitUntil(pruneMemberAuth(env, timestamp));
+    return json({ ok: true, challenge: responseChallenge, eligible: false });
+  }
 
   const code = randomCode();
   const codeHash = await keyedHash(env, 'login-code', `${responseChallenge}:${code}`);
@@ -236,26 +244,28 @@ async function requestCode(request, env, ctx, body) {
       `INSERT INTO auth_challenge
         (id, member_id, code_hash, created_at, expires_at)
        VALUES (?1, ?2, ?3, ?4, ?5)`,
-    ).bind(responseChallenge, member?.id ?? null, codeHash, timestamp, timestamp + CODE_LIFETIME),
+    ).bind(responseChallenge, member.id, codeHash, timestamp, timestamp + CODE_LIFETIME),
   ]);
 
-  if (member) {
-    ctx.waitUntil(sendClubCode(env, {
-      email: member.email,
-      name: member.display_name,
-      code,
-    }));
-  }
+  ctx.waitUntil(sendClubCode(env, {
+    email: member.email,
+    name: member.display_name,
+    code,
+  }));
 
   // Old codes and request logs contain no useful plaintext; trimming them
   // here prevents unbounded growth without introducing another cron.
-  ctx.waitUntil(env.MEMBERS.batch([
+  ctx.waitUntil(pruneMemberAuth(env, timestamp));
+
+  return json({ ok: true, challenge: responseChallenge, eligible: true });
+}
+
+function pruneMemberAuth(env, timestamp) {
+  return env.MEMBERS.batch([
     env.MEMBERS.prepare('DELETE FROM auth_challenge WHERE expires_at < ?1').bind(timestamp - 86400),
     env.MEMBERS.prepare('DELETE FROM auth_request WHERE created_at < ?1').bind(timestamp - 86400),
     env.MEMBERS.prepare('DELETE FROM member_session WHERE expires_at < ?1').bind(timestamp - 86400),
-  ]));
-
-  return json({ ok: true, challenge: responseChallenge });
+  ]);
 }
 
 async function mayRequest(env, emailHash, ipHash, timestamp) {
