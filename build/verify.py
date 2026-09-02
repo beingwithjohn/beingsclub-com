@@ -405,6 +405,8 @@ club_router = io.open(os.path.join(ROOT, "practice-log", "src", "club", "index.j
                       encoding="utf-8").read()
 prospects_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "prospects.js"),
                         encoding="utf-8").read()
+mail_api = io.open(os.path.join(ROOT, "practice-log", "src", "mail", "send.js"),
+                   encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
                      encoding="utf-8").read()
 ok("native calendar availability and booking stay behind the prospective-member session",
@@ -421,6 +423,17 @@ ok("member invitation delivery is recorded and retryable server-side",
    "/members\\/(\\d+)\\/invite" in club_router and
    "invitation_sent_at" in club_router and
    "idempotencyKey: `club-member-${id}-${invitationVersion}`" in club_router)
+ok("granting a prospective member sends one retry-safe welcome",
+   "sendClubWelcome" in prospects_api and
+   "idempotencyKey: `club-prospect-${id}-${timestamp}`" in prospects_api and
+   "subject = 'Welcome to Beings Club'" in mail_api and
+   "Your welcome is waiting." in mail_api and
+   "Beings Club is made by the people who participate" in mail_api)
+ok("host can deliberately resend a welcome before onboarding is complete",
+   "/prospects\\/(\\d+)\\/welcome" in club_router and
+   "resendProspectWelcome" in prospects_api and
+   "idempotencyKey: `club-prospect-welcome-${id}-${timestamp}`" in prospects_api and
+   "resend welcome" in members_after.get("members/host.js", ""))
 onboarding_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "onboarding.js"),
                          encoding="utf-8").read()
 ok("finishing the first-entry welcome sends one retry-safe host notice",

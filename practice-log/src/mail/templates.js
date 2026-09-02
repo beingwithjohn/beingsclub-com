@@ -54,9 +54,15 @@ function layout({ preheader, blocks, footer, dark = false }) {
 <tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
   style="width:600px;max-width:100%;background:${sheet};border-left:1px solid ${border};border-right:1px solid ${border};">
+<tr><td style="padding:38px 40px 0;"><img src="https://beingsclub.com/assets/beings-logo-outline.png"
+  alt="Beings Club — concentric hand-drawn rings" width="180"
+  style="display:block;width:180px;max-width:100%;height:auto;border:0;"></td></tr>
 ${blocks}
-<tr><td style="padding:18px 40px;border-top:1px solid ${border};background:${dark ? T.ink : T.warm};
-  font-family:${FONT};font-size:11px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;
+<tr><td style="padding:22px 40px 0;border-top:1px solid ${border};background:${dark ? T.ink : T.warm};
+  font-family:'Courier New',Courier,monospace;font-size:11px;line-height:19px;
+  color:${dark ? 'rgba(255,255,255,0.5)' : '#A5A198'};">for the benefit of all beings</td></tr>
+<tr><td style="padding:16px 40px 22px;background:${dark ? T.ink : T.warm};
+  font-family:${FONT};font-size:11px;line-height:18px;
   color:${dark ? 'rgba(255,255,255,0.5)' : T.muted};">${footer}</td></tr>
 </table>
 </td></tr></table>

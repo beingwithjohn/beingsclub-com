@@ -1,6 +1,6 @@
 import { json, bad } from '../api.js';
 import {
-  sendClubInvitation, sendProspectCode, sendProspectTimeNote,
+  sendClubWelcome, sendProspectCode, sendProspectTimeNote,
 } from '../mail/send.js';
 import {
   bearerToken, keyedHash, normalizeEmail, randomCode, randomToken,
@@ -312,11 +312,13 @@ export async function enterGrantedProspect(env, who) {
 
 export async function listProspects(env) {
   const rows = await env.MEMBERS.prepare(
-    `SELECT id, email, display_name, booking_uid, booking_title, booking_start_at,
-            booking_end_at, booking_timezone, booking_status,
-            alternate_time_note, alternate_time_note_at, granted_at, member_id,
-            created_at, updated_at
-       FROM prospect ORDER BY granted_at IS NOT NULL, updated_at DESC`,
+    `SELECT p.id, p.email, p.display_name, p.booking_uid, p.booking_title,
+            p.booking_start_at, p.booking_end_at, p.booking_timezone,
+            p.booking_status, p.alternate_time_note, p.alternate_time_note_at,
+            p.granted_at, p.member_id, p.created_at, p.updated_at,
+            m.joined_at AS member_joined_at
+       FROM prospect p LEFT JOIN member m ON m.id = p.member_id
+      ORDER BY p.granted_at IS NOT NULL, p.updated_at DESC`,
   ).all();
   return json({ prospects: (rows.results || []).map(shapeHostProspect) });
 }
@@ -346,8 +348,9 @@ export async function grantProspect(env, host, id) {
     `UPDATE prospect SET granted_at = ?1, granted_by = ?2, member_id = ?3,
        updated_at = ?1 WHERE id = ?4 AND granted_at IS NULL`,
   ).bind(timestamp, host.id, member.id, id).run();
-  const sent = member.invitation_sent_at ? true : await sendClubInvitation(env, {
-    email: member.email, idempotencyKey: `club-prospect-${id}-${timestamp}`,
+  const sent = member.invitation_sent_at ? true : await sendClubWelcome(env, {
+    email: member.email, name: member.display_name,
+    idempotencyKey: `club-prospect-${id}-${timestamp}`,
   });
   await env.MEMBERS.prepare(
     `UPDATE member SET invitation_sent_at = COALESCE(invitation_sent_at, ?1),
@@ -356,6 +359,34 @@ export async function grantProspect(env, host, id) {
   ).bind(sent ? timestamp : null, timestamp, sent ? null : 'delivery failed', member.id).run();
   const fresh = await env.MEMBERS.prepare('SELECT * FROM prospect WHERE id = ?1').bind(id).first();
   return json({ prospect: shapeHostProspect(fresh), invitationSent: sent });
+}
+
+export async function resendProspectWelcome(env, id) {
+  if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  const prospect = await env.MEMBERS.prepare(
+    `SELECT p.id, p.granted_at, p.member_id, p.display_name,
+            m.email, m.display_name AS member_name, m.joined_at,
+            m.disabled_at, m.left_at
+       FROM prospect p JOIN member m ON m.id = p.member_id
+      WHERE p.id = ?1`,
+  ).bind(id).first();
+  if (!prospect || !prospect.granted_at || !prospect.member_id
+      || prospect.joined_at || prospect.disabled_at || prospect.left_at) {
+    return bad(409, 'welcome unavailable');
+  }
+  const timestamp = now();
+  const sent = await sendClubWelcome(env, {
+    email: prospect.email,
+    name: prospect.member_name || prospect.display_name,
+    idempotencyKey: `club-prospect-welcome-${id}-${timestamp}`,
+  });
+  await env.MEMBERS.prepare(
+    `UPDATE member SET invitation_sent_at = COALESCE(?1, invitation_sent_at),
+       invitation_last_attempt_at = ?2, invitation_last_error = ?3,
+       updated_at = ?2 WHERE id = ?4`,
+  ).bind(sent ? timestamp : null, timestamp, sent ? null : 'delivery failed', prospect.member_id).run();
+  if (!sent) return bad(502, 'welcome email did not send');
+  return json({ ok: true, invitationSent: true });
 }
 
 export async function calWebhook(env, request) {
@@ -433,6 +464,7 @@ function shapeHostProspect(row) {
   return {
     ...shaped, createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
     grantedAt: iso(row.granted_at), memberId: row.member_id || null,
+    canResendWelcome: !!row.granted_at && !row.member_joined_at,
   };
 }
 

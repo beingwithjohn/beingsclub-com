@@ -31,7 +31,7 @@ import {
   createProspectBooking, enterGrantedProspect, getProspectSlots,
   getProspectState, grantProspect, identifyProspect,
   listProspects, requestProspectCode,
-  saveProspectTimeNote, verifyProspectCode,
+  resendProspectWelcome, saveProspectTimeNote, verifyProspectCode,
 } from './prospects.js';
 
 const CODE_LIFETIME = 10 * 60;
@@ -198,6 +198,10 @@ export async function clubRoute(request, env, ctx, url) {
   const grant = /^\/api\/club\/host\/prospects\/(\d+)\/grant$/.exec(path);
   if (grant && method === 'POST') {
     return grantProspect(env, who, Number(grant[1]));
+  }
+  const resendWelcome = /^\/api\/club\/host\/prospects\/(\d+)\/welcome$/.exec(path);
+  if (resendWelcome && method === 'POST') {
+    return resendProspectWelcome(env, Number(resendWelcome[1]));
   }
   const inviteMember = /^\/api\/club\/host\/members\/(\d+)\/invite$/.exec(path);
   if (inviteMember && method === 'POST') {

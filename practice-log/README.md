@@ -358,10 +358,14 @@ now use the public evergreen log.
 off until the two Worker secrets, the webhook events, and customer-portal
 cancellation are configured in John's Stripe account.
 
-**Sending domain.** Real sends are working. DMARC remains at `p=none` while SPF
-and DKIM alignment are observed, then should move to `p=reject`. Every email
+**Sending domain.** Real sends are working. Public DNS has DKIM on
+`resend._domainkey.beingsclub.com`, and the `send.beingsclub.com` return path
+has SPF and MX. DMARC remains at `p=none` while alignment is confirmed from
+received-message headers, then should move deliberately to `quarantine` and
+eventually `reject`. The root domain has no receiving inbox, so every email
 carries `reply-to: john@spacetobe.xyz`; both addresses are `[vars]` in
-`wrangler.toml`, not constants.
+`wrangler.toml`, not constants. See `EMAILS.md` for the shared member-mail
+design and delivery contract.
 
 **The accent.** The log's own bundle made amber `#FFAD54` the colour that means
 *you*. The site has no amber; its accent is violet `#5A4B7C` with lilac `#F2ECFF`

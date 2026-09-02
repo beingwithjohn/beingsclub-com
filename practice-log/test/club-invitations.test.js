@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sendClubInvitation, sendMemberJoinedNotification } from '../src/mail/send.js';
+import {
+  sendClubInvitation, sendClubWelcome, sendMemberJoinedNotification,
+} from '../src/mail/send.js';
 
 test('a member invitation is personal, idempotent and points to the member entrance', async () => {
   const original = globalThis.fetch;
@@ -45,6 +47,39 @@ test('an invitation reports a delivery failure without pretending it sent', asyn
       MAIL_REPLY_TO: 'john@spacetobe.xyz',
     }, { email: 'mira@example.test', idempotencyKey: 'member-7' });
     assert.equal(sent, false);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('granting access sends a welcome rather than another invitation', async () => {
+  const original = globalThis.fetch;
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: 'email_welcome' }), { status: 200 });
+  };
+  try {
+    const sent = await sendClubWelcome({
+      RESEND_API_KEY: 'test-key',
+      MAIL_FROM_HOST: 'John Ooi <practice@beingsclub.com>',
+      MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    }, {
+      email: 'mira@example.test',
+      name: 'Mira',
+      idempotencyKey: 'club-prospect-4-2000000000',
+    });
+    assert.equal(sent, true);
+    assert.equal(request.options.headers['idempotency-key'], 'club-prospect-4-2000000000');
+    const body = JSON.parse(request.options.body);
+    assert.equal(body.subject, 'Welcome to Beings Club');
+    assert.match(body.text, /Hello, Mira\. You’re in\./);
+    assert.match(body.text, /Beings Club is made by the people who participate/);
+    assert.match(body.html, /Welcome to <span[^>]*>Beings Club<\/span>\./);
+    assert.match(body.html, /Hello, Mira\. You’re in\./);
+    assert.match(body.html, /inside Beings Club/);
+    assert.match(body.html, /Beings Club is made by the people who participate/);
+    assert.doesNotMatch(body.subject, /invited/i);
   } finally {
     globalThis.fetch = original;
   }

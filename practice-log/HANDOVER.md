@@ -321,8 +321,10 @@ safe place to work; `seed/bootstrap.sh` creates runs and prints the magic links.
 - Stripe is unconnected — the one-off and monthly paths, signed webhooks and
   Settings manage/cancel route are built, but the two Worker secrets, webhook event
   destination and customer-portal cancellation still need John's Stripe account.
-- DMARC is at `p=none` while sending is proven, and should be tightened to
-  `p=reject` once a real send is confirmed to pass SPF and DKIM aligned.
+- DMARC is at `p=none` while sending is proven. Confirm SPF, DKIM and DMARC
+  alignment from a real received message, then tighten deliberately through
+  `quarantine` before `reject`. The member-mail style and delivery contract is
+  recorded in `EMAILS.md`.
 - `COPY.md` records the completed public-evergreen copy pass. Fixed invitation
   copy remains there only as legacy reference.
 - The public evergreen log is now the course-independent home. Both fixed runs

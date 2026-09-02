@@ -12,6 +12,8 @@ The private foundation and first complete member slice:
 - John receives one email after that person completes the first-entry welcome
   and agrees to the member principles; delivery is idempotent and failed notices
   are retried by the existing half-hour Worker schedule;
+- before onboarding is complete, the host can deliberately resend the welcome
+  email to a granted prospective member without granting access a second time;
 - the host page is static, but no member data is in it — the private API
   returns that only after checking the session and host role;
 - every approved person, including a host, lands in the same member dashboard;

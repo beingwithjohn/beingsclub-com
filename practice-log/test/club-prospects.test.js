@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { sendProspectCode, sendProspectTimeNote } from '../src/mail/send.js';
 import {
-  createProspectBooking, getProspectSlots, validWebhookSignature,
+  createProspectBooking, getProspectSlots, resendProspectWelcome,
+  validWebhookSignature,
 } from '../src/club/prospects.js';
 
 function prospectDb(row) {
@@ -26,6 +27,21 @@ function prospectDb(row) {
           }
           return { meta: { changes: 1 } };
         },
+      };
+    },
+  };
+}
+
+function grantedProspectDb(row) {
+  const updates = [];
+  return {
+    updates,
+    prepare(sql) {
+      let args = [];
+      return {
+        bind(...values) { args = values; return this; },
+        async first() { return sql.includes('FROM prospect p JOIN member') ? { ...row } : null; },
+        async run() { updates.push({ sql, args }); return { meta: { changes: 1 } }; },
       };
     },
   };
@@ -58,7 +74,7 @@ test('a prospective member receives a one-use conversation code without membersh
     assert.deepEqual(body.to, ['mira@example.test']);
     assert.equal(body.subject, 'Your Beings Club conversation code');
     assert.match(body.text, /012345/);
-    assert.match(body.text, /Hello Mira/);
+    assert.match(body.text, /Hello, Mira\./);
     assert.match(body.text, /book a first conversation with John/);
     assert.doesNotMatch(body.text, /You.re invited|membership begins/i);
   } finally {
@@ -91,6 +107,39 @@ test('an alternative-time note goes privately to the configured host', async () 
     assert.match(body.text, /mira@example\.test/);
     assert.match(body.text, /Evenings after 19:00 UTC/);
     assert.match(body.text, /members\/host/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('the host can resend a welcome after access is granted but before onboarding', async () => {
+  const original = globalThis.fetch;
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: 'email_welcome_again' }), { status: 200 });
+  };
+  const members = grantedProspectDb({
+    id: 4, granted_at: 2_000_000_000, member_id: 9,
+    display_name: 'Mira', member_name: 'Mira', email: 'mira@example.test',
+    joined_at: null, disabled_at: null, left_at: null,
+  });
+  try {
+    const response = await resendProspectWelcome({
+      MEMBERS: members,
+      RESEND_API_KEY: 'test-key',
+      MAIL_FROM_HOST: 'John Ooi <practice@beingsclub.com>',
+      MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    }, 4);
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).invitationSent, true);
+    assert.match(request.options.headers['idempotency-key'], /^club-prospect-welcome-4-\d+$/);
+    const body = JSON.parse(request.options.body);
+    assert.equal(body.to[0], 'mira@example.test');
+    assert.equal(body.subject, 'Welcome to Beings Club');
+    assert.match(body.text, /Hello, Mira\. You’re in\./);
+    assert.equal(members.updates.length, 1);
+    assert.equal(members.updates[0].args[3], 9);
   } finally {
     globalThis.fetch = original;
   }

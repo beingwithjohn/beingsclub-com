@@ -312,6 +312,11 @@
       const actions = document.createElement('div'); actions.className = 'prospect-host-actions';
       if (prospect.granted) {
         actions.append(text('em', '', 'membership granted'));
+        if (prospect.canResendWelcome) {
+          const welcome = text('button', 'outline', 'resend welcome'); welcome.type = 'button';
+          welcome.addEventListener('click', () => resendProspectWelcome(prospect.id, welcome));
+          actions.append(welcome);
+        }
       } else {
         const grant = text('button', 'outline', 'grant membership'); grant.type = 'button';
         grant.addEventListener('click', () => grantProspect(prospect.id, grant)); actions.append(grant);
@@ -332,16 +337,33 @@
         const prospect = prospectHostState.find((item) => item.id === id);
         if (prospect) prospect.granted = true;
         renderProspects({ prospects: prospectHostState });
-        statusNode.textContent = 'Preview: membership opens and one invitation is sent.';
+        statusNode.textContent = 'Preview: membership opens and one welcome email is sent.';
         return;
       }
       const data = await call(`/api/club/host/prospects/${id}/grant`, { method: 'POST', body: '{}' });
       await Promise.all([loadProspects(), loadMembers()]);
       statusNode.textContent = data.invitationSent
-        ? 'Membership granted and invitation sent.'
-        : 'Membership granted. The invitation email needs another attempt from the list below.';
+        ? 'Membership granted and welcome email sent.'
+        : 'Membership granted. The welcome email needs another attempt from the list below.';
     } catch (_) { statusNode.textContent = 'Membership could not be granted. Try again.'; }
     finally { button.disabled = false; }
+  }
+
+  async function resendProspectWelcome(id, button) {
+    const statusNode = document.getElementById('prospect-host-status'); statusNode.textContent = '';
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'Preview: the welcome email is sent again.';
+        return;
+      }
+      await call(`/api/club/host/prospects/${id}/welcome`, { method: 'POST', body: '{}' });
+      statusNode.textContent = 'Welcome email sent again.';
+    } catch (error) {
+      statusNode.textContent = error.message === 'welcome unavailable'
+        ? 'The welcome is no longer available because onboarding is complete.'
+        : 'The welcome email did not send. Try again.';
+    } finally { button.disabled = false; }
   }
 
   async function resolveQueuedTestimonial(id, state) {
@@ -588,7 +610,7 @@
       }] });
       renderProspects({ prospects: [
         { id: 1, email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false },
-        { id: 2, email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: false },
+        { id: 2, email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: true, canResendWelcome: true },
       ] });
       waiting.hidden = true; shell.hidden = false; return;
     }
