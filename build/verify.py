@@ -227,9 +227,11 @@ for member_script in ["members/app.js", "members/host.js"]:
 host_html = members_after.get("members/host/index.html", "")
 ok("private host page keeps the supplied Host tools design",
    "Host <strong>tools</strong>." in host_html and "the list" in host_html and
-   "Only hosts see this page" in host_html and "add to the list" in host_html)
-ok("the host list distinguishes quiet access from an invitation",
-   "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", ""))
+   "Only hosts see this page" in host_html and "add + invite" in host_html)
+ok("adding a member sends one visible, retryable invitation",
+   "sends one personal invitation from John" in host_html and
+   "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", "") and
+   "resend invite" in members_after.get("members/host.js", ""))
 ok("host controls keep drafting, publishing and email as separate actions",
    'id="salon-form"' in host_html and 'id="publish-salon"' in host_html and
    'type="button" disabled>email announcement</button>' in host_html and
@@ -283,8 +285,10 @@ ok("Field Notes are grouped by Salon and cannot become a response feed",
    'data-member-view="field-notes"' in login_html and
    'there are no responses, reactions or comments' in login_html and
    'Nobody can respond.' in login_html)
-ok("member Giving offers one quiet, explicitly permitted testimonial each month",
+ok("member Giving integrates financial support and one quiet testimonial each month",
    'data-member-view="giving"' in login_html and 'id="testimonial-form"' in login_html and
+   'id="financial-giving-form"' in login_html and 'id="member-give"' in login_html and
+   'id="member-giving-manage"' in login_html and 'href="/giving/"' not in login_html and
    'one testimonial each calendar month' in login_html and
    'will never notify or remind you' in login_html and
    'across any of its public channels' in login_html and
@@ -306,11 +310,18 @@ ok("member profile requires only a chosen name",
    'data-member-view="profile"' in login_html and 'id="profile-form"' in login_html and
    'id="profile-name"' in login_html and 'required' in login_html and
    'A photograph, one line of context and a website are entirely optional' in login_html and
-   'This is never shown to other members' in login_html)
-ok("member Settings carries the supplied quiet-email language and later defaults",
+   'This is never shown to other members' in login_html and
+   'id="profile-cropper"' in login_html and 'id="profile-crop-canvas"' in login_html and
+   "toDataURL('image/jpeg', 0.9)" in members_after.get("members/app.js", ""))
+ok("in-person navigation opens an honest coming-soon member page",
+   'data-member-view="in-person"' in login_html and 'id="in-person-page"' in login_html and
+   'Nothing has been announced yet' in login_html)
+ok("member Settings carries every Salon timing, welcome replay and quiet-email language",
    'data-member-view="settings"' in login_html and 'id="settings-page"' in login_html and
-   'id="email-salon-announced"' in login_html and 'id="email-salon-week"' in login_html and
-   'id="email-salon-day"' in login_html and 'id="email-field-notes"' in login_html and
+   'id="email-salon-announced"' in login_html and 'id="email-salon-month"' in login_html and
+   'id="email-salon-week"' in login_html and 'id="email-salon-day"' in login_html and
+   'id="email-salon-hour"' in login_html and 'id="email-field-notes"' in login_html and
+   'id="onboarding-replay"' in login_html and
    'Quiet, for now' in login_html and 'Access codes still arrive when you ask for one' in login_html)
 ok("leaving lets members decide what happens to existing Field Notes",
    'value="keep_signed"' in login_html and 'value="anonymise"' in login_html and
@@ -348,6 +359,20 @@ club_router = io.open(os.path.join(ROOT, "practice-log", "src", "club", "index.j
                       encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
                      encoding="utf-8").read()
+ok("member invitation delivery is recorded and retryable server-side",
+   "sendClubInvitation" in club_router and
+   "/members\\/(\\d+)\\/invite" in club_router and
+   "invitation_sent_at" in club_router and
+   "idempotencyKey: `club-member-${id}-${invitationVersion}`" in club_router)
+onboarding_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "onboarding.js"),
+                         encoding="utf-8").read()
+ok("finishing the first-entry welcome sends one retry-safe host notice",
+   "path === '/api/club/onboarding/complete'" in club_router and
+   "onboarding_completed_at" in onboarding_api and
+   "host_join_notice_sent_at" in onboarding_api and
+   "idempotencyKey: `club-joined-${member.id}-${member.onboarding_completed_at}`" in onboarding_api and
+   "retryHostJoinNotices" in mailer_api and
+   "!replay && !previewMode && !member?.onboardingCompleted" in members_after.get("members/app.js", ""))
 ok("removing somebody revokes access and removes future gathering state",
    "DELETE FROM salon_rsvp WHERE member_id" in club_router and
    "DELETE FROM salon_attendance WHERE member_id" in club_router and
@@ -363,7 +388,8 @@ ok("leaving revokes access and honours each Field Note archive choice",
    "UPDATE member_session SET revoked_at" in settings_api)
 ok("Salon announcement and reminder mail is member-controlled and at-most-once",
    'club_send_log' in mailer_api and "COALESCE(p.quiet, 0) = 0" in mailer_api and
-   'salon_announced' in mailer_api and 'salon_week' in mailer_api and 'salon_day' in mailer_api)
+   'salon_announced' in mailer_api and 'salon_month' in mailer_api and
+   'salon_week' in mailer_api and 'salon_day' in mailer_api and 'salon_hour' in mailer_api)
 ok("Salon publishing creates a locked-down Zoom meeting without storing the host URL",
    'account_credentials' in zoom_api and "method: 'POST'" in zoom_api and
    'mute_upon_entry: true' in zoom_api and 'waiting_room: true' in zoom_api and

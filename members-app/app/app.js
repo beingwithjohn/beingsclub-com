@@ -22,7 +22,10 @@
   let givingState = { testimonial: null, canSubmit: true, suggestedName: '' };
   let directoryState = { profile: null, members: [] };
   let settingsState = {
-    email: { salonAnnounced: true, salonWeek: true, salonDay: true, fieldNotes: true, quiet: false },
+    email: {
+      salonAnnounced: true, salonMonth: false, salonWeek: true,
+      salonDay: true, salonHour: false, fieldNotes: true, quiet: false,
+    },
     account: { email: '', joinedAt: null, isHost: false },
   };
   let showClubTime = false;
@@ -33,6 +36,15 @@
   let editingTestimonial = false;
   let profileImageData = null;
   let removeProfileImage = false;
+  let profileCropImage = null;
+  let profileCropZoom = 1;
+  let profileCropOffsetX = 0;
+  let profileCropOffsetY = 0;
+  let profileCropPointer = null;
+  let replayingWelcome = false;
+  let givingCadence = 'once';
+  let givingCurrency = 'gbp';
+  let givingThanks = new URLSearchParams(location.search).get('thanks') === '1';
   let welcomeStep = 0;
   let directoryOrder = [];
   let membersDrawerMode = window.innerWidth < 1200 ? 'minimised' : 'compact';
@@ -82,6 +94,9 @@
     nextButton.hidden = welcomeStep === 3;
     nextButton.textContent = welcomeStep === 5 ? 'enter the club' : 'next';
     skipButton.hidden = welcomeStep === 3;
+    if (welcomeStep === 3 && replayingWelcome && member?.agreementAccepted) {
+      document.getElementById('agreement-check').checked = true;
+    }
     document.getElementById('welcome-name').textContent = member?.name || 'being';
     const heading = document.getElementById('welcome-salon-heading');
     heading.textContent = salon?.startsAt
@@ -97,7 +112,18 @@
     renderWelcome();
   }
 
-  function finishWelcome() {
+  async function finishWelcome() {
+    const replay = replayingWelcome;
+    replayingWelcome = false;
+    if (!replay && !previewMode && !member?.onboardingCompleted) {
+      try {
+        await call('/api/club/onboarding/complete', { method: 'POST', body: '{}' });
+        member.onboardingCompleted = true;
+      } catch (_) {
+        // Completion is durable server-side and the scheduled retry handles a
+        // host-notice delivery failure. Never trap a member in the welcome.
+      }
+    }
     welcomePage.hidden = true;
     showMemberApp();
   }
@@ -313,6 +339,8 @@
   }
 
   function renderGiving() {
+    updateFinancialGivingForm();
+    document.getElementById('member-giving-thanks').hidden = !givingThanks;
     const form = document.getElementById('testimonial-form');
     const current = document.getElementById('testimonial-current');
     const testimonial = givingState.testimonial;
@@ -337,6 +365,73 @@
     resolved.textContent = testimonial.status === 'withdrawn'
       ? 'Withdrawn. The opportunity will appear again next month.'
       : 'These words have left the private queue. Thank you for offering them.';
+  }
+
+  function updateFinancialGivingForm() {
+    document.querySelectorAll('[data-giving-cadence]').forEach((button) => {
+      const selected = button.dataset.givingCadence === givingCadence;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-giving-currency]').forEach((button) => {
+      const selected = button.dataset.givingCurrency === givingCurrency;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+    const symbol = givingCurrency === 'usd' ? '$' : '£';
+    document.getElementById('member-giving-symbol').textContent = symbol;
+    document.getElementById('member-giving-amount-label').textContent = givingCadence === 'monthly'
+      ? 'amount each month' : 'amount';
+    document.getElementById('member-giving-help').textContent = `${symbol}1 minimum.`;
+    document.getElementById('member-giving-monthly-note').hidden = givingCadence !== 'monthly';
+  }
+
+  async function beginFinancialGiving() {
+    const amount = document.getElementById('member-giving-amount');
+    const statusNode = document.getElementById('member-giving-status');
+    const raw = amount.value.trim();
+    const symbol = givingCurrency === 'usd' ? '$' : '£';
+    statusNode.textContent = '';
+    if (!/^\d+(?:\.\d{1,2})?$/.test(raw) || Number(raw) < 1) {
+      statusNode.textContent = `Enter an amount of ${symbol}1 or more.`;
+      amount.focus(); return;
+    }
+    const button = document.getElementById('member-give'); button.disabled = true;
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'In the live member area, Stripe would open securely from here.';
+        return;
+      }
+      const result = await call('/api/giving', {
+        method: 'POST',
+        body: JSON.stringify({
+          cadence: givingCadence, currency: givingCurrency,
+          amount: Math.round(Number(raw) * 100), context: 'members',
+        }),
+      });
+      location.href = result.url;
+    } catch (error) {
+      statusNode.textContent = error.status === 503
+        ? 'Giving is not switched on yet. Nothing is owed in the meantime.'
+        : 'That did not open. Please try again in a moment.';
+    } finally { button.disabled = false; }
+  }
+
+  async function manageFinancialGiving() {
+    const statusNode = document.getElementById('member-giving-status'); statusNode.textContent = '';
+    const button = document.getElementById('member-giving-manage'); button.disabled = true;
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'In the live member area, Stripe would open any monthly gift linked to your sign-in email.';
+        return;
+      }
+      const result = await call('/api/club/giving/manage', { method: 'POST', body: '{}' });
+      location.href = result.url;
+    } catch (error) {
+      statusNode.textContent = error.status === 404
+        ? 'No active monthly gift was found for your sign-in email.'
+        : 'Monthly giving could not be opened. Try again.';
+    } finally { button.disabled = false; }
   }
 
   function memberInitial(name) {
@@ -521,8 +616,10 @@
   function renderSettings() {
     const preferences = settingsState.email;
     document.getElementById('email-salon-announced').checked = !!preferences.salonAnnounced;
+    document.getElementById('email-salon-month').checked = !!preferences.salonMonth;
     document.getElementById('email-salon-week').checked = !!preferences.salonWeek;
     document.getElementById('email-salon-day').checked = !!preferences.salonDay;
+    document.getElementById('email-salon-hour').checked = !!preferences.salonHour;
     document.getElementById('email-field-notes').checked = !!preferences.fieldNotes;
     document.getElementById('email-quiet').checked = !!preferences.quiet;
     document.getElementById('salon-email-options').classList.toggle('settings-email-muted', !!preferences.quiet);
@@ -530,7 +627,8 @@
     document.getElementById('settings-account-email').textContent = settingsState.account?.email || member?.email || '';
     document.getElementById('settings-email-note').textContent = preferences.quiet
       ? 'Everything is quiet · turn off the last switch to hear from us again.'
-      : (!preferences.salonAnnounced && !preferences.salonWeek && !preferences.salonDay && !preferences.fieldNotes)
+      : (!preferences.salonAnnounced && !preferences.salonMonth && !preferences.salonWeek
+          && !preferences.salonDay && !preferences.salonHour && !preferences.fieldNotes)
         ? 'No optional Club email · this member area is the only door.'
         : 'Every Club email ends with a link back to this page.';
   }
@@ -538,8 +636,10 @@
   function emailPreferencesFromPage() {
     return {
       salonAnnounced: document.getElementById('email-salon-announced').checked,
+      salonMonth: document.getElementById('email-salon-month').checked,
       salonWeek: document.getElementById('email-salon-week').checked,
       salonDay: document.getElementById('email-salon-day').checked,
+      salonHour: document.getElementById('email-salon-hour').checked,
       fieldNotes: document.getElementById('email-field-notes').checked,
       quiet: document.getElementById('email-quiet').checked,
     };
@@ -604,25 +704,29 @@
 
   function viewFromHash() {
     return ({
-      '#field-notes': 'field-notes', '#giving': 'giving', '#members': 'members', '#profile': 'profile',
+      '#field-notes': 'field-notes', '#in-person': 'in-person', '#giving': 'giving',
+      '#members': 'members', '#profile': 'profile',
       '#settings': 'settings',
     })[location.hash] || 'salon';
   }
 
   function showView(name) {
     const field = name === 'field-notes';
+    const inPerson = name === 'in-person';
     const giving = name === 'giving';
     const directory = name === 'members';
     const profile = name === 'profile';
     const settings = name === 'settings';
-    document.getElementById('salon-page').hidden = field || giving || directory || profile || settings;
+    document.getElementById('salon-page').hidden = field || inPerson || giving || directory || profile || settings;
     document.getElementById('field-notes-page').hidden = !field;
+    document.getElementById('in-person-page').hidden = !inPerson;
     document.getElementById('giving-page').hidden = !giving;
     document.getElementById('directory-page').hidden = !directory;
     document.getElementById('profile-page').hidden = !profile;
     document.getElementById('settings-page').hidden = !settings;
     document.querySelectorAll('[data-member-view]').forEach((link) => {
-      const selected = field ? 'field-notes' : giving ? 'giving' : directory ? 'members' : profile ? 'profile' : settings ? 'settings' : 'salon';
+      const selected = field ? 'field-notes' : inPerson ? 'in-person' : giving ? 'giving'
+        : directory ? 'members' : profile ? 'profile' : settings ? 'settings' : 'salon';
       const current = link.dataset.memberView === selected;
       link.classList.toggle('current', current);
       if (current) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
@@ -662,7 +766,9 @@
     salon = salonState.salon; fieldNotes = notesState; givingState = memberGiving;
     directoryState = directory; settingsState = settings;
     await new Promise((resolve) => setTimeout(resolve, 500));
-    if (Number.isInteger(options.welcomeStep)) showWelcome(options.welcomeStep); else showMemberApp();
+    if (!member.onboardingCompleted) showWelcome(Number.isInteger(options.welcomeStep) ? options.welcomeStep : 4);
+    else if (Number.isInteger(options.welcomeStep)) showWelcome(options.welcomeStep);
+    else showMemberApp();
   }
 
   async function setRsvp(status) {
@@ -724,6 +830,69 @@
       const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  }
+
+  function clampProfileCrop() {
+    if (!profileCropImage) return;
+    const canvas = document.getElementById('profile-crop-canvas');
+    const base = Math.max(canvas.width / profileCropImage.naturalWidth, canvas.height / profileCropImage.naturalHeight);
+    const scale = base * profileCropZoom;
+    const limitX = Math.max(0, (profileCropImage.naturalWidth * scale - canvas.width) / 2);
+    const limitY = Math.max(0, (profileCropImage.naturalHeight * scale - canvas.height) / 2);
+    profileCropOffsetX = Math.max(-limitX, Math.min(limitX, profileCropOffsetX));
+    profileCropOffsetY = Math.max(-limitY, Math.min(limitY, profileCropOffsetY));
+  }
+
+  function renderProfileCrop() {
+    if (!profileCropImage) return;
+    clampProfileCrop();
+    const canvas = document.getElementById('profile-crop-canvas');
+    const context = canvas.getContext('2d');
+    const base = Math.max(canvas.width / profileCropImage.naturalWidth, canvas.height / profileCropImage.naturalHeight);
+    const scale = base * profileCropZoom;
+    const width = profileCropImage.naturalWidth * scale;
+    const height = profileCropImage.naturalHeight * scale;
+    context.fillStyle = '#F0EBFB'; context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(
+      profileCropImage,
+      (canvas.width - width) / 2 + profileCropOffsetX,
+      (canvas.height - height) / 2 + profileCropOffsetY,
+      width, height,
+    );
+  }
+
+  async function openProfileCrop(file) {
+    const data = await readImage(file);
+    const image = new Image();
+    image.decoding = 'async';
+    await new Promise((resolve, reject) => {
+      image.onload = resolve; image.onerror = reject; image.src = data;
+    });
+    profileCropImage = image; profileCropZoom = 1;
+    profileCropOffsetX = 0; profileCropOffsetY = 0; profileCropPointer = null;
+    const zoom = document.getElementById('profile-crop-zoom'); zoom.value = '1';
+    renderProfileCrop();
+    document.getElementById('profile-cropper').showModal();
+  }
+
+  function closeProfileCrop() {
+    const dialog = document.getElementById('profile-cropper');
+    if (dialog.open) dialog.close();
+    profileCropImage = null; profileCropPointer = null;
+    document.getElementById('profile-image-input').value = '';
+  }
+
+  function applyProfileCrop() {
+    if (!profileCropImage) return;
+    renderProfileCrop();
+    profileImageData = document.getElementById('profile-crop-canvas').toDataURL('image/jpeg', 0.9);
+    removeProfileImage = false;
+    const image = document.getElementById('profile-image-preview');
+    image.src = profileImageData; image.hidden = false;
+    document.getElementById('profile-image-fallback').hidden = true;
+    document.getElementById('profile-image-remove').hidden = false;
+    document.getElementById('profile-status').textContent = 'Crop ready. Save your profile to keep it.';
+    closeProfileCrop();
   }
 
   async function removeNote(note) {
@@ -928,6 +1097,10 @@
     const button = event.currentTarget.querySelector('button[type="submit"]');
     statusNode.textContent = ''; button.disabled = true;
     try {
+      if (replayingWelcome && member?.agreementAccepted) {
+        showWelcome(4);
+        return;
+      }
       if (previewMode) {
         member.agreementAccepted = true; member.agreementVersion = '2026-09-01';
         showWelcome(4);
@@ -945,16 +1118,16 @@
       statusNode.textContent = 'Your agreement could not be saved. Nothing has changed; try again.';
     } finally { button.disabled = false; }
   });
-  document.getElementById('welcome-skip').addEventListener('click', () => {
+  document.getElementById('welcome-skip').addEventListener('click', async () => {
     if (!member?.agreementAccepted && welcomeStep < 3) {
       welcomeStep = 3;
       renderWelcome();
       return;
     }
-    finishWelcome();
+    await finishWelcome();
   });
-  document.getElementById('welcome-next').addEventListener('click', () => {
-    if (welcomeStep >= 5) { finishWelcome(); return; }
+  document.getElementById('welcome-next').addEventListener('click', async () => {
+    if (welcomeStep >= 5) { await finishWelcome(); return; }
     welcomeStep += 1;
     renderWelcome();
   });
@@ -1006,6 +1179,18 @@
   document.getElementById('testimonial-cancel-edit').addEventListener('click', () => {
     editingTestimonial = false; renderGiving();
   });
+  document.querySelectorAll('[data-giving-cadence]').forEach((button) => {
+    button.addEventListener('click', () => {
+      givingCadence = button.dataset.givingCadence; updateFinancialGivingForm();
+    });
+  });
+  document.querySelectorAll('[data-giving-currency]').forEach((button) => {
+    button.addEventListener('click', () => {
+      givingCurrency = button.dataset.givingCurrency; updateFinancialGivingForm();
+    });
+  });
+  document.getElementById('member-give').addEventListener('click', beginFinancialGiving);
+  document.getElementById('member-giving-manage').addEventListener('click', manageFinancialGiving);
   document.getElementById('profile-form').addEventListener('submit', submitProfile);
   document.getElementById('profile-name').addEventListener('input', (event) => {
     document.getElementById('profile-image-fallback').textContent = memberInitial(event.target.value);
@@ -1018,12 +1203,40 @@
       statusNode.textContent = 'Choose a JPEG, PNG or WebP no larger than 5MB.'; event.target.value = ''; return;
     }
     try {
-      profileImageData = await readImage(file); removeProfileImage = false;
-      const image = document.getElementById('profile-image-preview');
-      image.src = profileImageData; image.hidden = false;
-      document.getElementById('profile-image-fallback').hidden = true;
-      document.getElementById('profile-image-remove').hidden = false;
+      await openProfileCrop(file);
     } catch (_) { statusNode.textContent = 'That image could not be read.'; }
+  });
+  const cropCanvas = document.getElementById('profile-crop-canvas');
+  cropCanvas.addEventListener('pointerdown', (event) => {
+    if (!profileCropImage) return;
+    cropCanvas.setPointerCapture(event.pointerId);
+    profileCropPointer = {
+      id: event.pointerId, x: event.clientX, y: event.clientY,
+      offsetX: profileCropOffsetX, offsetY: profileCropOffsetY,
+    };
+    cropCanvas.classList.add('is-dragging');
+  });
+  cropCanvas.addEventListener('pointermove', (event) => {
+    if (!profileCropPointer || profileCropPointer.id !== event.pointerId) return;
+    const ratio = cropCanvas.width / cropCanvas.getBoundingClientRect().width;
+    profileCropOffsetX = profileCropPointer.offsetX + ((event.clientX - profileCropPointer.x) * ratio);
+    profileCropOffsetY = profileCropPointer.offsetY + ((event.clientY - profileCropPointer.y) * ratio);
+    renderProfileCrop();
+  });
+  const stopCropDrag = (event) => {
+    if (!profileCropPointer || profileCropPointer.id !== event.pointerId) return;
+    profileCropPointer = null; cropCanvas.classList.remove('is-dragging');
+    if (cropCanvas.hasPointerCapture(event.pointerId)) cropCanvas.releasePointerCapture(event.pointerId);
+  };
+  cropCanvas.addEventListener('pointerup', stopCropDrag);
+  cropCanvas.addEventListener('pointercancel', stopCropDrag);
+  document.getElementById('profile-crop-zoom').addEventListener('input', (event) => {
+    profileCropZoom = Number(event.target.value); renderProfileCrop();
+  });
+  document.getElementById('profile-crop-apply').addEventListener('click', applyProfileCrop);
+  document.getElementById('profile-crop-cancel').addEventListener('click', closeProfileCrop);
+  document.getElementById('profile-cropper').addEventListener('cancel', (event) => {
+    event.preventDefault(); closeProfileCrop();
   });
   document.getElementById('profile-image-remove').addEventListener('click', () => {
     profileImageData = null; removeProfileImage = true;
@@ -1044,9 +1257,15 @@
     setMembersDrawerMode(membersDrawerMode === 'expanded' ? 'compact' : 'expanded');
   });
   [
-    'email-salon-announced', 'email-salon-week', 'email-salon-day',
+    'email-salon-announced', 'email-salon-month', 'email-salon-week', 'email-salon-day',
+    'email-salon-hour',
     'email-field-notes', 'email-quiet',
   ].forEach((id) => document.getElementById(id).addEventListener('change', saveEmailSettings));
+  document.getElementById('onboarding-replay').addEventListener('click', () => {
+    replayingWelcome = true;
+    document.getElementById('agreement-check').checked = false;
+    showWelcome(0);
+  });
   document.getElementById('sign-out-all').addEventListener('click', signOutAll);
   document.getElementById('leave-open').addEventListener('click', () => {
     document.getElementById('leave-intro').hidden = true;
@@ -1076,6 +1295,7 @@
       member = {
         id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true,
         agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
+        onboardingCompleted: preview !== 'onboarding',
       };
       if (preview === 'onboarding') { showWelcome(0); return; }
       salon = preview === 'empty' ? null : {
@@ -1124,8 +1344,8 @@
       };
       settingsState = {
         email: {
-          salonAnnounced: true, salonWeek: true, salonDay: true,
-          fieldNotes: true, quiet: false,
+          salonAnnounced: true, salonMonth: false, salonWeek: true, salonDay: true,
+          salonHour: false, fieldNotes: true, quiet: false,
         },
         account: { email: 'john@spacetobe.xyz', joinedAt: '2026-08-01T12:00:00.000Z', isHost: true },
       };

@@ -1,5 +1,5 @@
 import { json, bad } from '../api.js';
-import { sendClubCode } from '../mail/send.js';
+import { sendClubCode, sendClubInvitation } from '../mail/send.js';
 import {
   bearerToken, keyedHash, normalizeEmail, randomCode, randomToken,
   sameText, tokenHash, validChallenge, validCode,
@@ -25,6 +25,8 @@ import { announceSalon } from './mailer.js';
 import {
   acceptMemberAgreement, agreementAccepted, MEMBER_AGREEMENT_VERSION,
 } from './agreement.js';
+import { postGivingPortal } from '../giving.js';
+import { completeOnboarding } from './onboarding.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -56,6 +58,10 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (!agreementAccepted(who)) return bad(403, 'agreement required');
 
+  if (path === '/api/club/onboarding/complete' && method === 'POST') {
+    return completeOnboarding(env, who);
+  }
+
   if (path === '/api/club/salon' && method === 'GET') return getMemberSalon(env, who);
   const rsvp = /^\/api\/club\/salons\/(\d+)\/rsvp$/.exec(path);
   if (rsvp && method === 'POST') {
@@ -77,6 +83,9 @@ export async function clubRoute(request, env, ctx, url) {
     return dismissFieldNoteInvitation(env, who, Number(dismissFieldNote[1]));
   }
   if (path === '/api/club/giving' && method === 'GET') return getMemberGiving(env, who);
+  if (path === '/api/club/giving/manage' && method === 'POST') {
+    return postGivingPortal(env, who, 'https://beingsclub.com/members/#giving');
+  }
   if (path === '/api/club/testimonials' && method === 'POST') {
     return createTestimonial(env, who, await readJson(request));
   }
@@ -141,6 +150,10 @@ export async function clubRoute(request, env, ctx, url) {
   if (path === '/api/club/host/members' && method === 'GET') return listMembers(env);
   if (path === '/api/club/host/members' && method === 'POST') {
     return addMember(env, who, await readJson(request));
+  }
+  const inviteMember = /^\/api\/club\/host\/members\/(\d+)\/invite$/.exec(path);
+  if (inviteMember && method === 'POST') {
+    return resendMemberInvitation(env, Number(inviteMember[1]));
   }
   const remove = /^\/api\/club\/host\/members\/(\d+)$/.exec(path);
   if (remove && method === 'DELETE') return disableMember(env, who, Number(remove[1]));
@@ -293,7 +306,7 @@ export async function identifyMember(request, env) {
 async function listMembers(env) {
   const rows = await env.MEMBERS.prepare(
     `SELECT id, email, display_name, is_host, invited_at, joined_at,
-            disabled_at, left_at
+            disabled_at, left_at, invitation_sent_at, invitation_last_error
        FROM member ORDER BY is_host DESC, COALESCE(joined_at, invited_at), email`,
   ).all();
   return json({ members: (rows.results || []).map((member) => ({
@@ -301,7 +314,11 @@ async function listMembers(env) {
     email: member.email,
     name: member.display_name,
     isHost: !!member.is_host,
-    status: member.disabled_at ? 'removed' : member.left_at ? 'left' : (member.joined_at ? 'joined' : 'on_list'),
+    status: member.disabled_at ? 'removed' : member.left_at ? 'left'
+      : member.joined_at ? 'joined' : member.invitation_sent_at ? 'invited' : 'on_list',
+    invitationSentAt: member.invitation_sent_at || null,
+    invitationError: member.invitation_last_error || null,
+    canInvite: !member.is_host && !member.joined_at && !member.disabled_at && !member.left_at,
     canRemove: !member.is_host,
   })) });
 }
@@ -311,29 +328,75 @@ async function addMember(env, who, body) {
   if (!email) return bad(400, 'email');
   const timestamp = now();
   const existing = await env.MEMBERS.prepare(
-    'SELECT id, left_at FROM member WHERE email = ?1',
+    `SELECT id, joined_at, disabled_at, left_at, invitation_sent_at
+       FROM member WHERE email = ?1`,
   ).bind(email).first();
-  await env.MEMBERS.prepare(
-    `INSERT INTO member (email, is_host, invited_at, created_at, updated_at)
-     VALUES (?1, 0, ?2, ?2, ?2)
-     ON CONFLICT(email) DO UPDATE SET
-       disabled_at = NULL, left_at = NULL, leave_note_policy = NULL,
-       invited_at = ?2, updated_at = ?2`,
-  ).bind(email, timestamp).run();
-  if (existing?.left_at) {
+  if (existing && !existing.disabled_at && !existing.left_at) {
+    if (existing.joined_at) return bad(409, 'already a member');
+    if (existing.invitation_sent_at) return bad(409, 'already invited');
+    return deliverMemberInvitation(env, existing.id, email, timestamp);
+  }
+  if (existing) {
     await env.MEMBERS.prepare(
-      `UPDATE member_email_pref SET salon_announced = 1, salon_week = 1,
-         salon_day = 1, field_notes = 1, quiet = 0, updated_at = ?1
+      `UPDATE member SET disabled_at = NULL, left_at = NULL, leave_note_policy = NULL,
+              invited_at = ?1, invitation_sent_at = NULL,
+              invitation_last_attempt_at = NULL, invitation_last_error = NULL,
+              updated_at = ?1
+        WHERE id = ?2`,
+    ).bind(timestamp, existing.id).run();
+    await env.MEMBERS.prepare(
+      `UPDATE member_email_pref SET salon_announced = 1, salon_month = 0,
+         salon_week = 1, salon_day = 1, salon_hour = 0,
+         field_notes = 1, quiet = 0, updated_at = ?1
        WHERE member_id = ?2`,
     ).bind(timestamp, existing.id).run();
+  } else {
+    await env.MEMBERS.prepare(
+      `INSERT INTO member (email, is_host, invited_at, created_at, updated_at)
+       VALUES (?1, 0, ?2, ?2, ?2)`,
+    ).bind(email, timestamp).run();
   }
   const member = await env.MEMBERS.prepare(
-    'SELECT id, email, joined_at FROM member WHERE email = ?1',
+    'SELECT id, email FROM member WHERE email = ?1',
   ).bind(email).first();
+  return deliverMemberInvitation(env, member.id, member.email, timestamp, who.id);
+}
+
+async function resendMemberInvitation(env, id) {
+  if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  const member = await env.MEMBERS.prepare(
+    `SELECT id, email, is_host, joined_at, disabled_at, left_at
+       FROM member WHERE id = ?1`,
+  ).bind(id).first();
+  if (!member || member.is_host || member.joined_at || member.disabled_at || member.left_at) {
+    return bad(409, 'invitation unavailable');
+  }
+  const timestamp = now();
+  await env.MEMBERS.prepare(
+    `UPDATE member SET invited_at = ?1, invitation_sent_at = NULL,
+            invitation_last_attempt_at = NULL, invitation_last_error = NULL,
+            updated_at = ?1
+      WHERE id = ?2`,
+  ).bind(timestamp, id).run();
+  return deliverMemberInvitation(env, member.id, member.email, timestamp);
+}
+
+async function deliverMemberInvitation(env, id, email, invitationVersion, hostId = null) {
+  const timestamp = now();
+  const delivered = await sendClubInvitation(env, {
+    email,
+    idempotencyKey: `club-member-${id}-${invitationVersion}`,
+  });
+  await env.MEMBERS.prepare(
+    `UPDATE member SET invitation_sent_at = ?1,
+            invitation_last_attempt_at = ?2, invitation_last_error = ?3,
+            updated_at = ?2 WHERE id = ?4`,
+  ).bind(delivered ? timestamp : null, timestamp, delivered ? null : 'delivery failed', id).run();
+  if (!delivered) return bad(502, 'member added but invitation email did not send');
   return json({
     member: {
-      id: member.id, email: member.email,
-      status: member.joined_at ? 'joined' : 'on_list', canRemove: member.id !== who.id,
+      id, email, status: 'invited', invitationSentAt: timestamp,
+      canInvite: true, canRemove: hostId == null || id !== hostId,
     },
   }, 201);
 }
@@ -368,6 +431,7 @@ function shapeMember(member) {
     isHost: !!member.is_host,
     agreementAccepted: agreementAccepted(member),
     agreementVersion: MEMBER_AGREEMENT_VERSION,
+    onboardingCompleted: Number(member.onboarding_completed_at) > 0,
   };
 }
 

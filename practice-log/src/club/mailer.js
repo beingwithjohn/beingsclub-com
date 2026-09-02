@@ -1,11 +1,14 @@
 import { bad, json } from '../api.js';
 import { sendClubSalonEmail } from '../mail/send.js';
+import { retryHostJoinNotices } from './onboarding.js';
 
 const HALF_HOUR = 30 * 60;
 const DAY = 24 * 60 * 60;
 const REMINDERS = [
+  { kind: 'salon_month', preference: 'salon_month', offset: 30 * DAY },
   { kind: 'salon_week', preference: 'salon_week', offset: 7 * DAY },
   { kind: 'salon_day', preference: 'salon_day', offset: DAY },
+  { kind: 'salon_hour', preference: 'salon_hour', offset: 60 * 60 },
 ];
 
 export async function announceSalon(env, salonId, ctx, timestamp = now()) {
@@ -38,7 +41,8 @@ export async function announceSalon(env, salonId, ctx, timestamp = now()) {
 export async function runClubMail(env, scheduledTime = Date.now()) {
   if (!env.MEMBERS) return { sent: 0 };
   const timestamp = Math.floor(Number(scheduledTime) / 1000);
-  let sent = 0;
+  const joins = await retryHostJoinNotices(env, timestamp);
+  let sent = joins.sent;
   for (const reminder of REMINDERS) {
     const salons = await env.MEMBERS.prepare(
       `SELECT * FROM salon
@@ -56,12 +60,12 @@ export async function runClubMail(env, scheduledTime = Date.now()) {
         name: person.display_name,
         salonStartsAt: salon.starts_at,
         hostNote: salon.host_note,
-        kind: reminder.kind === 'salon_week' ? 'week' : 'day',
+        kind: reminder.kind.replace('salon_', ''),
       })));
       sent += outcomes.filter(Boolean).length;
     }
   }
-  return { sent };
+  return { sent, hostJoinNotices: joins };
 }
 
 export function reminderWindow(startsAt, kind, timestamp) {
@@ -72,7 +76,7 @@ export function reminderWindow(startsAt, kind, timestamp) {
 }
 
 async function eligibleMembers(env, preference) {
-  if (!['salon_announced', 'salon_week', 'salon_day'].includes(preference)) return [];
+  if (!['salon_announced', 'salon_month', 'salon_week', 'salon_day', 'salon_hour'].includes(preference)) return [];
   const rows = await env.MEMBERS.prepare(
     `SELECT m.id, m.email, m.display_name
        FROM member m LEFT JOIN member_email_pref p ON p.member_id = m.id

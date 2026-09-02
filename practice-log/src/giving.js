@@ -29,10 +29,11 @@ export async function postGiving(env, body) {
     return bad(400, 'amount');
   }
 
+  const returns = givingReturnUrls(env, body?.context);
   const form = new URLSearchParams({
     mode: cadence === 'monthly' ? 'subscription' : 'payment',
-    success_url: `${givingUrl(env)}?thanks=1`,
-    cancel_url: givingUrl(env),
+    success_url: returns.success,
+    cancel_url: returns.cancel,
     'metadata[source]': 'giving',
     'metadata[cadence]': cadence,
     'line_items[0][quantity]': '1',
@@ -67,7 +68,7 @@ export async function postGiving(env, body) {
 // ---------------------------------------------------------------------------
 // POST /api/giving/manage → Stripe's secure customer portal
 // ---------------------------------------------------------------------------
-export async function postGivingPortal(env, person) {
+export async function postGivingPortal(env, person, returnUrl) {
   if (!env.STRIPE_SECRET_KEY) return bad(503, 'giving is not set up yet');
 
   const row = await env.DB.prepare(
@@ -81,7 +82,7 @@ export async function postGivingPortal(env, person) {
 
   const form = new URLSearchParams({
     customer: row.stripe_customer_ref,
-    return_url: String(env.APP_URL || 'https://beingsclub.com/log/'),
+    return_url: String(returnUrl || env.APP_URL || 'https://beingsclub.com/log/'),
   });
   const res = await fetch(`${STRIPE}/billing_portal/sessions`, {
     method: 'POST',
@@ -102,6 +103,17 @@ export async function postGivingPortal(env, person) {
 
 function givingUrl(env) {
   return String(env.GIVING_URL || 'https://beingsclub.com/giving/').replace(/\/+$/, '/');
+}
+
+function givingReturnUrls(env, context) {
+  if (context === 'members') {
+    return {
+      success: 'https://beingsclub.com/members/?thanks=1#giving',
+      cancel: 'https://beingsclub.com/members/#giving',
+    };
+  }
+  const url = givingUrl(env);
+  return { success: `${url}?thanks=1`, cancel: url };
 }
 
 // ---------------------------------------------------------------------------

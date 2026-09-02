@@ -28,6 +28,7 @@ export async function acceptMemberAgreement(env, who, body, timestamp = now()) {
       isHost: !!who.is_host,
       agreementAccepted: true,
       agreementVersion: MEMBER_AGREEMENT_VERSION,
+      onboardingCompleted: Number(who.onboarding_completed_at) > 0,
     },
   });
 }

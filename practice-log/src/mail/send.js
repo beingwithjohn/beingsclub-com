@@ -30,17 +30,19 @@ export async function claim(env, personId, kind, scope) {
   }
 }
 
-async function post(env, { to, from, subject, html, text }) {
+async function post(env, { to, from, subject, html, text, idempotencyKey }) {
   if (!env.RESEND_API_KEY) {
     console.warn('no RESEND_API_KEY — not sending', subject, 'to', to);
     return false;
   }
+  const headers = {
+    authorization: `Bearer ${env.RESEND_API_KEY}`,
+    'content-type': 'application/json',
+  };
+  if (idempotencyKey) headers['idempotency-key'] = idempotencyKey;
   const res = await fetch(ENDPOINT, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'content-type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({
       from: from || env.MAIL_FROM,
       to: [to],
@@ -135,6 +137,60 @@ export async function sendClubCode(env, { email, name, code }) {
   return post(env, { to: email, from: club(env), subject, text, html });
 }
 
+/** A personal invitation after John adds somebody through the host tools. */
+export async function sendClubInvitation(env, { email, idempotencyKey }) {
+  const url = 'https://beingsclub.com/members/';
+  const subject = 'You’re invited to Beings Club';
+  const text = `Hello,\n\nYou’re invited to Beings Club.\n\nMembership is ongoing and freely offered. Enter using this email address and we’ll send you a six-digit code.\n\nEnter Beings Club:\n${url}\n\nStay curious,\nJohn`;
+  const html = clubEmailLayout({
+    preheader: 'An invitation to Beings Club.',
+    heading: 'You’re invited to <span style="color:#5A4B7C">Beings Club</span>.',
+    body: '<p style="margin:0 0 16px">Hello,</p>'
+      + '<p style="margin:0 0 16px">Membership is ongoing and freely offered.</p>'
+      + '<p style="margin:0">Enter using this email address and we’ll send you a six-digit code.</p>',
+    actionUrl: url,
+    actionLabel: 'enter Beings Club',
+    settingsUrl: url,
+    footerLinkLabel: 'member entrance',
+  });
+  return post(env, {
+    to: email,
+    from: john(env),
+    subject,
+    text,
+    html,
+    idempotencyKey,
+  });
+}
+
+/** One host notice after a member finishes the first-entry welcome. */
+export async function sendMemberJoinedNotification(env, {
+  email, name, completedAt, idempotencyKey,
+}) {
+  const to = String(env.HOST_NOTIFY_EMAIL || env.MAIL_REPLY_TO || '').trim();
+  if (!to) return false;
+  const identity = name ? `${name} (${email})` : email;
+  const when = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London', dateStyle: 'long', timeStyle: 'short',
+  }).format(new Date(Number(completedAt) * 1000));
+  const url = 'https://beingsclub.com/members/host/';
+  const subject = `${name || email} joined Beings Club`;
+  const text = `${identity} completed the Beings Club welcome and agreed to the member principles on ${when}.\n\nOpen the host tools:\n${url}`;
+  const html = clubEmailLayout({
+    preheader: `${identity} completed the Beings Club welcome.`,
+    heading: 'A new member has <span style="color:#5A4B7C">joined</span>.',
+    body: `<p style="margin:0 0 16px"><strong>${escapeHtml(identity)}</strong> completed the Beings Club welcome and agreed to the member principles.</p>`
+      + `<p style="margin:0;color:#75726A">${escapeHtml(when)}</p>`,
+    actionUrl: url,
+    actionLabel: 'open host tools',
+    settingsUrl: url,
+    footerLinkLabel: 'host tools',
+  });
+  return post(env, {
+    to, from: club(env), subject, text, html, idempotencyKey,
+  });
+}
+
 /** One invitation after John marks somebody as having attended a Salon. */
 export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt }) {
   const date = new Intl.DateTimeFormat('en-GB', {
@@ -158,7 +214,7 @@ export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt 
   return post(env, { to: email, from: club(env), subject, text, html });
 }
 
-/** The three member-controlled Salon emails: announcement, week and day. */
+/** The five member-controlled Salon emails: announcement, month, week, day and hour. */
 export async function sendClubSalonEmail(env, {
   email, name, salonStartsAt, hostNote, kind,
 }) {
@@ -173,6 +229,12 @@ export async function sendClubSalonEmail(env, {
       heading: 'The next <span style="color:#5A4B7C">Salon</span>.',
       opening: `The next Salon has taken shape. We’ll gather ${when}.`,
     },
+    month: {
+      subject: `The Salon is one month away · ${when}`,
+      preheader: 'One month until the next Salon.',
+      heading: 'One month until the next <span style="color:#5A4B7C">Salon</span>.',
+      opening: `A quiet note that we gather in one month: ${when}.`,
+    },
     week: {
       subject: `The Salon is one week away · ${when}`,
       preheader: `One week until the next Salon.`,
@@ -184,6 +246,12 @@ export async function sendClubSalonEmail(env, {
       preheader: `The next Salon is tomorrow.`,
       heading: 'The Salon is <span style="color:#5A4B7C">tomorrow</span>.',
       opening: `A quiet note that we gather tomorrow: ${when}.`,
+    },
+    hour: {
+      subject: `The Salon begins in one hour · ${when}`,
+      preheader: 'The next Salon begins in one hour.',
+      heading: 'The Salon begins in <span style="color:#5A4B7C">one hour</span>.',
+      opening: `A quiet note that we gather in one hour: ${when}.`,
     },
   };
   const version = versions[kind] || versions.announcement;
@@ -215,7 +283,10 @@ export function clubSalonTime(seconds) {
   return `${day}, ${time}`;
 }
 
-function clubEmailLayout({ preheader, heading, body, actionUrl, actionLabel, settingsUrl }) {
+function clubEmailLayout({
+  preheader, heading, body, actionUrl, actionLabel, settingsUrl,
+  footerLinkLabel = 'choose what we send you',
+}) {
   return `<!doctype html><html lang="en"><body style="margin:0;padding:0;background:#F7F5EF">`
     + `<span style="display:none;font-size:1px;color:#F7F5EF;max-height:0;opacity:0;overflow:hidden">${escapeHtml(preheader)}</span>`
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F7F5EF"><tr><td align="center" style="padding:36px 16px">'
@@ -226,7 +297,7 @@ function clubEmailLayout({ preheader, heading, body, actionUrl, actionLabel, set
     + `<tr><td style="padding:30px 48px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#171916"><a href="${actionUrl}" style="display:block;padding:14px 32px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;text-decoration:none">${escapeHtml(actionLabel)}</a></td></tr></table></td></tr>`
     + '<tr><td style="padding:36px 48px 44px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #E7E4DB">'
     + '<tr><td style="padding-top:22px;font-family:Courier New,Courier,monospace;font-size:11px;line-height:19px;color:#A5A198">in any case, stay curious<br>for the benefit of all beings</td></tr>'
-    + `<tr><td style="padding-top:18px;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:18px;color:#A5A198">Beings Club · London, United Kingdom · <a href="${settingsUrl}" style="color:#A5A198;text-decoration:underline">choose what we send you</a></td></tr>`
+    + `<tr><td style="padding-top:18px;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:18px;color:#A5A198">Beings Club · London, United Kingdom · <a href="${settingsUrl}" style="color:#A5A198;text-decoration:underline">${escapeHtml(footerLinkLabel)}</a></td></tr>`
     + '</table></td></tr></table></td></tr></table></body></html>';
 }
 

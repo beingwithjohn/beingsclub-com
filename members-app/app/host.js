@@ -60,6 +60,12 @@
       const actions = document.createElement('div'); actions.className = 'member-actions';
       const state = member.isHost ? 'host' : member.status;
       actions.append(text('span', `member-status ${state}`, state === 'on_list' ? 'on list' : state));
+      if (member.canInvite) {
+        const invite = text('button', 'resend-button', member.status === 'invited' ? 'resend invite' : 'send invite');
+        invite.type = 'button';
+        invite.addEventListener('click', () => inviteMember(member.id, invite));
+        actions.append(invite);
+      }
       if (member.canRemove) {
         if (pendingRemove === member.id) {
           const keep = text('button', 'confirm-button', 'keep'); keep.type = 'button';
@@ -331,15 +337,47 @@
     catch (_) { status.textContent = 'That person could not be removed. Try again.'; }
   }
 
+  async function inviteMember(id, button) {
+    status.textContent = ''; button.disabled = true;
+    try {
+      if (previewMode) {
+        status.textContent = 'Preview: one personal invitation would be sent from John.';
+        return;
+      }
+      await call(`/api/club/host/members/${id}/invite`, { method: 'POST', body: '{}' });
+      status.textContent = 'Invitation sent.';
+    } catch (error) {
+      status.textContent = error.message === 'member added but invitation email did not send'
+        ? 'They remain on the list, but the email did not send. Try again.'
+        : 'The invitation could not be sent.';
+    } finally {
+      await loadMembers().catch(() => {});
+      button.disabled = false;
+    }
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); status.textContent = '';
     const input = document.getElementById('invite-email');
     if (!input.checkValidity()) { input.reportValidity(); return; }
     const button = form.querySelector('button'); button.disabled = true;
     try {
+      if (previewMode) {
+        input.value = '';
+        status.textContent = 'Preview: they would be added and receive one personal invitation from John.';
+        return;
+      }
       await call('/api/club/host/members', { method: 'POST', body: JSON.stringify({ email: input.value }) });
-      input.value = ''; status.textContent = 'Added to the list.'; await loadMembers(); input.focus();
-    } catch (_) { status.textContent = 'That address could not be added. Try again.'; }
+      input.value = ''; status.textContent = 'Added and invited.'; await loadMembers(); input.focus();
+    } catch (error) {
+      if (error.status === 400) status.textContent = 'Enter a valid email address.';
+      else if (error.message === 'already a member') status.textContent = 'That person is already a member.';
+      else if (error.message === 'already invited') status.textContent = 'That person has already been invited. Use resend beside their name.';
+      else if (error.message === 'member added but invitation email did not send') {
+        status.textContent = 'They are on the list, but the invitation email did not send. Use send invite beside their name.';
+        await loadMembers().catch(() => {});
+      } else status.textContent = 'That address could not be added. Try again.';
+    }
     finally { button.disabled = false; }
   });
 
@@ -454,7 +492,11 @@
         && new URLSearchParams(location.search).has('preview')) {
       previewMode = true;
       updateClock();
-      render([{ id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canRemove: false }]);
+      render([
+        { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canInvite: false, canRemove: false },
+        { id: 2, email: 'mira@example.com', name: 'Mira', isHost: false, status: 'invited', canInvite: true, canRemove: true },
+        { id: 3, email: 'sam@example.com', name: null, isHost: false, status: 'on_list', canInvite: true, canRemove: true },
+      ]);
       renderSalon({
         capabilities: { autoZoom: true },
         salon: {

@@ -6,8 +6,8 @@ import { clubSalonTime } from '../src/mail/send.js';
 
 test('Club email settings accept only an explicit complete set of choices', () => {
   const value = {
-    salonAnnounced: true, salonWeek: true, salonDay: false,
-    fieldNotes: true, quiet: false,
+    salonAnnounced: true, salonMonth: false, salonWeek: true,
+    salonDay: false, salonHour: true, fieldNotes: true, quiet: false,
   };
   assert.deepEqual(parseEmailPreferences(value), { ok: true, email: value });
   assert.equal(parseEmailPreferences({ ...value, salonDay: 'yes' }).ok, false);
@@ -24,10 +24,12 @@ test('leaving requires a deliberate confirmation and one known Field Note policy
 
 test('Salon reminder windows are narrow and idempotence can own the retry', () => {
   const start = 2_000_000_000;
+  assert.equal(reminderWindow(start, 'salon_month', start - (30 * 86400)), true);
   assert.equal(reminderWindow(start, 'salon_week', start - (7 * 86400)), true);
   assert.equal(reminderWindow(start, 'salon_week', start - (7 * 86400) + 1799), true);
   assert.equal(reminderWindow(start, 'salon_week', start - (7 * 86400) + 1800), false);
   assert.equal(reminderWindow(start, 'salon_day', start - 86400), true);
+  assert.equal(reminderWindow(start, 'salon_hour', start - 3600), true);
   assert.equal(reminderWindow(start, 'unknown', start), false);
 });
 

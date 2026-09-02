@@ -1,9 +1,8 @@
 import { bad, json } from '../api.js';
 
 export const DEFAULT_EMAIL_PREFERENCES = Object.freeze({
-  salonAnnounced: true,
-  salonWeek: true,
-  salonDay: true,
+  salonAnnounced: true, salonMonth: false, salonWeek: true,
+  salonDay: true, salonHour: false,
   fieldNotes: true,
   quiet: false,
 });
@@ -12,7 +11,7 @@ const LEAVE_POLICIES = new Set(['keep_signed', 'anonymise', 'remove']);
 
 export async function getMemberSettings(env, who) {
   const row = await env.MEMBERS.prepare(
-    `SELECT salon_announced, salon_week, salon_day, field_notes, quiet
+    `SELECT salon_announced, salon_month, salon_week, salon_day, salon_hour, field_notes, quiet
        FROM member_email_pref WHERE member_id = ?1`,
   ).bind(memberId(who)).first();
   return json(settingsPayload(who, row));
@@ -23,19 +22,22 @@ export async function updateMemberSettings(env, who, body, timestamp = now()) {
   if (!parsed.ok) return bad(400, 'email preferences');
   await env.MEMBERS.prepare(
     `INSERT INTO member_email_pref
-      (member_id, salon_announced, salon_week, salon_day, field_notes, quiet,
-       created_at, updated_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?7)
+      (member_id, salon_announced, salon_month, salon_week, salon_day, salon_hour,
+       field_notes, quiet, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?9)
      ON CONFLICT(member_id) DO UPDATE SET
        salon_announced = excluded.salon_announced,
+       salon_month = excluded.salon_month,
        salon_week = excluded.salon_week,
        salon_day = excluded.salon_day,
+       salon_hour = excluded.salon_hour,
        field_notes = excluded.field_notes,
        quiet = excluded.quiet,
        updated_at = excluded.updated_at`,
   ).bind(
-    memberId(who), number(parsed.email.salonAnnounced), number(parsed.email.salonWeek),
-    number(parsed.email.salonDay), number(parsed.email.fieldNotes),
+    memberId(who), number(parsed.email.salonAnnounced), number(parsed.email.salonMonth),
+    number(parsed.email.salonWeek), number(parsed.email.salonDay),
+    number(parsed.email.salonHour), number(parsed.email.fieldNotes),
     number(parsed.email.quiet), timestamp,
   ).run();
   return json(settingsPayload(who, parsed.email));
@@ -82,11 +84,12 @@ export async function leaveClub(env, who, body, timestamp = now()) {
     ).bind(timestamp, policy, id),
     env.MEMBERS.prepare(
       `INSERT INTO member_email_pref
-        (member_id, salon_announced, salon_week, salon_day, field_notes, quiet,
-         created_at, updated_at)
-       VALUES (?1, 0, 0, 0, 0, 1, ?2, ?2)
+        (member_id, salon_announced, salon_month, salon_week, salon_day, salon_hour,
+         field_notes, quiet, created_at, updated_at)
+       VALUES (?1, 0, 0, 0, 0, 0, 0, 1, ?2, ?2)
        ON CONFLICT(member_id) DO UPDATE SET
-         salon_announced = 0, salon_week = 0, salon_day = 0,
+         salon_announced = 0, salon_month = 0, salon_week = 0, salon_day = 0,
+         salon_hour = 0,
          field_notes = 0, quiet = 1, updated_at = excluded.updated_at`,
     ).bind(id, timestamp),
     env.MEMBERS.prepare('DELETE FROM salon_rsvp WHERE member_id = ?1').bind(id),
@@ -120,7 +123,10 @@ export async function leaveClub(env, who, body, timestamp = now()) {
 
 export function parseEmailPreferences(value) {
   if (!value || typeof value !== 'object') return { ok: false };
-  const keys = ['salonAnnounced', 'salonWeek', 'salonDay', 'fieldNotes', 'quiet'];
+  const keys = [
+    'salonAnnounced', 'salonMonth', 'salonWeek', 'salonDay', 'salonHour',
+    'fieldNotes', 'quiet',
+  ];
   if (!keys.every((key) => typeof value[key] === 'boolean')) return { ok: false };
   return { ok: true, email: Object.fromEntries(keys.map((key) => [key, value[key]])) };
 }
@@ -134,8 +140,10 @@ function settingsPayload(member, row) {
   return {
     email: row ? {
       salonAnnounced: boolean(row.salon_announced ?? row.salonAnnounced),
+      salonMonth: boolean(row.salon_month ?? row.salonMonth),
       salonWeek: boolean(row.salon_week ?? row.salonWeek),
       salonDay: boolean(row.salon_day ?? row.salonDay),
+      salonHour: boolean(row.salon_hour ?? row.salonHour),
       fieldNotes: boolean(row.field_notes ?? row.fieldNotes),
       quiet: boolean(row.quiet),
     } : { ...DEFAULT_EMAIL_PREFERENCES },

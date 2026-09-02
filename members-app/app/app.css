@@ -15,7 +15,7 @@ button{cursor:pointer}
 .welcome-count{left:10%;letter-spacing:.18em}
 .welcome-skip{right:10%;border:0;background:transparent;padding:0}
 .welcome-skip:hover{color:var(--ink)}
-.welcome-card{width:min(560px,100%);display:grid;gap:26px}
+.welcome-card{width:min(700px,100%);display:grid;gap:26px}
 .welcome-step{display:grid;gap:26px;animation:appear .7s cubic-bezier(.22,1,.36,1) both}
 .welcome-step h1{margin:0;font-size:clamp(34px,5vw,52px);line-height:1.08;letter-spacing:-.04em;font-weight:600}
 .welcome-step h1 strong{font-weight:750;color:var(--violet)}
@@ -142,10 +142,12 @@ button{cursor:pointer}
 .member-status{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--violet)}
 .member-status.joined{color:var(--soft)}
 .member-status.host{color:var(--violet)}
-.remove-button,.confirm-button{border:0;background:transparent;color:var(--soft);font-size:15px;line-height:1;padding:2px 6px}
+.remove-button,.confirm-button,.resend-button{border:0;background:transparent;color:var(--soft);font-size:15px;line-height:1;padding:2px 6px}
 .remove-button:hover{color:var(--ink)}
 .confirm-button{font-size:10px;letter-spacing:.12em;border-bottom:1px solid #DAD6CB;padding:2px}
 .confirm-button.danger{color:#7B3E45}
+.resend-button{font-size:10px;letter-spacing:.08em;border-bottom:1px solid #DAD6CB;padding:2px;color:var(--violet)}
+.resend-button:hover{color:var(--ink)}
 .host-foot{display:grid;gap:3px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft);margin-top:30px}
 .page-waiting{position:fixed;inset:0;display:grid;place-items:center;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.34em;color:#75726A;animation:stay 3s ease-in-out infinite}
 .menu-button,.mobile-menu{display:none}
@@ -155,7 +157,7 @@ button{cursor:pointer}
 .salon-page{position:absolute;inset:0;overflow-y:auto;animation:appear .45s cubic-bezier(.22,1,.36,1) both}
 .salon-view{position:relative;min-height:100vh;padding:18vh min(22vw,300px) 100px 24%}
 .salon-art{position:fixed;right:0;top:19vh;width:min(18vw,240px);height:62vh;object-fit:cover;object-position:center 75%;animation:appear .6s cubic-bezier(.22,1,.36,1) both}
-.salon-hero{display:grid;gap:28px;max-width:760px}
+.salon-hero{display:grid;gap:28px;max-width:840px}
 .host-note{margin:0;padding:18px 22px;background:#F2ECFF;border-left:2px solid var(--violet);display:grid;gap:8px;max-width:58ch}
 .host-note>span{font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--violet)}
 .host-note p{margin:0;font-size:15px;line-height:1.7;color:var(--body);white-space:pre-wrap}
@@ -188,12 +190,12 @@ button{cursor:pointer}
 .salon-facts a{width:max-content;font-size:11px;letter-spacing:.14em;color:var(--violet);border-bottom:1px solid rgba(90,75,124,.4)}
 .salon-foot{display:grid;gap:6px;font-size:13px;line-height:1.65;color:#75726A}
 .salon-foot span::before{content:'· ';color:var(--violet)}
-.salon-empty{position:absolute;left:24%;top:24vh;display:grid;gap:20px;max-width:620px}
+.salon-empty{position:absolute;left:24%;top:24vh;display:grid;gap:20px;width:min(860px,68vw);max-width:none}
 .salon-empty p{margin:0;font-size:16px;line-height:1.7;color:var(--body);max-width:52ch}
 
 .field-notes-page{position:absolute;inset:0;overflow-y:auto;animation:appear .45s cubic-bezier(.22,1,.36,1) both}
 .field-notes-content{display:grid;gap:58px;padding:15vh 9vw 100px 24%;max-width:1500px}
-.field-notes-heading{display:grid;gap:14px;max-width:720px}
+.field-notes-heading{display:grid;gap:14px;max-width:900px}
 .field-notes-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
 .field-notes-heading h1 strong{font-weight:750;color:var(--violet)}
 .field-notes-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:60ch}
@@ -234,9 +236,18 @@ button{cursor:pointer}
 .field-note-own-actions button:hover{color:var(--ink)}
 .field-notes-empty{margin:0;font-size:14px;color:var(--soft)}
 
+.in-person-page{position:absolute;inset:0;overflow-y:auto;animation:appear .45s cubic-bezier(.22,1,.36,1) both}
+.in-person-content{display:grid;gap:46px;padding:18vh min(16vw,220px) 100px 24%;max-width:1420px}
+.in-person-heading{display:grid;gap:16px;max-width:860px}
+.in-person-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
+.in-person-heading h1 strong{font-weight:750;color:var(--violet)}
+.in-person-heading>p{margin:0;font-size:17px;line-height:1.7;color:var(--body);max-width:68ch}
+.in-person-soon{display:grid;gap:12px;max-width:680px;padding:26px 28px;border:1px solid var(--line);background:#FCFBF8}
+.in-person-soon p{margin:0;font-size:14px;line-height:1.7;color:#656159}
+
 .giving-page{position:absolute;inset:0;overflow-y:auto;animation:appear .45s cubic-bezier(.22,1,.36,1) both}
 .giving-content{display:grid;gap:50px;padding:15vh 9vw 100px 24%;max-width:1380px}
-.giving-heading{display:grid;gap:14px;max-width:720px}
+.giving-heading{display:grid;gap:14px;max-width:900px}
 .giving-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
 .giving-heading h1 strong{font-weight:750;color:var(--violet)}
 .giving-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:60ch}
@@ -245,6 +256,22 @@ button{cursor:pointer}
 .giving-option.testimonial-giving{background:#F8F4FF;border-color:#E5DCF8}
 .giving-option h2{margin:0;font-size:26px;line-height:1.1;letter-spacing:-.035em}
 .giving-option>p{margin:0;font-size:13px;line-height:1.7;color:#656159}
+.financial-giving-form{display:grid;gap:16px;margin-top:6px;padding-top:20px;border-top:1px solid var(--line)}
+.giving-choices{display:flex;gap:8px;flex-wrap:wrap}
+.giving-choice{border:1px solid #DAD6CB;background:transparent;color:#75726A;padding:9px 13px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.giving-choice:hover,.giving-choice:focus-visible{border-color:var(--violet);color:var(--violet)}
+.giving-choice.is-selected{border-color:var(--violet);background:#F2ECFF;color:var(--violet)}
+.giving-amount{display:grid;gap:7px}
+.giving-amount>span:first-child{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
+.giving-amount-field{position:relative;display:block}
+.giving-amount-field>span{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--body)}
+.giving-amount-field input{width:100%;border:1px solid #DAD6CB;background:#FFF;padding:11px 12px 11px 32px;font-size:17px;outline:0}
+.giving-amount-field input:focus{border-color:var(--violet)}
+.financial-giving-form>p{margin:0;font-size:11px;line-height:1.6;color:var(--soft)}
+.financial-giving-form>.primary{width:100%}
+.financial-giving-form .giving-monthly-note{color:#75726A}
+.financial-giving-form .giving-thanks{padding:12px 14px;background:#F2ECFF;color:var(--violet);font-weight:600}
+.manage-giving{width:max-content;margin-top:2px;color:var(--violet)}
 .testimonial-form{display:grid;gap:18px;margin-top:6px}
 .testimonial-form>label:not(.testimonial-consent){display:grid;gap:6px}
 .testimonial-form>label>span:first-child{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
@@ -263,7 +290,7 @@ button{cursor:pointer}
 
 .directory-page,.profile-page,.settings-page{position:absolute;inset:0;overflow-y:auto;animation:appear .45s cubic-bezier(.22,1,.36,1) both}
 .directory-content,.profile-content,.settings-content{display:grid;gap:50px;padding:15vh 9vw 100px 24%;max-width:1380px}
-.directory-heading,.profile-heading,.settings-heading{display:grid;gap:14px;max-width:760px}
+.directory-heading,.profile-heading,.settings-heading{display:grid;gap:14px;max-width:900px}
 .directory-heading h1,.profile-heading h1,.settings-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
 .directory-heading h1 strong,.profile-heading h1 strong,.settings-heading h1 strong{font-weight:750;color:var(--violet)}
 .directory-heading>p,.profile-heading>p,.settings-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:64ch}
@@ -313,10 +340,22 @@ button{cursor:pointer}
 
 .profile-editor{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(340px,1.28fr);gap:44px;padding:34px;border:1px solid var(--line);background:#FCFBF8}
 .profile-portrait-editor{display:grid;align-content:start;gap:14px}
-.profile-image-frame{aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;background:#F0EBFB}
+.profile-image-frame{width:min(100%,280px);aspect-ratio:1;display:grid;place-items:center;overflow:hidden;background:#F0EBFB}
 .profile-image-frame img{width:100%;height:100%;object-fit:cover}
 .profile-image-frame span{font-size:clamp(52px,8vw,90px);font-weight:650;color:rgba(90,75,124,.42);letter-spacing:-.06em}
 .profile-image-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:10px;line-height:1.5;color:var(--soft)}
+.profile-cropper{width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);padding:0;border:1px solid var(--line);background:#FFF;color:var(--ink)}
+.profile-cropper::backdrop{background:rgba(23,25,22,.38);backdrop-filter:blur(2px)}
+.profile-cropper-card{display:grid;gap:20px;padding:28px}
+.profile-cropper-card header{display:grid;gap:8px}
+.profile-cropper-card h2{margin:0;font-size:28px;line-height:1.1;letter-spacing:-.035em}
+.profile-cropper-card header p{margin:0;font-size:12px;line-height:1.6;color:#75726A}
+#profile-crop-canvas{display:block;width:min(100%,420px);height:auto;aspect-ratio:1;justify-self:center;background:#F0EBFB;touch-action:none;cursor:grab}
+#profile-crop-canvas.is-dragging{cursor:grabbing}
+.profile-crop-zoom{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.profile-crop-zoom span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
+.profile-crop-zoom input{width:100%;accent-color:var(--violet)}
+.profile-crop-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .profile-form{display:grid;align-content:start;gap:20px}
 .profile-form label{display:grid;gap:6px}
 .profile-form label>span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
@@ -325,8 +364,8 @@ button{cursor:pointer}
 .profile-email{margin:0;font-size:11px;line-height:1.65;color:var(--soft)}
 .profile-email strong{font-weight:500;color:#75726A}
 
-.settings-content{gap:38px;max-width:1080px}
-.settings-section{display:grid;gap:0;max-width:720px}
+.settings-content{gap:38px;max-width:1380px}
+.settings-section{display:grid;gap:0;max-width:900px}
 .settings-section h2{margin:0;font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--violet);padding-bottom:14px;border-bottom:1px solid var(--line)}
 .settings-group{display:grid;gap:12px;padding:20px 0;border-bottom:1px solid var(--line)}
 .settings-group-copy{display:grid;gap:4px;margin-bottom:2px}
@@ -366,6 +405,7 @@ button{cursor:pointer}
   .field-notes-content{padding-left:30%;padding-right:30px}
   .field-note-composer{grid-template-columns:1fr}
   .giving-content{padding-left:30%;padding-right:30px}
+  .in-person-content{padding-left:30%;padding-right:30px}
   .giving-options{grid-template-columns:1fr}
   .directory-content,.profile-content,.settings-content{padding-left:30%;padding-right:30px}
   .directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -394,12 +434,14 @@ button{cursor:pointer}
   .salon-art{position:relative;top:auto;right:auto;width:100%;height:150px;margin:0 0 24px;object-position:center 75%}
   .salon-hero{gap:24px}
   .salon-facts{grid-template-columns:1fr 1fr}
-  .salon-empty{position:relative;left:auto;top:auto;padding:20vh 22px 80px}
+  .salon-empty{position:relative;left:auto;top:auto;width:auto;padding:20vh 22px 80px}
   .field-notes-content{padding:12vh 22px 80px;gap:42px}
   .field-note-composer{grid-template-columns:1fr;padding:24px 20px;gap:30px}
   .field-note-grid{grid-template-columns:1fr}
   .field-note-group-head{align-items:start;flex-direction:column;gap:6px}
   .field-note-card{padding:20px}
+  .in-person-content{padding:16vh 22px 80px;gap:36px}
+  .in-person-soon{padding:24px 20px}
   .giving-content{padding:12vh 22px 80px;gap:40px}
   .giving-options{grid-template-columns:1fr}
   .giving-option{padding:24px 20px}
@@ -414,9 +456,11 @@ button{cursor:pointer}
   .members-drawer-controls{margin:-58px 0 0 -14px}
   #members-drawer-resize{display:none}
   .profile-editor{grid-template-columns:1fr;padding:24px 20px;gap:30px}
+  .profile-cropper-card{padding:22px 18px}
   .setting-row,.settings-copy-row{gap:18px}
 }
 
 @media(max-width:430px){.directory-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.member-shell .clock{display:none}}
 
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}

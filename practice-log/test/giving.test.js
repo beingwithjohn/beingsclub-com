@@ -68,6 +68,18 @@ test('monthly giving uses the chosen currency and amount as a recurring price', 
   });
 });
 
+test('member giving returns to the integrated member Giving page', async () => {
+  await withFetch({ url: 'https://checkout.stripe.test/member' }, async (sent) => {
+    const response = await postGiving(env(), {
+      cadence: 'once', currency: 'gbp', amount: 500, context: 'members',
+    });
+    assert.equal(response.status, 200);
+    const form = sent().options.body;
+    assert.equal(form.get('success_url'), 'https://beingsclub.com/members/?thanks=1#giving');
+    assert.equal(form.get('cancel_url'), 'https://beingsclub.com/members/#giving');
+  });
+});
+
 test('an authenticated giver can open Stripe to manage or cancel monthly giving', async () => {
   const db = fakeDb({ stripe_customer_ref: 'cus_monthly' });
   await withFetch({ url: 'https://billing.stripe.test/session' }, async (sent) => {

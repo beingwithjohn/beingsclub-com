@@ -6,6 +6,12 @@ The private foundation and first complete member slice:
 - the public response is identical whether or not the address is approved;
 - a successful code creates a revocable 30-day bearer session;
 - only a host session can read or change the approved-address list;
+- adding an address sends one personal invitation from John; delivery is
+  recorded, failures remain visible, and an unjoined person can be deliberately
+  invited again without creating another membership;
+- John receives one email after that person completes the first-entry welcome
+  and agrees to the member principles; delivery is idempotent and failed notices
+  are retried by the existing half-hour Worker schedule;
 - the host page is static, but no member data is in it — the private API
   returns that only after checking the session and host role;
 - every approved person, including a host, lands in the same member dashboard;
@@ -30,7 +36,9 @@ The private foundation and first complete member slice:
 - the archive is grouped by Salon/month and kept indefinitely;
 - anonymous notes remain unattributed in the member archive while the host can
   see their author and remove any note where necessary.
-- Giving includes a quiet testimonial opportunity alongside financial giving:
+- Giving keeps financial giving inside the member page, opens Stripe only for
+  secure checkout or monthly-gift management, and includes a quiet testimonial
+  opportunity alongside it:
   one offering per member per Beings Club calendar month, never promoted by an
   email, notification or reminder;
 - testimonial submission explicitly permits public use with the chosen name
@@ -40,15 +48,20 @@ The private foundation and first complete member slice:
   while pending, their author can edit or withdraw them, and the host can copy,
   mark used or pass.
 - every active member appears in the private directory by their chosen name;
-  a photograph, one contextual line and an HTTPS website are optional;
+  a square, member-cropped photograph, one contextual line and an HTTPS website
+  are optional;
 - the directory exposes no email address, contact details, activity, presence,
   ranking or member-to-member messaging, and profile images remain private;
 - a member without a chosen name is taken to Profile before the rest of the
   member area, so signed Field Notes and testimonials have a deliberate identity.
-- Settings offers announcement, one-week and one-day Salon email choices, plus
-  the one-off Field Note invitation; all four default on for a new member;
+- Settings offers announcement, one-month, one-week, one-day and one-hour Salon
+  email choices, plus the one-off Field Note invitation; announcement, week,
+  day and Field Notes default on, while month and hour are opt-in;
 - “Quiet, for now” silences optional Club mail without affecting requested
   six-digit access codes, and every Club email links back to Settings;
+- members can replay the complete welcome from Settings without changing their
+  existing agreement, and the visible in-person navigation opens an honest
+  coming-soon page rather than a dead label;
 - members can revoke every session and can leave the Club immediately, choosing
   whether their existing Field Notes remain signed, become anonymous or are
   permanently removed; a last remaining host cannot accidentally leave;
@@ -84,6 +97,10 @@ authenticated member request.
 The private monthly testimonial queue is added by `0004_testimonials.sql`.
 Member email choices, at-most-once Club send claims and the leaving policy are
 added by `0005_member_settings.sql`.
+The later Salon timing choices are added by `0008_salon_email_timings.sql`, and
+member invitation delivery state by `0009_member_invitation_delivery.sql`.
+First-entry completion and the one-time host notice are added by
+`0010_onboarding_completion_notice.sql`.
 Profile fields are part of the original member table, so the directory needs no
 additional migration. Profile photographs share the authenticated private R2
 media path used by Field Notes.
@@ -104,3 +121,18 @@ Then publish the static client with the normal site wrapper from the repo root:
 ```
 
 Never put a code, session token, `LINK_KEY`, or `RESEND_API_KEY` in this repo.
+
+## Host control from Codex chat
+
+Codex should operate the same host-only interface John uses, through the
+authenticated in-app browser session at `/members/host/`. Do not add a second
+admin token, public automation endpoint or credential to the repository.
+
+Read-only requests such as listing members, checking RSVPs or reviewing the
+current Salon can be carried out directly. A chat request may also prepare a
+Salon draft. Actions with consequences remain explicit: adding a member sends
+their invitation, publishing makes a Salon visible and may create its Zoom
+meeting, announcing sends real email, and removal changes member data. Codex
+must state the action and its consequence before performing one of those
+operations, and must never infer permission to announce or remove from a
+request merely to inspect or draft.

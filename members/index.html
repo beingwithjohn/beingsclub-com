@@ -110,7 +110,7 @@
       <a class="current" href="#salon" data-member-view="salon" aria-current="page">next salon</a>
       <a href="#field-notes" data-member-view="field-notes">field notes</a>
       <a href="#members" data-member-view="members">members</a>
-      <span>in-person</span>
+      <a href="#in-person" data-member-view="in-person">in person</a>
       <a href="#giving" data-member-view="giving">giving</a>
       <a class="nav-break" href="#profile" data-member-view="profile">profile</a>
       <a href="#settings" data-member-view="settings">settings</a>
@@ -122,7 +122,7 @@
     <div class="mobile-menu" id="mobile-menu" hidden>
       <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
       <a class="current" href="#salon" data-member-view="salon">next salon</a>
-      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><span>in-person</span><a href="#giving" data-member-view="giving">giving</a>
+      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><a href="#in-person" data-member-view="in-person">in person</a><a href="#giving" data-member-view="giving">giving</a>
       <a class="nav-break" href="#profile" data-member-view="profile">profile</a><a href="#settings" data-member-view="settings">settings</a>
       <a id="mobile-host-link" href="/members/host/" hidden>host</a>
       <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
@@ -243,6 +243,20 @@
       </div>
     </main>
 
+    <main class="in-person-page" id="in-person-page" hidden>
+      <div class="in-person-content">
+        <header class="in-person-heading">
+          <span class="eyebrow">in person</span>
+          <h1>Something is <strong>taking shape</strong>.</h1>
+          <p>Occasional gatherings of curious people, in changing places. There may be music, tea, a guided curiosity practice and room to discover what arises.</p>
+        </header>
+        <section class="in-person-soon">
+          <span class="eyebrow">coming later</span>
+          <p>Nothing has been announced yet. When an in-person gathering is ready, you’ll find it here.</p>
+        </section>
+      </div>
+    </main>
+
     <main class="giving-page" id="giving-page" hidden>
       <div class="giving-content">
         <header class="giving-heading">
@@ -255,8 +269,27 @@
           <article class="giving-option financial-giving">
             <span class="eyebrow">financial giving</span>
             <h2>Support the space.</h2>
-            <p>Give once or monthly, in whatever amount feels right.</p>
-            <a class="outline" href="/giving/">give financially ↗</a>
+            <p>Give once or monthly, in whatever amount feels right. Giving nothing changes nothing about your place here.</p>
+            <div class="financial-giving-form" id="financial-giving-form">
+              <div class="giving-choices" role="group" aria-label="How often">
+                <button class="giving-choice is-selected" type="button" data-giving-cadence="once" aria-pressed="true">one-off</button>
+                <button class="giving-choice" type="button" data-giving-cadence="monthly" aria-pressed="false">monthly</button>
+              </div>
+              <div class="giving-choices" role="group" aria-label="Currency">
+                <button class="giving-choice is-selected" type="button" data-giving-currency="gbp" aria-pressed="true">£ GBP</button>
+                <button class="giving-choice" type="button" data-giving-currency="usd" aria-pressed="false">$ USD</button>
+              </div>
+              <label class="giving-amount">
+                <span id="member-giving-amount-label">amount</span>
+                <span class="giving-amount-field"><span id="member-giving-symbol" aria-hidden="true">£</span><input id="member-giving-amount" type="number" inputmode="decimal" min="1" step="0.01" autocomplete="off" aria-describedby="member-giving-help"></span>
+              </label>
+              <p id="member-giving-help">£1 minimum.</p>
+              <button class="primary" id="member-give" type="button">continue to Stripe</button>
+              <p class="giving-monthly-note" id="member-giving-monthly-note" hidden>It repeats monthly until you end it. Stripe will email receipts.</p>
+              <p class="giving-thanks" id="member-giving-thanks" hidden>Thank you. Your gift has been received.</p>
+              <span class="status" id="member-giving-status" role="status" aria-live="polite"></span>
+              <button class="text-button manage-giving" id="member-giving-manage" type="button">manage monthly giving</button>
+            </div>
           </article>
 
           <article class="giving-option testimonial-giving">
@@ -329,7 +362,7 @@
               <label class="image-picker" for="profile-image-input">choose an image</label>
               <input class="sr-only" id="profile-image-input" type="file" accept="image/jpeg,image/png,image/webp">
               <button class="text-button" id="profile-image-remove" type="button" hidden>remove</button>
-              <span>JPEG, PNG or WebP · up to 5MB</span>
+              <span>JPEG, PNG or WebP · up to 5MB · cropped square</span>
             </div>
           </div>
 
@@ -354,6 +387,22 @@
       </div>
     </main>
 
+    <dialog class="profile-cropper" id="profile-cropper" aria-labelledby="profile-cropper-title">
+      <form method="dialog" class="profile-cropper-card">
+        <header>
+          <span class="eyebrow">profile image</span>
+          <h2 id="profile-cropper-title">Choose the square.</h2>
+          <p>Drag the image to reposition it, then use the slider to zoom.</p>
+        </header>
+        <canvas id="profile-crop-canvas" width="640" height="640" aria-label="Square image crop preview"></canvas>
+        <label class="profile-crop-zoom"><span>zoom</span><input id="profile-crop-zoom" type="range" min="1" max="3" step="0.01" value="1"></label>
+        <div class="profile-crop-actions">
+          <button class="primary" id="profile-crop-apply" type="button">use this crop</button>
+          <button class="text-button" id="profile-crop-cancel" type="button">cancel</button>
+        </div>
+      </form>
+    </dialog>
+
     <main class="settings-page" id="settings-page" hidden>
       <div class="settings-content">
         <header class="settings-heading">
@@ -370,8 +419,10 @@
               <span>Email me about the next Salon—</span>
             </div>
             <label class="setting-choice"><input id="email-salon-announced" type="checkbox"><span>when it is announced</span></label>
+            <label class="setting-choice"><input id="email-salon-month" type="checkbox"><span>one month before</span></label>
             <label class="setting-choice"><input id="email-salon-week" type="checkbox"><span>one week before</span></label>
             <label class="setting-choice"><input id="email-salon-day" type="checkbox"><span>one day before</span></label>
+            <label class="setting-choice"><input id="email-salon-hour" type="checkbox"><span>one hour before</span></label>
           </div>
           <label class="setting-row" id="field-note-email-row">
             <span><strong>Field Notes</strong><small>One invitation after a Salon you attended. It also remains inside the member area until you share or dismiss it.</small></span>
@@ -383,6 +434,14 @@
           </label>
           <p class="settings-note" id="settings-email-note">Every Club email ends with a link back to this page.</p>
           <span class="status" id="settings-email-status" role="status" aria-live="polite"></span>
+        </section>
+
+        <section class="settings-section" aria-labelledby="settings-welcome-title">
+          <h2 id="settings-welcome-title">the welcome</h2>
+          <div class="settings-copy-row">
+            <span><strong>Take the walk-through again</strong><small>Return to the short introduction to curiosity, the Salon, the principles and freely offered membership.</small></span>
+            <button class="outline" id="onboarding-replay" type="button">start</button>
+          </div>
         </section>
 
         <section class="settings-section" aria-labelledby="settings-access-title">

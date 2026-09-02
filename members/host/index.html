@@ -22,7 +22,7 @@
       <a href="/members/">next salon</a>
       <a href="/members/#field-notes">field notes</a>
       <a href="/members/#members">members</a>
-      <span>in-person</span>
+      <a href="/members/#in-person">in person</a>
       <a href="/members/#giving">giving</a>
       <a class="nav-break" href="/members/#profile">profile</a>
       <a href="/members/#settings">settings</a>
@@ -33,7 +33,7 @@
     <button class="menu-button" id="menu-button" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
     <div class="mobile-menu" id="mobile-menu" hidden>
       <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
-      <a href="/members/">next salon</a><a href="/members/#field-notes">field notes</a><a href="/members/#members">members</a><span>in-person</span><a href="/members/#giving">giving</a>
+      <a href="/members/">next salon</a><a href="/members/#field-notes">field notes</a><a href="/members/#members">members</a><a href="/members/#in-person">in person</a><a href="/members/#giving">giving</a>
       <a class="nav-break" href="/members/#profile">profile</a><a href="/members/#settings">settings</a><a class="current" href="/members/host/">host</a>
       <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
     </div>
@@ -107,11 +107,11 @@
 
         <section class="host-section">
           <h2>the list</h2>
-          <p>Anyone on the list can log in with that email. Adding someone does not send an invitation; it quietly opens the door.</p>
+          <p>Adding someone opens the door and sends one personal invitation from John. If delivery fails, they remain on the list and you can try again.</p>
           <form class="invite-form" id="invite-form" novalidate>
             <label class="sr-only" for="invite-email">Email to add</label>
             <input id="invite-email" name="email" type="email" autocomplete="off" placeholder="email@somewhere.com" required>
-            <button class="outline" type="submit">add to the list</button>
+            <button class="outline" type="submit">add + invite</button>
           </form>
           <span class="status" id="invite-status" role="status" aria-live="polite"></span>
           <div class="member-list" id="member-list" aria-live="polite"></div>
