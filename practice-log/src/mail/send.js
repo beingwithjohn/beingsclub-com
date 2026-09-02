@@ -202,7 +202,7 @@ export async function sendClubInvitation(env, { email, idempotencyKey }) {
   });
   return post(env, {
     to: email,
-    from: john(env),
+    from: club(env),
     subject,
     text,
     html,
@@ -211,15 +211,15 @@ export async function sendClubInvitation(env, { email, idempotencyKey }) {
 }
 
 /** A welcome after John and a prospective member have reached a mutual yes. */
-export async function sendClubWelcome(env, { email, name, idempotencyKey }) {
-  const url = 'https://beingsclub.com/members/';
+export async function sendClubWelcome(env, { email, name, actionUrl, idempotencyKey }) {
+  const url = actionUrl || 'https://beingsclub.com/members/';
   const subject = 'Welcome to Beings Club';
   const hello = name ? `Hello, ${name}.` : 'Hello.';
-  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. Enter using this email address and we’ll send you a six-digit code.\n\nYour welcome is waiting inside. It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.\n\nBeings Club is made by the people who participate.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. Your private entrance is below; it can be used once and expires in seven days.\n\nYour welcome is waiting inside. It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.\n\nBeings Club is made by the people who participate.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubWelcomeLayout({ name, actionUrl: url });
   return post(env, {
     to: email,
-    from: john(env),
+    from: club(env),
     subject,
     text,
     html,
@@ -387,7 +387,7 @@ function clubWelcomeLayout({ name, actionUrl }) {
     preheader: 'The member area is open — your welcome is waiting.',
     heading: 'Welcome to <span style="color:#5A4B7C;">Beings Club</span>.',
     body: `<p style="margin:0 0 16px;">${hello}</p>`
-      + '<p style="margin:0;">Membership is ongoing and freely offered. Enter using this email address and we’ll send you a six-digit code.</p>',
+      + '<p style="margin:0;">Membership is ongoing and freely offered. Your private entrance can be used once and expires in seven days.</p>',
     actionUrl,
     actionLabel: 'enter Beings Club',
     settingsUrl: actionUrl,

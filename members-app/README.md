@@ -14,6 +14,9 @@ The private foundation and first complete member slice:
   are retried by the existing half-hour Worker schedule;
 - before onboarding is complete, the host can deliberately resend the welcome
   email to a granted prospective member without granting access a second time;
+- that welcome carries a seven-day, one-use private entrance which the member
+  app exchanges by POST after stripping it from the address bar; the email-link
+  GET itself never creates a session or writes membership state;
 - the host page is static, but no member data is in it — the private API
   returns that only after checking the session and host role;
 - every approved person, including a host, lands in the same member dashboard;
@@ -103,6 +106,8 @@ The later Salon timing choices are added by `0008_salon_email_timings.sql`, and
 member invitation delivery state by `0009_member_invitation_delivery.sql`.
 First-entry completion and the one-time host notice are added by
 `0010_onboarding_completion_notice.sql`.
+The private one-use welcome entrance is added by
+`0013_member_welcome_links.sql`.
 Profile fields are part of the original member table, so the directory needs no
 additional migration. Profile photographs share the authenticated private R2
 media path used by Field Notes.

@@ -28,7 +28,7 @@ test('a member invitation is personal, idempotent and points to the member entra
     assert.equal(request.options.headers['idempotency-key'], 'club-member-7-2000000000');
     const body = JSON.parse(request.options.body);
     assert.equal(body.to[0], 'mira@example.test');
-    assert.match(body.from, /^John /);
+    assert.equal(body.from, 'Beings Club <practice@beingsclub.com>');
     assert.equal(body.subject, 'You’re invited to Beings Club');
     assert.match(body.text, /https:\/\/beingsclub\.com\/members\//);
     assert.match(body.html, /enter Beings Club/);
@@ -62,18 +62,24 @@ test('granting access sends a welcome rather than another invitation', async () 
   try {
     const sent = await sendClubWelcome({
       RESEND_API_KEY: 'test-key',
+      MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
       MAIL_FROM_HOST: 'John Ooi <practice@beingsclub.com>',
       MAIL_REPLY_TO: 'john@spacetobe.xyz',
     }, {
       email: 'mira@example.test',
       name: 'Mira',
+      actionUrl: 'https://beingsclub.com/members/#welcome=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       idempotencyKey: 'club-prospect-4-2000000000',
     });
     assert.equal(sent, true);
     assert.equal(request.options.headers['idempotency-key'], 'club-prospect-4-2000000000');
     const body = JSON.parse(request.options.body);
+    assert.equal(body.from, 'Beings Club <practice@beingsclub.com>');
     assert.equal(body.subject, 'Welcome to Beings Club');
     assert.match(body.text, /Hello, Mira\. You’re in\./);
+    assert.match(body.text, /private entrance/);
+    assert.match(body.text, /#welcome=AAAA/);
+    assert.doesNotMatch(body.text, /six-digit code/);
     assert.match(body.text, /Beings Club is made by the people who participate/);
     assert.match(body.html, /Welcome to <span[^>]*>Beings Club<\/span>\./);
     assert.match(body.html, /Hello, Mira\. You’re in\./);

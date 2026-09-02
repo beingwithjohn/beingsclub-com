@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { sendProspectCode, sendProspectTimeNote } from '../src/mail/send.js';
 import {
-  createProspectBooking, getProspectSlots, resendProspectWelcome,
+  createProspectBooking, enterMemberWelcome, getProspectSlots, resendProspectWelcome,
   validWebhookSignature,
 } from '../src/club/prospects.js';
 
@@ -34,8 +34,9 @@ function prospectDb(row) {
 
 function grantedProspectDb(row) {
   const updates = [];
+  const batches = [];
   return {
-    updates,
+    updates, batches,
     prepare(sql) {
       let args = [];
       return {
@@ -43,6 +44,31 @@ function grantedProspectDb(row) {
         async first() { return sql.includes('FROM prospect p JOIN member') ? { ...row } : null; },
         async run() { updates.push({ sql, args }); return { meta: { changes: 1 } }; },
       };
+    },
+    async batch(statements) {
+      batches.push(statements);
+      return statements.map(() => ({ results: [], meta: { changes: 1 } }));
+    },
+  };
+}
+
+function welcomeEntryDb(row) {
+  const runs = [];
+  const batches = [];
+  return {
+    runs, batches,
+    prepare(sql) {
+      let args = [];
+      return {
+        sql,
+        bind(...values) { args = values; this.args = args; return this; },
+        async first() { return sql.includes('FROM member_welcome_link') ? { ...row } : null; },
+        async run() { runs.push({ sql, args }); return { meta: { changes: 1 } }; },
+      };
+    },
+    async batch(statements) {
+      batches.push(statements);
+      return statements.map(() => ({ results: [], meta: { changes: 1 } }));
     },
   };
 }
@@ -128,6 +154,7 @@ test('the host can resend a welcome after access is granted but before onboardin
     const response = await resendProspectWelcome({
       MEMBERS: members,
       RESEND_API_KEY: 'test-key',
+      MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
       MAIL_FROM_HOST: 'John Ooi <practice@beingsclub.com>',
       MAIL_REPLY_TO: 'john@spacetobe.xyz',
     }, 4);
@@ -138,11 +165,34 @@ test('the host can resend a welcome after access is granted but before onboardin
     assert.equal(body.to[0], 'mira@example.test');
     assert.equal(body.subject, 'Welcome to Beings Club');
     assert.match(body.text, /Hello, Mira\. You’re in\./);
+    assert.match(body.text, /members\/#welcome=[A-Za-z0-9_-]+/);
+    assert.doesNotMatch(body.text, /six-digit code/);
+    assert.equal(members.batches.length, 1);
     assert.equal(members.updates.length, 1);
     assert.equal(members.updates[0].args[3], 9);
   } finally {
     globalThis.fetch = original;
   }
+});
+
+test('a one-use welcome entrance creates a member session and opens onboarding', async () => {
+  const members = welcomeEntryDb({
+    id: 9, member_id: 9, email: 'mira@example.test', display_name: 'Mira',
+    expires_at: Math.floor(Date.now() / 1000) + 300, consumed_at: null,
+    disabled_at: null, left_at: null, is_host: 0, agreement_version: null,
+    agreement_accepted_at: null, onboarding_completed_at: null,
+  });
+  const response = await enterMemberWelcome({ MEMBERS: members }, {
+    token: 'A'.repeat(43),
+  });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.match(data.token, /^[A-Za-z0-9_-]{20,100}$/);
+  assert.equal(data.member.email, 'mira@example.test');
+  assert.equal(data.member.agreementAccepted, false);
+  assert.equal(data.member.onboardingCompleted, false);
+  assert.equal(members.runs.some((run) => run.sql.includes('SET consumed_at')), true);
+  assert.equal(members.batches.flat().some((statement) => statement.sql.includes('INSERT INTO member_session')), true);
 });
 
 test('the native calendar returns Cal availability without exposing Cal’s interface', async () => {

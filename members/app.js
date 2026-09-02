@@ -86,6 +86,14 @@
   function saveProspectToken(value) { try { localStorage.setItem(PROSPECT_KEY, value); } catch (_) {} }
   function forgetProspectToken() { try { localStorage.removeItem(PROSPECT_KEY); } catch (_) {} }
 
+  function takeWelcomeToken() {
+    const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const value = params.get('welcome');
+    if (!value) return null;
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+    return value;
+  }
+
   async function call(path, options = {}) {
     const headers = { 'content-type': 'application/json', ...(options.headers || {}) };
     const saved = token();
@@ -1972,6 +1980,20 @@
         account: { email: 'john@spacetobe.xyz', joinedAt: '2026-08-01T12:00:00.000Z', isHost: true },
       };
       showMemberApp(); return;
+    }
+    const welcomeToken = takeWelcomeToken();
+    if (welcomeToken) {
+      showLogin(waiting);
+      try {
+        const data = await call('/api/club/auth/welcome', {
+          method: 'POST', body: JSON.stringify({ token: welcomeToken }),
+        });
+        saveToken(data.token); await enter(data.member); return;
+      } catch (_) {
+        forgetToken(); showLogin(emailForm);
+        emailStatus.textContent = 'That private welcome link has expired or has already been used. Enter your email for a fresh code.';
+        emailInput.focus(); return;
+      }
     }
     const joining = previewParams.get('join') === '1';
     if (joining || (!token() && prospectToken())) {

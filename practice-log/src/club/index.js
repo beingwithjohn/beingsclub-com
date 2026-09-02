@@ -28,8 +28,8 @@ import {
 import { postGiving, postGivingPortal } from '../giving.js';
 import { completeOnboarding } from './onboarding.js';
 import {
-  createProspectBooking, enterGrantedProspect, getProspectSlots,
-  getProspectState, grantProspect, identifyProspect,
+  createProspectBooking, enterGrantedProspect, enterMemberWelcome,
+  getProspectSlots, getProspectState, grantProspect, identifyProspect,
   listProspects, requestProspectCode,
   resendProspectWelcome, saveProspectTimeNote, verifyProspectCode,
 } from './prospects.js';
@@ -47,6 +47,9 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (path === '/api/club/auth/verify' && method === 'POST') {
     return verifyCode(env, await readJson(request));
+  }
+  if (path === '/api/club/auth/welcome' && method === 'POST') {
+    return enterMemberWelcome(env, await readJson(request));
   }
   if (path === '/api/club/prospect/auth/request' && method === 'POST') {
     return requestProspectCode(request, env, ctx, await readJson(request));

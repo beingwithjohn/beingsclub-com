@@ -199,6 +199,11 @@ allow subscription cancellation, and add its login link to Stripe's customer
 emails so monthly givers can manage or end their gift without a Practice Log
 account. Apply the database migrations before deploying the Worker.
 
+Granted prospective members receive a one-use welcome entrance rather than a
+second email-code round trip. Its hash lives in `member_welcome_link`; the token
+expires after seven days, is stripped from the browser address before exchange,
+and is consumed only by `POST /api/club/auth/welcome`.
+
 **4 · the public run, and the host**
 
 ```bash

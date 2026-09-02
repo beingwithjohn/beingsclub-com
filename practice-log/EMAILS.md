@@ -24,6 +24,14 @@ what happened; the preheader adds useful context rather than repeating it.
 Links point to `https://beingsclub.com`, and the email must remain intelligible
 if images do not load.
 
+Membership invitations and welcomes are sent as **Beings Club** from
+`practice@beingsclub.com`; replies still go privately to John.
+After John grants membership, the welcome button carries a one-use private
+entrance that expires after seven days and opens the first-entry welcome without
+asking for another email code. The token lives in the URL fragment, is removed
+from the address bar before exchange, and the ordinary email-link GET writes
+nothing.
+
 `clubEmailLayout` is the shared implementation. Special messages, including
 the welcome, add sections through that shell instead of copying a second page.
 The older Practice Log sequence keeps its deliberately compact rhythm and dark

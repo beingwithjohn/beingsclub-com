@@ -47,6 +47,10 @@ last ten minutes, allow five attempts, and can be used once. The request respons
 does not reveal whether the email is approved. Sessions are random bearer tokens,
 stored only as hashes server-side, expire after 30 days, and are revoked when a
 member is removed. Every host route checks `is_host` in D1 on every request.
+The post-conversation welcome is the one deliberate exception to the extra code
+round trip: it carries a seven-day, one-use token in the URL fragment. The static
+GET writes nothing; the member client removes the fragment and exchanges it by
+POST for the same ordinary member session before showing onboarding.
 `john@spacetobe.xyz` is seeded as the first approved member and host by
 `members-migrations/0001_members.sql`.
 

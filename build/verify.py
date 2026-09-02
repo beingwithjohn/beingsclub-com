@@ -434,6 +434,16 @@ ok("host can deliberately resend a welcome before onboarding is complete",
    "resendProspectWelcome" in prospects_api and
    "idempotencyKey: `club-prospect-welcome-${id}-${timestamp}`" in prospects_api and
    "resend welcome" in members_after.get("members/host.js", ""))
+welcome_migration = io.open(os.path.join(
+    ROOT, "practice-log", "members-migrations", "0013_member_welcome_links.sql"
+), encoding="utf-8").read()
+ok("welcome email enters onboarding without another email-code round trip",
+   "CREATE TABLE member_welcome_link" in welcome_migration and
+   "path === '/api/club/auth/welcome'" in club_router and
+   "enterMemberWelcome" in prospects_api and
+   "location.hash.replace" in members_after.get("members/app.js", "") and
+   "history.replaceState" in members_after.get("members/app.js", "") and
+   "#welcome=${encodeURIComponent(welcomeToken)}" in prospects_api)
 onboarding_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "onboarding.js"),
                          encoding="utf-8").read()
 ok("finishing the first-entry welcome sends one retry-safe host notice",

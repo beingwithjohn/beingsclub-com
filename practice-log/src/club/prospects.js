@@ -17,6 +17,7 @@ const CAL_USERNAME = 'beingwithjohn';
 const CAL_SLOTS_API_VERSION = '2024-09-04';
 const CAL_BOOKINGS_API_VERSION = '2026-02-25';
 const CAL_DURATION_MINUTES = 25;
+const WELCOME_LINK_LIFETIME = 7 * 24 * 60 * 60;
 
 export async function requestProspectCode(request, env, ctx, body) {
   const responseChallenge = randomToken(24);
@@ -301,13 +302,40 @@ export async function enterGrantedProspect(env, who) {
       'UPDATE member SET joined_at = COALESCE(joined_at, ?1), updated_at = ?1 WHERE id = ?2',
     ).bind(timestamp, member.id),
   ]);
-  return json({ token, member: {
-    id: member.id, email: member.email, name: member.display_name,
-    website: member.website, line: member.profile_line, hasImage: !!member.profile_image,
-    isHost: !!member.is_host, agreementAccepted: agreementAccepted(member),
-    agreementVersion: MEMBER_AGREEMENT_VERSION,
-    onboardingCompleted: Number(member.onboarding_completed_at) > 0,
-  } });
+  return json({ token, member: shapeEnteredMember(member) });
+}
+
+export async function enterMemberWelcome(env, body) {
+  const welcomeToken = validChallenge(body?.token);
+  if (!welcomeToken) return bad(401, 'welcome link unavailable');
+  const timestamp = now();
+  const welcomeHash = await tokenHash(welcomeToken);
+  const row = await env.MEMBERS.prepare(
+    `SELECT w.token_hash, w.member_id, w.expires_at, w.consumed_at, m.*
+       FROM member_welcome_link w JOIN member m ON m.id = w.member_id
+      WHERE w.token_hash = ?1`,
+  ).bind(welcomeHash).first();
+  if (!row || row.consumed_at || row.expires_at < timestamp
+      || row.disabled_at || row.left_at) {
+    return bad(401, 'welcome link unavailable');
+  }
+  const consumed = await env.MEMBERS.prepare(
+    `UPDATE member_welcome_link SET consumed_at = ?1
+      WHERE token_hash = ?2 AND consumed_at IS NULL AND expires_at >= ?1`,
+  ).bind(timestamp, welcomeHash).run();
+  if ((consumed.meta?.changes ?? 0) !== 1) return bad(401, 'welcome link unavailable');
+  const sessionToken = randomToken();
+  await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
+      `INSERT INTO member_session
+        (member_id, token_hash, created_at, last_seen_at, expires_at)
+       VALUES (?1, ?2, ?3, ?3, ?4)`,
+    ).bind(row.member_id, await tokenHash(sessionToken), timestamp, timestamp + SESSION_LIFETIME),
+    env.MEMBERS.prepare(
+      'UPDATE member SET joined_at = COALESCE(joined_at, ?1), updated_at = ?1 WHERE id = ?2',
+    ).bind(timestamp, row.member_id),
+  ]);
+  return json({ token: sessionToken, member: shapeEnteredMember(row) });
 }
 
 export async function listProspects(env) {
@@ -348,8 +376,10 @@ export async function grantProspect(env, host, id) {
     `UPDATE prospect SET granted_at = ?1, granted_by = ?2, member_id = ?3,
        updated_at = ?1 WHERE id = ?4 AND granted_at IS NULL`,
   ).bind(timestamp, host.id, member.id, id).run();
-  const sent = member.invitation_sent_at ? true : await sendClubWelcome(env, {
+  const actionUrl = await issueMemberWelcomeLink(env, member.id, timestamp);
+  const sent = await sendClubWelcome(env, {
     email: member.email, name: member.display_name,
+    actionUrl,
     idempotencyKey: `club-prospect-${id}-${timestamp}`,
   });
   await env.MEMBERS.prepare(
@@ -375,9 +405,11 @@ export async function resendProspectWelcome(env, id) {
     return bad(409, 'welcome unavailable');
   }
   const timestamp = now();
+  const actionUrl = await issueMemberWelcomeLink(env, prospect.member_id, timestamp);
   const sent = await sendClubWelcome(env, {
     email: prospect.email,
     name: prospect.member_name || prospect.display_name,
+    actionUrl,
     idempotencyKey: `club-prospect-welcome-${id}-${timestamp}`,
   });
   await env.MEMBERS.prepare(
@@ -387,6 +419,27 @@ export async function resendProspectWelcome(env, id) {
   ).bind(sent ? timestamp : null, timestamp, sent ? null : 'delivery failed', prospect.member_id).run();
   if (!sent) return bad(502, 'welcome email did not send');
   return json({ ok: true, invitationSent: true });
+}
+
+async function issueMemberWelcomeLink(env, memberId, timestamp) {
+  const welcomeToken = randomToken();
+  await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
+      `UPDATE member_welcome_link SET consumed_at = ?1
+        WHERE member_id = ?2 AND consumed_at IS NULL`,
+    ).bind(timestamp, memberId),
+    env.MEMBERS.prepare(
+      `INSERT INTO member_welcome_link
+        (token_hash, member_id, created_at, expires_at)
+       VALUES (?1, ?2, ?3, ?4)`,
+    ).bind(
+      await tokenHash(welcomeToken), memberId, timestamp, timestamp + WELCOME_LINK_LIFETIME,
+    ),
+    env.MEMBERS.prepare(
+      'DELETE FROM member_welcome_link WHERE expires_at < ?1',
+    ).bind(timestamp - 86400),
+  ]);
+  return `https://beingsclub.com/members/#welcome=${encodeURIComponent(welcomeToken)}`;
 }
 
 export async function calWebhook(env, request) {
@@ -465,6 +518,16 @@ function shapeHostProspect(row) {
     ...shaped, createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
     grantedAt: iso(row.granted_at), memberId: row.member_id || null,
     canResendWelcome: !!row.granted_at && !row.member_joined_at,
+  };
+}
+
+function shapeEnteredMember(member) {
+  return {
+    id: member.id, email: member.email, name: member.display_name,
+    website: member.website, line: member.profile_line, hasImage: !!member.profile_image,
+    isHost: !!member.is_host, agreementAccepted: agreementAccepted(member),
+    agreementVersion: MEMBER_AGREEMENT_VERSION,
+    onboardingCompleted: Number(member.onboarding_completed_at) > 0,
   };
 }
 
