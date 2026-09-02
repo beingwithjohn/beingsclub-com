@@ -282,12 +282,17 @@ ok("member login distinguishes access and hands non-members to joining",
    "sessionStorage.setItem(JOIN_EMAIL_KEY, emailAddress)" in members_after.get("members/app.js", "") and
        '<a href="/members/?join=1">Membership begins with a conversation</a>' in login_html)
 ok("prospective members see a native Beings Club calendar rather than an embed",
-   'id="prospect-timezone"' in login_html and 'id="prospect-days"' in login_html and
+   'id="prospect-timezone-search"' in login_html and 'id="prospect-days"' in login_html and
    'id="prospect-time-list"' in login_html and 'id="prospect-booking-form"' in login_html and
    '<iframe' not in login_html and 'app.cal.com' not in login_html and
    'frame-src' not in login_html and
    "prospectCall(`/api/club/prospect/slots?${query}`)" in members_after.get("members/app.js", "") and
    "prospectCall('/api/club/prospect/booking'" in members_after.get("members/app.js", ""))
+ok("timezone search understands place names and seasonal acronyms",
+   'role="combobox"' in login_html and 'id="prospect-timezone-results" role="listbox"' in login_html and
+   "timezoneAbbreviation(zone, new Date(Date.UTC(year, 0, 15, 12)))" in members_after.get("members/app.js", "") and
+   "timezoneAbbreviation(zone, new Date(Date.UTC(year, 6, 15, 12)))" in members_after.get("members/app.js", "") and
+   "aliases.includes(query)" in members_after.get("members/app.js", ""))
 ok("member surfaces keep one uninterrupted warm paper",
    "--paper:#FDFCF9" in members_after.get("members/app.css", "") and
    "background:#FFF" not in members_after.get("members/app.css", "") and

@@ -38,6 +38,7 @@
   let calendarRequestId = 0;
   let prospectRescheduling = false;
   let calendarTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  let timezoneChoices = [];
   let prospectMessageSource = 'calendar';
   let salon = null;
   let fieldNotes = { prompt: null, groups: [] };
@@ -212,33 +213,91 @@
     return [18, 19, 20].map((hour) => new Date(Date.UTC(year, month, day, hour, 0)).toISOString());
   }
 
-  function timezoneAbbreviation(zone = calendarTimeZone) {
+  function timezoneAbbreviation(zone = calendarTimeZone, date = new Date()) {
     const parts = new Intl.DateTimeFormat('en-GB', {
       timeZone: zone, timeZoneName: 'short', hour: '2-digit',
-    }).formatToParts(new Date());
+    }).formatToParts(date);
     return parts.find((part) => part.type === 'timeZoneName')?.value || zone;
   }
 
+  function prettyTimezone(zone) {
+    return zone.replaceAll('_', ' ').replace('/', ' / ');
+  }
+
   function populateTimezones() {
-    const select = document.getElementById('prospect-timezone');
-    if (select.options.length) return;
+    if (timezoneChoices.length) return;
     const common = ['Europe/London', 'Europe/Lisbon', 'Europe/Paris', 'America/New_York',
       'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Asia/Kolkata',
       'Asia/Singapore', 'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Auckland', 'UTC'];
     let zones = common;
     try { zones = Intl.supportedValuesOf('timeZone'); } catch (_) {}
     if (!zones.includes(calendarTimeZone)) zones = [calendarTimeZone, ...zones];
-    for (const zone of zones) {
-      const option = document.createElement('option');
-      option.value = zone; option.textContent = zone.replaceAll('_', ' ').replace('/', ' / ');
-      select.append(option);
-    }
-    select.value = calendarTimeZone;
+    const year = new Date().getFullYear();
+    timezoneChoices = zones.map((zone) => {
+      const abbreviations = [...new Set([
+        timezoneAbbreviation(zone, new Date(Date.UTC(year, 0, 15, 12))),
+        timezoneAbbreviation(zone, new Date(Date.UTC(year, 6, 15, 12))),
+        timezoneAbbreviation(zone),
+      ])];
+      return {
+        zone, label: prettyTimezone(zone), abbreviations,
+        search: `${zone} ${prettyTimezone(zone)} ${abbreviations.join(' ')}`.toLowerCase(),
+        common: common.includes(zone),
+      };
+    });
+  }
+
+  function closeTimezoneResults() {
+    const input = document.getElementById('prospect-timezone-search');
+    document.getElementById('prospect-timezone-results').hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+  }
+
+  function chooseTimezone(zone) {
+    calendarTimeZone = zone;
+    document.getElementById('prospect-timezone-search').value = prettyTimezone(zone);
+    closeTimezoneResults();
+    if (previewMode) prepareProspectCalendar(true); else loadProspectSlots();
+  }
+
+  function renderTimezoneResults(value = '') {
+    populateTimezones();
+    const input = document.getElementById('prospect-timezone-search');
+    const results = document.getElementById('prospect-timezone-results');
+    const query = value.trim().toLowerCase();
+    const ranked = timezoneChoices.map((choice) => {
+      const aliases = choice.abbreviations.map((item) => item.toLowerCase());
+      let rank = choice.common ? 5 : 6;
+      if (query) {
+        if (aliases.includes(query)) rank = 0;
+        else if (aliases.some((alias) => alias.startsWith(query))) rank = 1;
+        else if (choice.zone.toLowerCase().startsWith(query) || choice.label.toLowerCase().startsWith(query)) rank = 2;
+        else if (choice.search.includes(query)) rank = 3;
+        else rank = 99;
+      }
+      return { choice, rank };
+    }).filter((item) => item.rank < 99)
+      .sort((a, b) => a.rank - b.rank || a.choice.label.localeCompare(b.choice.label))
+      .slice(0, 8);
+    results.replaceChildren();
+    ranked.forEach(({ choice }) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.role = 'option'; button.dataset.timezone = choice.zone;
+      const label = document.createElement('span'); label.textContent = choice.label;
+      const aliases = document.createElement('small'); aliases.textContent = choice.abbreviations.join(' / ');
+      button.append(label, aliases);
+      button.addEventListener('mousedown', (event) => event.preventDefault());
+      button.addEventListener('click', () => chooseTimezone(choice.zone));
+      results.append(button);
+    });
+    const open = ranked.length > 0;
+    results.hidden = !open; input.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
   function renderProspectCalendar() {
     populateTimezones();
-    document.getElementById('prospect-timezone').value = calendarTimeZone;
+    const timezoneInput = document.getElementById('prospect-timezone-search');
+    if (document.activeElement !== timezoneInput) timezoneInput.value = prettyTimezone(calendarTimeZone);
     document.getElementById('prospect-timezone-abbreviation').textContent = timezoneAbbreviation();
     const monthLabel = new Intl.DateTimeFormat('en-GB', {
       month: 'long', year: 'numeric', timeZone: 'UTC',
@@ -1709,9 +1768,20 @@
     calendarMonth = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + 1, 1));
     if (previewMode) prepareProspectCalendar(true); else loadProspectSlots();
   });
-  document.getElementById('prospect-timezone').addEventListener('change', (event) => {
-    calendarTimeZone = event.target.value;
-    if (previewMode) prepareProspectCalendar(true); else loadProspectSlots();
+  const timezoneSearch = document.getElementById('prospect-timezone-search');
+  timezoneSearch.addEventListener('focus', () => renderTimezoneResults(''));
+  timezoneSearch.addEventListener('input', (event) => renderTimezoneResults(event.target.value));
+  timezoneSearch.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { closeTimezoneResults(); timezoneSearch.value = prettyTimezone(calendarTimeZone); }
+    if (event.key === 'Enter') {
+      const first = document.querySelector('#prospect-timezone-results [data-timezone]');
+      if (first) { event.preventDefault(); chooseTimezone(first.dataset.timezone); }
+    }
+  });
+  timezoneSearch.addEventListener('blur', () => {
+    window.setTimeout(() => {
+      closeTimezoneResults(); timezoneSearch.value = prettyTimezone(calendarTimeZone);
+    }, 120);
   });
   document.getElementById('prospect-selection-back').addEventListener('click', leaveBookingSelection);
   document.getElementById('prospect-keep-time').addEventListener('click', () => {

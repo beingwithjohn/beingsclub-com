@@ -169,8 +169,11 @@
         </header>
 
         <div class="prospect-timezone-row">
-          <label for="prospect-timezone">Times shown in</label>
-          <select id="prospect-timezone" aria-label="Timezone"></select>
+          <label for="prospect-timezone-search">Times shown in</label>
+          <div class="prospect-timezone-picker">
+            <input id="prospect-timezone-search" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="prospect-timezone-results" autocomplete="off" spellcheck="false">
+            <div class="prospect-timezone-results" id="prospect-timezone-results" role="listbox" hidden></div>
+          </div>
           <span id="prospect-timezone-abbreviation"></span>
         </div>
 

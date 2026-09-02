@@ -186,9 +186,16 @@ button{cursor:pointer}
 .prospect-calendar-head>div{display:grid;gap:8px}
 .prospect-calendar-head h2{margin:0;font-size:27px;line-height:1.1;letter-spacing:-.035em}
 .prospect-calendar-head>span{font-size:11px;color:var(--soft)}
-.prospect-timezone-row{display:flex;align-items:center;gap:8px;padding:12px 30px;border-bottom:1px solid var(--line);font:400 9.5px/1.5 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
-.prospect-timezone-row select{max-width:230px;border:0;border-bottom:1px solid #DAD6CB;border-radius:0;background:transparent;padding:3px 19px 3px 2px;font:inherit;color:var(--body);outline:0}
-.prospect-timezone-row select:focus{border-bottom-color:var(--violet)}
+.prospect-timezone-row{position:relative;z-index:3;display:flex;align-items:center;gap:8px;padding:12px 30px;border-bottom:1px solid var(--line);font:400 9.5px/1.5 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-timezone-picker{position:relative;width:min(260px,58vw)}
+.prospect-timezone-picker input{width:100%;border:0;border-bottom:1px solid #DAD6CB;border-radius:0;background:transparent;padding:3px 2px;font:inherit;color:var(--body);outline:0;-webkit-appearance:none}
+.prospect-timezone-picker input:focus{border-bottom-color:var(--violet)}
+.prospect-timezone-picker input::-webkit-search-cancel-button{opacity:.45}
+.prospect-timezone-results{position:absolute;left:0;right:0;top:calc(100% + 7px);max-height:260px;overflow-y:auto;border:1px solid #DEDAD0;background:var(--paper);box-shadow:0 14px 32px rgba(48,42,34,.13)}
+.prospect-timezone-results button{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;border:0;border-bottom:1px solid var(--line);background:var(--paper);padding:9px 11px;text-align:left;font:inherit;color:var(--body)}
+.prospect-timezone-results button:last-child{border-bottom:0}
+.prospect-timezone-results button:hover,.prospect-timezone-results button:focus{background:#EEEAF6;color:var(--violet);outline:0}
+.prospect-timezone-results small{font:inherit;color:var(--soft);white-space:nowrap}
 .prospect-timezone-row>span{color:var(--violet)}
 .prospect-calendar-body{display:grid;grid-template-columns:minmax(290px,1.2fr) minmax(190px,.8fr);min-height:365px}
 .prospect-month{display:grid;align-content:start;gap:18px;padding:26px 30px 24px;border-right:1px solid var(--line)}
