@@ -280,7 +280,14 @@ ok("member login distinguishes access and hands non-members to joining",
    "That email isn’t on the member list." in members_after.get("members/app.js", "") and
    "preview === 'login-error'" in members_after.get("members/app.js", "") and
    "sessionStorage.setItem(JOIN_EMAIL_KEY, emailAddress)" in members_after.get("members/app.js", "") and
-   '<a href="/members/?join=1">Membership begins with a conversation</a>' in login_html)
+       '<a href="/members/?join=1">Membership begins with a conversation</a>' in login_html)
+ok("prospective members see a native Beings Club calendar rather than an embed",
+   'id="prospect-timezone"' in login_html and 'id="prospect-days"' in login_html and
+   'id="prospect-time-list"' in login_html and 'id="prospect-booking-form"' in login_html and
+   '<iframe' not in login_html and 'app.cal.com' not in login_html and
+   'frame-src' not in login_html and
+   "prospectCall(`/api/club/prospect/slots?${query}`)" in members_after.get("members/app.js", "") and
+   "prospectCall('/api/club/prospect/booking'" in members_after.get("members/app.js", ""))
 ok("member surfaces keep one uninterrupted warm paper",
    "--paper:#FDFCF9" in members_after.get("members/app.css", "") and
    "background:#FFF" not in members_after.get("members/app.css", "") and
@@ -391,8 +398,17 @@ agreement_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "agree
                         encoding="utf-8").read()
 club_router = io.open(os.path.join(ROOT, "practice-log", "src", "club", "index.js"),
                       encoding="utf-8").read()
+prospects_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "prospects.js"),
+                        encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
                      encoding="utf-8").read()
+ok("native calendar availability and booking stay behind the prospective-member session",
+   "path === '/api/club/prospect/slots'" in club_router and
+   "path === '/api/club/prospect/booking'" in club_router and
+   "https://api.cal.com${path}" in prospects_api and
+   "Never trust a start supplied by the browser" in prospects_api and
+   "bookingUidToReschedule" in prospects_api and
+   "CAL_API_VERSION = '2026-02-25'" in prospects_api)
 ok("member invitation delivery is recorded and retryable server-side",
    "sendClubInvitation" in club_router and
    "/members\\/(\\d+)\\/invite" in club_router and

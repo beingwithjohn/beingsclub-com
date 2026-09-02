@@ -31,7 +31,13 @@
   let prospectChallenge = null;
   let prospectEmail = '';
   let prospectCountdown = null;
-  let calMounted = false;
+  let calendarMonth = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), 1));
+  let calendarSlots = [];
+  let selectedCalendarDay = null;
+  let selectedCalendarSlot = null;
+  let calendarRequestId = 0;
+  let prospectRescheduling = false;
+  let calendarTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   let prospectMessageSource = 'calendar';
   let salon = null;
   let fieldNotes = { prompt: null, groups: [] };
@@ -154,9 +160,10 @@
     document.getElementById('prospect-granted').hidden = true;
     document.getElementById('prospect-calendar').hidden = booked;
     document.getElementById('prospect-booked').hidden = !booked;
-    document.getElementById('prospect-calendar-mock').hidden = false;
-    document.getElementById('prospect-cal-live').hidden = true;
-    document.getElementById('prospect-live-fallback').hidden = true;
+    document.getElementById('prospect-calendar-body').hidden = false;
+    document.getElementById('prospect-booking-form').hidden = true;
+    document.getElementById('prospect-message').hidden = true;
+    document.querySelector('.prospect-calendar-head').hidden = false;
     document.querySelector('.prospect-preview-switch').hidden = false;
     document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
       button.classList.toggle('current', button.dataset.prospectPreview === state);
@@ -166,92 +173,195 @@
     if (booked) params.set('state', 'booked');
     else params.delete('state');
     history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
+    if (booked) {
+      const chosen = selectedCalendarSlot || previewCalendarSlots()[1];
+      renderBookedTime({
+        uid: 'preview', title: 'A first conversation with John', startTime: chosen,
+        endTime: new Date(Date.parse(chosen) + 25 * 60000).toISOString(), verified: true,
+      });
+    } else {
+      prepareProspectCalendar(true);
+    }
   }
 
   function showProspectMessage(open) {
     document.querySelector('.prospect-calendar-head').hidden = open;
-    document.getElementById('prospect-calendar-mock').hidden = open || !previewMode;
-    document.getElementById('prospect-cal-live').hidden = open || previewMode;
-    document.getElementById('prospect-live-fallback').hidden = open || previewMode;
+    document.getElementById('prospect-calendar-body').hidden = open || !!selectedCalendarSlot;
+    document.getElementById('prospect-booking-form').hidden = open || !selectedCalendarSlot;
     document.getElementById('prospect-message').hidden = !open;
     if (open) document.getElementById('prospect-message-body').focus();
   }
 
-  function initialiseCalLoader() {
-    if (window.Cal) return;
-    ((context, source, initName) => {
-      const queue = (api, args) => api.q.push(args);
-      const documentRef = context.document;
-      context.Cal = context.Cal || function calQueue() {
-        const cal = context.Cal;
-        const args = arguments;
-        if (!cal.loaded) {
-          cal.ns = {}; cal.q = cal.q || [];
-          const script = documentRef.createElement('script'); script.src = source;
-          documentRef.head.appendChild(script); cal.loaded = true;
-        }
-        if (args[0] === initName) {
-          const api = function namespacedCal() { queue(api, arguments); };
-          const namespace = args[1]; api.q = api.q || [];
-          if (typeof namespace === 'string') { cal.ns[namespace] = api; queue(api, args); }
-          else queue(cal, args);
-          return;
-        }
-        queue(cal, args);
-      };
-    })(window, 'https://app.cal.com/embed/embed.js', 'init');
+  function calendarDateKey(value, zone = calendarTimeZone) {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      year: 'numeric', month: '2-digit', day: '2-digit', timeZone: zone,
+    }).formatToParts(new Date(value));
+    const part = (type) => parts.find((item) => item.type === type)?.value;
+    return `${part('year')}-${part('month')}-${part('day')}`;
   }
 
-  function mountCal(rescheduleUid = null) {
-    const target = document.getElementById('prospect-cal-live');
-    target.replaceChildren();
-    initialiseCalLoader();
-    const namespace = 'beingsClubConversation';
-    if (!calMounted) {
-      window.Cal('init', namespace, { origin: 'https://cal.com' });
-      calMounted = true;
+  function monthKey(date) {
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-01`;
+  }
+
+  function previewCalendarSlots() {
+    const year = calendarMonth.getUTCFullYear();
+    const month = calendarMonth.getUTCMonth();
+    const day = month === new Date().getMonth() && year === new Date().getFullYear()
+      ? Math.min(Math.max(new Date().getDate() + 2, 3), 20) : 10;
+    return [18, 19, 20].map((hour) => new Date(Date.UTC(year, month, day, hour, 0)).toISOString());
+  }
+
+  function timezoneAbbreviation(zone = calendarTimeZone) {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, timeZoneName: 'short', hour: '2-digit',
+    }).formatToParts(new Date());
+    return parts.find((part) => part.type === 'timeZoneName')?.value || zone;
+  }
+
+  function populateTimezones() {
+    const select = document.getElementById('prospect-timezone');
+    if (select.options.length) return;
+    const common = ['Europe/London', 'Europe/Lisbon', 'Europe/Paris', 'America/New_York',
+      'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Asia/Kolkata',
+      'Asia/Singapore', 'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Auckland', 'UTC'];
+    let zones = common;
+    try { zones = Intl.supportedValuesOf('timeZone'); } catch (_) {}
+    if (!zones.includes(calendarTimeZone)) zones = [calendarTimeZone, ...zones];
+    for (const zone of zones) {
+      const option = document.createElement('option');
+      option.value = zone; option.textContent = zone.replaceAll('_', ' ').replace('/', ' / ');
+      select.append(option);
     }
-    const cal = window.Cal.ns[namespace];
-    const config = {
-      layout: 'month_view', theme: 'light', email: prospect.email,
-      ...(rescheduleUid ? { rescheduleUid } : {}),
-    };
-    cal('inline', {
-      elementOrSelector: '#prospect-cal-live',
-      calLink: 'beingwithjohn/beings-club-chat', config,
+    select.value = calendarTimeZone;
+  }
+
+  function renderProspectCalendar() {
+    populateTimezones();
+    document.getElementById('prospect-timezone').value = calendarTimeZone;
+    document.getElementById('prospect-timezone-abbreviation').textContent = timezoneAbbreviation();
+    const monthLabel = new Intl.DateTimeFormat('en-GB', {
+      month: 'long', year: 'numeric', timeZone: 'UTC',
+    }).format(calendarMonth);
+    const days = document.getElementById('prospect-days');
+    const available = new Map();
+    calendarSlots.forEach((slot) => {
+      const key = calendarDateKey(slot);
+      if (!available.has(key)) available.set(key, []);
+      available.get(key).push(slot);
     });
-    cal('ui', {
-      hideEventTypeDetails: true,
-      showTimezoneWhenEventDetailsHidden: true,
-      styles: { body: { background: '#FCFBF8' } },
+    document.getElementById('prospect-month-label').textContent = monthLabel;
+    days.setAttribute('aria-label', monthLabel);
+    days.replaceChildren();
+    const offset = (calendarMonth.getUTCDay() + 6) % 7;
+    for (let index = 0; index < offset; index += 1) days.append(document.createElement('span'));
+    const count = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + 1, 0)).getUTCDate();
+    for (let day = 1; day <= count; day += 1) {
+      const key = `${monthKey(calendarMonth).slice(0, 8)}${String(day).padStart(2, '0')}`;
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = String(day); button.dataset.calendarDay = key;
+      button.disabled = !available.has(key);
+      button.classList.toggle('selected', key === selectedCalendarDay);
+      button.setAttribute('aria-pressed', key === selectedCalendarDay ? 'true' : 'false');
+      if (available.has(key)) button.setAttribute('aria-label', `${day} ${monthLabel}, times available`);
+      button.addEventListener('click', () => {
+        selectedCalendarDay = key; selectedCalendarSlot = null; renderProspectCalendar();
+      });
+      days.append(button);
+    }
+    const monthNow = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), 1));
+    document.getElementById('prospect-month-previous').disabled = calendarMonth <= monthNow;
+    const daySlots = available.get(selectedCalendarDay) || [];
+    const weekday = document.getElementById('prospect-day-weekday');
+    const heading = document.getElementById('prospect-day-heading');
+    const list = document.getElementById('prospect-time-list');
+    list.replaceChildren();
+    if (!selectedCalendarDay) {
+      weekday.textContent = 'available times'; heading.textContent = 'Choose a day';
+    } else {
+      const reference = new Date(`${selectedCalendarDay}T12:00:00Z`);
+      weekday.textContent = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: 'UTC' }).format(reference);
+      heading.textContent = new Intl.DateTimeFormat('en-GB', {
+        day: 'numeric', month: 'long', timeZone: 'UTC',
+      }).format(reference);
+    }
+    daySlots.forEach((slot) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.dataset.prospectTime = slot;
+      button.textContent = new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: calendarTimeZone,
+      }).format(new Date(slot)).replace(/^24:/, '00:');
+      button.addEventListener('click', () => chooseCalendarSlot(slot));
+      list.append(button);
     });
-    if (!mountCal.listening) {
-      const capture = async (event) => {
-        const data = event?.detail?.data || {};
-        if (!data.uid || !data.startTime || !data.endTime) return;
-        try {
-          const response = await prospectCall('/api/club/prospect/booking', {
-            method: 'POST', body: JSON.stringify({
-              uid: data.uid, title: data.title,
-              startTime: data.startTime, endTime: data.endTime,
-              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-            }),
-          });
-          prospect = response.prospect;
-          renderProspect();
-        } catch (_) {
-          document.getElementById('prospect-booked-note').textContent = 'Your booking was made in Cal.com. Refresh this page if the details do not appear here.';
-        }
-      };
-      cal('on', { action: 'bookingSuccessfulV2', callback: capture });
-      cal('on', { action: 'rescheduleBookingSuccessfulV2', callback: capture });
-      mountCal.listening = true;
+    const status = document.getElementById('prospect-calendar-status');
+    if (status.dataset.loading === 'true') status.textContent = 'Finding available times…';
+    else if (!calendarSlots.length) status.textContent = 'There are no available times in this month.';
+    else if (selectedCalendarDay && !daySlots.length) status.textContent = 'There are no times left on this day.';
+    else status.textContent = '';
+  }
+
+  async function prepareProspectCalendar(sample = false) {
+    prospectRescheduling = false;
+    selectedCalendarDay = null; selectedCalendarSlot = null;
+    document.getElementById('prospect-calendar-body').hidden = false;
+    document.getElementById('prospect-booking-form').hidden = true;
+    if (sample) {
+      calendarSlots = previewCalendarSlots();
+      selectedCalendarDay = calendarDateKey(calendarSlots[0]);
+      renderProspectCalendar(); return;
+    }
+    await loadProspectSlots();
+  }
+
+  async function loadProspectSlots() {
+    const requestId = ++calendarRequestId;
+    const status = document.getElementById('prospect-calendar-status');
+    status.dataset.loading = 'true';
+    calendarSlots = []; selectedCalendarDay = null; selectedCalendarSlot = null;
+    renderProspectCalendar();
+    const nextMonth = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + 1, 1));
+    try {
+      const query = new URLSearchParams({
+        start: monthKey(calendarMonth), end: monthKey(nextMonth), timeZone: calendarTimeZone,
+      });
+      const data = await prospectCall(`/api/club/prospect/slots?${query}`);
+      if (requestId !== calendarRequestId) return;
+      calendarSlots = Array.isArray(data.slots) ? data.slots : [];
+      if (calendarSlots.length) selectedCalendarDay = calendarDateKey(calendarSlots[0]);
+      status.dataset.loading = 'false'; renderProspectCalendar();
+    } catch (_) {
+      if (requestId !== calendarRequestId) return;
+      status.dataset.loading = 'false'; renderProspectCalendar();
+      status.textContent = 'The calendar is unavailable just now. Try again, or send John a note.';
     }
   }
 
-  function localBookingParts(iso) {
+  function chooseCalendarSlot(slot) {
+    selectedCalendarSlot = slot;
+    document.getElementById('prospect-calendar-body').hidden = true;
+    const form = document.getElementById('prospect-booking-form');
+    form.hidden = false;
+    const parts = localBookingParts(slot, calendarTimeZone);
+    document.getElementById('prospect-selection-heading').textContent = `${parts.weekday} ${parts.day} · ${parts.time}`;
+    document.getElementById('prospect-booking-email').value = prospect?.email || 'you@example.com';
+    document.getElementById('prospect-booking-fields').hidden = prospectRescheduling;
+    document.getElementById('prospect-booking-name').required = !prospectRescheduling;
+    document.getElementById('prospect-keep-time').hidden = !prospectRescheduling;
+    document.getElementById('prospect-booking-submit').textContent = prospectRescheduling
+      ? 'confirm new time' : 'confirm this time';
+    document.getElementById('prospect-booking-status').textContent = '';
+    if (!prospectRescheduling) document.getElementById('prospect-booking-name').focus();
+  }
+
+  function leaveBookingSelection() {
+    selectedCalendarSlot = null;
+    document.getElementById('prospect-booking-form').hidden = true;
+    document.getElementById('prospect-calendar-body').hidden = false;
+  }
+
+  function localBookingParts(iso, zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC') {
     const date = new Date(iso);
-    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: zone }).format(date);
     const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', timeZone: zone }).format(date);
     const time = new Intl.DateTimeFormat('en-GB', {
@@ -267,6 +377,19 @@
     return `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Beings Club//First Conversation//EN\r\nBEGIN:VEVENT\r\nUID:${escape(booking.uid)}\r\nDTSTAMP:${stamp(new Date())}\r\nDTSTART:${stamp(start)}\r\nDTEND:${stamp(end)}\r\nSUMMARY:${escape(booking.title || 'A first conversation with John')}\r\nDESCRIPTION:${escape('A first conversation about Beings Club.')}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
   }
 
+  function renderBookedTime(booking) {
+    const parts = localBookingParts(booking.startTime);
+    document.getElementById('prospect-booked-weekday').textContent = parts.weekday;
+    document.getElementById('prospect-booked-date').textContent = parts.day;
+    document.getElementById('prospect-booked-time').textContent = parts.time;
+    document.getElementById('prospect-booked-note').textContent = booking.verified
+      ? 'You’ll also receive the details by email.'
+      : 'Your time is confirmed. The call details will follow by email.';
+    const calendar = document.getElementById('prospect-calendar-link');
+    calendar.href = URL.createObjectURL(new Blob([bookingCalendarData(booking)], { type: 'text/calendar' }));
+    calendar.download = 'beings-club-first-conversation.ics';
+  }
+
   function renderProspect() {
     loginPage.hidden = true; welcomePage.hidden = true; memberApp.hidden = true;
     prospectApp.hidden = false;
@@ -279,21 +402,9 @@
     document.getElementById('prospect-granted').hidden = !granted;
     document.getElementById('prospect-calendar').hidden = granted || booked;
     document.getElementById('prospect-booked').hidden = granted || !booked;
-    document.getElementById('prospect-calendar-mock').hidden = true;
-    document.getElementById('prospect-cal-live').hidden = granted || booked;
-    document.getElementById('prospect-live-fallback').hidden = granted || booked;
     if (granted) return;
-    if (!booked) { mountCal(); return; }
-    const parts = localBookingParts(booking.startTime);
-    document.getElementById('prospect-booked-weekday').textContent = parts.weekday;
-    document.getElementById('prospect-booked-date').textContent = parts.day;
-    document.getElementById('prospect-booked-time').textContent = parts.time;
-    document.getElementById('prospect-booked-note').textContent = booking.verified
-      ? 'You’ll also receive the details by email.'
-      : 'Booked · waiting for Cal.com to finish confirming the details here.';
-    const calendar = document.getElementById('prospect-calendar-link');
-    calendar.href = URL.createObjectURL(new Blob([bookingCalendarData(booking)], { type: 'text/calendar' }));
-    calendar.download = 'beings-club-first-conversation.ics';
+    if (!booked) { prepareProspectCalendar(); return; }
+    renderBookedTime(booking);
   }
 
   async function finishWelcome() {
@@ -1590,28 +1701,68 @@
   document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
     button.addEventListener('click', () => showProspectPreview(button.dataset.prospectPreview));
   });
-  document.querySelectorAll('[data-prospect-time]').forEach((button) => {
-    button.addEventListener('click', () => {
-      document.querySelectorAll('[data-prospect-time]').forEach((option) => {
-        option.classList.toggle('selected', option === button);
-        option.setAttribute('aria-pressed', option === button ? 'true' : 'false');
-      });
-      document.getElementById('prospect-confirm').textContent = `confirm ${button.textContent.trim()}`;
-    });
+  document.getElementById('prospect-month-previous').addEventListener('click', () => {
+    calendarMonth = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() - 1, 1));
+    if (previewMode) prepareProspectCalendar(true); else loadProspectSlots();
   });
-  document.getElementById('prospect-confirm').addEventListener('click', () => showProspectPreview('booked'));
+  document.getElementById('prospect-month-next').addEventListener('click', () => {
+    calendarMonth = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() + 1, 1));
+    if (previewMode) prepareProspectCalendar(true); else loadProspectSlots();
+  });
+  document.getElementById('prospect-timezone').addEventListener('change', (event) => {
+    calendarTimeZone = event.target.value;
+    if (previewMode) prepareProspectCalendar(true); else loadProspectSlots();
+  });
+  document.getElementById('prospect-selection-back').addEventListener('click', leaveBookingSelection);
+  document.getElementById('prospect-keep-time').addEventListener('click', () => {
+    prospectRescheduling = false; selectedCalendarSlot = null; renderProspect();
+  });
+  document.getElementById('prospect-booking-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!selectedCalendarSlot) return;
+    const name = document.getElementById('prospect-booking-name');
+    const note = document.getElementById('prospect-booking-note');
+    if (!prospectRescheduling && !name.checkValidity()) { name.reportValidity(); return; }
+    const button = document.getElementById('prospect-booking-submit');
+    const status = document.getElementById('prospect-booking-status');
+    button.disabled = true; status.textContent = prospectRescheduling ? 'Moving your conversation…' : 'Confirming your conversation…';
+    if (previewMode) {
+      const chosen = selectedCalendarSlot;
+      prospect = { email: 'you@example.com', booking: {
+        uid: 'preview', title: 'A first conversation with John', startTime: chosen,
+        endTime: new Date(Date.parse(chosen) + 25 * 60000).toISOString(), verified: true,
+      } };
+      status.textContent = ''; button.disabled = false; showProspectPreview('booked'); return;
+    }
+    try {
+      const data = await prospectCall('/api/club/prospect/booking', {
+        method: 'POST', body: JSON.stringify({
+          start: selectedCalendarSlot, timeZone: calendarTimeZone,
+          name: name.value, note: note.value, reschedule: prospectRescheduling,
+        }),
+      });
+      prospect = data.prospect; prospectRescheduling = false; selectedCalendarSlot = null;
+      renderProspect();
+    } catch (error) {
+      if (error.status === 409) {
+        leaveBookingSelection();
+        await loadProspectSlots();
+        document.getElementById('prospect-calendar-status').textContent = 'That time has just gone. Please choose another.';
+      } else {
+        status.textContent = 'That time could not be confirmed. Please try again.';
+      }
+    } finally { button.disabled = false; }
+  });
   document.getElementById('prospect-change-time').addEventListener('click', () => {
     if (previewMode) { showProspectPreview('calendar'); return; }
+    prospectRescheduling = true; selectedCalendarSlot = null;
     document.getElementById('prospect-booked').hidden = true;
     document.getElementById('prospect-calendar').hidden = false;
-    document.getElementById('prospect-cal-live').hidden = false;
-    document.getElementById('prospect-live-fallback').hidden = false;
-    mountCal(prospect?.booking?.rescheduleUid || prospect?.booking?.uid || null);
+    document.getElementById('prospect-calendar-body').hidden = false;
+    document.getElementById('prospect-booking-form').hidden = true;
+    loadProspectSlots();
   });
   document.getElementById('prospect-message-open').addEventListener('click', () => {
-    prospectMessageSource = 'calendar'; showProspectMessage(true);
-  });
-  document.getElementById('prospect-message-open-live').addEventListener('click', () => {
     prospectMessageSource = 'calendar'; showProspectMessage(true);
   });
   document.getElementById('prospect-message-cancel').addEventListener('click', () => showProspectMessage(false));

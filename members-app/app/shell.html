@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="bc-members-api" content="__API__">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://app.cal.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src __API__ https://app.cal.com https://cal.com; frame-src https://app.cal.com https://cal.com; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src __API__; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
   <title>Members · Beings Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,46 +168,63 @@
           <span>25 minutes · Google Meet</span>
         </header>
 
-        <div class="prospect-cal-live" id="prospect-cal-live" hidden></div>
-        <div class="prospect-live-fallback" id="prospect-live-fallback" hidden>
-          <button class="text-button" id="prospect-message-open-live" type="button">No time here works? Send John a note.</button>
+        <div class="prospect-timezone-row">
+          <label for="prospect-timezone">Times shown in</label>
+          <select id="prospect-timezone" aria-label="Timezone"></select>
+          <span id="prospect-timezone-abbreviation"></span>
         </div>
 
-        <div class="prospect-calendar-body" id="prospect-calendar-mock">
+        <div class="prospect-calendar-body" id="prospect-calendar-body">
           <div class="prospect-month">
             <div class="prospect-month-head">
-              <button type="button" aria-label="Previous month">←</button>
-              <strong>September 2026</strong>
-              <button type="button" aria-label="Next month">→</button>
+              <button id="prospect-month-previous" type="button" aria-label="Previous month">←</button>
+              <strong id="prospect-month-label">September 2026</strong>
+              <button id="prospect-month-next" type="button" aria-label="Next month">→</button>
             </div>
             <div class="prospect-weekdays" aria-hidden="true">
               <span>m</span><span>t</span><span>w</span><span>t</span><span>f</span><span>s</span><span>s</span>
             </div>
-            <div class="prospect-days" aria-label="September 2026">
-              <span></span><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><span>5</span><span>6</span>
-              <button type="button">7</button><button type="button">8</button><button type="button">9</button><button class="selected" type="button" aria-pressed="true">10</button><button type="button">11</button><span>12</span><span>13</span>
-              <button type="button">14</button><button type="button">15</button><button type="button">16</button><button type="button">17</button><button type="button">18</button><span>19</span><span>20</span>
-              <button type="button">21</button><button type="button">22</button><button type="button">23</button><button type="button">24</button><button type="button">25</button><span>26</span><span>27</span>
-              <button type="button">28</button><button type="button">29</button><button type="button">30</button>
-            </div>
-            <span class="prospect-timezone">Europe / London · BST</span>
+            <div class="prospect-days" id="prospect-days" aria-label="September 2026"></div>
           </div>
 
           <div class="prospect-times">
             <div>
-              <span class="eyebrow">Thursday</span>
-              <h3>10 September</h3>
-              <small>Times shown in your timezone</small>
+              <span class="eyebrow" id="prospect-day-weekday">available times</span>
+              <h3 id="prospect-day-heading">Choose a day</h3>
+              <small id="prospect-time-help">All times are shown in your timezone.</small>
             </div>
-            <div class="prospect-time-list">
-              <button type="button" data-prospect-time>18:30</button>
-              <button class="selected" type="button" data-prospect-time aria-pressed="true">19:00</button>
-              <button type="button" data-prospect-time>19:30</button>
-            </div>
-            <button class="primary prospect-confirm" id="prospect-confirm" type="button">confirm 19:00</button>
+            <div class="prospect-time-list" id="prospect-time-list"></div>
+            <span class="prospect-calendar-status" id="prospect-calendar-status" role="status" aria-live="polite"></span>
             <button class="text-button prospect-message-open" id="prospect-message-open" type="button">No time here works? Send John a note.</button>
           </div>
         </div>
+
+        <form class="prospect-booking-form" id="prospect-booking-form" hidden>
+          <div>
+            <span class="eyebrow">your time</span>
+            <h3 id="prospect-selection-heading">Thursday 10 September · 19:00 BST</h3>
+            <button class="text-button" id="prospect-selection-back" type="button">choose another time</button>
+          </div>
+          <div class="prospect-booking-fields" id="prospect-booking-fields">
+            <label for="prospect-booking-name">
+              <span>your name</span>
+              <input id="prospect-booking-name" name="name" type="text" autocomplete="name" maxlength="120" required>
+            </label>
+            <label for="prospect-booking-email">
+              <span>email</span>
+              <input id="prospect-booking-email" name="email" type="email" readonly>
+            </label>
+            <label class="prospect-booking-note" for="prospect-booking-note">
+              <span>anything John should know <small>optional</small></span>
+              <textarea id="prospect-booking-note" name="note" maxlength="2400" placeholder="Share anything that might be useful before you meet."></textarea>
+            </label>
+          </div>
+          <div class="prospect-booking-actions">
+            <button class="primary" id="prospect-booking-submit" type="submit">confirm this time</button>
+            <button class="text-button" id="prospect-keep-time" type="button" hidden>keep my current time</button>
+          </div>
+          <span class="status" id="prospect-booking-status" role="status" aria-live="polite"></span>
+        </form>
 
         <form class="prospect-message" id="prospect-message" hidden>
           <div>

@@ -28,8 +28,9 @@ import {
 import { postGiving, postGivingPortal } from '../giving.js';
 import { completeOnboarding } from './onboarding.js';
 import {
-  enterGrantedProspect, getProspectState, grantProspect, identifyProspect,
-  listProspects, recordProspectBooking, requestProspectCode,
+  createProspectBooking, enterGrantedProspect, getProspectSlots,
+  getProspectState, grantProspect, identifyProspect,
+  listProspects, requestProspectCode,
   saveProspectTimeNote, verifyProspectCode,
 } from './prospects.js';
 
@@ -59,8 +60,11 @@ export async function clubRoute(request, env, ctx, url) {
     if (path === '/api/club/prospect/session' && method === 'GET') {
       return getProspectState(env, prospect);
     }
+    if (path === '/api/club/prospect/slots' && method === 'GET') {
+      return getProspectSlots(env, prospect, url);
+    }
     if (path === '/api/club/prospect/booking' && method === 'POST') {
-      return recordProspectBooking(env, prospect, await readJson(request));
+      return createProspectBooking(env, prospect, await readJson(request));
     }
     if (path === '/api/club/prospect/note' && method === 'POST') {
       return saveProspectTimeNote(env, prospect, await readJson(request));

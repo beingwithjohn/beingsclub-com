@@ -181,26 +181,28 @@ button{cursor:pointer}
 .prospect-host-note{display:grid;gap:8px;margin-top:7px;padding-top:18px;border-top:1px solid var(--line)}
 .prospect-host-note p{font-size:12.5px;line-height:1.7;color:var(--soft)}
 .prospect-host-note a{color:var(--violet);border-bottom:1px solid rgba(90,75,124,.28)}
-.prospect-calendar{border:1px solid #DEDAD0;background:#FCFBF8;box-shadow:0 22px 60px rgba(48,42,34,.08);animation:appear .45s cubic-bezier(.22,1,.36,1) both}
+.prospect-calendar{border:1px solid #DEDAD0;background:var(--paper);box-shadow:0 22px 60px rgba(48,42,34,.08);animation:appear .45s cubic-bezier(.22,1,.36,1) both}
 .prospect-calendar-head{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:27px 30px 23px;border-bottom:1px solid var(--line)}
 .prospect-calendar-head>div{display:grid;gap:8px}
 .prospect-calendar-head h2{margin:0;font-size:27px;line-height:1.1;letter-spacing:-.035em}
 .prospect-calendar-head>span{font-size:11px;color:var(--soft)}
+.prospect-timezone-row{display:flex;align-items:center;gap:8px;padding:12px 30px;border-bottom:1px solid var(--line);font:400 9.5px/1.5 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-timezone-row select{max-width:230px;border:0;border-bottom:1px solid #DAD6CB;border-radius:0;background:transparent;padding:3px 19px 3px 2px;font:inherit;color:var(--body);outline:0}
+.prospect-timezone-row select:focus{border-bottom-color:var(--violet)}
+.prospect-timezone-row>span{color:var(--violet)}
 .prospect-calendar-body{display:grid;grid-template-columns:minmax(290px,1.2fr) minmax(190px,.8fr);min-height:365px}
-.prospect-cal-live{min-height:520px;background:#FCFBF8;overflow:hidden}
-.prospect-cal-live iframe{width:100%!important;min-height:520px!important;border:0!important;background:#FCFBF8!important}
-.prospect-live-fallback{padding:0 30px 28px;background:#FCFBF8;text-align:right}
 .prospect-month{display:grid;align-content:start;gap:18px;padding:26px 30px 24px;border-right:1px solid var(--line)}
 .prospect-month-head{display:grid;grid-template-columns:28px 1fr 28px;align-items:center;text-align:center}
 .prospect-month-head strong{font-size:13px;font-weight:650}
 .prospect-month-head button{border:0;background:transparent;color:var(--soft);padding:5px}
 .prospect-weekdays,.prospect-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
 .prospect-weekdays span{font:500 9px/1 ui-monospace,'SF Mono',Menlo,monospace;text-transform:uppercase;color:var(--soft)}
-.prospect-days button,.prospect-days span{display:grid;place-items:center;min-width:32px;height:32px;border:0;border-radius:50%;background:transparent;font-size:11px;color:var(--ink)}
+.prospect-days button,.prospect-days span{display:grid;place-items:center;min-width:32px;height:36px;border:0;border-radius:2px;background:transparent;font-size:11px;color:var(--ink)}
 .prospect-days span{color:#C8C4BA}
-.prospect-days button:hover{background:#EEEAF6;color:var(--violet)}
+.prospect-days button:disabled{color:#C8C4BA;cursor:default}
+.prospect-days button:not(:disabled){background:#EEEAF6;color:var(--violet);font-weight:650}
+.prospect-days button:not(:disabled):hover{background:#DDD5ED;color:var(--violet)}
 .prospect-days button.selected{background:var(--violet);color:#FFF}
-.prospect-timezone{margin-top:4px;font:400 9.5px/1.5 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
 .prospect-times{display:grid;align-content:start;gap:22px;padding:27px 24px}
 .prospect-times>div:first-child{display:grid;gap:5px}
 .prospect-times h3{margin:0;font-size:22px;letter-spacing:-.03em}
@@ -208,9 +210,23 @@ button{cursor:pointer}
 .prospect-time-list{display:grid;gap:8px}
 .prospect-time-list button{border:1px solid #DAD6CB;background:var(--paper);padding:10px 14px;color:var(--body);font-size:11px}
 .prospect-time-list button:hover,.prospect-time-list button.selected{color:#FFF;background:var(--violet);border-color:var(--violet)}
-.prospect-confirm{justify-self:stretch;width:100%;text-align:center}
+.prospect-calendar-status{min-height:1.6em;font:400 9.5px/1.6 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
 .prospect-message-open{justify-self:start;text-align:left;line-height:1.55;letter-spacing:.04em}
-.prospect-message{display:grid;grid-template-columns:minmax(210px,.7fr) minmax(300px,1.3fr);gap:28px 42px;padding:32px 30px;background:#FCFBF8;animation:appear .35s cubic-bezier(.22,1,.36,1) both}
+.prospect-booking-form{display:grid;grid-template-columns:minmax(200px,.62fr) minmax(310px,1.38fr);gap:28px 38px;padding:30px;background:var(--paper);animation:appear .35s cubic-bezier(.22,1,.36,1) both}
+.prospect-booking-form>div:first-child{display:grid;align-content:start;gap:9px}
+.prospect-booking-form h3{margin:0;font-size:25px;line-height:1.12;letter-spacing:-.035em}
+.prospect-booking-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.prospect-booking-fields label{display:grid;align-content:start;gap:7px}
+.prospect-booking-fields label>span{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft)}
+.prospect-booking-fields label>span small{font-size:inherit;letter-spacing:0;text-transform:none}
+.prospect-booking-fields input,.prospect-booking-fields textarea{width:100%;border:1px solid #DAD6CB;background:var(--paper);padding:11px 12px;font:inherit;font-size:12px;color:var(--ink);outline:0}
+.prospect-booking-fields input:focus,.prospect-booking-fields textarea:focus{border-color:var(--violet)}
+.prospect-booking-fields input[readonly]{color:var(--soft);background:#F7F4EE}
+.prospect-booking-note{grid-column:1/-1}
+.prospect-booking-note textarea{min-height:90px;resize:vertical;line-height:1.55}
+.prospect-booking-actions{grid-column:2;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.prospect-booking-form>.status{grid-column:2}
+.prospect-message{display:grid;grid-template-columns:minmax(210px,.7fr) minmax(300px,1.3fr);gap:28px 42px;padding:32px 30px;background:var(--paper);animation:appear .35s cubic-bezier(.22,1,.36,1) both}
 .prospect-message>div:first-child{display:grid;align-content:start;gap:9px}
 .prospect-message h3{margin:0;font-size:26px;line-height:1.1;letter-spacing:-.035em}
 .prospect-message p{margin:2px 0 0;font-size:12.5px;line-height:1.65;color:var(--body)}
@@ -559,10 +575,14 @@ button{cursor:pointer}
   .prospect-page{position:relative;inset:auto;padding:13vh 22px 90px;grid-template-columns:1fr;gap:32px;min-height:100vh}
   .prospect-intro h1{font-size:clamp(38px,12vw,56px)}
   .prospect-calendar-head{align-items:start;flex-direction:column;padding:24px 20px 20px}
+  .prospect-timezone-row{padding:12px 20px;flex-wrap:wrap}
   .prospect-calendar-body{grid-template-columns:1fr}
   .prospect-month{padding:24px 20px;border-right:0;border-bottom:1px solid var(--line)}
   .prospect-days button,.prospect-days span{min-width:0}
   .prospect-times{padding:24px 20px}
+  .prospect-booking-form{grid-template-columns:1fr;padding:26px 20px}
+  .prospect-booking-fields{grid-template-columns:1fr}
+  .prospect-booking-note,.prospect-booking-actions,.prospect-booking-form>.status{grid-column:1}
   .prospect-message{grid-template-columns:1fr;padding:26px 20px}
   .prospect-message-actions,.prospect-message>.status{grid-column:1}
   .prospect-booked{min-height:460px;padding:42px 28px}

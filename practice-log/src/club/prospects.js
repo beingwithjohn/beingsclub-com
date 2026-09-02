@@ -11,7 +11,11 @@ import { agreementAccepted, MEMBER_AGREEMENT_VERSION } from './agreement.js';
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
 const NOTE_MAX = 2400;
+const NAME_MAX = 120;
 const CAL_EVENT_SLUG = 'beings-club-chat';
+const CAL_USERNAME = 'beingwithjohn';
+const CAL_API_VERSION = '2026-02-25';
+const CAL_DURATION_MINUTES = 25;
 
 export async function requestProspectCode(request, env, ctx, body) {
   const responseChallenge = randomToken(24);
@@ -133,22 +137,126 @@ export async function getProspectState(env, who) {
   return json({ prospect: shapeProspect(who) });
 }
 
-export async function recordProspectBooking(env, who, body) {
-  const uid = cleanText(body?.uid, 200);
-  const title = cleanText(body?.title, 200);
-  const startAt = instant(body?.startTime);
-  const endAt = instant(body?.endTime);
-  if (!uid || !startAt || !endAt || endAt <= startAt) return bad(400, 'booking');
+export async function getProspectSlots(env, who, url) {
+  const start = calendarDate(url.searchParams.get('start'));
+  const end = calendarDate(url.searchParams.get('end'));
+  const timeZone = cleanTimezone(url.searchParams.get('timeZone'));
+  if (!start || !end || !timeZone || !sensibleRange(start, end)) {
+    return bad(400, 'calendar range');
+  }
+  const result = await fetchCalSlots({
+    start, end, timeZone,
+    bookingUid: activeBooking(who) ? who.booking_uid : null,
+  });
+  if (!result.ok) return bad(502, 'calendar unavailable');
+  return json({ slots: result.slots, start, end, timeZone });
+}
+
+export async function createProspectBooking(env, who, body) {
+  const startTime = instantText(body?.start);
+  const timeZone = cleanTimezone(body?.timeZone);
+  const rescheduling = body?.reschedule === true && activeBooking(who);
+  const name = cleanText(body?.name, NAME_MAX);
+  const note = cleanText(body?.note, NOTE_MAX);
+  if (!startTime || !timeZone || (!rescheduling && !name)) return bad(400, 'booking');
+
+  // Never trust a start supplied by the browser. Refresh Cal's availability
+  // around that instant and require the exact slot before creating anything.
+  const centre = new Date(startTime);
+  const rangeStart = isoDate(new Date(centre.getTime() - 86400000));
+  const rangeEnd = isoDate(new Date(centre.getTime() + 2 * 86400000));
+  const available = await fetchCalSlots({
+    start: rangeStart, end: rangeEnd, timeZone,
+    bookingUid: rescheduling ? who.booking_uid : null,
+  });
+  if (!available.ok) return bad(502, 'calendar unavailable');
+  if (!available.slots.some((slot) => Date.parse(slot) === startTime.getTime())) {
+    return bad(409, 'time unavailable');
+  }
+
+  const endpoint = rescheduling
+    ? `/v2/bookings/${encodeURIComponent(who.booking_uid)}/reschedule`
+    : '/v2/bookings';
+  const payload = rescheduling ? {
+    start: startTime.toISOString(),
+    rescheduledBy: who.email,
+    reschedulingReason: 'A new time chosen in Beings Club',
+  } : {
+    start: startTime.toISOString(),
+    attendee: {
+      name, email: who.email, timeZone, language: 'en',
+    },
+    eventTypeSlug: CAL_EVENT_SLUG,
+    username: CAL_USERNAME,
+    ...(note ? { bookingFieldsResponses: { notes: note } } : {}),
+    metadata: { prospectId: String(who.id), source: 'beingsclub' },
+  };
+  const created = await calRequest(endpoint, { method: 'POST', body: payload });
+  if (!created.ok) {
+    return bad(created.status === 400 || created.status === 409 ? 409 : 502,
+      created.status === 400 || created.status === 409 ? 'time unavailable' : 'calendar unavailable');
+  }
+  const booking = created.data;
+  const uid = cleanText(booking?.uid, 200);
+  const bookedStart = instant(booking?.start || startTime.toISOString());
+  const bookedEnd = instant(booking?.end)
+    || bookedStart + CAL_DURATION_MINUTES * 60;
+  if (!uid || !bookedStart || !bookedEnd) return bad(502, 'calendar unavailable');
   const timestamp = now();
   await env.MEMBERS.prepare(
     `UPDATE prospect SET booking_uid = ?1, booking_reschedule_uid = ?1,
        booking_title = ?2, booking_start_at = ?3, booking_end_at = ?4,
-       booking_timezone = ?5, booking_status = 'awaiting_webhook',
-       booking_updated_at = ?6, updated_at = ?6
-     WHERE id = ?7`,
-  ).bind(uid, title || 'A first conversation', startAt, endAt,
-    cleanTimezone(body?.timeZone), timestamp, who.id).run();
+       booking_timezone = ?5, booking_status = ?6,
+       booking_updated_at = ?7, updated_at = ?7
+     WHERE id = ?8`,
+  ).bind(uid, cleanText(booking?.title, 200) || 'A first conversation',
+    bookedStart, bookedEnd, timeZone,
+    booking?.status === 'accepted' ? 'booked' : 'awaiting_webhook', timestamp, who.id).run();
   return json({ prospect: await getProspectShape(env, who.id) });
+}
+
+async function fetchCalSlots({ start, end, timeZone, bookingUid = null }) {
+  const params = new URLSearchParams({
+    eventTypeSlug: CAL_EVENT_SLUG,
+    username: CAL_USERNAME,
+    start, end, timeZone,
+  });
+  if (bookingUid) params.set('bookingUidToReschedule', bookingUid);
+  const response = await calRequest(`/v2/slots?${params}`);
+  if (!response.ok) return response;
+  const slots = [];
+  for (const day of Object.values(response.data || {})) {
+    if (!Array.isArray(day)) continue;
+    for (const slot of day) {
+      const value = instantText(typeof slot === 'string' ? slot : slot?.start);
+      if (value) slots.push(value.toISOString());
+    }
+  }
+  return { ok: true, slots: [...new Set(slots)].sort() };
+}
+
+async function calRequest(path, options = {}) {
+  const headers = {
+    'cal-api-version': CAL_API_VERSION,
+    ...(options.body ? { 'content-type': 'application/json' } : {}),
+  };
+  let response;
+  try {
+    response = await fetch(`https://api.cal.com${path}`, {
+      method: options.method || 'GET', headers,
+      ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    });
+  } catch (error) {
+    console.error('cal api unavailable', error?.message);
+    return { ok: false, status: 0 };
+  }
+  let payload = {};
+  try { payload = await response.json(); } catch (_) {}
+  if (!response.ok || payload?.status === 'error') {
+    console.error('cal api', response.status, JSON.stringify(payload).slice(0, 500));
+    return { ok: false, status: response.status };
+  }
+  return { ok: true, status: response.status, data: payload?.data };
 }
 
 export async function saveProspectTimeNote(env, who, body) {
@@ -326,6 +434,34 @@ function cleanTimezone(value) {
   const zone = cleanText(value, 100);
   if (!zone) return null;
   try { new Intl.DateTimeFormat('en', { timeZone: zone }); return zone; } catch (_) { return null; }
+}
+
+function calendarDate(value) {
+  const date = String(value ?? '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  const parsed = new Date(`${date}T00:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date
+    ? date : null;
+}
+
+function sensibleRange(start, end) {
+  const from = Date.parse(`${start}T00:00:00.000Z`);
+  const to = Date.parse(`${end}T00:00:00.000Z`);
+  const days = (to - from) / 86400000;
+  return days > 0 && days <= 45;
+}
+
+function activeBooking(row) {
+  return !!row?.booking_uid && row.booking_status !== 'cancelled';
+}
+
+function instantText(value) {
+  const milliseconds = Date.parse(String(value ?? ''));
+  return Number.isFinite(milliseconds) ? new Date(milliseconds) : null;
+}
+
+function isoDate(value) {
+  return value.toISOString().slice(0, 10);
 }
 
 function safeHttps(value) {
