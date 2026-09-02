@@ -530,6 +530,16 @@ button{cursor:pointer}
   .prospect-calendar-status{font-size:10.5px}
 }
 
+@media(min-width:981px){
+  .prospect-calendar-body{height:clamp(360px,54vh,440px);min-height:0}
+  .prospect-month{grid-template-rows:auto auto minmax(0,1fr)}
+  .prospect-days{container-type:size;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(6,1fr)}
+  .prospect-days button,.prospect-days span{
+    --day-size:min(calc((100cqw - 30px)/7),calc((100cqh - 25px)/6));
+    width:var(--day-size);height:var(--day-size);align-self:center;justify-self:center
+  }
+}
+
 @media(min-width:721px) and (max-width:980px){
   .host-page{padding-left:30%;padding-right:30px}
   .salon-view{padding-left:30%;padding-right:30px}
