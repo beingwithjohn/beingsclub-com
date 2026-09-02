@@ -66,6 +66,7 @@
   let profileCropOffsetX = 0;
   let profileCropOffsetY = 0;
   let profileCropPointer = null;
+  let profileCropTarget = 'profile';
   let replayingWelcome = false;
   let givingCadence = 'once';
   let givingCurrency = 'gbp';
@@ -137,16 +138,17 @@
     document.querySelectorAll('[data-welcome-step]').forEach((node) => {
       node.hidden = Number(node.dataset.welcomeStep) !== welcomeStep;
     });
-    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 6`;
+    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 7`;
     const nextButton = document.getElementById('welcome-next');
     const skipButton = document.getElementById('welcome-skip');
-    nextButton.hidden = welcomeStep === 3;
-    nextButton.textContent = welcomeStep === 5 ? 'enter the club' : 'next';
+    nextButton.hidden = welcomeStep === 3 || welcomeStep === 4;
+    nextButton.textContent = welcomeStep === 6 ? 'enter the club' : 'next';
     skipButton.hidden = welcomeStep === 3;
     if (welcomeStep === 3 && replayingWelcome && member?.agreementAccepted) {
       document.getElementById('agreement-check').checked = true;
     }
     document.getElementById('welcome-name').textContent = member?.name || 'being';
+    if (welcomeStep === 4) prepareWelcomeProfile();
     const heading = document.getElementById('welcome-salon-heading');
     heading.textContent = salon?.startsAt
       ? `The next one is ${formatSalonTime(salon.startsAt, Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')}.`
@@ -890,17 +892,62 @@
     return [...members].sort((a, b) => positions.get(String(a.id)) - positions.get(String(b.id)));
   }
 
-  function randomiseDirectory() {
-    const before = orderedDirectoryMembers().map((person) => person.id);
-    if (before.length < 2) return;
+  function shuffledDirectoryOrder(people, moveFirst = false) {
+    const before = people.map((person) => person.id);
+    if (before.length < 2) return before;
     const next = [...before];
     for (let index = next.length - 1; index > 0; index -= 1) {
       const chosen = Math.floor(Math.random() * (index + 1));
       [next[index], next[chosen]] = [next[chosen], next[index]];
     }
     if (next.every((id, index) => String(id) === String(before[index]))) next.push(next.shift());
-    directoryOrder = next;
-    renderDirectory();
+    if (moveFirst && next.length > 1 && String(next[0]) === String(before[0])) {
+      const chosen = 1 + Math.floor(Math.random() * (next.length - 1));
+      [next[0], next[chosen]] = [next[chosen], next[0]];
+    }
+    return next;
+  }
+
+  function animateDirectoryOrder() {
+    const grid = document.getElementById('directory-grid');
+    const cards = new Map([...grid.children].map((card) => [card.dataset.memberId, card]));
+    const people = orderedDirectoryMembers();
+    if (cards.size !== people.length || people.some((person) => !cards.has(String(person.id)))) {
+      renderDirectory(); return;
+    }
+    const before = new Map([...cards].map(([id, card]) => [id, card.getBoundingClientRect()]));
+    people.forEach((person) => grid.append(cards.get(String(person.id))));
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+    people.forEach((person, index) => {
+      const card = cards.get(String(person.id));
+      card.getAnimations().forEach((animation) => animation.cancel());
+      const start = before.get(String(person.id));
+      const end = card.getBoundingClientRect();
+      const x = start.left - end.left;
+      const y = start.top - end.top;
+      if (!x && !y) return;
+      const turn = ((index % 2 ? 1 : -1) * (1.2 + ((index * 7) % 4) * .45));
+      card.animate([
+        { transform: `translate(${x}px,${y}px) rotate(${turn}deg) scale(.96)`, opacity: .72 },
+        { transform: 'translate(0,0) rotate(0) scale(1)', opacity: 1 },
+      ], {
+        duration: 560 + ((index * 29) % 120),
+        delay: ((index * 37) % 11) * 16,
+        easing: 'cubic-bezier(.22,1,.36,1)',
+      });
+    });
+    const button = document.getElementById('directory-randomise');
+    button.classList.remove('is-shuffling');
+    requestAnimationFrame(() => button.classList.add('is-shuffling'));
+    window.setTimeout(() => button.classList.remove('is-shuffling'), 820);
+  }
+
+  function randomiseDirectory() {
+    const people = orderedDirectoryMembers();
+    if (people.length < 2) return;
+    directoryOrder = shuffledDirectoryOrder(people, true);
+    animateDirectoryOrder();
     if (!document.getElementById('members-drawer').hidden) renderMembersDrawer();
   }
 
@@ -912,6 +959,7 @@
     document.getElementById('directory-randomise').disabled = people.length < 2;
     people.forEach((person) => {
       const card = document.createElement('article'); card.className = 'directory-card';
+      card.dataset.memberId = String(person.id);
       if (person.isMe) card.classList.add('is-me');
       const portrait = document.createElement('div'); portrait.className = 'directory-portrait';
       const fallback = makeText('span', 'directory-fallback', memberInitial(person.name));
@@ -919,7 +967,10 @@
       portrait.append(fallback, image);
       if (person.hasImage || person.previewImage) loadMemberImage(person, image, fallback);
       const words = document.createElement('div'); words.className = 'directory-words';
-      const name = makeText('h2', '', person.name); words.append(name);
+      const nameRow = document.createElement('div'); nameRow.className = 'directory-name-row';
+      nameRow.append(makeText('h2', '', person.name));
+      if (person.isMe) nameRow.append(makeText('span', 'directory-you', 'you'));
+      words.append(nameRow);
       if (person.line) words.append(makeText('p', '', person.line));
       if (person.website) {
         const link = document.createElement('a'); link.href = person.website;
@@ -928,7 +979,6 @@
         catch (_) { link.textContent = 'website ↗'; }
         words.append(link);
       }
-      if (person.isMe) words.append(makeText('span', 'directory-you', 'you'));
       card.append(portrait, words); grid.append(card);
     });
   }
@@ -1022,6 +1072,24 @@
     const resize = document.getElementById('members-drawer-resize');
     resize.textContent = mode === 'expanded' ? '⤡' : '⤢';
     resize.setAttribute('aria-label', mode === 'expanded' ? 'Make members compact' : 'Expand members');
+  }
+
+  function prepareWelcomeProfile() {
+    const profile = directoryState.profile || {
+      id: member?.id, email: member?.email, name: member?.name || '', line: '', website: '', hasImage: false,
+    };
+    profileImageData = null; removeProfileImage = false;
+    document.getElementById('welcome-profile-form').reset();
+    document.getElementById('welcome-profile-name').value = profile.name || member?.name || '';
+    document.getElementById('welcome-profile-line').value = profile.line || '';
+    document.getElementById('welcome-profile-website').value = profile.website || '';
+    document.getElementById('welcome-profile-status').textContent = '';
+    const fallback = document.getElementById('welcome-profile-image-fallback');
+    fallback.textContent = memberInitial(profile.name || member?.name);
+    fallback.hidden = false;
+    const image = document.getElementById('welcome-profile-image-preview');
+    image.hidden = true; image.removeAttribute('src');
+    if (profile.hasImage || profile.previewImage) loadMemberImage(profile, image, fallback);
   }
 
   function renderProfile() {
@@ -1147,11 +1215,13 @@
     const directory = name === 'members';
     const profile = name === 'profile';
     const settings = name === 'settings';
+    const directoryPage = document.getElementById('directory-page');
+    const directoryOpening = directory && directoryPage.hidden;
     document.getElementById('salon-page').hidden = field || inPerson || giving || directory || profile || settings;
     document.getElementById('field-notes-page').hidden = !field;
     document.getElementById('in-person-page').hidden = !inPerson;
     document.getElementById('giving-page').hidden = !giving;
-    document.getElementById('directory-page').hidden = !directory;
+    directoryPage.hidden = !directory;
     document.getElementById('profile-page').hidden = !profile;
     document.getElementById('settings-page').hidden = !settings;
     document.querySelectorAll('[data-member-view]').forEach((link) => {
@@ -1163,7 +1233,10 @@
     });
     if (field) renderFieldNotes();
     if (giving) renderGiving();
-    if (directory) renderDirectory();
+    if (directory) {
+      if (directoryOpening) directoryOrder = shuffledDirectoryOrder(orderedDirectoryMembers());
+      renderDirectory();
+    }
     if (profile) renderProfile();
     if (settings) renderSettings();
     const drawer = document.getElementById('members-drawer');
@@ -1291,14 +1364,14 @@
     );
   }
 
-  async function openProfileCrop(file) {
+  async function openProfileCrop(file, target = 'profile') {
     const data = await readImage(file);
     const image = new Image();
     image.decoding = 'async';
     await new Promise((resolve, reject) => {
       image.onload = resolve; image.onerror = reject; image.src = data;
     });
-    profileCropImage = image; profileCropZoom = 1;
+    profileCropImage = image; profileCropTarget = target; profileCropZoom = 1;
     profileCropOffsetX = 0; profileCropOffsetY = 0; profileCropPointer = null;
     const zoom = document.getElementById('profile-crop-zoom'); zoom.value = '1';
     renderProfileCrop();
@@ -1309,7 +1382,8 @@
     const dialog = document.getElementById('profile-cropper');
     if (dialog.open) dialog.close();
     profileCropImage = null; profileCropPointer = null;
-    document.getElementById('profile-image-input').value = '';
+    document.getElementById(profileCropTarget === 'welcome'
+      ? 'welcome-profile-image-input' : 'profile-image-input').value = '';
   }
 
   function applyProfileCrop() {
@@ -1317,11 +1391,12 @@
     renderProfileCrop();
     profileImageData = document.getElementById('profile-crop-canvas').toDataURL('image/jpeg', 0.9);
     removeProfileImage = false;
-    const image = document.getElementById('profile-image-preview');
+    const welcome = profileCropTarget === 'welcome';
+    const image = document.getElementById(welcome ? 'welcome-profile-image-preview' : 'profile-image-preview');
     image.src = profileImageData; image.hidden = false;
-    document.getElementById('profile-image-fallback').hidden = true;
-    document.getElementById('profile-image-remove').hidden = false;
-    document.getElementById('profile-status').textContent = 'Crop ready. Save your profile to keep it.';
+    document.getElementById(welcome ? 'welcome-profile-image-fallback' : 'profile-image-fallback').hidden = true;
+    if (!welcome) document.getElementById('profile-image-remove').hidden = false;
+    document.getElementById(welcome ? 'welcome-profile-status' : 'profile-status').textContent = 'Crop ready. Save to keep it.';
     closeProfileCrop();
   }
 
@@ -1492,6 +1567,50 @@
     } finally { button.disabled = false; }
   }
 
+  async function submitWelcomeProfile(event) {
+    event.preventDefault();
+    const form = document.getElementById('welcome-profile-form');
+    const statusNode = document.getElementById('welcome-profile-status'); statusNode.textContent = '';
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const payload = {
+      name: document.getElementById('welcome-profile-name').value,
+      line: document.getElementById('welcome-profile-line').value,
+      website: document.getElementById('welcome-profile-website').value,
+      imageData: profileImageData,
+      removeImage: false,
+    };
+    const button = document.getElementById('welcome-profile-save'); button.disabled = true;
+    try {
+      if (previewMode) {
+        const existing = directoryState.profile || {
+          id: member?.id || 1, email: member?.email || '', hasImage: false,
+        };
+        Object.assign(existing, {
+          name: payload.name.trim(), line: payload.line.trim(), website: payload.website.trim(),
+          hasImage: profileImageData ? true : existing.hasImage,
+          previewImage: profileImageData || existing.previewImage || null,
+        });
+        directoryState.profile = existing;
+        directoryState.members = directoryState.members || [];
+        const listed = directoryState.members.find((person) => person.id === existing.id);
+        if (listed) Object.assign(listed, existing, { isMe: true });
+        else directoryState.members.push({ ...existing, isMe: true });
+      } else {
+        directoryState = await call('/api/club/profile', { method: 'PATCH', body: JSON.stringify(payload) });
+      }
+      member.name = directoryState.profile.name;
+      member.line = directoryState.profile.line;
+      member.website = directoryState.profile.website;
+      member.hasImage = directoryState.profile.hasImage;
+      givingState.suggestedName = member.name;
+      profileImageData = null;
+      showWelcome(5);
+    } catch (error) {
+      statusNode.textContent = error.message === 'image'
+        ? 'That image could not be used.' : 'Your profile could not be saved. Try again.';
+    } finally { button.disabled = false; }
+  }
+
   emailForm.addEventListener('submit', async (event) => {
     event.preventDefault(); emailStatus.textContent = '';
     email = emailInput.value.trim().toLowerCase();
@@ -1608,9 +1727,28 @@
     await finishWelcome();
   });
   document.getElementById('welcome-next').addEventListener('click', async () => {
-    if (welcomeStep >= 5) { await finishWelcome(); return; }
+    if (welcomeStep >= 6) { await finishWelcome(); return; }
     welcomeStep += 1;
     renderWelcome();
+  });
+  document.getElementById('welcome-profile-form').addEventListener('submit', submitWelcomeProfile);
+  document.getElementById('welcome-profile-later').addEventListener('click', () => {
+    profileImageData = null;
+    showWelcome(5);
+  });
+  document.getElementById('welcome-profile-name').addEventListener('input', (event) => {
+    document.getElementById('welcome-profile-image-fallback').textContent = memberInitial(event.target.value);
+  });
+  document.getElementById('welcome-profile-image-input').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const statusNode = document.getElementById('welcome-profile-status'); statusNode.textContent = '';
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      statusNode.textContent = 'Choose a JPEG, PNG or WebP no larger than 5MB.'; event.target.value = ''; return;
+    }
+    try {
+      await openProfileCrop(file, 'welcome');
+    } catch (_) { statusNode.textContent = 'That image could not be read.'; }
   });
   resend.addEventListener('click', async () => {
     if (resend.disabled) return;
@@ -1688,7 +1826,7 @@
       statusNode.textContent = 'Choose a JPEG, PNG or WebP no larger than 5MB.'; event.target.value = ''; return;
     }
     try {
-      await openProfileCrop(file);
+      await openProfileCrop(file, 'profile');
     } catch (_) { statusNode.textContent = 'That image could not be read.'; }
   });
   const cropCanvas = document.getElementById('profile-crop-canvas');
@@ -1925,7 +2063,10 @@
         agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
         onboardingCompleted: preview !== 'onboarding',
       };
-      if (preview === 'onboarding') { showWelcome(0); return; }
+      if (preview === 'onboarding') {
+        showWelcome(previewParams.get('step') === 'profile' ? 4 : 0);
+        return;
+      }
       salon = preview === 'empty' ? null : {
         id: 1,
         note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',

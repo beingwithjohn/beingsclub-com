@@ -76,7 +76,7 @@
 
   <section class="welcome-page" id="welcome-page" hidden>
     <button class="welcome-skip" id="welcome-skip" type="button">skip →</button>
-    <span class="welcome-count" id="welcome-count">1 / 6</span>
+    <span class="welcome-count" id="welcome-count">1 / 7</span>
     <div class="welcome-card">
       <article class="welcome-step" data-welcome-step="0">
         <h1>Welcome, <strong id="welcome-name">being</strong>.</h1>
@@ -84,7 +84,7 @@
       </article>
       <article class="welcome-step" data-welcome-step="1" hidden>
         <h1><strong>Curiosity</strong> connects.</h1>
-        <p>At Beings Club, we define curiosity as an orientation to experience that is open to discovery. Curiosity connects us to ourselves, each other and what is possible.</p>
+        <p>At Beings Club, we define curiosity as an orientation to experience that is open to discovery. Curiosity connects us to ourselves, to each other, and to what is possible.</p>
       </article>
       <article class="welcome-step" data-welcome-step="2" hidden>
         <h1>The <strong>Salon</strong> is the heart of it.</h1>
@@ -94,7 +94,7 @@
         <form class="welcome-agreement" id="agreement-form">
           <span class="eyebrow">the principles</span>
           <h1>A few things <strong>before we begin.</strong></h1>
-          <p class="onboarding-intro">Beings Club is made by the people who participate. Here’s all we ask of you, in plain terms:</p>
+          <p class="onboarding-intro">Beings Club is made by those who participate. Here’s all we ask of you, in plain terms:</p>
           <div class="agreement-list">
             <p><strong>Bring your curiosity.</strong> Curiosity is an orientation to experience that is open to discovery. Bring that openness to yourself, other people and what happens here.</p>
             <p><strong>Keep people’s confidence.</strong> What someone shares in a Salon stays there. You can share your own experience afterwards, but not another person’s story or identity without their permission.</p>
@@ -110,7 +110,42 @@
           <span class="status" id="agreement-status" role="status" aria-live="polite"></span>
         </form>
       </article>
-      <article class="welcome-step" data-welcome-step="4" hidden>
+      <article class="welcome-step welcome-step--profile" data-welcome-step="4" hidden>
+        <span class="eyebrow">your profile</span>
+        <h1>How you <strong>appear</strong>.</h1>
+        <p>A picture, a name, a website, one line—this is everything anyone sees of you here. Only the name is needed; you can change any of it later from your profile.</p>
+        <div class="welcome-profile-layout">
+          <div class="welcome-profile-portrait">
+            <div class="welcome-profile-image-frame">
+              <img id="welcome-profile-image-preview" alt="Your profile image preview" hidden>
+              <span id="welcome-profile-image-fallback" aria-hidden="true"></span>
+            </div>
+            <label class="image-picker" for="welcome-profile-image-input">choose an image</label>
+            <input class="sr-only" id="welcome-profile-image-input" type="file" accept="image/jpeg,image/png,image/webp">
+            <small>JPEG, PNG or WebP · up to 5MB · cropped square</small>
+          </div>
+          <form class="welcome-profile-form" id="welcome-profile-form" novalidate>
+            <label>
+              <span>chosen name · required</span>
+              <input id="welcome-profile-name" type="text" maxlength="60" autocomplete="name" required>
+            </label>
+            <label>
+              <span>one line · optional</span>
+              <input id="welcome-profile-line" type="text" maxlength="180" placeholder="What do you want people to know?">
+            </label>
+            <label>
+              <span>website · optional</span>
+              <input id="welcome-profile-website" type="url" inputmode="url" placeholder="https://">
+            </label>
+            <div class="welcome-profile-actions">
+              <button class="primary" id="welcome-profile-save" type="submit">save and continue</button>
+              <button class="text-button" id="welcome-profile-later" type="button">not now</button>
+            </div>
+            <span class="status" id="welcome-profile-status" role="status" aria-live="polite"></span>
+          </form>
+        </div>
+      </article>
+      <article class="welcome-step" data-welcome-step="5" hidden>
         <h1 id="welcome-salon-heading">The next Salon will appear here when it is announced.</h1>
         <div class="welcome-facts">
           <span><small>rhythm</small>Monthly</span>
@@ -120,7 +155,7 @@
         </div>
         <small>nothing to prepare and nothing to bring</small>
       </article>
-      <article class="welcome-step" data-welcome-step="5" hidden>
+      <article class="welcome-step" data-welcome-step="6" hidden>
         <h1>Freely <strong>offered</strong>.</h1>
         <p>Membership is freely offered. You can give if and when you want to. Choosing not to give changes nothing about your membership.</p>
         <small>giving is always optional</small>
@@ -527,7 +562,7 @@
         <header class="profile-heading">
           <span class="eyebrow">profile</span>
           <h1>How you <strong>appear here</strong>.</h1>
-          <p>Your chosen name is the only thing every member shares. A photograph, one line of context and a website are entirely optional.</p>
+          <p>This is everything anyone sees of you here: a picture, a name, a website, one line. Nothing links back to you unless you put it there.</p>
         </header>
 
         <section class="profile-editor">
@@ -550,8 +585,8 @@
               <input id="profile-name" type="text" maxlength="60" autocomplete="name" required>
             </label>
             <label>
-              <span>one line of context · optional</span>
-              <input id="profile-line" type="text" maxlength="180" placeholder="Something that helps another member place you">
+              <span>one line · optional</span>
+              <input id="profile-line" type="text" maxlength="180" placeholder="What do you want people to know?">
             </label>
             <label>
               <span>website · optional</span>
@@ -564,22 +599,6 @@
         </section>
       </div>
     </main>
-
-    <dialog class="profile-cropper" id="profile-cropper" aria-labelledby="profile-cropper-title">
-      <form method="dialog" class="profile-cropper-card">
-        <header>
-          <span class="eyebrow">profile image</span>
-          <h2 id="profile-cropper-title">Choose the square.</h2>
-          <p>Drag the image to reposition it, then use the slider to zoom.</p>
-        </header>
-        <canvas id="profile-crop-canvas" width="640" height="640" aria-label="Square image crop preview"></canvas>
-        <label class="profile-crop-zoom"><span>zoom</span><input id="profile-crop-zoom" type="range" min="1" max="3" step="0.01" value="1"></label>
-        <div class="profile-crop-actions">
-          <button class="primary" id="profile-crop-apply" type="button">use this crop</button>
-          <button class="text-button" id="profile-crop-cancel" type="button">cancel</button>
-        </div>
-      </form>
-    </dialog>
 
     <main class="settings-page" id="settings-page" hidden>
       <div class="settings-content">
@@ -688,6 +707,21 @@
       </div>
     </aside>
   </section>
-  <script src="/members/app.js?v=20260902-welcome-entry" defer></script>
+  <dialog class="profile-cropper" id="profile-cropper" aria-labelledby="profile-cropper-title">
+    <form method="dialog" class="profile-cropper-card">
+      <header>
+        <span class="eyebrow">profile image</span>
+        <h2 id="profile-cropper-title">Choose the square.</h2>
+        <p>Drag the image to reposition it, then use the slider to zoom.</p>
+      </header>
+      <canvas id="profile-crop-canvas" width="640" height="640" aria-label="Square image crop preview"></canvas>
+      <label class="profile-crop-zoom"><span>zoom</span><input id="profile-crop-zoom" type="range" min="1" max="3" step="0.01" value="1"></label>
+      <div class="profile-crop-actions">
+        <button class="primary" id="profile-crop-apply" type="button">use this crop</button>
+        <button class="text-button" id="profile-crop-cancel" type="button">cancel</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="/members/app.js?v=20260902-onboarding-profile" defer></script>
 </body>
 </html>

@@ -17,6 +17,9 @@ The private foundation and first complete member slice:
 - that welcome carries a seven-day, one-use private entrance which the member
   app exchanges by POST after stripping it from the address bar; the email-link
   GET itself never creates a session or writes membership state;
+- the seven-part first-entry welcome asks for the member principles, then offers
+  a square profile image, a short note and a website before showing the next
+  Salon; the image, note and website can all be skipped;
 - the host page is static, but no member data is in it — the private API
   returns that only after checking the session and host role;
 - every approved person, including a host, lands in the same member dashboard;
@@ -55,6 +58,9 @@ The private foundation and first complete member slice:
 - every active member appears in the private directory by their chosen name;
   a square, member-cropped photograph, one contextual line and an HTTPS website
   are optional;
+- the directory begins in a fresh random order whenever it opens, and its
+  deliberate randomise control moves the existing cards into another order
+  with bounded motion that respects reduced-motion preferences;
 - the directory exposes no email address, contact details, activity, presence,
   ranking or member-to-member messaging, and profile images remain private;
 - a member without a chosen name is taken to Profile before the rest of the

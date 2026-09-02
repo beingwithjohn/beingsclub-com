@@ -34,11 +34,26 @@ button{cursor:pointer}
 .agreement-check:focus-within{outline:2px solid rgba(90,75,124,.32);outline-offset:6px}
 .welcome-agreement>.secondary{justify-self:start}
 @media (max-height:800px) and (min-width:43rem){.welcome-agreement{gap:14px}.welcome-agreement h1{font-size:38px}.onboarding-intro{font-size:14px;line-height:1.5}.agreement-list p{padding:9px 0;font-size:12.5px;line-height:1.5}.agreement-leaving{line-height:1.5!important}}
+.welcome-step--profile{width:min(700px,calc(100vw - 48px));max-height:calc(100vh - 144px);overflow-y:auto;padding:4px 18px 4px 2px;gap:18px}
+.welcome-step--profile h1{font-size:clamp(30px,4.4vw,46px)}
+.welcome-profile-layout{display:grid;grid-template-columns:150px minmax(0,1fr);gap:34px;align-items:start;padding-top:4px}
+.welcome-profile-portrait{display:grid;gap:10px;align-content:start}
+.welcome-profile-image-frame{width:150px;aspect-ratio:1;display:grid;place-items:center;overflow:hidden;background:#F0EBFB}
+.welcome-profile-image-frame img{width:100%;height:100%;object-fit:cover}
+.welcome-profile-image-frame span{font-size:54px;font-weight:650;color:rgba(90,75,124,.42);letter-spacing:-.06em}
+.welcome-profile-portrait .image-picker{width:max-content}
+.welcome-profile-portrait small{font-size:9.5px;line-height:1.55;color:var(--soft)}
+.welcome-profile-form{display:grid;gap:17px}
+.welcome-profile-form label{display:grid;gap:6px}
+.welcome-profile-form label>span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
+.welcome-profile-form input{border:0;border-bottom:1px solid #DAD6CB;background:transparent;padding:9px 0;font-size:13px;outline:0}
+.welcome-profile-form input:focus{border-color:var(--violet)}
+.welcome-profile-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-top:2px}
 .welcome-facts{display:flex;flex-wrap:wrap;gap:18px 40px;border-top:1px solid var(--line);padding-top:22px}
 .welcome-facts>span{display:grid;gap:4px;min-width:120px;font-size:13px;color:var(--body)}
 .welcome-facts small{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--soft)}
 .welcome-card>.secondary{justify-self:start}
-@media (max-width:42rem){.welcome-page{place-items:start center;padding:92px 24px 32px}.welcome-count{left:24px}.welcome-skip{right:24px}.welcome-step--agreement{width:100%;max-height:calc(100vh - 124px);padding-right:10px}.welcome-agreement{gap:18px}.agreement-list p{padding:12px 0}}
+@media (max-width:42rem){.welcome-page{place-items:start center;padding:92px 24px 32px}.welcome-count{left:24px}.welcome-skip{right:24px}.welcome-step--agreement,.welcome-step--profile{width:100%;max-height:calc(100vh - 124px);padding-right:10px}.welcome-agreement{gap:18px}.agreement-list p{padding:12px 0}.welcome-profile-layout{grid-template-columns:1fr;gap:22px}.welcome-profile-image-frame{width:132px}.welcome-profile-image-frame span{font-size:46px}}
 .back-link{position:absolute;top:28px;left:10%;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;letter-spacing:.14em;color:var(--soft)}
 .back-link:hover{color:var(--ink)}
 .login-card{display:grid;gap:22px;width:min(360px,86vw);animation:appear .4s cubic-bezier(.22,1,.36,1) both}
@@ -405,19 +420,23 @@ button{cursor:pointer}
 .directory-heading h1 strong,.profile-heading h1 strong,.settings-heading h1 strong{font-weight:750;color:var(--violet)}
 .directory-heading>p,.profile-heading>p,.settings-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:64ch}
 .directory-randomise{width:max-content;margin-top:4px;color:var(--violet)}
+@keyframes directory-whirl{0%{transform:rotate(0) scale(1)}45%{transform:rotate(7deg) scale(1.04)}100%{transform:rotate(0) scale(1)}}
+.directory-randomise.is-shuffling{animation:directory-whirl .72s cubic-bezier(.22,1,.36,1)}
 .directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 18px}
-.directory-card{display:grid;gap:16px;align-content:start;min-width:0}
+.directory-card{display:grid;gap:16px;align-content:start;min-width:0;transform-origin:center}
 .directory-portrait{position:relative;width:min(100%,180px);aspect-ratio:1;overflow:hidden;background:#F1EEE7;display:grid;place-items:center}
 .directory-card:nth-child(3n+2) .directory-portrait{background:#F0EBFB}
 .directory-card:nth-child(3n+3) .directory-portrait{background:#EDF3EE}
 .directory-portrait img{width:100%;height:100%;object-fit:cover;filter:saturate(.84)}
 .directory-fallback{font-size:clamp(40px,6vw,76px);font-weight:650;color:rgba(90,75,124,.42);letter-spacing:-.06em}
-.directory-words{position:relative;display:grid;gap:7px;padding-right:26px}
+.directory-words{display:grid;gap:7px}
+.directory-name-row{display:flex;align-items:baseline;gap:9px;min-width:0}
 .directory-words h2{margin:0;font-size:20px;line-height:1.15;letter-spacing:-.025em}
 .directory-words p{margin:0;font-size:12.5px;line-height:1.6;color:#656159}
 .directory-words a{width:max-content;max-width:100%;font-size:10.5px;letter-spacing:.08em;color:var(--violet);border-bottom:1px solid rgba(90,75,124,.4);overflow:hidden;text-overflow:ellipsis}
-.directory-you{position:absolute;right:0;top:3px;font:400 9px/1.3 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.directory-you{flex:none;font:400 9px/1.3 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
 .directory-card.is-me .directory-portrait{outline:1px solid var(--violet);outline-offset:-1px}
+@media (prefers-reduced-motion:reduce){.directory-randomise.is-shuffling{animation:none}}
 
 .members-drawer{position:fixed;right:0;bottom:0;z-index:8;width:clamp(400px,34vw,520px);height:max(280px,38vh);min-width:400px;background:#F2F0E9;overflow:hidden;transition:width .55s cubic-bezier(.22,1,.36,1),height .55s cubic-bezier(.22,1,.36,1),min-width .55s cubic-bezier(.22,1,.36,1)}
 .members-drawer.is-expanded{width:56vw;height:76vh}
@@ -595,9 +614,7 @@ button{cursor:pointer}
   .giving-option{padding:24px 20px}
   .directory-content,.profile-content,.settings-content{padding:12vh 22px 80px;gap:40px}
   .directory-grid{grid-template-columns:1fr 1fr;gap:28px 12px}
-  .directory-words{padding-right:0}
   .directory-words h2{font-size:18px}
-  .directory-you{position:static}
   .members-drawer:not(.is-minimised){inset:0;width:100%;height:100%;min-width:0}
   .members-drawer.is-minimised{right:0;bottom:0}
   .members-drawer-panel{padding:76px 24px 28px;gap:20px}

@@ -215,7 +215,7 @@ export async function sendClubWelcome(env, { email, name, actionUrl, idempotency
   const url = actionUrl || 'https://beingsclub.com/members/';
   const subject = 'Welcome to Beings Club';
   const hello = name ? `Hello, ${name}.` : 'Hello.';
-  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. Your private entrance is below; it can be used once and expires in seven days.\n\nYour welcome is waiting inside. It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.\n\nBeings Club is made by the people who participate.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. Your private entrance is below; it can be used once and expires in seven days.\n\nYour welcome is waiting inside. It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.\n\nBeings Club is made by those who participate.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubWelcomeLayout({ name, actionUrl: url });
   return post(env, {
     to: email,
@@ -381,7 +381,7 @@ function clubWelcomeLayout({ name, actionUrl }) {
     + '<tr><td style="padding:10px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:bold;letter-spacing:-0.5px;color:#171916;mso-line-height-rule:exactly;line-height:28px;">Your welcome is waiting.</td></tr>'
     + '<tr><td style="padding:12px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#75726A;mso-line-height-rule:exactly;line-height:24px;">It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.</td></tr>'
     + '</table></td></tr>'
-    + '<tr><td style="padding:32px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="504" style="width:100%;background-color:#F2ECFF;"><tr><td style="padding:22px 26px;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-style:italic;color:#5A4B7C;mso-line-height-rule:exactly;line-height:25px;">Beings Club is made by the people who participate.</td></tr></table></td></tr>';
+    + '<tr><td style="padding:32px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="504" style="width:100%;background-color:#F2ECFF;"><tr><td style="padding:22px 26px;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-style:italic;color:#5A4B7C;mso-line-height-rule:exactly;line-height:25px;">Beings Club is made by those who participate.</td></tr></table></td></tr>';
   return clubEmailLayout({
     title: 'Welcome to Beings Club',
     preheader: 'The member area is open — your welcome is waiting.',

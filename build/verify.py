@@ -308,13 +308,24 @@ ok("first entry carries a concise, versioned member agreement",
    'id="agreement-check" name="agreement" type="checkbox" required' in login_html and
    'I agree to these principles.' in login_html and
    'id="agreement-version" type="hidden" value="2026-09-01"' in login_html)
-ok("the required principles sit inside the six-part welcome before the next Salon",
-   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 6 and
+ok("the required principles and optional profile sit inside the seven-part welcome before the next Salon",
+   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 7 and
    'Curiosity</strong> connects.' in login_html and
+   'Curiosity connects us to ourselves, to each other, and to what is possible.' in login_html and
    'The <strong>Salon</strong> is the heart of it.' in login_html and
    'guided curiosity practice' in login_html and
+   'data-welcome-step="4"' in login_html and
+   'id="welcome-profile-image-input"' in login_html and
+   'id="welcome-profile-line"' in login_html and
+   'id="welcome-profile-website"' in login_html and
+   'id="welcome-profile-later"' in login_html and
+   login_html.rfind('</section>') < login_html.find('<dialog class="profile-cropper"') and
+   'data-welcome-step="5"' in login_html and
+   'id="welcome-salon-heading"' in login_html and
    'Freely <strong>offered</strong>.' in login_html and
    "await enter(data.member, { welcomeStep: 4 })" in members_after.get("members/app.js", "") and
+   "submitWelcomeProfile" in members_after.get("members/app.js", "") and
+   "showWelcome(5)" in members_after.get("members/app.js", "") and
    "if (!member?.agreementAccepted && welcomeStep < 3)" in members_after.get("members/app.js", ""))
 ok("member landing is Salon-first in the supplied dashboard language",
    'class="member-nav"' in login_html and 'a note from John' in login_html and
@@ -344,6 +355,16 @@ ok("member directory is contextual rather than social infrastructure",
    'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
    'never contact details, activity or a way to message people' in login_html and
    'member count' not in login_html.lower())
+ok("member directory opens randomly and reshuffles with bounded motion",
+   "function shuffledDirectoryOrder(people, moveFirst = false)" in members_after.get("members/app.js", "") and
+   "const directoryOpening = directory && directoryPage.hidden" in members_after.get("members/app.js", "") and
+   "directoryOrder = shuffledDirectoryOrder(orderedDirectoryMembers())" in members_after.get("members/app.js", "") and
+   "card.dataset.memberId = String(person.id)" in members_after.get("members/app.js", "") and
+   "card.animate([" in members_after.get("members/app.js", "") and
+   "((index * 37) % 11) * 16" in members_after.get("members/app.js", "") and
+   "prefers-reduced-motion: reduce" in members_after.get("members/app.js", "") and
+   ".directory-name-row" in members_after.get("members/app.css", "") and
+   "nameRow.append(makeText('span', 'directory-you', 'you'))" in members_after.get("members/app.js", ""))
 ok("the original ambient member drawer complements the full directory",
    'id="directory-randomise"' in login_html and 'randomise order ↻' in login_html and
    'id="members-drawer"' in login_html and 'id="members-drawer-minimise"' in login_html and
@@ -355,7 +376,7 @@ ok("the original ambient member drawer complements the full directory",
 ok("member profile requires only a chosen name",
    'data-member-view="profile"' in login_html and 'id="profile-form"' in login_html and
    'id="profile-name"' in login_html and 'required' in login_html and
-   'A photograph, one line of context and a website are entirely optional' in login_html and
+   'Nothing links back to you unless you put it there' in login_html and
    'This is never shown to other members' in login_html and
    'id="profile-cropper"' in login_html and 'id="profile-crop-canvas"' in login_html and
    "toDataURL('image/jpeg', 0.9)" in members_after.get("members/app.js", ""))
@@ -428,7 +449,7 @@ ok("granting a prospective member sends one retry-safe welcome",
    "idempotencyKey: `club-prospect-${id}-${timestamp}`" in prospects_api and
    "subject = 'Welcome to Beings Club'" in mail_api and
    "Your welcome is waiting." in mail_api and
-   "Beings Club is made by the people who participate" in mail_api)
+   "Beings Club is made by those who participate" in mail_api)
 ok("host can deliberately resend a welcome before onboarding is complete",
    "/prospects\\/(\\d+)\\/welcome" in club_router and
    "resendProspectWelcome" in prospects_api and
