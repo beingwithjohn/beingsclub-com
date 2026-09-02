@@ -31,6 +31,8 @@
       <span class="eyebrow">membership</span>
       <h1>Membership begins with a <strong>conversation</strong>.</h1>
       <p class="body-copy">Enter your email and we’ll send you a six-digit code. This gives you a private place to book a first conversation with John, the host of Beings Club. Where there’s a mutual yes after you’ve spoken, membership begins.</p>
+      <label class="sr-only" for="prospect-name">Your name</label>
+      <input id="prospect-name" name="name" type="text" autocomplete="name" maxlength="120" placeholder="Your name" required>
       <label class="sr-only" for="prospect-email">Email</label>
       <input id="prospect-email" name="email" type="email" autocomplete="email" placeholder="Email" required>
       <button class="primary" type="submit">continue</button>
@@ -128,7 +130,7 @@
   </section>
 
   <section class="app-shell prospect-shell" id="prospect-app" hidden>
-    <span class="greeting">good afternoon, being</span>
+    <span class="greeting" id="prospect-greeting">good afternoon</span>
     <span class="prospect-status">membership · a first conversation</span>
 
     <nav class="member-nav prospect-nav" aria-label="Membership preview">
@@ -153,10 +155,6 @@
         <span class="eyebrow">membership</span>
         <h1>Membership begins with a <strong>conversation</strong>.</h1>
         <p>Meet John, the host of Beings Club, for 25 minutes and see whether joining feels right on both sides. If there’s a mutual yes, the member area opens afterwards.</p>
-        <aside class="prospect-host-note">
-          <span class="eyebrow">who you’ll meet</span>
-          <p>John brings contemplative practice into curious, non-doctrinal spaces through Beings Club and <a href="https://spacetobe.xyz" target="_blank" rel="noopener">Space to Be ↗</a>.</p>
-        </aside>
       </section>
 
       <section class="prospect-calendar" id="prospect-calendar">

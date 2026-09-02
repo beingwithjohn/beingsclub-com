@@ -138,11 +138,12 @@ export async function sendClubCode(env, { email, name, code }) {
 }
 
 /** Short-lived code for the membership threshold, before anybody is a member. */
-export async function sendProspectCode(env, { email, code }) {
+export async function sendProspectCode(env, { email, name, code }) {
   const subject = 'Your Beings Club conversation code';
-  const text = `Hello,\n\nYour code is ${code}. It expires in ten minutes and can be used once.\n\nUse it to return to the private place where you can book a first conversation with John, the host of Beings Club.\n\nIf you did not ask for this, you can ignore this email.\n\nStay curious,\nBeings Club`;
+  const hello = name ? `Hello ${name},` : 'Hello,';
+  const text = `${hello}\n\nYour code is ${code}. It expires in ten minutes and can be used once.\n\nUse it to return to the private place where you can book a first conversation with John, the host of Beings Club.\n\nIf you did not ask for this, you can ignore this email.\n\nStay curious,\nBeings Club`;
   const html = `<div style="font-family:Arial,sans-serif;color:#171916;line-height:1.6;max-width:520px">`
-    + '<p>Hello,</p><p>Your Beings Club conversation code is</p>'
+    + `<p>${escapeHtml(hello)}</p><p>Your Beings Club conversation code is</p>`
     + `<p style="font-size:28px;font-weight:700;letter-spacing:.28em;color:#5A4B7C">${code}</p>`
     + '<p>It expires in ten minutes and can be used once.</p>'
     + '<p>Use it to return to the private place where you can book a first conversation with John, the host of Beings Club.</p>'

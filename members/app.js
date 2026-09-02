@@ -18,6 +18,7 @@
   const emailStatus = document.getElementById('email-status');
   const codeStatus = document.getElementById('code-status');
   const resend = document.getElementById('resend');
+  const prospectNameInput = document.getElementById('prospect-name');
   const prospectEmailInput = document.getElementById('prospect-email');
   const prospectCodeInput = document.getElementById('prospect-code');
   const prospectEmailStatus = document.getElementById('prospect-email-status');
@@ -30,6 +31,7 @@
   let prospect = null;
   let prospectChallenge = null;
   let prospectEmail = '';
+  let prospectName = '';
   let prospectCountdown = null;
   let calendarMonth = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), 1));
   let calendarSlots = [];
@@ -157,6 +159,8 @@
     welcomePage.hidden = true;
     memberApp.hidden = true;
     prospectApp.hidden = false;
+    if (!prospectName) prospectName = 'John';
+    updateProspectGreeting();
     const booked = state === 'booked';
     document.getElementById('prospect-granted').hidden = true;
     document.getElementById('prospect-calendar').hidden = booked;
@@ -404,6 +408,7 @@
     const parts = localBookingParts(slot, calendarTimeZone);
     document.getElementById('prospect-selection-heading').textContent = `${parts.weekday} ${parts.day} · ${parts.time}`;
     document.getElementById('prospect-booking-email').value = prospect?.email || 'you@example.com';
+    document.getElementById('prospect-booking-name').value = prospect?.name || prospectName || '';
     document.getElementById('prospect-booking-fields').hidden = prospectRescheduling;
     document.getElementById('prospect-booking-name').required = !prospectRescheduling;
     document.getElementById('prospect-keep-time').hidden = !prospectRescheduling;
@@ -452,6 +457,8 @@
   function renderProspect() {
     loginPage.hidden = true; welcomePage.hidden = true; memberApp.hidden = true;
     prospectApp.hidden = false;
+    prospectName = prospect?.name || prospectName;
+    updateProspectGreeting();
     document.querySelector('.prospect-preview-switch').hidden = true;
     document.getElementById('prospect-message').hidden = true;
     document.querySelector('.prospect-calendar-head').hidden = false;
@@ -517,7 +524,7 @@
 
   async function requestProspectCode() {
     const data = await prospectCall('/api/club/prospect/auth/request', {
-      method: 'POST', body: JSON.stringify({ email: prospectEmail }),
+      method: 'POST', body: JSON.stringify({ email: prospectEmail, name: prospectName }),
     });
     prospectChallenge = data.challenge;
     document.getElementById('prospect-email-shown').textContent = prospectEmail;
@@ -568,6 +575,13 @@
     document.getElementById('member-clock').textContent = `${days[current.getDay()]} ${current.getDate()} ${month} ${String(current.getFullYear()).slice(2)} · ${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
     const greeting = current.getHours() < 12 ? 'morning' : current.getHours() < 18 ? 'afternoon' : 'evening';
     document.getElementById('member-greeting').textContent = `good ${greeting}, ${member?.name || 'being'}`;
+  }
+
+  function updateProspectGreeting() {
+    const current = new Date();
+    const greeting = current.getHours() < 12 ? 'morning' : current.getHours() < 18 ? 'afternoon' : 'evening';
+    document.getElementById('prospect-greeting').textContent = prospectName
+      ? `good ${greeting}, ${prospectName.toLocaleLowerCase('en-GB')}` : `good ${greeting}`;
   }
 
   function formatSalonTime(iso, timeZone) {
@@ -1503,7 +1517,9 @@
   });
   prospectEmailForm.addEventListener('submit', async (event) => {
     event.preventDefault(); prospectEmailStatus.textContent = '';
+    prospectName = prospectNameInput.value.trim();
     prospectEmail = prospectEmailInput.value.trim().toLowerCase();
+    if (!prospectNameInput.checkValidity()) { prospectNameInput.reportValidity(); return; }
     if (!prospectEmailInput.checkValidity()) { prospectEmailInput.reportValidity(); return; }
     const button = prospectEmailForm.querySelector('button[type="submit"]'); button.disabled = true;
     try {
@@ -1539,7 +1555,7 @@
   });
   document.getElementById('prospect-try-again').addEventListener('click', () => {
     clearInterval(prospectCountdown); prospectChallenge = null;
-    prospectCodeStatus.textContent = ''; showLogin(prospectEmailForm); prospectEmailInput.focus();
+    prospectCodeStatus.textContent = ''; showLogin(prospectEmailForm); prospectNameInput.focus();
   });
   prospectResend.addEventListener('click', async () => {
     if (prospectResend.disabled) return;

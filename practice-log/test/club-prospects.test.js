@@ -21,6 +21,7 @@ function prospectDb(row) {
               booking_title: args[1], booking_start_at: args[2],
               booking_end_at: args[3], booking_timezone: args[4],
               booking_status: args[5], booking_updated_at: args[6], updated_at: args[6],
+              display_name: args[7] || row.display_name,
             });
           }
           return { meta: { changes: 1 } };
@@ -51,12 +52,13 @@ test('a prospective member receives a one-use conversation code without membersh
       RESEND_API_KEY: 'test-key',
       MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
       MAIL_REPLY_TO: 'john@spacetobe.xyz',
-    }, { email: 'mira@example.test', code: '012345' });
+    }, { email: 'mira@example.test', name: 'Mira', code: '012345' });
     assert.equal(sent, true);
     const body = JSON.parse(request.options.body);
     assert.deepEqual(body.to, ['mira@example.test']);
     assert.equal(body.subject, 'Your Beings Club conversation code');
     assert.match(body.text, /012345/);
+    assert.match(body.text, /Hello Mira/);
     assert.match(body.text, /book a first conversation with John/);
     assert.doesNotMatch(body.text, /You.re invited|membership begins/i);
   } finally {

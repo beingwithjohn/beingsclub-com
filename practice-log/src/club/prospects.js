@@ -21,7 +21,8 @@ const CAL_DURATION_MINUTES = 25;
 export async function requestProspectCode(request, env, ctx, body) {
   const responseChallenge = randomToken(24);
   const email = normalizeEmail(body?.email);
-  if (!email) return json({ ok: true, challenge: responseChallenge });
+  const name = cleanText(body?.name, NAME_MAX);
+  if (!email || !name) return json({ ok: true, challenge: responseChallenge });
 
   const timestamp = now();
   const emailHash = await keyedHash(env, 'prospect-email-rate', email);
@@ -32,12 +33,13 @@ export async function requestProspectCode(request, env, ctx, body) {
   }
 
   await env.MEMBERS.prepare(
-    `INSERT INTO prospect (email, created_at, updated_at)
-     VALUES (?1, ?2, ?2)
-     ON CONFLICT(email) DO UPDATE SET updated_at = excluded.updated_at`,
-  ).bind(email, timestamp).run();
+    `INSERT INTO prospect (email, display_name, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?3)
+     ON CONFLICT(email) DO UPDATE SET display_name = excluded.display_name,
+       updated_at = excluded.updated_at`,
+  ).bind(email, name, timestamp).run();
   const prospect = await env.MEMBERS.prepare(
-    'SELECT id, email FROM prospect WHERE email = ?1',
+    'SELECT id, email, display_name FROM prospect WHERE email = ?1',
   ).bind(email).first();
 
   const code = randomCode();
@@ -53,7 +55,9 @@ export async function requestProspectCode(request, env, ctx, body) {
     ).bind(responseChallenge, prospect.id, codeHash, timestamp, timestamp + CODE_LIFETIME),
   ]);
 
-  ctx.waitUntil(sendProspectCode(env, { email: prospect.email, code }));
+  ctx.waitUntil(sendProspectCode(env, {
+    email: prospect.email, name: prospect.display_name, code,
+  }));
   ctx.waitUntil(env.MEMBERS.batch([
     env.MEMBERS.prepare('DELETE FROM prospect_auth_challenge WHERE expires_at < ?1').bind(timestamp - 86400),
     env.MEMBERS.prepare('DELETE FROM prospect_auth_request WHERE created_at < ?1').bind(timestamp - 86400),
@@ -157,7 +161,7 @@ export async function createProspectBooking(env, who, body) {
   const startTime = instantText(body?.start);
   const timeZone = cleanTimezone(body?.timeZone);
   const rescheduling = body?.reschedule === true && activeBooking(who);
-  const name = cleanText(body?.name, NAME_MAX);
+  const name = cleanText(body?.name, NAME_MAX) || cleanText(who.display_name, NAME_MAX);
   const note = cleanText(body?.note, NOTE_MAX);
   if (!startTime || !timeZone || (!rescheduling && !name)) return bad(400, 'booking');
 
@@ -208,11 +212,12 @@ export async function createProspectBooking(env, who, body) {
     `UPDATE prospect SET booking_uid = ?1, booking_reschedule_uid = ?1,
        booking_title = ?2, booking_start_at = ?3, booking_end_at = ?4,
        booking_timezone = ?5, booking_status = ?6,
-       booking_updated_at = ?7, updated_at = ?7
-     WHERE id = ?8`,
+       booking_updated_at = ?7, updated_at = ?7,
+       display_name = COALESCE(?8, display_name)
+     WHERE id = ?9`,
   ).bind(uid, cleanText(booking?.title, 200) || 'A first conversation',
     bookedStart, bookedEnd, timeZone,
-    booking?.status === 'accepted' ? 'booked' : 'awaiting_webhook', timestamp, who.id).run();
+    booking?.status === 'accepted' ? 'booked' : 'awaiting_webhook', timestamp, name, who.id).run();
   return json({ prospect: await getProspectShape(env, who.id) });
 }
 
@@ -307,7 +312,7 @@ export async function enterGrantedProspect(env, who) {
 
 export async function listProspects(env) {
   const rows = await env.MEMBERS.prepare(
-    `SELECT id, email, booking_uid, booking_title, booking_start_at,
+    `SELECT id, email, display_name, booking_uid, booking_title, booking_start_at,
             booking_end_at, booking_timezone, booking_status,
             alternate_time_note, alternate_time_note_at, granted_at, member_id,
             created_at, updated_at
@@ -327,12 +332,13 @@ export async function grantProspect(env, host, id) {
   }
   const timestamp = now();
   await env.MEMBERS.prepare(
-    `INSERT INTO member (email, is_host, invited_at, created_at, updated_at)
-     VALUES (?1, 0, ?2, ?2, ?2)
+    `INSERT INTO member (email, display_name, is_host, invited_at, created_at, updated_at)
+     VALUES (?1, ?2, 0, ?3, ?3, ?3)
      ON CONFLICT(email) DO UPDATE SET disabled_at = NULL, left_at = NULL,
+       display_name = COALESCE(member.display_name, excluded.display_name),
        invited_at = COALESCE(invited_at, excluded.invited_at),
        updated_at = excluded.updated_at`,
-  ).bind(prospect.email, timestamp).run();
+  ).bind(prospect.email, prospect.display_name, timestamp).run();
   const member = await env.MEMBERS.prepare(
     'SELECT id, email, invitation_sent_at FROM member WHERE email = ?1',
   ).bind(prospect.email).first();
@@ -408,7 +414,7 @@ async function getProspectShape(env, id) {
 
 function shapeProspect(row) {
   return {
-    id: row.id, email: row.email,
+    id: row.id, email: row.email, name: row.display_name || null,
     booking: row.booking_uid ? {
       uid: row.booking_uid, rescheduleUid: row.booking_reschedule_uid || row.booking_uid,
       title: row.booking_title, startTime: iso(row.booking_start_at),

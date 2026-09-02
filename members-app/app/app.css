@@ -173,14 +173,11 @@ button{cursor:pointer}
 .prospect-preview-switch::before{content:'local preview ·';color:#BBB6AC}
 .prospect-preview-switch button{border:0;border-bottom:1px solid transparent;background:transparent;padding:2px 0;color:inherit;font:inherit;letter-spacing:inherit}
 .prospect-preview-switch button.current{color:var(--violet);border-bottom-color:rgba(90,75,124,.4)}
-.prospect-page{position:absolute;inset:0;overflow-y:auto;padding:14vh 8vw 100px 24%;display:grid;grid-template-columns:minmax(260px,.72fr) minmax(500px,1.28fr);gap:44px 68px;align-content:start}
-.prospect-intro{display:grid;align-content:start;gap:18px;padding-top:4px}
-.prospect-intro h1{margin:0;font-size:clamp(34px,4.25vw,68px);line-height:1.01;letter-spacing:-.055em;font-weight:600}
+.prospect-page{position:absolute;inset:0;overflow-y:auto;padding:12vh 5vw 110px 21%;display:grid;grid-template-columns:minmax(0,1120px);gap:38px;align-content:start}
+.prospect-intro{display:grid;gap:18px;padding-top:4px}
+.prospect-intro h1{margin:0;font-size:clamp(40px,3.7vw,56px);line-height:1.01;letter-spacing:-.055em;font-weight:600}
 .prospect-intro h1 strong{font-weight:750;color:var(--violet)}
-.prospect-intro p{margin:0;max-width:39ch;font-size:15px;line-height:1.72;color:var(--body)}
-.prospect-host-note{display:grid;gap:8px;margin-top:7px;padding-top:18px;border-top:1px solid var(--line)}
-.prospect-host-note p{font-size:12.5px;line-height:1.7;color:var(--soft)}
-.prospect-host-note a{color:var(--violet);border-bottom:1px solid rgba(90,75,124,.28)}
+.prospect-intro p{margin:0;max-width:64ch;font-size:15px;line-height:1.72;color:var(--body)}
 .prospect-calendar{border:1px solid #DEDAD0;background:var(--paper);box-shadow:0 22px 60px rgba(48,42,34,.08);animation:appear .45s cubic-bezier(.22,1,.36,1) both}
 .prospect-calendar-head{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:27px 30px 23px;border-bottom:1px solid var(--line)}
 .prospect-calendar-head>div{display:grid;gap:8px}
@@ -253,7 +250,7 @@ button{cursor:pointer}
 .prospect-booked-actions .secondary{display:inline-block}
 .prospect-granted p{margin:4px 0 0;max-width:44ch;font-size:14px;line-height:1.7;color:var(--body)}
 .prospect-granted>.primary{margin-top:16px}
-.prospect-foot{grid-column:2;display:flex;gap:11px;align-items:start;padding:0 4px;color:var(--soft)}
+.prospect-foot{display:flex;gap:11px;align-items:start;padding:0 4px;color:var(--soft)}
 .prospect-foot>span{color:var(--violet)}
 .prospect-foot p{margin:0;max-width:62ch;font:400 10px/1.65 ui-monospace,'SF Mono',Menlo,monospace}
 
@@ -524,7 +521,7 @@ button{cursor:pointer}
   .directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .profile-editor{grid-template-columns:1fr}
   .prospect-page{padding-left:30%;padding-right:30px;grid-template-columns:1fr;gap:30px}
-  .prospect-intro{max-width:620px}
+  .prospect-intro{max-width:680px}
   .prospect-foot{grid-column:1}
   .prospect-preview-switch{right:30px}
 }
@@ -580,6 +577,7 @@ button{cursor:pointer}
   .prospect-status{right:22px;top:28px;font-size:8.5px}
   .prospect-nav{display:none}
   .prospect-page{position:relative;inset:auto;padding:13vh 22px 90px;grid-template-columns:1fr;gap:32px;min-height:100vh}
+  .prospect-intro{gap:18px}
   .prospect-intro h1{font-size:clamp(38px,12vw,56px)}
   .prospect-calendar-head{align-items:start;flex-direction:column;padding:24px 20px 20px}
   .prospect-timezone-row{padding:12px 20px;flex-wrap:wrap}
@@ -594,7 +592,13 @@ button{cursor:pointer}
   .prospect-message-actions,.prospect-message>.status{grid-column:1}
   .prospect-booked{min-height:460px;padding:42px 28px}
   .prospect-foot{grid-column:1}
-  .prospect-preview-switch{position:relative;right:auto;bottom:auto;grid-column:1;grid-row:4;justify-self:start;margin-top:6px}
+  .prospect-preview-switch{position:fixed;right:22px;bottom:18px;margin:0;padding:6px 8px;background:rgba(253,252,249,.92)}
+}
+
+@media(max-width:520px){
+  .prospect-shell .greeting{top:23px;right:22px;max-width:calc(100% - 44px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .prospect-status{top:48px;right:22px}
+  .prospect-page{padding-top:120px}
 }
 
 @media(max-width:430px){.directory-grid{grid-template-columns:1fr}}
