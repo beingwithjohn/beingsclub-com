@@ -393,14 +393,6 @@ main { flex: 1; display: flex; flex-direction: column; }
 .legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; color: var(--muted); }
 .key { width: 8px; height: 8px; border-radius: 50%; }
-.practice-giving {
-  border-top: 1px solid var(--hair); padding: 13px var(--pad); display: flex;
-  justify-content: center; gap: 5px 8px; flex-wrap: wrap; text-align: center;
-  font-size: 13px; line-height: 1.5; color: var(--muted);
-}
-.practice-giving a { color: var(--body); border-bottom: 1px solid var(--hair-2); }
-.practice-giving a:hover { color: var(--you); border-bottom-color: var(--you); }
-
 /* --------------------------------------------------------------- forms ---- */
 
 .field {
@@ -901,13 +893,6 @@ main { flex: 1; display: flex; flex-direction: column; }
       sub: 'Practice map · body, heart and mind',
       href: '/practice-map/'
     });
-    items.push({
-      id: 'giving',
-      label: 'Giving',
-      sub: 'The work is freely given. Gifts help sustain it',
-      href: '/giving/'
-    });
-
     // The host practises like everyone else. Hosting changes access to the
     // private page, not whether a practice mark appears to others.
     if (S.person.is_host) {
@@ -2239,9 +2224,6 @@ main { flex: 1; display: flex; flex-direction: column; }
         'Your day is kept and will go up on its own.</p></div>'));
     }
     inner.appendChild(body);
-    inner.appendChild(h('<div class="practice-giving">If you want to help sustain Beings Club, ' +
-      '<a href="/giving/">you can give here.</a></div>'));
-
     shell(inner, {
       right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>'
     });

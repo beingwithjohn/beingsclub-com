@@ -196,7 +196,6 @@ PATCH  /api/settings    {name?, line?, timezone?, nudge_hour?, nudge_on?,
                          notes_on?, reply_digest_on?, setup?}
 POST   /api/settings/revoke        new link, emailed, never returned
 POST   /api/settings/delete        {confirmation:"DELETE"}; cascades all person-linked data
-POST   /api/giving                 public, site-Origin only → {url} Stripe Checkout
 POST   /api/giving/manage          authenticated email match → {url} Stripe customer portal
 POST   /api/stripe/webhook         signature-verified, unauthenticated
 

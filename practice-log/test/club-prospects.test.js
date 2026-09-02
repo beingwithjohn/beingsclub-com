@@ -82,7 +82,7 @@ test('Cal.com webhooks require the exact HMAC of the raw request body', async ()
   assert.equal(await validWebhookSignature(secret, raw, 'not-a-signature'), false);
 });
 
-test('a prospective member receives a one-use conversation code without membership language', async () => {
+test('a prospective member receives a one-use Beings Club code without membership language', async () => {
   const original = globalThis.fetch;
   let request;
   globalThis.fetch = async (url, options) => {
@@ -98,7 +98,7 @@ test('a prospective member receives a one-use conversation code without membersh
     assert.equal(sent, true);
     const body = JSON.parse(request.options.body);
     assert.deepEqual(body.to, ['mira@example.test']);
-    assert.equal(body.subject, 'Your Beings Club conversation code');
+    assert.equal(body.subject, 'Your Beings Club code');
     assert.match(body.text, /012345/);
     assert.match(body.text, /Hello, Mira\./);
     assert.match(body.text, /book a first conversation with John/);

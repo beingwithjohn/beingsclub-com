@@ -260,28 +260,9 @@ not social media. It makes practice social.
 
 ## 4. Giving
 
-Giving is not a Practice Log screen. The log's menu links to the public page at
-`/giving/`, and one small invitation appears beneath the shared week after a
-practice is recorded. It does not appear before practice or in an email.
-Settings contains no request or gift history: it has only a route into Stripe
-for somebody who wants to manage or end an existing monthly gift.
-
-**Heading**
-> This work is freely given.
-
-**Body**
-> Beings Club offers Salons, Sits and the [Practice Log](/log/) without a fee
-> or expected amount. I do this to protect the work from the ways money can
-> distort how we meet one another.
-
-> If you want to help sustain the work, you can make a one-off or monthly gift.
-> What you give changes nothing about your access or place here. Giving nothing
-> creates no debt.
-
-The amount field starts blank, one-off is selected first, and the giver chooses
-GBP or USD. Both one-off and monthly gifts have a minimum of one whole unit
-in the chosen currency. Stripe handles payment and sends the giver the way to
-manage or end monthly giving.
+Giving no longer appears in the Practice Log or on a standalone public page.
+It lives inside the Beings Club member area. Existing monthly gifts can still
+be managed through Stripe's secure customer portal.
 
 ---
 

@@ -375,13 +375,6 @@
       sub: 'Practice map · body, heart and mind',
       href: '/practice-map/'
     });
-    items.push({
-      id: 'giving',
-      label: 'Giving',
-      sub: 'The work is freely given. Gifts help sustain it',
-      href: '/giving/'
-    });
-
     // The host practises like everyone else. Hosting changes access to the
     // private page, not whether a practice mark appears to others.
     if (S.person.is_host) {
@@ -1713,9 +1706,6 @@
         'Your day is kept and will go up on its own.</p></div>'));
     }
     inner.appendChild(body);
-    inner.appendChild(h('<div class="practice-giving">If you want to help sustain Beings Club, ' +
-      '<a href="/giving/">you can give here.</a></div>'));
-
     shell(inner, {
       right: '<span class="barlab on">' + (offline ? 'Logged · offline' : 'Logged') + '</span>'
     });

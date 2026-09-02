@@ -40,7 +40,6 @@ bucket_name = "beings-club-member-media"
 # on that host, which is only ever useful in .dev.vars — keep this one exact.
 APP_ORIGIN = "https://beingsclub.com"
 APP_URL = "https://beingsclub.com/log/"
-GIVING_URL = "https://beingsclub.com/giving/"
 
 # From-lines. Resend authenticates beingsclub.com with DKIM and the `send`
 # return path with SPF/MX. The root domain has no receiving inbox, so every

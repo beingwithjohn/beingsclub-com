@@ -101,33 +101,48 @@ def convert(body, key):
              'Beings Club is where curiosity connects — a space for practice and conversation.',
              'club description'),
             ('Our monthly online meeting is called a Salon and it starts with meditation.',
-             'Our monthly online meeting is called a Salon and it starts with a guided curiosity practice.',
+             'Our monthly online gathering is called a Salon. We begin with a guided curiosity practice, '
+             'then meet one-to-one and in groups of three. There are no prescribed conversation topics. '
+             'There is nothing to do except <b><span style="font-style:normal;">stay </span>curious'
+             '<span style="font-weight:normal;">.</span></b>',
              'Salon introduction'),
             ('>We sit together</span>',
              '>We practice together</span>', 'Salon first step'),
             ('Around twenty minutes of guided meditation practice — individual practice in a shared field. '
              'Nothing has to be believed: instructions are offered as an invitation, to experiment with and '
              'discover the reality of for yourself.',
-             'Around twenty minutes of guided curiosity practice — individual practice in a shared field. '
-             'Instructions are offered as invitations, to experiment with and discover for yourself.',
+             'Around twenty minutes of guided curiosity practice. Individual practice in a shared field. '
+             'Instructions are offered as invitations to experiment with and discover for yourself.',
              'Salon practice description'),
             (">I've never meditated. Is that a problem?</span>",
              '>Do I need any experience?</span>', 'Salon question'),
             ('Meditation instruction at Beings Club is accessible to all experience levels and you are not '
              'required to adopt any beliefs to practice.',
-             'The guided curiosity practice is accessible at every level and you are not required to adopt '
-             'any beliefs.', 'Salon answer'),
+             'No prior experience is needed, and you won’t be asked to adopt any beliefs.', 'Salon answer'),
             ('The things worth caring about make themselves known.',
              'What is important reveals itself.', 'what matters line'),
             ('Membership is free and offered after an introductory conversation and a mutual yes.',
-             'Membership begins with a conversation with John and a mutual sense of fit. It is free and '
-             'ongoing until you choose to leave.', 'membership answer'),
+             'Membership begins with a conversation with John. If there is a mutual yes after you have '
+             'spoken, the member area opens. Membership is ongoing and freely offered until you choose '
+             'to leave.', 'membership answer'),
             ('Monthly salons are online. In-person events happen more rarely.',
              'Salons are online. Occasional in-person gatherings may be announced separately.',
              'in-person answer'),
+            ("Nope. We're a community of curious people, of multiple kinds of background.",
+             'Nope. We’re a community of curious people from many different backgrounds.',
+             'religion answer'),
         ]:
             assert old in body, 'Home %s not found' % what
             body = body.replace(old, new, 1)
+
+        # The Salon introduction replacement above supersedes the complete
+        # original sentence sequence, including its styled closing words.
+        duplicated_salon_tail = (' Following, members meet one-to-one and in groups of three. '
+                                  'There are no prescribed conversation topics. There is nothing to do '
+                                  'except <b><span style="font-style:normal;">stay </span>curious'
+                                  '<span style="font-weight:normal;">.</span></b>')
+        assert body.count(duplicated_salon_tail) == 1, 'Home old Salon introduction tail not found once'
+        body = body.replace(duplicated_salon_tail, '', 1)
 
         helper = ('Membership is free and is offered only after conversation and a mutual yes — '
                   'leave a note, and someone will write back.')
@@ -179,7 +194,7 @@ def convert(body, key):
               <span>Work with me one-to-one</span><small>Space to Be ↗</small>
             </a>
             <a class="bc-john-practical-link" href="https://j-hn.info" target="_blank" rel="noopener">
-              <span>More about John</span><small>j-hn.info ↗</small>
+              <span>More about me</span><small>j-hn.info ↗</small>
             </a>
             <div class="bc-john-socials">
               <span>Elsewhere</span>
@@ -194,9 +209,9 @@ def convert(body, key):
         <div class="bc-john-letter-words">
           <p>Hello,</p>
           <p>My name is John, and I’ve been hosting Beings Club since January 2025. I’m trained as a mindfulness meditation teacher, and I work with people one-to-one.</p>
-          <p>Beings Club is a different kind of space: a space where curiosity is allowed to lead. I think that’s important. It supports us to discover both who we are as individuals and who we might be together.</p>
-          <p>Curiosity is a powerful force—when we offer it to ourselves, and when we offer it to each other.</p>
-          <p>I hope that, if you decide to join Beings Club, you’ll find it a valuable place where many things become more possible.</p>
+          <p>Beings Club is a different kind of space, where curiosity is allowed to lead. I think that’s important. It supports us in discovering both who we are as individuals and who we might be together.</p>
+          <p>Curiosity is a powerful force. It’s powerful when we offer it to ourselves, and when we offer it to each other.</p>
+          <p>If you decide to join Beings Club, I hope you’ll find it a valuable place where many things become more possible.</p>
           <p>More recently, I’ve started referring to Beings Club as a realisationhouse. I believe curiosity helps us realise things, whether that means new ways of seeing ourselves, tangible and practical possibilities, artistic creations, or new realities in our lives.</p>
           <p class="bc-john-signoff">Stay curious,<br><strong>John</strong></p>
         </div>

@@ -61,7 +61,6 @@ const read = (...p) => readFileSync(join(repo, ...p), 'utf8');
 
 const log = read('log', 'index.html');
 const host = read('log', 'host', 'index.html');
-const giving = read('giving', 'index.html');
 
 // ---------------------------------------------------------------------------
 // integration
@@ -589,38 +588,15 @@ check('21c', 'the pre-timer intention is optional and leaves no record', () => {
   return 'asked after Start; blank field; Begin or Not today; never stored';
 });
 
-check(22, 'giving is public, optional, and separate from the Practice Log', () => {
-  ok(/href:\s*['"]\/giving\/['"]/.test(log), 'the log does not link to the giving page');
-  ok(!/Pay what you (?:want|can)/i.test(log), 'old pay-what-you-want language remains in the log');
-  ok(!/\/api\/contribution/.test(log), 'payment handling remains embedded in the log');
-  ok(/data-cadence="once"[^>]*aria-pressed="true"/.test(giving),
-    'one-off is not the initially selected gift');
-  ok(/data-cadence="monthly"/.test(giving), 'monthly giving is not offered');
-  ok(/min="1"/.test(giving) && /£1 minimum/.test(giving), 'the minimum is not stated');
-  ok(/data-currency="gbp"[^>]*aria-pressed="true"/.test(giving) &&
-    /data-currency="usd"/.test(giving) && !/data-currency="eur"/.test(giving),
-  'the page does not offer exactly GBP and USD, with pounds selected first');
-  ok(/This work is freely given/.test(giving) && /Giving nothing creates no debt/.test(giving),
-    'the page does not preserve the Dana freedom test');
-  ok(/offers its monthly Salons and shared member space/.test(giving) &&
-    !/offers Salons, Sits|offers practices, gatherings/.test(giving),
-    'the giving page does not match the members-first architecture');
-  ok(/More support may let Beings Club do more/.test(giving) &&
-    /does not buy the giver more access, attention or standing/.test(giving),
-  'the page is not honest about capacity while separating gifts from privilege');
-  ok(/manage or end monthly giving/.test(giving), 'monthly cancellation is not explained');
-  ok(/class=\\?"practice-giving/.test(log) &&
-    /If you want to help sustain Beings Club/.test(log) && /you can give here/.test(log),
-  'the small post-practice Dana invitation is missing');
-  const beforeTap = /function viewLog\(\)[\s\S]*?function viewTimer\(\)/.exec(log)?.[0] || '';
-  ok(!/practice-giving|help sustain Beings Club|\/giving\//.test(beforeTap),
-    'the giving invitation appears before practice is recorded');
+check(22, 'giving has moved out of the Practice Log and into the member area', () => {
+  ok(!existsSync(join(repo, 'giving', 'index.html')), 'the retired standalone giving page remains');
+  ok(!/href:\s*['"]\/giving\/['"]|class=\\?"practice-giving|you can give here/.test(log),
+    'the Practice Log still links or invites people to the retired giving page');
   const mail = read('practice-log', 'src', 'mail', 'templates.js');
   ok(!/\/giving\/|help sustain Beings Club|one-off or monthly gift|monthly giving/i.test(mail),
     'a Practice Log email contains a giving invitation');
   const idx = read('practice-log', 'src', 'index.js');
-  ok(idx.indexOf("path === '/api/giving'") < idx.indexOf('const who = await identify'),
-    'giving still depends on Practice Log identity');
+  ok(!/path === ['"]\/api\/giving['"]/.test(idx), 'the retired public giving endpoint remains');
   const givingApi = read('practice-log', 'src', 'giving.js');
   const givingMigration = read('practice-log', 'migrations', '0006_giving_email.sql');
   ok(/\/api\/giving\/manage/.test(log) && /postGivingPortal/.test(givingApi) &&
@@ -628,7 +604,11 @@ check(22, 'giving is public, optional, and separate from the Practice Log', () =
   ok(/giving_subscription/.test(givingMigration) && !/REFERENCES person/.test(givingMigration) &&
     /lower\(email\) = lower\(\?1\)/.test(givingApi),
   'monthly management either cannot match the giver or attaches giving to a Practice Log person');
-  return 'member-linked /giving/; one-off first; GBP or USD; Stripe management from Settings';
+  const memberShell = read('members-app', 'app', 'shell.html');
+  const memberApp = read('members-app', 'app', 'app.js');
+  ok(/id="financial-giving-form"/.test(memberShell) &&
+    /\/api\/club\/giving\/checkout/.test(memberApp), 'member Giving is not integrated');
+  return 'no standalone page or Practice Log invitation; member Giving remains integrated';
 });
 
 check(23, 'deleting a Practice Log erases identity and presence', () => {

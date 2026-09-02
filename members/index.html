@@ -30,7 +30,7 @@
     <form class="login-card prospect-login-card" id="prospect-email-form" hidden novalidate>
       <span class="eyebrow">membership</span>
       <h1>Membership begins with a <strong>conversation</strong>.</h1>
-      <p class="body-copy">Enter your email and we’ll send you a six-digit code. This gives you a private place to book a first conversation with John, the host of Beings Club. Where there’s a mutual yes after you’ve spoken, membership begins.</p>
+      <p class="body-copy">Enter your name and email and we’ll send you a six-digit code. Once confirmed, you’ll have a private place to book a first conversation with John, the host of Beings Club. Where there is a mutual yes after you have spoken, membership begins.</p>
       <label class="sr-only" for="prospect-name">Your name</label>
       <input id="prospect-name" name="name" type="text" autocomplete="name" maxlength="120" placeholder="Your name" required>
       <label class="sr-only" for="prospect-email">Email</label>
@@ -88,7 +88,7 @@
       </article>
       <article class="welcome-step" data-welcome-step="2" hidden>
         <h1>The <strong>Salon</strong> is the heart of it.</h1>
-        <p>The Salon is a monthly online space for practice and conversation. We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes—only an invitation to stay curious.</p>
+        <p>The Salon is a monthly online space for practice and conversation. We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes. There is only an invitation to stay curious.</p>
       </article>
       <article class="welcome-step welcome-step--agreement" data-welcome-step="3" hidden>
         <form class="welcome-agreement" id="agreement-form">
@@ -113,7 +113,7 @@
       <article class="welcome-step welcome-step--profile" data-welcome-step="4" hidden>
         <span class="eyebrow">your profile</span>
         <h1>How you <strong>appear</strong>.</h1>
-        <p>A picture, a name, a website, one line—this is everything anyone sees of you here. Only the name is needed; you can change any of it later from your profile.</p>
+        <p>A picture, a name, a website and one line. This is everything anyone sees of you here. Only the name is needed; you can change any of it later from your profile.</p>
         <div class="welcome-profile-layout">
           <div class="welcome-profile-portrait">
             <div class="welcome-profile-image-frame">
@@ -189,7 +189,7 @@
       <section class="prospect-intro">
         <span class="eyebrow">membership</span>
         <h1>Membership begins with a <strong>conversation</strong>.</h1>
-        <p>Meet John, the host of Beings Club, for 25 minutes and see whether joining feels right on both sides. If there’s a mutual yes, the member area opens afterwards.</p>
+        <p>Meet John, the host of Beings Club, for 25 minutes. You can learn more about the Club and see whether joining feels right on both sides. Where there is a mutual yes after you have spoken, membership begins.</p>
       </section>
 
       <section class="prospect-calendar" id="prospect-calendar">
@@ -251,7 +251,7 @@
               <input id="prospect-booking-email" name="email" type="email" readonly>
             </label>
             <label class="prospect-booking-note" for="prospect-booking-note">
-              <span>anything John should know <small>optional</small></span>
+              <span>anything you’d like John to know <small>optional</small></span>
               <textarea id="prospect-booking-note" name="note" maxlength="2400" placeholder="Share anything that might be useful before you meet."></textarea>
             </label>
           </div>
@@ -266,7 +266,7 @@
           <div>
             <span class="eyebrow">find another time</span>
             <h3>Send John a note.</h3>
-            <p>Time zones and availability can make things difficult. Share yours and a few times that might work; John will see whether there’s another possibility.</p>
+            <p>Time zones and availability can make things difficult. Share your timezone and a few times that might work. John will see whether another time is possible.</p>
           </div>
           <label for="prospect-message-body">
             <span>your note</span>
@@ -354,7 +354,7 @@
             <span class="time-hint" id="time-hint">your local time · select to see Beings Club time</span>
           </div>
 
-          <p class="salon-intro">We begin with a guided curiosity practice. Following, members meet one-to-one and in groups of three — no prompts, no themes, nothing to do except stay curious.</p>
+          <p class="salon-intro">We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes. There is nothing to do except stay curious.</p>
 
           <div class="rsvp-panel">
             <div class="rsvp-actions" id="rsvp-actions">
@@ -379,7 +379,7 @@
 
           <div class="salon-door">
             <a class="join-room" id="join-room" target="_blank" rel="noopener" hidden>enter the Salon ↗</a>
-            <span id="door-waiting">The room opens from this page ten minutes before.</span>
+            <span id="door-waiting">The room opens here ten minutes before the Salon.</span>
           </div>
 
           <div class="salon-facts">
@@ -390,7 +390,7 @@
 
           <div class="salon-foot">
             <span>Nothing to prepare and nothing to bring.</span>
-            <span>Admission is not guaranteed if arriving late.</span>
+            <span>If you arrive late, admission cannot be guaranteed.</span>
             <span>Nothing is recorded.</span>
           </div>
         </div>
@@ -401,15 +401,15 @@
       <div class="field-notes-content">
         <header class="field-notes-heading">
           <span class="eyebrow">field notes</span>
-          <h1>What the Salons <strong>leave behind</strong>.</h1>
-          <p>Thoughts, questions, images and references members chose to share. Field Notes are not a conversation: there are no responses, reactions or comments.</p>
+          <h1>What members <strong>choose to share</strong>.</h1>
+          <p>Thoughts, questions, images and references from people who join the Salons. Field Notes are not a conversation. There are no responses, reactions or comments.</p>
         </header>
 
         <section class="field-note-composer" id="field-note-composer" hidden>
           <div class="composer-intro">
             <span class="eyebrow" id="composer-eyebrow">an invitation from the Salon</span>
             <h2 id="composer-title">What stayed with you?</h2>
-            <p id="composer-invitation">You’re invited to share something of what you discovered at the Salon this month: a thought, question, image, reference or anything else from the Salon. Please respect the privacy and confidentiality of your conversations and remember that members who were not at the Salon will also be able to see what you share.</p>
+            <p id="composer-invitation">You’re invited to share something of what you discovered at this month’s Salon: a thought, question, image, reference or anything else that stayed with you. Please respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share.</p>
           </div>
           <form class="field-note-form" id="field-note-form" novalidate>
             <textarea id="field-note-body" maxlength="5000" placeholder="A thought, question, reference, or anything else..."></textarea>
@@ -433,7 +433,7 @@
               <label><input type="radio" name="field-note-attribution" value="signed" checked> with my name</label>
               <label><input type="radio" name="field-note-attribution" value="anonymous"> anonymously</label>
             </fieldset>
-            <p class="field-note-notice">Your Field Note will appear immediately. If you share anonymously, other members won’t see your name. A note can still be traced to you by the host and removed where necessary to protect privacy, confidentiality or the space. Nobody can respond.</p>
+            <p class="field-note-notice">Your Field Note will appear immediately. If you share anonymously, other members won’t see your name. We can still identify the author and remove a note when needed to protect privacy, confidentiality or the space. Nobody can respond.</p>
             <div class="field-note-form-actions">
               <button class="primary" id="field-note-share" type="submit">share field note</button>
               <button class="text-button" id="field-note-cancel-edit" type="button" hidden>cancel editing</button>
@@ -467,7 +467,7 @@
         <header class="giving-heading">
           <span class="eyebrow">giving</span>
           <h1>Giving keeps the <strong>door open</strong>.</h1>
-          <p>Beings Club is freely offered. If something here has been valuable, there are different ways to give something back.</p>
+          <p>Beings Club is freely offered. If something here has been valuable, there are different ways to support.</p>
         </header>
 
         <section class="giving-confirmation" id="member-giving-thanks" role="status" aria-live="polite" hidden>
@@ -507,8 +507,8 @@
 
           <article class="giving-option testimonial-giving">
             <span class="eyebrow">offer a few words</span>
-            <h2>Share a testimonial.</h2>
-            <p>You may offer one testimonial each calendar month. This invitation simply lives here to be discovered; Beings Club will never notify or remind you about it.</p>
+            <h2>Share something about your experience.</h2>
+            <p>If you’d like, you can offer a few words about your experience of Beings Club. You can do this once each calendar month. This invitation will stay here quietly; we won’t notify or remind you about it.</p>
 
             <form class="testimonial-form" id="testimonial-form" novalidate>
               <label>
@@ -521,7 +521,7 @@
               </label>
               <label class="testimonial-consent">
                 <input id="testimonial-consent" type="checkbox" required>
-                <span>I give Beings Club permission to publish these words with my name across any of its public channels. They may be lightly edited or excerpted without changing their meaning.</span>
+                <span>I give Beings Club permission to publish these words with this name on its website, emails and social channels. They may be lightly edited or excerpted without changing their meaning.</span>
               </label>
               <div class="testimonial-actions">
                 <button class="primary" id="testimonial-submit" type="submit">offer these words</button>
@@ -550,7 +550,7 @@
         <header class="directory-heading">
           <span class="eyebrow">members</span>
           <h1>People you may <strong>meet here</strong>.</h1>
-          <p>Members principally encounter each other through Salons and what they choose to share. This is simply a little more context—never contact details, activity or a way to message people.</p>
+          <p>Members mostly meet each other through Salons. This page offers a little more context.</p>
           <button class="text-button directory-randomise" id="directory-randomise" type="button">randomise order ↻</button>
         </header>
         <section class="directory-grid" id="directory-grid" aria-live="polite"></section>
@@ -613,7 +613,7 @@
           <div class="settings-group" id="salon-email-options">
             <div class="settings-group-copy">
               <strong>Salons</strong>
-              <span>Email me about the next Salon—</span>
+              <span>Email me about the next Salon:</span>
             </div>
             <label class="setting-choice"><input id="email-salon-announced" type="checkbox"><span>when it is announced</span></label>
             <label class="setting-choice"><input id="email-salon-month" type="checkbox"><span>one month before</span></label>
@@ -626,10 +626,10 @@
             <input id="email-field-notes" type="checkbox" aria-label="Email Field Note invitations">
           </label>
           <label class="setting-row quiet-setting">
-            <span><strong>Quiet, for now</strong><small>Silence all optional Club email until you come back here. Nothing else changes.</small></span>
+            <span><strong>Quiet, for now</strong><small>Silence all optional Beings Club emails for now. Nothing else changes.</small></span>
             <input id="email-quiet" type="checkbox" aria-label="Silence optional Club email">
           </label>
-          <p class="settings-note" id="settings-email-note">Every Club email ends with a link back to this page.</p>
+          <p class="settings-note" id="settings-email-note">Every Beings Club email ends with a link back to this page.</p>
           <span class="status" id="settings-email-status" role="status" aria-live="polite"></span>
         </section>
 
@@ -652,9 +652,9 @@
         </section>
 
         <section class="settings-section leave-section" aria-labelledby="settings-leave-title">
-          <h2 id="settings-leave-title">leaving for good</h2>
+          <h2 id="settings-leave-title">leaving Beings Club</h2>
           <div id="leave-intro">
-            <p>Membership continues until you choose to leave. Leaving removes you from the member directory and future gatherings, silences Club email and signs you out everywhere.</p>
+            <p>Membership continues until you choose to leave. Leaving removes you from the member directory and future gatherings, stops Beings Club emails and signs you out everywhere.</p>
             <button class="text-button" id="leave-open" type="button">leave Beings Club</button>
           </div>
           <form class="leave-form" id="leave-form" hidden novalidate>
@@ -664,7 +664,7 @@
               <label><input type="radio" name="leave-note-policy" value="anonymise"><span><strong>Make them anonymous</strong><small>The notes remain, but other members no longer see your name.</small></span></label>
               <label><input type="radio" name="leave-note-policy" value="remove"><span><strong>Remove them</strong><small>Your past Field Notes and their images are permanently removed.</small></span></label>
             </fieldset>
-            <p>Pending testimonial words are withdrawn. Past RSVP and attendance records are removed. To confirm, type <strong>LEAVE</strong>.</p>
+            <p>Any testimonial awaiting consideration is withdrawn. Past RSVP and attendance records are removed. To confirm, type <strong>LEAVE</strong>.</p>
             <label class="leave-confirm"><span class="sr-only">Type LEAVE to confirm</span><input id="leave-confirm" type="text" autocomplete="off" placeholder="LEAVE" pattern="LEAVE" required></label>
             <div class="leave-actions">
               <button class="primary" id="leave-submit" type="submit">confirm leaving</button>

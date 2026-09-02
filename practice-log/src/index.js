@@ -10,7 +10,7 @@ import {
 } from './api.js';
 import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
-import { postGiving, postGivingPortal, stripeWebhook } from './giving.js';
+import { postGivingPortal, stripeWebhook } from './giving.js';
 import { postLogin } from './login.js';
 import { postJoin } from './join.js';
 import { listReplies, getReplyAudio } from './replies.js';
@@ -65,16 +65,6 @@ async function route(request, env, ctx, url) {
   // Membership has its own database and its own short-lived sessions. It
   // shares this Worker only to use the existing private mail configuration.
   if (path.startsWith('/api/club/')) return clubRoute(request, env, ctx, url);
-
-  // Giving is public and deliberately knows nothing about Practice Log
-  // identity. Requiring the site's browser Origin prevents another page from
-  // silently manufacturing Checkout sessions through this endpoint.
-  if (path === '/api/giving' && method === 'POST') {
-    if (!request.headers.get('origin')) return bad(403, 'origin');
-    const body = await readJson(request);
-    if (body === undefined) return bad(400, 'bad json');
-    return postGiving(env, body);
-  }
 
   // The one evergreen log is open to anyone. This never returns a credential:
   // it sends the long-lived link to the address that will own it.

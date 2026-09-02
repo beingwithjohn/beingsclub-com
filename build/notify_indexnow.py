@@ -30,7 +30,6 @@ PUBLIC_PATHS = {
     "beyondbelief/companion/index.html": "/beyondbelief/companion/",
     "join/index.html": "/join/",
     "practice-map/index.html": "/practice-map/",
-    "giving/index.html": "/giving/",
 }
 
 

@@ -80,11 +80,10 @@ test('granting access sends a welcome rather than another invitation', async () 
     assert.match(body.text, /private entrance/);
     assert.match(body.text, /#welcome=AAAA/);
     assert.doesNotMatch(body.text, /six-digit code/);
-    assert.match(body.text, /Beings Club is made by those who participate/);
+    assert.doesNotMatch(body.text, /Your welcome is waiting|Beings Club is made by those who participate/);
     assert.match(body.html, /Welcome to <span[^>]*>Beings Club<\/span>\./);
     assert.match(body.html, /Hello, Mira\. You’re in\./);
-    assert.match(body.html, /inside Beings Club/);
-    assert.match(body.html, /Beings Club is made by those who participate/);
+    assert.doesNotMatch(body.html, /inside Beings Club|Your welcome is waiting|Beings Club is made by those who participate/);
     assert.doesNotMatch(body.subject, /invited/i);
   } finally {
     globalThis.fetch = original;

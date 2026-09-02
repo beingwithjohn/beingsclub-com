@@ -335,7 +335,7 @@ ok("member landing is Salon-first in the supplied dashboard language",
 ok("Field Notes are grouped by Salon and cannot become a response feed",
    'id="field-note-archive"' in login_html and 'id="field-note-composer"' in login_html and
    'data-member-view="field-notes"' in login_html and
-   'there are no responses, reactions or comments' in login_html and
+   'There are no responses, reactions or comments' in login_html and
    'Nobody can respond.' in login_html)
 ok("member Giving integrates financial support and one quiet testimonial each month",
    'data-member-view="giving"' in login_html and 'id="testimonial-form"' in login_html and
@@ -346,14 +346,14 @@ ok("member Giving integrates financial support and one quiet testimonial each mo
    'Thank you. Your gift has been received.' in login_html and
    "call('/api/club/giving/checkout'" in members_after.get("members/app.js", "") and
    "monthlyGiving?.active === true" in members_after.get("members/app.js", "") and
-   'one testimonial each calendar month' in login_html and
-   'will never notify or remind you' in login_html and
-   'across any of its public channels' in login_html and
+   'once each calendar month' in login_html and
+   'we won’t notify or remind you' in login_html and
+   'on its website, emails and social channels' in login_html and
    'lightly edited or excerpted without changing their meaning' in login_html and
    'id="testimonial-edit"' in login_html and 'id="testimonial-withdraw"' in login_html)
 ok("member directory is contextual rather than social infrastructure",
    'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
-   'never contact details, activity or a way to message people' in login_html and
+   'Members mostly meet each other through Salons. This page offers a little more context.' in login_html and
    'member count' not in login_html.lower())
 ok("member directory opens randomly and reshuffles with bounded motion",
    "function shuffledDirectoryOrder(people, moveFirst = false)" in members_after.get("members/app.js", "") and
@@ -392,7 +392,7 @@ ok("member Settings carries every Salon timing, welcome replay and quiet-email l
    'Quiet, for now' in login_html and 'Access codes still arrive when you ask for one' in login_html)
 ok("leaving lets members decide what happens to existing Field Notes",
    'value="keep_signed"' in login_html and 'value="anonymise"' in login_html and
-   'value="remove"' in login_html and 'Pending testimonial words are withdrawn' in login_html and
+   'value="remove"' in login_html and 'Any testimonial awaiting consideration is withdrawn' in login_html and
    'id="leave-confirm"' in login_html)
 field_notes_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "field-notes.js"),
                           encoding="utf-8").read()
@@ -448,8 +448,9 @@ ok("granting a prospective member sends one retry-safe welcome",
    "sendClubWelcome" in prospects_api and
    "idempotencyKey: `club-prospect-${id}-${timestamp}`" in prospects_api and
    "subject = 'Welcome to Beings Club'" in mail_api and
-   "Your welcome is waiting." in mail_api and
-   "Beings Club is made by those who participate" in mail_api)
+   "The link below is your private entrance." in mail_api and
+   "Your welcome is waiting." not in mail_api and
+   "Beings Club is made by those who participate" not in mail_api)
 ok("host can deliberately resend a welcome before onboarding is complete",
    "/prospects\\/(\\d+)\\/welcome" in club_router and
    "resendProspectWelcome" in prospects_api and
@@ -508,7 +509,7 @@ ok("the member agreement gates every private surface server-side",
    club_router.index("if (!agreementAccepted(who))") <
    club_router.index("path === '/api/club/salon'"))
 ok("public Salons use the complete practice-and-conversation framing",
-   'starts with a guided curiosity practice' in
+   'We begin with a guided curiosity practice' in
    io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read() and
    'a space for practice and conversation' in
    io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read())
@@ -548,8 +549,8 @@ ok("sitemap gives every public page an accurate freshness signal",
 for archive in ["archive-refined.html", "archive-v4-dark-plates.html"]:
     archive_html = io.open(os.path.join(ROOT, archive), encoding="utf-8").read()
     ok(archive + ": excluded from search", '<meta name="robots" content="noindex,follow">' in archive_html)
-# The only hand-maintained public utilities keep the simplified Home / Members map.
-STANDALONE = ["404.html", "giving/index.html"]
+# The only hand-maintained public utility keeps the simplified Home / Members map.
+STANDALONE = ["404.html"]
 
 def chrome(html, tag):
     m = re.search(r"(?s)<%s.*?</%s>" % (tag, tag), html)
@@ -575,15 +576,6 @@ for p in STANDALONE:
        'data-navmark' in html and '/assets/navmark.js' in html)
     ok(p + ": no relative asset paths",
        'url(\'assets/' not in html and 'src="assets/' not in html)
-    if p != "404.html":
-        ok(p + ": member utility is kept out of public search",
-           '<meta name="robots" content="noindex,follow">' in html)
-        structured = re.search(r'(?s)<script type="application/ld\+json">(.*?)</script>', html)
-        try:
-            structured_ok = bool(structured) and json.loads(structured.group(1)).get('@context') == 'https://schema.org'
-        except Exception:
-            structured_ok = False
-        ok(p + ": structured data parses", structured_ok)
 
 # The design keeps resting styles INLINE, and an inline declaration beats any
 # ordinary stylesheet rule. A hover rule that sets a property the element also
@@ -631,7 +623,6 @@ if "--live" in sys.argv:
     for route, local in list(zip(ROUTES, PAGES)) + [("/members/", "members/index.html"),
                                                     ("/members/host/", "members/host/index.html"),
                                                     ("/practice-map/", "practice-map/index.html"),
-                                                    ("/giving/", "giving/index.html"),
                                                     ("/" + indexnow_key + ".txt", indexnow_key + ".txt"),
                                                     ("/robots.txt", "robots.txt"),
                                                     ("/sitemap.xml", "sitemap.xml"),

@@ -504,7 +504,7 @@
     emailInput.value = emailAddress;
     const link = document.createElement('a');
     link.href = '/members/?join=1';
-    link.textContent = 'Become a member →';
+    link.textContent = 'Start with a conversation →';
     link.addEventListener('click', () => {
       try { sessionStorage.setItem(JOIN_EMAIL_KEY, emailAddress); } catch (_) {}
     });

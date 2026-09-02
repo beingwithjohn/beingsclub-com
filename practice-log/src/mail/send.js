@@ -146,13 +146,13 @@ export async function sendClubCode(env, { email, name, code }) {
 
 /** Short-lived code for the membership threshold, before anybody is a member. */
 export async function sendProspectCode(env, { email, name, code }) {
-  const subject = 'Your Beings Club conversation code';
+  const subject = 'Your Beings Club code';
   const hello = name ? `Hello, ${name}.` : 'Hello.';
   const text = `${hello}\n\nYour code is ${code}. It expires in ten minutes and can be used once.\n\nUse it to return to the private place where you can book a first conversation with John, the host of Beings Club.\n\nIf you did not ask for this, you can ignore this email.\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     title: subject,
     preheader: 'Your one-use code for a first conversation.',
-    heading: 'Your conversation <span style="color:#5A4B7C;">code</span>.',
+    heading: 'Your Beings Club <span style="color:#5A4B7C;">code</span>.',
     body: `<p style="margin:0 0 16px;">${escapeHtml(hello)}</p>`
       + `<div style="margin:20px 0;padding:22px 26px;background-color:#F2ECFF;font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:bold;letter-spacing:.28em;color:#5A4B7C;">${escapeHtml(code)}</div>`
       + '<p style="margin:0 0 16px;">It expires in ten minutes and can be used once.</p>'
@@ -215,7 +215,7 @@ export async function sendClubWelcome(env, { email, name, actionUrl, idempotency
   const url = actionUrl || 'https://beingsclub.com/members/';
   const subject = 'Welcome to Beings Club';
   const hello = name ? `Hello, ${name}.` : 'Hello.';
-  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. Your private entrance is below; it can be used once and expires in seven days.\n\nYour welcome is waiting inside. It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.\n\nBeings Club is made by those who participate.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. The link below is your private entrance. It can be used once and expires in seven days.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubWelcomeLayout({ name, actionUrl: url });
   return post(env, {
     to: email,
@@ -257,18 +257,15 @@ export async function sendMemberJoinedNotification(env, {
 
 /** One invitation after John marks somebody as having attended a Salon. */
 export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt }) {
-  const date = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Europe/London', month: 'long', year: 'numeric',
-  }).format(new Date(Number(salonStartsAt) * 1000));
   const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
-  const subject = `A Field Note from the ${date} Salon`;
+  const subject = 'Share a Field Note';
   const url = 'https://beingsclub.com/members/#field-notes';
   const settingsUrl = 'https://beingsclub.com/members/#settings';
-  const invitation = 'You’re invited to share something of what you discovered at the Salon: a thought, question, image, reference or anything else.';
+  const invitation = 'You’re invited to share something of what you discovered at the Salon: a thought, question, image, reference or anything else that stayed with you.';
   const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${invitation}\n\nPlease respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share. Nobody can respond to a Field Note.\n\nShare or dismiss the invitation inside Beings Club:\n${url}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: 'Something from the Salon, if you would like to share it.',
-    heading: 'That was this month’s <span style="color:#5A4B7C">Salon</span>.',
+    heading: 'What did you <span style="color:#5A4B7C">find</span>?',
     body: `<p style="margin:0 0 16px">${greeting}</p><p style="margin:0 0 16px">${escapeHtml(invitation)}</p>`
       + '<p style="margin:0">Please respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share. Nobody can respond to a Field Note.</p>',
     actionUrl: url,
@@ -288,39 +285,39 @@ export async function sendClubSalonEmail(env, {
   const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
   const versions = {
     announcement: {
-      subject: `The next Salon · ${when}`,
+      subject: `The next Salon has been announced · ${when}`,
       preheader: `The next Salon has been announced for ${when}.`,
       heading: 'The next <span style="color:#5A4B7C">Salon</span>.',
       opening: `The next Salon has taken shape. We’ll gather ${when}.`,
     },
     month: {
-      subject: `The Salon is one month away · ${when}`,
+      subject: 'One month until the next Salon',
       preheader: 'One month until the next Salon.',
       heading: 'One month until the next <span style="color:#5A4B7C">Salon</span>.',
-      opening: `A quiet note that we gather in one month: ${when}.`,
+      opening: `We gather in one month: ${when}.`,
     },
     week: {
-      subject: `The Salon is one week away · ${when}`,
+      subject: 'One week until the next Salon',
       preheader: `One week until the next Salon.`,
       heading: 'One week until the next <span style="color:#5A4B7C">Salon</span>.',
-      opening: `A quiet note that we gather in one week: ${when}.`,
+      opening: `We gather in one week: ${when}.`,
     },
     day: {
-      subject: `The Salon is tomorrow · ${when}`,
+      subject: 'The next Salon is tomorrow',
       preheader: `The next Salon is tomorrow.`,
       heading: 'The Salon is <span style="color:#5A4B7C">tomorrow</span>.',
-      opening: `A quiet note that we gather tomorrow: ${when}.`,
+      opening: `We gather tomorrow: ${when}.`,
     },
     hour: {
-      subject: `The Salon begins in one hour · ${when}`,
+      subject: 'The next Salon begins in one hour',
       preheader: 'The next Salon begins in one hour.',
       heading: 'The Salon begins in <span style="color:#5A4B7C">one hour</span>.',
-      opening: `A quiet note that we gather in one hour: ${when}.`,
+      opening: `We begin in an hour: ${when}.`,
     },
   };
   const version = versions[kind] || versions.announcement;
   const note = String(hostNote || '').trim();
-  const description = 'We begin with a guided curiosity practice, then meet one-to-one and in groups of three. A space for practice and conversation; nothing to prepare and nothing to bring.';
+  const description = 'We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes, and nothing to prepare or bring. There is nothing to do except stay curious.';
   const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${version.opening}\n\n${note ? `${note}\n\n` : ''}${description}\n\nOpen the Salon to RSVP or add it to your calendar:\n${salonUrl}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: version.preheader,
@@ -376,24 +373,17 @@ function clubEmailLayout({
 
 function clubWelcomeLayout({ name, actionUrl }) {
   const hello = name ? `Hello, ${escapeHtml(name)}. You’re in.` : 'Hello. You’re in.';
-  const afterBody = '<tr><td style="padding:40px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="504" style="width:100%;border-top:1px solid #E7E4DB;">'
-    + '<tr><td style="padding:24px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#5A4B7C;">inside Beings Club</td></tr>'
-    + '<tr><td style="padding:10px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:20px;font-weight:bold;letter-spacing:-0.5px;color:#171916;mso-line-height-rule:exactly;line-height:28px;">Your welcome is waiting.</td></tr>'
-    + '<tr><td style="padding:12px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#75726A;mso-line-height-rule:exactly;line-height:24px;">It begins with a short introduction to the Club and the member principles. After that, you can explore what is and has been happening.</td></tr>'
-    + '</table></td></tr>'
-    + '<tr><td style="padding:32px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="504" style="width:100%;background-color:#F2ECFF;"><tr><td style="padding:22px 26px;font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-style:italic;color:#5A4B7C;mso-line-height-rule:exactly;line-height:25px;">Beings Club is made by those who participate.</td></tr></table></td></tr>';
   return clubEmailLayout({
     title: 'Welcome to Beings Club',
-    preheader: 'The member area is open — your welcome is waiting.',
+    preheader: 'The member area is open.',
     heading: 'Welcome to <span style="color:#5A4B7C;">Beings Club</span>.',
     body: `<p style="margin:0 0 16px;">${hello}</p>`
-      + '<p style="margin:0;">Membership is ongoing and freely offered. Your private entrance can be used once and expires in seven days.</p>',
+      + '<p style="margin:0;">Membership is ongoing and freely offered. The link below is your private entrance. It can be used once and expires in seven days.</p>',
     actionUrl,
     actionLabel: 'enter Beings Club',
     settingsUrl: actionUrl,
     footerLinkLabel: 'member entrance',
     footerNote: 'This welcome was meant for you — if it found the wrong hands, you can simply let it rest.',
-    afterBody,
     logoWidth: 220,
   });
 }

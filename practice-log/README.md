@@ -158,19 +158,12 @@ Note the origin it prints. If it is not
 node app/build.js --api https://your-worker-origin
 ```
 
-**Public giving through Stripe**
+**Member giving through Stripe**
 
-Giving lives at `https://beingsclub.com/giving/`, separate from Practice Log
-identity and practice history. The log links there from its menu and with one
-small line shown only after practice has been recorded; emails never ask. The
-public page offers a blank amount field, one-off first and monthly as an option.
-The giver chooses GBP or USD, with a minimum of one whole unit in the
-chosen currency. Stripe collects the giver's email and handles payment.
-For a monthly gift, that Stripe-supplied email is kept on the independent
-subscription row (never a `person_id`). If it matches the authenticated
-Practice Log email, Settings can open Stripe's secure customer portal to change
-or cancel the gift. Stripe's own receipt/portal emails remain the route for a
-giver who has no Practice Log account or deletes it.
+Giving lives inside the Beings Club member area and no longer appears in the
+Practice Log or on a standalone public page. The member chooses a one-off or
+monthly gift in GBP or USD. Stripe collects payment and sends receipts. Existing
+monthly gifts can still be managed through Stripe's secure customer portal.
 
 Keep both values out of the repo:
 
