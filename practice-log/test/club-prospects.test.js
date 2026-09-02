@@ -105,14 +105,15 @@ test('the native calendar returns Cal availability without exposing Cal’s inte
     }), { status: 200, headers: { 'content-type': 'application/json' } });
   };
   try {
-    const response = await getProspectSlots({}, { booking_uid: null }, new URL(
+    const response = await getProspectSlots({ CAL_API_KEY: 'cal_test_123' }, { booking_uid: null }, new URL(
       'https://example.test/api/club/prospect/slots?start=2026-09-01&end=2026-10-01&timeZone=Europe%2FLondon',
     ));
     assert.equal(response.status, 200);
     assert.deepEqual((await response.json()).slots, ['2026-09-03T15:10:00.000Z']);
     assert.match(request.url, /eventTypeSlug=beings-club-chat/);
     assert.match(request.url, /username=beingwithjohn/);
-    assert.equal(request.options.headers['cal-api-version'], '2026-02-25');
+    assert.equal(request.options.headers.authorization, 'Bearer cal_test_123');
+    assert.equal(request.options.headers['cal-api-version'], '2024-09-04');
   } finally {
     globalThis.fetch = original;
   }
@@ -142,7 +143,9 @@ test('the Worker verifies a chosen slot and creates the Cal booking itself', asy
     booking_status: null, granted_at: null,
   };
   try {
-    const response = await createProspectBooking({ MEMBERS: prospectDb(row) }, row, {
+    const response = await createProspectBooking({
+      MEMBERS: prospectDb(row), CAL_API_KEY: 'cal_test_123',
+    }, row, {
       start: '2026-09-03T15:10:00.000Z', timeZone: 'Europe/London',
       name: 'Mira', note: 'I would love to understand the club more.',
     });
@@ -158,6 +161,9 @@ test('the Worker verifies a chosen slot and creates the Cal booking itself', asy
     });
     assert.equal(bookingBody.eventTypeSlug, 'beings-club-chat');
     assert.equal(bookingBody.username, 'beingwithjohn');
+    assert.equal(requests[0].options.headers['cal-api-version'], '2024-09-04');
+    assert.equal(requests[1].options.headers['cal-api-version'], '2026-02-25');
+    assert.equal(requests[1].options.headers.authorization, 'Bearer cal_test_123');
   } finally {
     globalThis.fetch = original;
   }
@@ -187,7 +193,9 @@ test('the native calendar reschedules the existing booking instead of creating a
     booking_status: 'booked', granted_at: null,
   };
   try {
-    const response = await createProspectBooking({ MEMBERS: prospectDb(row) }, row, {
+    const response = await createProspectBooking({
+      MEMBERS: prospectDb(row), CAL_API_KEY: 'cal_test_123',
+    }, row, {
       start: '2026-09-10T17:00:00.000Z', timeZone: 'Europe/London', reschedule: true,
     });
     assert.equal(response.status, 200);

@@ -14,7 +14,8 @@ const NOTE_MAX = 2400;
 const NAME_MAX = 120;
 const CAL_EVENT_SLUG = 'beings-club-chat';
 const CAL_USERNAME = 'beingwithjohn';
-const CAL_API_VERSION = '2026-02-25';
+const CAL_SLOTS_API_VERSION = '2024-09-04';
+const CAL_BOOKINGS_API_VERSION = '2026-02-25';
 const CAL_DURATION_MINUTES = 25;
 
 export async function requestProspectCode(request, env, ctx, body) {
@@ -144,7 +145,7 @@ export async function getProspectSlots(env, who, url) {
   if (!start || !end || !timeZone || !sensibleRange(start, end)) {
     return bad(400, 'calendar range');
   }
-  const result = await fetchCalSlots({
+  const result = await fetchCalSlots(env, {
     start, end, timeZone,
     bookingUid: activeBooking(who) ? who.booking_uid : null,
   });
@@ -165,7 +166,7 @@ export async function createProspectBooking(env, who, body) {
   const centre = new Date(startTime);
   const rangeStart = isoDate(new Date(centre.getTime() - 86400000));
   const rangeEnd = isoDate(new Date(centre.getTime() + 2 * 86400000));
-  const available = await fetchCalSlots({
+  const available = await fetchCalSlots(env, {
     start: rangeStart, end: rangeEnd, timeZone,
     bookingUid: rescheduling ? who.booking_uid : null,
   });
@@ -191,7 +192,7 @@ export async function createProspectBooking(env, who, body) {
     ...(note ? { bookingFieldsResponses: { notes: note } } : {}),
     metadata: { prospectId: String(who.id), source: 'beingsclub' },
   };
-  const created = await calRequest(endpoint, { method: 'POST', body: payload });
+  const created = await calRequest(env, endpoint, { method: 'POST', body: payload });
   if (!created.ok) {
     return bad(created.status === 400 || created.status === 409 ? 409 : 502,
       created.status === 400 || created.status === 409 ? 'time unavailable' : 'calendar unavailable');
@@ -215,14 +216,16 @@ export async function createProspectBooking(env, who, body) {
   return json({ prospect: await getProspectShape(env, who.id) });
 }
 
-async function fetchCalSlots({ start, end, timeZone, bookingUid = null }) {
+async function fetchCalSlots(env, { start, end, timeZone, bookingUid = null }) {
   const params = new URLSearchParams({
     eventTypeSlug: CAL_EVENT_SLUG,
     username: CAL_USERNAME,
     start, end, timeZone,
   });
   if (bookingUid) params.set('bookingUidToReschedule', bookingUid);
-  const response = await calRequest(`/v2/slots?${params}`);
+  const response = await calRequest(env, `/v2/slots?${params}`, {
+    apiVersion: CAL_SLOTS_API_VERSION,
+  });
   if (!response.ok) return response;
   const slots = [];
   for (const day of Object.values(response.data || {})) {
@@ -235,9 +238,11 @@ async function fetchCalSlots({ start, end, timeZone, bookingUid = null }) {
   return { ok: true, slots: [...new Set(slots)].sort() };
 }
 
-async function calRequest(path, options = {}) {
+async function calRequest(env, path, options = {}) {
+  if (!env.CAL_API_KEY) return { ok: false, status: 503 };
   const headers = {
-    'cal-api-version': CAL_API_VERSION,
+    authorization: `Bearer ${env.CAL_API_KEY}`,
+    'cal-api-version': options.apiVersion || CAL_BOOKINGS_API_VERSION,
     ...(options.body ? { 'content-type': 'application/json' } : {}),
   };
   let response;

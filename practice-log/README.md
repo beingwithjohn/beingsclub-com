@@ -179,6 +179,18 @@ npx wrangler secret put STRIPE_SECRET_KEY
 npx wrangler secret put STRIPE_WEBHOOK_SECRET
 ```
 
+The native first-conversation calendar uses Cal.com behind the Beings Club
+interface. Create a Cal.com API key under Settings → Developer → API Keys,
+then keep it out of the repo and add it directly to the Worker:
+
+```bash
+npx wrangler secret put CAL_API_KEY
+```
+
+The key is used only by the Worker to read availability, create bookings and
+reschedule them. It is never sent to the browser. The separate
+`CAL_WEBHOOK_SECRET` verifies Cal.com's booking webhooks.
+
 In Stripe, register `https://practice-log.beingsclub.workers.dev/api/stripe/webhook`
 for `checkout.session.completed`, `invoice.paid`,
 `customer.subscription.created`, `customer.subscription.updated`, and

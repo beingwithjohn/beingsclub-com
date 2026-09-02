@@ -413,7 +413,9 @@ ok("native calendar availability and booking stay behind the prospective-member 
    "https://api.cal.com${path}" in prospects_api and
    "Never trust a start supplied by the browser" in prospects_api and
    "bookingUidToReschedule" in prospects_api and
-   "CAL_API_VERSION = '2026-02-25'" in prospects_api)
+   "CAL_SLOTS_API_VERSION = '2024-09-04'" in prospects_api and
+   "CAL_BOOKINGS_API_VERSION = '2026-02-25'" in prospects_api and
+   "authorization: `Bearer ${env.CAL_API_KEY}`" in prospects_api)
 ok("member invitation delivery is recorded and retryable server-side",
    "sendClubInvitation" in club_router and
    "/members\\/(\\d+)\\/invite" in club_router and
