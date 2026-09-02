@@ -508,6 +508,22 @@ button{cursor:pointer}
 .leave-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .settings-foot{display:grid;gap:3px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft);margin-top:10px}
 
+@media(min-width:721px){
+  .prospect-page{padding-top:9vh;gap:26px}
+  .prospect-calendar{width:min(100%,1020px)}
+  .prospect-calendar-head{padding:20px 26px 17px}
+  .prospect-calendar-head>div{gap:6px}
+  .prospect-calendar-head h2{font-size:24px}
+  .prospect-timezone-row{padding:8px 26px}
+  .prospect-calendar-body{min-height:310px}
+  .prospect-month{gap:12px;padding:18px 24px 17px}
+  .prospect-days button,.prospect-days span{height:30px}
+  .prospect-times{gap:14px;padding:19px 20px}
+  .prospect-times h3{font-size:20px}
+  .prospect-time-list{gap:6px}
+  .prospect-time-list button{padding:7px 12px}
+}
+
 @media(min-width:721px) and (max-width:980px){
   .host-page{padding-left:30%;padding-right:30px}
   .salon-view{padding-left:30%;padding-right:30px}
