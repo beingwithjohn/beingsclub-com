@@ -17,7 +17,7 @@ const CURRENCIES = new Set(['gbp', 'usd']);
 // ---------------------------------------------------------------------------
 // POST /api/giving  →  a Checkout session to send the giver to
 // ---------------------------------------------------------------------------
-export async function postGiving(env, body) {
+export async function postGiving(env, body, giver = null) {
   if (!env.STRIPE_SECRET_KEY) return bad(503, 'giving is not set up yet');
 
   const cadence = body?.cadence || 'once';
@@ -43,6 +43,8 @@ export async function postGiving(env, body) {
       : 'Gift to Beings Club',
     'line_items[0][price_data][unit_amount]': String(amount),
   });
+  const giverEmail = String(giver?.email || '').trim().toLowerCase();
+  if (giverEmail) form.set('customer_email', giverEmail);
   if (cadence === 'monthly') {
     form.set('line_items[0][price_data][recurring][interval]', 'month');
     form.set('subscription_data[metadata][source]', 'giving');
@@ -161,6 +163,7 @@ export async function stripeWebhook(env, request) {
 
 async function rememberCheckoutSubscription(env, session) {
   if (!session.customer || !session.subscription) return bad(400, 'nothing to record');
+  const email = String(session.customer_details?.email || '').trim().toLowerCase();
   await upsertSubscription(env, {
     customer: idOf(session.customer),
     subscription: idOf(session.subscription),
@@ -169,8 +172,18 @@ async function rememberCheckoutSubscription(env, session) {
     status: session.payment_status === 'paid' ? 'active' : 'incomplete',
     cancelAtPeriodEnd: 0,
     eventCreated: 0,
-    email: String(session.customer_details?.email || '').trim().toLowerCase(),
+    email,
   });
+  // Stripe may deliver customer.subscription.created before Checkout completes.
+  // The newer subscription event must keep its status, while Checkout remains
+  // authoritative for the giver's email so the member area can recognise it.
+  if (email) {
+    await env.DB.prepare(
+      `UPDATE giving_subscription
+          SET email = ?1, updated_at = unixepoch()
+        WHERE stripe_subscription_ref = ?2 AND email = ''`,
+    ).bind(email, idOf(session.subscription)).run();
+  }
   return json({ ok: true });
 }
 

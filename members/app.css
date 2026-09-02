@@ -251,16 +251,25 @@ button{cursor:pointer}
 .giving-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
 .giving-heading h1 strong{font-weight:750;color:var(--violet)}
 .giving-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:60ch}
+.giving-confirmation{display:grid;gap:7px;padding:22px 24px;background:#F2ECFF;border:1px solid #E2D8F5;color:var(--violet)}
+.giving-confirmation[hidden]{display:none}
+.giving-confirmation strong{font-size:18px;line-height:1.3;letter-spacing:-.02em}
+.giving-confirmation p{margin:0;font-size:13px;line-height:1.6;color:#65577F}
 .giving-options{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(360px,1.28fr);gap:18px;align-items:start}
 .giving-option{display:grid;align-content:start;gap:16px;padding:30px;border:1px solid var(--line);background:#FFF}
 .giving-option.testimonial-giving{background:#F8F4FF;border-color:#E5DCF8}
 .giving-option h2{margin:0;font-size:26px;line-height:1.1;letter-spacing:-.035em}
 .giving-option>p{margin:0;font-size:13px;line-height:1.7;color:#656159}
+.monthly-giving-active{display:grid;gap:7px;margin-top:4px;padding:18px;background:#F2ECFF;border:1px solid #E2D8F5;color:var(--violet)}
+.monthly-giving-active[hidden]{display:none}
+.monthly-giving-active strong{font-size:15px;line-height:1.35;letter-spacing:-.015em}
+.monthly-giving-active p{margin:0;font-size:12px;line-height:1.6;color:#65577F}
 .financial-giving-form{display:grid;gap:16px;margin-top:6px;padding-top:20px;border-top:1px solid var(--line)}
 .giving-choices{display:flex;gap:8px;flex-wrap:wrap}
 .giving-choice{border:1px solid #DAD6CB;background:transparent;color:#75726A;padding:9px 13px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .giving-choice:hover,.giving-choice:focus-visible{border-color:var(--violet);color:var(--violet)}
 .giving-choice.is-selected{border-color:var(--violet);background:#F2ECFF;color:var(--violet)}
+.giving-choice:disabled{cursor:not-allowed;opacity:.42;border-color:#DAD6CB;background:transparent;color:#75726A}
 .giving-amount{display:grid;gap:7px}
 .giving-amount>span:first-child{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
 .giving-amount-field{position:relative;display:block}
@@ -270,8 +279,7 @@ button{cursor:pointer}
 .financial-giving-form>p{margin:0;font-size:11px;line-height:1.6;color:var(--soft)}
 .financial-giving-form>.primary{width:100%}
 .financial-giving-form .giving-monthly-note{color:#75726A}
-.financial-giving-form .giving-thanks{padding:12px 14px;background:#F2ECFF;color:var(--violet);font-weight:600}
-.manage-giving{width:max-content;margin-top:2px;color:var(--violet)}
+.manage-giving{width:max-content;margin-top:5px;color:var(--violet)}
 .testimonial-form{display:grid;gap:18px;margin-top:6px}
 .testimonial-form>label:not(.testimonial-consent){display:grid;gap:6px}
 .testimonial-form>label>span:first-child{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}

@@ -72,11 +72,12 @@ test('member giving returns to the integrated member Giving page', async () => {
   await withFetch({ url: 'https://checkout.stripe.test/member' }, async (sent) => {
     const response = await postGiving(env(), {
       cadence: 'once', currency: 'gbp', amount: 500, context: 'members',
-    });
+    }, { email: 'Member@Example.com' });
     assert.equal(response.status, 200);
     const form = sent().options.body;
     assert.equal(form.get('success_url'), 'https://beingsclub.com/members/?thanks=1#giving');
     assert.equal(form.get('cancel_url'), 'https://beingsclub.com/members/#giving');
+    assert.equal(form.get('customer_email'), 'member@example.com');
   });
 });
 
@@ -105,9 +106,11 @@ test('monthly Checkout remembers Stripe’s email without linking a Practice Log
   });
   const response = await stripeWebhook(env(db), await signedRequest(event));
   assert.equal(response.status, 200);
-  assert.match(db.calls.at(-1).sql, /INSERT INTO giving_subscription/);
-  assert.equal(db.calls.at(-1).values.at(-1), 'person@example.com');
-  assert.doesNotMatch(db.calls.at(-1).sql, /person_id/);
+  assert.match(db.calls.at(-2).sql, /INSERT INTO giving_subscription/);
+  assert.equal(db.calls.at(-2).values.at(-1), 'person@example.com');
+  assert.match(db.calls.at(-1).sql, /UPDATE giving_subscription/);
+  assert.deepEqual(db.calls.at(-1).values, ['person@example.com', 'sub_monthly']);
+  assert.doesNotMatch(db.calls.at(-2).sql, /person_id/);
 });
 
 test('dollar giving is presented in USD', async () => {

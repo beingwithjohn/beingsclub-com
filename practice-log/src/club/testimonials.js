@@ -7,16 +7,35 @@ const CLUB_TIMEZONE = 'Europe/London';
 
 export async function getMemberGiving(env, who, timestamp = now()) {
   const month = clubMonth(timestamp);
-  const row = await env.MEMBERS.prepare(
+  const [row, subscription] = await Promise.all([
+    env.MEMBERS.prepare(
     `SELECT id, attribution_name, body, status, submitted_at, updated_at
        FROM member_testimonial WHERE member_id = ?1 AND month_key = ?2`,
-  ).bind(memberId(who), month).first();
+    ).bind(memberId(who), month).first(),
+    env.DB.prepare(
+      `SELECT amount, currency, status, cancel_at_period_end, updated_at
+         FROM giving_subscription
+        WHERE lower(email) = lower(?1)
+          AND status NOT IN ('canceled', 'incomplete_expired')
+        ORDER BY updated_at DESC LIMIT 1`,
+    ).bind(who.email).first(),
+  ]);
+  const monthlyGiving = subscription &&
+    ['active', 'trialing'].includes(subscription.status) &&
+    !Number(subscription.cancel_at_period_end)
+    ? {
+        active: true,
+        amount: Number(subscription.amount),
+        currency: String(subscription.currency || 'gbp').toLowerCase(),
+      }
+    : null;
   return json({
     month,
     testimonial: row ? shapeMemberTestimonial(row) : null,
     canSubmit: !row,
     suggestedName: who.display_name || '',
     consentVersion: CONSENT,
+    monthlyGiving,
   });
 }
 

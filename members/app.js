@@ -19,7 +19,7 @@
   let member = null;
   let salon = null;
   let fieldNotes = { prompt: null, groups: [] };
-  let givingState = { testimonial: null, canSubmit: true, suggestedName: '' };
+  let givingState = { testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null };
   let directoryState = { profile: null, members: [] };
   let settingsState = {
     email: {
@@ -339,8 +339,11 @@
   }
 
   function renderGiving() {
+    const monthlyActive = givingState.monthlyGiving?.active === true;
+    if (monthlyActive && givingCadence === 'monthly') givingCadence = 'once';
     updateFinancialGivingForm();
     document.getElementById('member-giving-thanks').hidden = !givingThanks;
+    document.getElementById('member-monthly-giving').hidden = !monthlyActive;
     const form = document.getElementById('testimonial-form');
     const current = document.getElementById('testimonial-current');
     const testimonial = givingState.testimonial;
@@ -368,8 +371,10 @@
   }
 
   function updateFinancialGivingForm() {
+    const monthlyActive = givingState.monthlyGiving?.active === true;
     document.querySelectorAll('[data-giving-cadence]').forEach((button) => {
       const selected = button.dataset.givingCadence === givingCadence;
+      button.disabled = monthlyActive && button.dataset.givingCadence === 'monthly';
       button.classList.toggle('is-selected', selected);
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
@@ -402,11 +407,11 @@
         statusNode.textContent = 'In the live member area, Stripe would open securely from here.';
         return;
       }
-      const result = await call('/api/giving', {
+      const result = await call('/api/club/giving/checkout', {
         method: 'POST',
         body: JSON.stringify({
           cadence: givingCadence, currency: givingCurrency,
-          amount: Math.round(Number(raw) * 100), context: 'members',
+          amount: Math.round(Number(raw) * 100),
         }),
       });
       location.href = result.url;
@@ -1274,7 +1279,17 @@
   });
   document.getElementById('leave-cancel').addEventListener('click', closeLeaveFlow);
   document.getElementById('leave-form').addEventListener('submit', submitLeave);
-  window.addEventListener('hashchange', () => showView(member?.name ? viewFromHash() : 'profile'));
+  window.addEventListener('hashchange', () => {
+    const nextView = member?.name ? viewFromHash() : 'profile';
+    if (givingThanks && nextView !== 'giving') {
+      givingThanks = false;
+      const params = new URLSearchParams(location.search);
+      params.delete('thanks');
+      const query = params.toString();
+      history.replaceState(null, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
+    }
+    showView(nextView);
+  });
   window.addEventListener('resize', () => {
     if (membersDrawerTouched) return;
     setMembersDrawerMode(window.innerWidth < 1200 ? 'minimised' : 'compact');
@@ -1288,8 +1303,9 @@
   });
 
   (async () => {
+    const previewParams = new URLSearchParams(location.search);
     const preview = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-      ? new URLSearchParams(location.search).get('preview') : null;
+      ? previewParams.get('preview') : null;
     if (preview) {
       previewMode = true;
       member = {
@@ -1328,6 +1344,8 @@
       givingState = {
         month: '2026-08', testimonial: null, canSubmit: true,
         suggestedName: 'John', consentVersion: 'public-any-channel-light-edit-v1',
+        monthlyGiving: previewParams.get('monthly') === 'active'
+          ? { active: true, amount: 1000, currency: 'gbp' } : null,
       };
       directoryState = {
         profile: {

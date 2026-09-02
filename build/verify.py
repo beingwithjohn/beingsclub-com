@@ -154,6 +154,10 @@ def audit(html, label):
     ok(label + ": discovery language is exact",
        "what is important reveals itself and curiosity itself can deepen" in html and
        "each other, fresh ideas and new futures" in html)
+    if label == "index.html":
+        ok(label + ": public introduction defines curiosity",
+           'data-home-curiosity-definition="1"' in html and
+           "Beings Club defines curiosity as an orientation to experience that is open to discovery." in html)
     ok(label + ": content navigation keeps the whole map visible",
        html.count('class="bc-nav-link"') == 20 and
        all(('href="%s"' % route) in html for route in ['/about/', '/salons/', '/sits/', '/join/']))
@@ -289,6 +293,11 @@ ok("member Giving integrates financial support and one quiet testimonial each mo
    'data-member-view="giving"' in login_html and 'id="testimonial-form"' in login_html and
    'id="financial-giving-form"' in login_html and 'id="member-give"' in login_html and
    'id="member-giving-manage"' in login_html and 'href="/giving/"' not in login_html and
+   'id="member-monthly-giving"' in login_html and 'Monthly giving is active.' in login_html and
+   'Thank you for helping keep Beings Club freely offered.' in login_html and
+   'Thank you. Your gift has been received.' in login_html and
+   "call('/api/club/giving/checkout'" in members_after.get("members/app.js", "") and
+   "monthlyGiving?.active === true" in members_after.get("members/app.js", "") and
    'one testimonial each calendar month' in login_html and
    'will never notify or remind you' in login_html and
    'across any of its public channels' in login_html and

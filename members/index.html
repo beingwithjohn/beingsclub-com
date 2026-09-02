@@ -265,11 +265,21 @@
           <p>Beings Club is freely offered. If something here has been valuable, there are different ways to give something back.</p>
         </header>
 
+        <section class="giving-confirmation" id="member-giving-thanks" role="status" aria-live="polite" hidden>
+          <strong>Thank you. Your gift has been received.</strong>
+          <p>This helps keep Beings Club freely offered.</p>
+        </section>
+
         <section class="giving-options">
           <article class="giving-option financial-giving">
             <span class="eyebrow">financial giving</span>
             <h2>Support the space.</h2>
             <p>Give once or monthly, in whatever amount feels right. Giving nothing changes nothing about your place here.</p>
+            <div class="monthly-giving-active" id="member-monthly-giving" hidden>
+              <strong>Monthly giving is active.</strong>
+              <p>Thank you for helping keep Beings Club freely offered.</p>
+              <button class="text-button manage-giving" id="member-giving-manage" type="button">manage monthly giving</button>
+            </div>
             <div class="financial-giving-form" id="financial-giving-form">
               <div class="giving-choices" role="group" aria-label="How often">
                 <button class="giving-choice is-selected" type="button" data-giving-cadence="once" aria-pressed="true">one-off</button>
@@ -286,9 +296,7 @@
               <p id="member-giving-help">£1 minimum.</p>
               <button class="primary" id="member-give" type="button">continue to Stripe</button>
               <p class="giving-monthly-note" id="member-giving-monthly-note" hidden>It repeats monthly until you end it. Stripe will email receipts.</p>
-              <p class="giving-thanks" id="member-giving-thanks" hidden>Thank you. Your gift has been received.</p>
               <span class="status" id="member-giving-status" role="status" aria-live="polite"></span>
-              <button class="text-button manage-giving" id="member-giving-manage" type="button">manage monthly giving</button>
             </div>
           </article>
 

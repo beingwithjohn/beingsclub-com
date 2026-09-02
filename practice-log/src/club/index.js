@@ -25,7 +25,7 @@ import { announceSalon } from './mailer.js';
 import {
   acceptMemberAgreement, agreementAccepted, MEMBER_AGREEMENT_VERSION,
 } from './agreement.js';
-import { postGivingPortal } from '../giving.js';
+import { postGiving, postGivingPortal } from '../giving.js';
 import { completeOnboarding } from './onboarding.js';
 
 const CODE_LIFETIME = 10 * 60;
@@ -83,6 +83,11 @@ export async function clubRoute(request, env, ctx, url) {
     return dismissFieldNoteInvitation(env, who, Number(dismissFieldNote[1]));
   }
   if (path === '/api/club/giving' && method === 'GET') return getMemberGiving(env, who);
+  if (path === '/api/club/giving/checkout' && method === 'POST') {
+    const body = await readJson(request);
+    if (body === undefined) return bad(400, 'bad json');
+    return postGiving(env, { ...body, context: 'members' }, who);
+  }
   if (path === '/api/club/giving/manage' && method === 'POST') {
     return postGivingPortal(env, who, 'https://beingsclub.com/members/#giving');
   }
