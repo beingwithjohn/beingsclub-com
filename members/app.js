@@ -73,7 +73,7 @@
   let givingThanks = new URLSearchParams(location.search).get('thanks') === '1';
   let welcomeStep = 0;
   let directoryOrder = [];
-  let membersDrawerMode = window.innerWidth < 1200 ? 'minimised' : 'compact';
+  let membersDrawerMode = 'minimised';
   let membersDrawerTouched = false;
   let membersDrawerPinnedId = null;
   let membersDrawerActiveId = null;
@@ -1910,7 +1910,7 @@
   });
   window.addEventListener('resize', () => {
     if (membersDrawerTouched) return;
-    setMembersDrawerMode(window.innerWidth < 1200 ? 'minimised' : 'compact');
+    setMembersDrawerMode('minimised');
   });
 
   const menu = document.getElementById('mobile-menu');

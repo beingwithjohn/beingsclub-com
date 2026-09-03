@@ -77,3 +77,40 @@ test('publishing and announcing remain separate, with a send claim before mail',
   const markedAt = seen.findIndex((entry) => entry[1].includes('announcement_sent_at ='));
   assert.ok(claimAt >= 0 && markedAt > claimAt);
 });
+
+test('a later announcement reaches only members who have not already received it', async () => {
+  const people = [{ id: 2, email: 'mira@example.test', display_name: 'Mira' }];
+  const claims = new Set(); const queued = [];
+  const env = {
+    MEMBERS: {
+      prepare(sql) {
+        return {
+          async all() { return { results: people }; },
+          bind(...args) {
+            return {
+              async first() {
+                return { id: 7, status: 'published', starts_at: 2_000_000_000,
+                  announcement_sent_at: 1_900_000_000, host_note: 'Come as you are.' };
+              },
+              async run() {
+                if (!sql.includes('INSERT INTO club_send_log')) return { meta: { changes: 1 } };
+                const key = `${args[0]}:${args[1]}:${args[2]}`;
+                if (claims.has(key)) return { meta: { changes: 0 } };
+                claims.add(key); return { meta: { changes: 1 } };
+              },
+            };
+          },
+        };
+      },
+    },
+  };
+  const ctx = { waitUntil(value) { queued.push(value); } };
+
+  let response = await announceSalon(env, 7, ctx, 1_900_000_100);
+  assert.deepEqual(await response.json(), { ok: true, recipientCount: 1 });
+  people.push({ id: 3, email: 'noor@example.test', display_name: 'Noor' });
+  response = await announceSalon(env, 7, ctx, 1_900_000_200);
+  assert.deepEqual(await response.json(), { ok: true, recipientCount: 1 });
+  assert.equal(claims.size, 2);
+  await Promise.all(queued);
+});

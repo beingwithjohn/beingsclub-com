@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  joinWindow, parseSalonDraft, publicationProblem, salonHasEnded, validRsvpStatus,
+  deleteHostSalon, joinWindow, parseSalonDraft, publicationProblem, salonHasEnded, validRsvpStatus,
 } from '../src/club/salons.js';
 
 test('Salon drafts store one UTC instant and only secure Zoom links', () => {
@@ -64,4 +64,57 @@ test('RSVP supports in, not this time, and a cleared response only', () => {
   assert.equal(validRsvpStatus('not_this_time'), 'not_this_time');
   assert.equal(validRsvpStatus(null), null);
   assert.equal(validRsvpStatus('maybe'), false);
+});
+
+test('deleting an upcoming Salon removes its managed Zoom meeting first', async () => {
+  const calls = [];
+  let deleted = false;
+  const env = {
+    ZOOM_ACCOUNT_ID: 'account-id', ZOOM_CLIENT_ID: 'client-id',
+    ZOOM_CLIENT_SECRET: 'client-secret', ZOOM_HOST_USER_ID: 'john@example.test',
+    MEMBERS: {
+      prepare(sql) {
+        return {
+          async first() {
+            if (sql.includes('SELECT s.*')) return null;
+            return null;
+          },
+          bind(...args) {
+            return {
+              async first() {
+                if (sql.includes('SELECT * FROM salon')) return {
+                  id: 7, status: 'published', starts_at: 2_000_000_000,
+                  zoom_meeting_id: '12345678901',
+                };
+                return null;
+              },
+              async run() {
+                calls.push({ sql, args });
+                if (sql.includes('DELETE FROM salon')) deleted = true;
+                return { meta: { changes: 1 } };
+              },
+            };
+          },
+        };
+      },
+    },
+  };
+  const fetchImpl = async (url, options) => {
+    calls.push({ url: String(url), options, deleted });
+    if (String(url).includes('/oauth/token')) {
+      return new Response(JSON.stringify({ access_token: 'token', api_url: 'https://api.zoom.us' }), {
+        status: 200, headers: { 'content-type': 'application/json' },
+      });
+    }
+    return new Response(null, { status: 204 });
+  };
+
+  const response = await deleteHostSalon(env, { id: 7 }, 1_900_000_000, fetchImpl);
+  assert.deepEqual(await response.json(), {
+    salon: null, rsvps: [], capabilities: { autoZoom: true },
+  });
+  const zoomDelete = calls.find((call) => call.url?.includes('/v2/meetings/'));
+  const dbDelete = calls.find((call) => call.sql?.includes('DELETE FROM salon'));
+  assert.equal(zoomDelete.deleted, false);
+  assert.ok(dbDelete);
 });

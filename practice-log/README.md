@@ -197,6 +197,10 @@ second email-code round trip. Its hash lives in `member_welcome_link`; the token
 expires after seven days, is stripped from the browser address before exchange,
 and is consumed only by `POST /api/club/auth/welcome`.
 
+Salon announcement and reminder buttons use the same exchange route, with a
+fresh seven-day, one-use entrance per recipient and per email. Issuing one does
+not invalidate another member entrance.
+
 **4 · the public run, and the host**
 
 ```bash

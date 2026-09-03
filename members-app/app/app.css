@@ -109,6 +109,7 @@ button{cursor:pointer}
 .salon-form textarea{border:1px solid #DAD6CB;padding:12px 14px;min-height:94px;resize:vertical;line-height:1.6}
 .salon-form input:focus,.salon-form textarea:focus{border-color:var(--violet)}
 .salon-form-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.salon-form-actions .danger{margin-left:auto;color:#7B3E45}
 .salon-host-state{display:flex;gap:12px 24px;flex-wrap:wrap;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft)}
 .salon-next{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:#75726A}
 .salon-roster{display:grid}
@@ -397,6 +398,16 @@ button{cursor:pointer}
 .financial-giving-form>.primary{width:100%}
 .financial-giving-form .giving-monthly-note{color:#75726A}
 .manage-giving{width:max-content;margin-top:5px;color:var(--violet)}
+.giving-social{display:flex;align-items:end;justify-content:space-between;gap:28px;padding:28px 30px;border:1px solid var(--line);background:#FCFBF8}
+.giving-social>div:first-child{display:grid;gap:9px;max-width:560px}
+.giving-social h2{margin:0;font-size:24px;line-height:1.15;letter-spacing:-.035em}
+.giving-social p{margin:0;font-size:13px;line-height:1.65;color:#656159}
+.giving-social-links{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.giving-social-link{display:inline-flex;align-items:center;justify-content:center;min-width:132px;padding:13px 18px;border:1px solid;text-decoration:none;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;transition:background .2s ease,color .2s ease,border-color .2s ease}
+.giving-social-instagram{border-color:#CFC5E1;color:var(--violet);background:#F2ECFF}
+.giving-social-instagram:hover,.giving-social-instagram:focus-visible{border-color:var(--violet);color:var(--paper);background:var(--violet)}
+.giving-social-x{border-color:#252523;color:#252523;background:var(--paper)}
+.giving-social-x:hover,.giving-social-x:focus-visible{border-color:#252523;color:var(--paper);background:#252523}
 .testimonial-form{display:grid;gap:18px;margin-top:6px}
 .testimonial-form>label:not(.testimonial-consent){display:grid;gap:6px}
 .testimonial-form>label>span:first-child{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#75726A}
@@ -580,7 +591,7 @@ button{cursor:pointer}
 @media(max-width:720px){
   .back-link{left:22px;top:22px}
   .member-nav{display:none}
-  .clock{right:70px;top:28px}
+  .clock{display:none}
   .greeting{left:22px}
   .menu-button{display:grid;position:absolute;top:14px;right:14px;z-index:7;width:40px;height:40px;place-items:center;border:0;background:transparent;font-size:17px;color:var(--ink)}
   .mobile-menu{position:fixed;inset:0;z-index:9;background:var(--paper);align-content:center;justify-items:start;gap:8px;padding:0 34px;animation:appear .3s cubic-bezier(.22,1,.36,1) both}
@@ -612,6 +623,9 @@ button{cursor:pointer}
   .giving-content{padding:12vh 22px 80px;gap:40px}
   .giving-options{grid-template-columns:1fr}
   .giving-option{padding:24px 20px}
+  .giving-social{align-items:start;flex-direction:column;padding:24px 20px}
+  .giving-social-links{justify-content:flex-start;width:100%}
+  .giving-social-link{flex:1;min-width:120px}
   .directory-content,.profile-content,.settings-content{padding:12vh 22px 80px;gap:40px}
   .directory-grid{grid-template-columns:1fr 1fr;gap:28px 12px}
   .directory-words h2{font-size:18px}
@@ -652,6 +666,4 @@ button{cursor:pointer}
 
 @media(max-width:430px){.directory-grid{grid-template-columns:1fr}}
 @media(max-width:430px){.directory-portrait{width:150px}}
-@media(max-width:520px){.member-shell .clock{display:none}}
-
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}

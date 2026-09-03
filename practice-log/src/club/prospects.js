@@ -7,6 +7,7 @@ import {
   sameText, tokenHash, validChallenge, validCode,
 } from './security.js';
 import { agreementAccepted, MEMBER_AGREEMENT_VERSION } from './agreement.js';
+import { issueMemberWelcomeLink } from './member-links.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -17,7 +18,6 @@ const CAL_USERNAME = 'beingwithjohn';
 const CAL_SLOTS_API_VERSION = '2024-09-04';
 const CAL_BOOKINGS_API_VERSION = '2026-02-25';
 const CAL_DURATION_MINUTES = 25;
-const WELCOME_LINK_LIFETIME = 7 * 24 * 60 * 60;
 
 export async function requestProspectCode(request, env, ctx, body) {
   const responseChallenge = randomToken(24);
@@ -419,27 +419,6 @@ export async function resendProspectWelcome(env, id) {
   ).bind(sent ? timestamp : null, timestamp, sent ? null : 'delivery failed', prospect.member_id).run();
   if (!sent) return bad(502, 'welcome email did not send');
   return json({ ok: true, invitationSent: true });
-}
-
-async function issueMemberWelcomeLink(env, memberId, timestamp) {
-  const welcomeToken = randomToken();
-  await env.MEMBERS.batch([
-    env.MEMBERS.prepare(
-      `UPDATE member_welcome_link SET consumed_at = ?1
-        WHERE member_id = ?2 AND consumed_at IS NULL`,
-    ).bind(timestamp, memberId),
-    env.MEMBERS.prepare(
-      `INSERT INTO member_welcome_link
-        (token_hash, member_id, created_at, expires_at)
-       VALUES (?1, ?2, ?3, ?4)`,
-    ).bind(
-      await tokenHash(welcomeToken), memberId, timestamp, timestamp + WELCOME_LINK_LIFETIME,
-    ),
-    env.MEMBERS.prepare(
-      'DELETE FROM member_welcome_link WHERE expires_at < ?1',
-    ).bind(timestamp - 86400),
-  ]);
-  return `https://beingsclub.com/members/#welcome=${encodeURIComponent(welcomeToken)}`;
 }
 
 export async function calWebhook(env, request) {

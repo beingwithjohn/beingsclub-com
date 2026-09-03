@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  sendClubInvitation, sendClubWelcome, sendMemberJoinedNotification,
+  sendClubInvitation, sendClubSalonEmail, sendClubWelcome, sendMemberJoinedNotification,
 } from '../src/mail/send.js';
 
 test('a member invitation is personal, idempotent and points to the member entrance', async () => {
@@ -115,6 +115,40 @@ test('John receives one clear notice after a member completes the welcome', asyn
     assert.match(body.text, /completed the Beings Club welcome/);
     assert.match(body.text, /mira@example\.test/);
     assert.match(body.html, /open host tools/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('Salon email opens through the member-specific private entrance', async () => {
+  const original = globalThis.fetch;
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: 'email_salon' }), { status: 200 });
+  };
+  const actionUrl = 'https://beingsclub.com/members/#welcome=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  try {
+    const sent = await sendClubSalonEmail({
+      RESEND_API_KEY: 'test-key',
+      MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
+      MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    }, {
+      email: 'mira@example.test', name: 'Mira',
+      salonStartsAt: Date.parse('2026-09-30T18:00:00Z') / 1000,
+      hostNote: 'Looking forward to being with you all.',
+      kind: 'announcement', actionUrl,
+    });
+    assert.equal(sent, true);
+    const body = JSON.parse(request.options.body);
+    assert.match(body.text, /We will gather for the next Salon on Wednesday 30 September, 7 PM BST\./);
+    assert.match(body.text, /#welcome=AAAA/);
+    assert.match(body.text, /private link that logs you into your account/);
+    assert.match(body.text, /please don’t share it/);
+    assert.match(body.html, /#welcome=AAAA/);
+    assert.match(body.html, /open the Salon/);
+    assert.match(body.html, /private link that logs you into your account/);
+    assert.doesNotMatch(body.text, /members\/#salon/);
   } finally {
     globalThis.fetch = original;
   }

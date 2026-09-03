@@ -26,6 +26,23 @@ export async function createZoomMeeting(env, salon, fetchImpl = fetch) {
   return { meetingId: String(data.id), joinUrl: data.join_url };
 }
 
+export async function deleteZoomMeeting(env, meetingId, fetchImpl = fetch) {
+  if (!zoomConfigured(env)) throw new Error('Zoom is not configured');
+  const id = String(meetingId || '').trim();
+  if (!/^\d+$/.test(id)) throw new Error('Zoom meeting ID is missing');
+  const token = await requestAccessToken(env, fetchImpl);
+  const endpoint = `${token.apiUrl}/v2/meetings/${encodeURIComponent(id)}`;
+  const response = await fetchImpl(endpoint, {
+    method: 'DELETE',
+    headers: { authorization: `Bearer ${token.accessToken}` },
+  });
+  if (!response.ok && response.status !== 404) {
+    const data = await responseJson(response);
+    throw zoomFailure('delete', response.status, data);
+  }
+  return true;
+}
+
 export function zoomMeetingPayload(salon) {
   const startsAt = Number(salon?.starts_at);
   const duration = Number(salon?.duration_minutes || 90);

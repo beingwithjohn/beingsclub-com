@@ -11,6 +11,7 @@
   const salonStatus = document.getElementById('salon-status');
   const publishSalon = document.getElementById('publish-salon');
   const saveSalonButton = document.getElementById('save-salon');
+  const deleteSalonButton = document.getElementById('delete-salon');
   const salonNext = document.getElementById('salon-next');
   const startNextSalon = document.getElementById('start-next-salon');
   const emailAnnouncement = document.getElementById('email-announcement');
@@ -142,6 +143,7 @@
       state.textContent = 'No Salon is being prepared.'; summary.textContent = '';
       publishSalon.textContent = 'publish to members';
       publishSalon.disabled = false; saveSalonButton.disabled = false; salonNext.hidden = true;
+      deleteSalonButton.hidden = true; deleteSalonButton.disabled = false;
       emailAnnouncement.disabled = true; emailAnnouncement.textContent = 'email announcement';
       document.getElementById('announcement-copy').textContent = 'Publish the Salon before announcing it.';
       return;
@@ -163,15 +165,22 @@
       ? 'Salon ended' : currentSalon.status === 'published' ? 'published' : 'publish to members';
     publishSalon.disabled = currentSalon.status === 'published';
     saveSalonButton.disabled = !!currentSalon.hasEnded;
+    deleteSalonButton.hidden = !!currentSalon.hasEnded;
+    deleteSalonButton.disabled = false;
     salonNext.hidden = !currentSalon.hasEnded;
-    emailAnnouncement.disabled = !!currentSalon.hasEnded || currentSalon.status !== 'published' || !!currentSalon.announcementSentAt;
-    emailAnnouncement.textContent = currentSalon.announcementSentAt ? 'announcement sent' : 'email announcement';
+    const announcementCount = Number(currentSalon.announcementRecipientCount || 0);
+    emailAnnouncement.disabled = !!currentSalon.hasEnded || currentSalon.status !== 'published' || announcementCount === 0;
+    emailAnnouncement.textContent = currentSalon.announcementSentAt
+      ? announcementCount ? `email new members · ${announcementCount}` : 'email new members'
+      : 'email announcement';
     document.getElementById('announcement-copy').textContent = currentSalon.hasEnded
       ? 'This Salon has ended. Its gathering remains here and in Field Notes.'
       : currentSalon.announcementSentAt
-      ? 'Sent once. Week and day reminders follow each member’s settings.'
+      ? announcementCount
+        ? `${announcementCount} ${announcementCount === 1 ? 'member has' : 'members have'} not received this announcement yet.`
+        : 'Everyone currently eligible has received this announcement. If somebody joins later, you can send it to them here.'
       : currentSalon.status === 'published'
-        ? 'Separate from publishing. Sends once only to members who chose announcement email.'
+        ? `${announcementCount} ${announcementCount === 1 ? 'member will' : 'members will'} receive it. Each person receives this announcement once.`
         : 'Publish the Salon before announcing it.';
     summary.textContent = `${currentSalon.rsvpCount || 0} ${currentSalon.rsvpCount === 1 ? 'being is' : 'beings are'} in`;
     rsvps.forEach((rsvp) => {
@@ -503,15 +512,40 @@
     } finally { startNextSalon.disabled = false; }
   });
 
+  deleteSalonButton.addEventListener('click', async () => {
+    if (!currentSalon || currentSalon.hasEnded) return;
+    if (!window.confirm('Delete this Salon? It will disappear for every member and its RSVPs will be removed. Any automatically created Zoom meeting will be cancelled. This cannot be undone.')) return;
+    salonStatus.textContent = ''; deleteSalonButton.disabled = true;
+    try {
+      if (previewMode) {
+        renderSalon({ salon: null, rsvps: [], capabilities: { autoZoom } });
+      } else {
+        renderSalon(await call('/api/club/host/salon/delete', {
+          method: 'POST', body: JSON.stringify({ id: currentSalon.id }),
+        }));
+      }
+      salonStatus.textContent = 'The Salon and its RSVPs were deleted.';
+    } catch (error) {
+      salonStatus.textContent = error.message || 'The Salon could not be deleted. Nothing has changed.';
+      deleteSalonButton.disabled = false;
+    }
+  });
+
   emailAnnouncement.addEventListener('click', async () => {
-    if (!currentSalon || currentSalon.status !== 'published' || currentSalon.announcementSentAt) return;
-    if (!window.confirm('Email the Salon announcement now? It can only be sent once.')) return;
+    if (!currentSalon || currentSalon.status !== 'published' || currentSalon.hasEnded) return;
+    const count = Number(currentSalon.announcementRecipientCount || 0);
+    if (!count) return;
+    const question = currentSalon.announcementSentAt
+      ? `Email the Salon announcement to ${count} ${count === 1 ? 'new member' : 'new members'} now?`
+      : `Email the Salon announcement to ${count} ${count === 1 ? 'member' : 'members'} now?`;
+    if (!window.confirm(question)) return;
     salonStatus.textContent = ''; emailAnnouncement.disabled = true;
     try {
       if (previewMode) {
         currentSalon.announcementSentAt = new Date().toISOString();
+        currentSalon.announcementRecipientCount = 0;
         renderSalon({ salon: currentSalon, rsvps: [] });
-        salonStatus.textContent = 'Preview: the announcement would be queued once.';
+        salonStatus.textContent = `Preview: announcement queued for ${count} ${count === 1 ? 'member' : 'members'}.`;
         return;
       }
       const result = await call('/api/club/host/salon/announce', {
@@ -520,8 +554,7 @@
       const data = await call('/api/club/host/salon'); renderSalon(data);
       salonStatus.textContent = `Announcement queued for ${result.recipientCount} ${result.recipientCount === 1 ? 'member' : 'members'}.`;
     } catch (error) {
-      salonStatus.textContent = error.message === 'announcement already sent'
-        ? 'This announcement has already been sent.' : 'The announcement could not be sent. Nothing was retried.';
+      salonStatus.textContent = 'The announcement could not be sent. Nothing was retried.';
       try { renderSalon(await call('/api/club/host/salon')); } catch (_) {}
     }
   });
@@ -580,7 +613,7 @@
           note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',
           startsAt: '2026-09-30T18:00:00.000Z', timezone: 'Europe/London',
           durationMinutes: 90, zoomUrl: null, zoomManaged: false,
-          status: 'draft', announcementSentAt: null, rsvpCount: 3,
+          status: 'draft', announcementSentAt: null, announcementRecipientCount: 3, rsvpCount: 3,
           hasEnded: false,
         },
         rsvps: [

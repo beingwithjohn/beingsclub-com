@@ -63,22 +63,32 @@ The private foundation and first complete member slice:
   with bounded motion that respects reduced-motion preferences;
 - the directory exposes no email address, contact details, activity, presence,
   ranking or member-to-member messaging, and profile images remain private;
+- the small members drawer on the Salon always starts minimised and expands
+  only after the member deliberately opens it;
 - a member without a chosen name is taken to Profile before the rest of the
   member area, so signed Field Notes and testimonials have a deliberate identity.
 - Settings offers announcement, one-month, one-week, one-day and one-hour Salon
   email choices, plus the one-off Field Note invitation; announcement, week,
   day and Field Notes default on, while month and hour are opt-in;
+- every Salon email’s main button carries a separate seven-day, one-use member
+  entrance, so it opens the Salon without another email-code round trip;
 - “Quiet, for now” silences optional Club mail without affecting requested
   six-digit access codes, and every Club email links back to Settings;
 - members can replay the complete welcome from Settings without changing their
   existing agreement, and the visible in-person navigation opens an honest
   coming-soon page rather than a dead label;
+- desktop and mobile member navigation also link directly to the Club’s public
+  Luma events listing;
 - members can revoke every session and can leave the Club immediately, choosing
   whether their existing Field Notes remain signed, become anonymous or are
   permanently removed; a last remaining host cannot accidentally leave;
 - publishing a Salon and emailing its announcement are separate host actions;
-  week/day reminders use the existing half-hour Worker schedule and an
-  at-most-once send claim.
+  the host can send the same announcement again after more people join, while
+  the at-most-once claim ensures each member receives it only once; week/day
+  reminders use the existing half-hour Worker schedule and the same protection.
+- the host can delete an upcoming draft or published Salon after a destructive
+  confirmation; its RSVPs disappear with it, and an automatically created Zoom
+  meeting is cancelled before the Salon is removed.
 - once a Salon has ended, the host can retain it as a completed gathering and
   start a fresh draft; its RSVPs, attendance and Field Notes remain attached
   to the completed Salon, while the next publication receives a fresh Zoom meeting.

@@ -5,7 +5,7 @@ import {
   sameText, tokenHash, validChallenge, validCode,
 } from './security.js';
 import {
-  closeCompletedSalon, getHostSalon, getMemberSalon, publishHostSalon,
+  closeCompletedSalon, deleteHostSalon, getHostSalon, getMemberSalon, publishHostSalon,
   saveHostSalon, setMemberRsvp,
 } from './salons.js';
 import {
@@ -170,6 +170,9 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (path === '/api/club/host/salon/close' && method === 'POST') {
     return closeCompletedSalon(env, await readJson(request));
+  }
+  if (path === '/api/club/host/salon/delete' && method === 'POST') {
+    return deleteHostSalon(env, await readJson(request));
   }
   if (path === '/api/club/host/salon/announce' && method === 'POST') {
     const body = await readJson(request);

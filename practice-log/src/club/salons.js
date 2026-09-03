@@ -1,5 +1,7 @@
 import { bad, json } from '../api.js';
-import { createZoomMeeting, isZoomJoinUrl, zoomConfigured } from './zoom.js';
+import {
+  createZoomMeeting, deleteZoomMeeting, isZoomJoinUrl, zoomConfigured,
+} from './zoom.js';
 
 const NOTE_MAX = 2400;
 const URL_MAX = 2000;
@@ -64,7 +66,22 @@ export async function getHostSalon(env, timestamp = now()) {
               JOIN member active_member ON active_member.id = r.member_id
               WHERE r.salon_id = s.id AND r.status = 'in'
                 AND active_member.disabled_at IS NULL
-                AND active_member.left_at IS NULL) AS rsvp_count
+                AND active_member.left_at IS NULL) AS rsvp_count,
+            (SELECT COUNT(*)
+               FROM member announcement_member
+               LEFT JOIN member_email_pref announcement_pref
+                 ON announcement_pref.member_id = announcement_member.id
+              WHERE announcement_member.joined_at IS NOT NULL
+                AND announcement_member.disabled_at IS NULL
+                AND announcement_member.left_at IS NULL
+                AND COALESCE(announcement_pref.quiet, 0) = 0
+                AND COALESCE(announcement_pref.salon_announced, 1) = 1
+                AND NOT EXISTS (
+                  SELECT 1 FROM club_send_log announcement_log
+                   WHERE announcement_log.member_id = announcement_member.id
+                     AND announcement_log.kind = 'salon_announced'
+                     AND announcement_log.scope = CAST(s.id AS TEXT)
+                )) AS announcement_recipient_count
        FROM salon s
       WHERE s.status IN ('draft', 'published')
       ORDER BY CASE s.status WHEN 'published' THEN 0 ELSE 1 END,
@@ -192,6 +209,36 @@ export async function closeCompletedSalon(env, body, timestamp = now()) {
   return getHostSalon(env, timestamp);
 }
 
+export async function deleteHostSalon(env, body, timestamp = now(), fetchImpl = fetch) {
+  const id = Number(body?.id || 0);
+  if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  const salon = await env.MEMBERS.prepare(
+    `SELECT * FROM salon WHERE id = ?1 AND status IN ('draft', 'published')`,
+  ).bind(id).first();
+  if (!salon) return bad(404, 'not found');
+  if (Number(salon.starts_at) && Number(salon.starts_at) <= timestamp) {
+    return bad(409, 'Salon has started');
+  }
+
+  if (salon.zoom_meeting_id) {
+    try {
+      await deleteZoomMeeting(env, salon.zoom_meeting_id, fetchImpl);
+    } catch (_) {
+      return bad(502, 'Zoom could not cancel the meeting. Nothing was deleted.');
+    }
+  }
+
+  const deleted = await env.MEMBERS.prepare(
+    `DELETE FROM salon WHERE id = ?1 AND status IN ('draft', 'published')`,
+  ).bind(id).run();
+  if ((deleted.meta?.changes ?? 0) !== 1) return bad(409, 'Salon changed. Nothing was deleted.');
+  await env.MEMBERS.prepare(
+    `DELETE FROM club_send_log
+      WHERE scope = ?1 AND kind IN ('salon_announced', 'salon_month', 'salon_week', 'salon_day', 'salon_hour')`,
+  ).bind(String(id)).run();
+  return getHostSalon(env, timestamp);
+}
+
 export function validRsvpStatus(value) {
   if (value == null || value === '') return null;
   return value === 'in' || value === 'not_this_time' ? value : false;
@@ -260,6 +307,7 @@ function shapeHostSalon(salon, timestamp) {
     status: salon.status,
     publishedAt: iso(salon.published_at),
     announcementSentAt: iso(salon.announcement_sent_at),
+    announcementRecipientCount: Number(salon.announcement_recipient_count || 0),
     rsvpCount: Number(salon.rsvp_count || 0),
     joinAvailableAt: salon.starts_at ? iso(Number(salon.starts_at) - JOIN_EARLY_SECONDS) : null,
     isJoinWindow: salon.starts_at ? joinWindow(salon, timestamp) : false,

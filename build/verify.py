@@ -258,6 +258,12 @@ ok("host controls keep drafting, publishing and email as separate actions",
    'id="salon-form"' in host_html and 'id="publish-salon"' in host_html and
    'type="button" disabled>email announcement</button>' in host_html and
    "publishSalon.disabled = currentSalon?.status === 'published'" in members_after.get("members/host.js", ""))
+ok("host can safely delete an upcoming Salon or announce it to later members",
+   'id="delete-salon"' in host_html and 'id="email-announcement"' in host_html and
+   "call('/api/club/host/salon/delete'" in members_after.get("members/host.js", "") and
+   'Each person receives this announcement once.' in members_after.get("members/host.js", "") and
+   '@media(max-width:720px)' in members_after.get("members/app.css", "") and
+   '.clock{display:none}' in members_after.get("members/app.css", ""))
 ok("host publishing offers automatic Zoom creation with a manual fallback",
    'Zoom join link · optional fallback' in host_html and
    'Leave this blank for a fresh Zoom meeting' in host_html and
@@ -350,6 +356,9 @@ ok("member Giving integrates financial support and one quiet testimonial each mo
    'we won’t notify or remind you' in login_html and
    'on its website, emails and social channels' in login_html and
    'lightly edited or excerpted without changing their meaning' in login_html and
+   'href="https://instagram.com/beings_club"' in login_html and
+   'href="https://x.com/beings_club"' in login_html and
+   'Following and sharing Beings Club is another way to support.' in login_html and
    'id="testimonial-edit"' in login_html and 'id="testimonial-withdraw"' in login_html)
 ok("member directory is contextual rather than social infrastructure",
    'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
@@ -371,7 +380,8 @@ ok("the original ambient member drawer complements the full directory",
    'id="members-drawer-resize"' in login_html and 'open the members page →' in login_html and
    "function randomiseDirectory()" in members_after.get("members/app.js", "") and
    "const drawerVisible = name === 'salon';" in members_after.get("members/app.js", "") and
-   "window.innerWidth < 1200 ? 'minimised' : 'compact'" in members_after.get("members/app.js", "") and
+   "let membersDrawerMode = 'minimised'" in members_after.get("members/app.js", "") and
+   'class="members-drawer is-minimised"' in login_html and
    "button.addEventListener('mouseenter', show); button.addEventListener('focus', show);" in members_after.get("members/app.js", ""))
 ok("member profile requires only a chosen name",
    'data-member-view="profile"' in login_html and 'id="profile-form"' in login_html and
@@ -382,7 +392,10 @@ ok("member profile requires only a chosen name",
    "toDataURL('image/jpeg', 0.9)" in members_after.get("members/app.js", ""))
 ok("in-person navigation opens an honest coming-soon member page",
    'data-member-view="in-person"' in login_html and 'id="in-person-page"' in login_html and
-   'Nothing has been announced yet' in login_html)
+   'In-person <strong>happenings</strong>.' in login_html and
+   'Nothing has been announced yet' in login_html and
+   login_html.count('href="https://lu.ma/beingsclub"') >= 2 and
+   host_html.count('href="https://lu.ma/beingsclub"') >= 2)
 ok("member Settings carries every Salon timing, welcome replay and quiet-email language",
    'data-member-view="settings"' in login_html and 'id="settings-page"' in login_html and
    'id="email-salon-announced"' in login_html and 'id="email-salon-month"' in login_html and
@@ -459,13 +472,16 @@ ok("host can deliberately resend a welcome before onboarding is complete",
 welcome_migration = io.open(os.path.join(
     ROOT, "practice-log", "members-migrations", "0013_member_welcome_links.sql"
 ), encoding="utf-8").read()
+member_links_api = io.open(os.path.join(
+    ROOT, "practice-log", "src", "club", "member-links.js"
+), encoding="utf-8").read()
 ok("welcome email enters onboarding without another email-code round trip",
    "CREATE TABLE member_welcome_link" in welcome_migration and
    "path === '/api/club/auth/welcome'" in club_router and
    "enterMemberWelcome" in prospects_api and
    "location.hash.replace" in members_after.get("members/app.js", "") and
    "history.replaceState" in members_after.get("members/app.js", "") and
-   "#welcome=${encodeURIComponent(welcomeToken)}" in prospects_api)
+   "#welcome=${encodeURIComponent(token)}" in member_links_api)
 onboarding_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "onboarding.js"),
                          encoding="utf-8").read()
 ok("finishing the first-entry welcome sends one retry-safe host notice",
@@ -491,12 +507,17 @@ ok("leaving revokes access and honours each Field Note archive choice",
 ok("Salon announcement and reminder mail is member-controlled and at-most-once",
    'club_send_log' in mailer_api and "COALESCE(p.quiet, 0) = 0" in mailer_api and
    'salon_announced' in mailer_api and 'salon_month' in mailer_api and
-   'salon_week' in mailer_api and 'salon_day' in mailer_api and 'salon_hour' in mailer_api)
+   'salon_week' in mailer_api and 'salon_day' in mailer_api and 'salon_hour' in mailer_api and
+   'announcement already sent' not in mailer_api and 'announcement_recipient_count' in salons_api)
 ok("Salon publishing creates a locked-down Zoom meeting without storing the host URL",
    'account_credentials' in zoom_api and "method: 'POST'" in zoom_api and
    'mute_upon_entry: true' in zoom_api and 'waiting_room: true' in zoom_api and
    'join_before_host: false' in zoom_api and "auto_recording: 'none'" in zoom_api and
    'data?.start_url' not in zoom_api)
+ok("deleting an upcoming Salon removes its automatically created Zoom meeting",
+   "path === '/api/club/host/salon/delete'" in club_router and
+   'deleteZoomMeeting' in salons_api and "method: 'DELETE'" in zoom_api and
+   "DELETE FROM salon WHERE id" in salons_api)
 ok("completed Salons are retained before a fresh draft and Zoom meeting",
    "path === '/api/club/host/salon/close'" in club_router and
    "status = 'closed'" in salons_api and 'hasEnded: salonHasEnded' in salons_api and

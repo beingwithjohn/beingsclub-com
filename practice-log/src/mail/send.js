@@ -277,18 +277,18 @@ export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt 
 
 /** The five member-controlled Salon emails: announcement, month, week, day and hour. */
 export async function sendClubSalonEmail(env, {
-  email, name, salonStartsAt, hostNote, kind,
+  email, name, salonStartsAt, hostNote, kind, actionUrl,
 }) {
   const when = clubSalonTime(salonStartsAt);
   const settingsUrl = 'https://beingsclub.com/members/#settings';
-  const salonUrl = 'https://beingsclub.com/members/#salon';
+  const salonUrl = actionUrl || 'https://beingsclub.com/members/#salon';
   const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
   const versions = {
     announcement: {
       subject: `The next Salon has been announced · ${when}`,
       preheader: `The next Salon has been announced for ${when}.`,
       heading: 'The next <span style="color:#5A4B7C">Salon</span>.',
-      opening: `The next Salon has taken shape. We’ll gather ${when}.`,
+      opening: `We will gather for the next Salon on ${when}.`,
     },
     month: {
       subject: 'One month until the next Salon',
@@ -318,7 +318,10 @@ export async function sendClubSalonEmail(env, {
   const version = versions[kind] || versions.announcement;
   const note = String(hostNote || '').trim();
   const description = 'We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes, and nothing to prepare or bring. There is nothing to do except stay curious.';
-  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${version.opening}\n\n${note ? `${note}\n\n` : ''}${description}\n\nOpen the Salon to RSVP or add it to your calendar:\n${salonUrl}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
+  const privateLinkNote = actionUrl
+    ? 'This is a private link that logs you into your account, so please don’t share it.'
+    : '';
+  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${version.opening}\n\n${note ? `${note}\n\n` : ''}${description}\n\nOpen the Salon to RSVP or add it to your calendar:\n${salonUrl}${privateLinkNote ? `\n\n${privateLinkNote}` : ''}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: version.preheader,
     heading: version.heading,
@@ -327,6 +330,9 @@ export async function sendClubSalonEmail(env, {
       + `<p style="margin:0">${escapeHtml(description)}</p>`,
     actionUrl: salonUrl,
     actionLabel: 'open the Salon',
+    afterBody: privateLinkNote
+      ? `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`
+      : '',
     settingsUrl,
   });
   return post(env, { to: email, from: club(env), subject: version.subject, text, html });

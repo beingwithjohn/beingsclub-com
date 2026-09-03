@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createZoomMeeting, isZoomJoinUrl, zoomConfigured, zoomMeetingPayload,
+  createZoomMeeting, deleteZoomMeeting, isZoomJoinUrl, zoomConfigured, zoomMeetingPayload,
 } from '../src/club/zoom.js';
 
 const env = {
@@ -76,4 +76,22 @@ test('only real HTTPS Zoom meeting doorways are accepted', () => {
   assert.equal(isZoomJoinUrl('http://zoom.us/j/123456789'), false);
   assert.equal(isZoomJoinUrl('https://zoom.us.example.com/j/123456789'), false);
   assert.equal(isZoomJoinUrl('https://example.com/j/123456789'), false);
+});
+
+test('deleting an automatic Salon meeting removes it from Zoom', async () => {
+  const calls = [];
+  const fakeFetch = async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (calls.length === 1) {
+      return new Response(JSON.stringify({
+        access_token: 'access-token', api_url: 'https://api.zoom.us', expires_in: 3600,
+      }), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+    return new Response(null, { status: 204 });
+  };
+
+  assert.equal(await deleteZoomMeeting(env, '12345678901', fakeFetch), true);
+  assert.equal(calls[1].url, 'https://api.zoom.us/v2/meetings/12345678901');
+  assert.equal(calls[1].options.method, 'DELETE');
+  assert.equal(calls[1].options.headers.authorization, 'Bearer access-token');
 });

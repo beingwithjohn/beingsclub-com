@@ -1,6 +1,7 @@
 import { bad, json } from '../api.js';
 import { sendClubSalonEmail } from '../mail/send.js';
 import { retryHostJoinNotices } from './onboarding.js';
+import { issueMemberAccessLink } from './member-links.js';
 
 const HALF_HOUR = 30 * 60;
 const DAY = 24 * 60 * 60;
@@ -18,7 +19,6 @@ export async function announceSalon(env, salonId, ctx, timestamp = now()) {
       AND starts_at > ?2`,
   ).bind(salonId, timestamp).first();
   if (!salon) return bad(404, 'not found');
-  if (salon.announcement_sent_at) return bad(409, 'announcement already sent');
 
   const recipients = await eligibleMembers(env, 'salon_announced');
   const claimed = await claimRecipients(env, recipients, 'salon_announced', String(salon.id), timestamp);
@@ -27,13 +27,17 @@ export async function announceSalon(env, salonId, ctx, timestamp = now()) {
       WHERE id = ?2 AND announcement_sent_at IS NULL`,
   ).bind(timestamp, salon.id).run();
   if (claimed.length) {
-    ctx.waitUntil(Promise.all(claimed.map((person) => sendClubSalonEmail(env, {
-      email: person.email,
-      name: person.display_name,
-      salonStartsAt: salon.starts_at,
-      hostNote: salon.host_note,
-      kind: 'announcement',
-    }))));
+    ctx.waitUntil(Promise.all(claimed.map(async (person) => {
+      const actionUrl = await issueMemberAccessLink(env, person.id, timestamp);
+      return sendClubSalonEmail(env, {
+        email: person.email,
+        name: person.display_name,
+        salonStartsAt: salon.starts_at,
+        hostNote: salon.host_note,
+        kind: 'announcement',
+        actionUrl,
+      });
+    })));
   }
   return json({ ok: true, recipientCount: claimed.length });
 }
@@ -55,13 +59,17 @@ export async function runClubMail(env, scheduledTime = Date.now()) {
       const claimed = await claimRecipients(
         env, recipients, reminder.kind, String(salon.id), timestamp,
       );
-      const outcomes = await Promise.all(claimed.map((person) => sendClubSalonEmail(env, {
-        email: person.email,
-        name: person.display_name,
-        salonStartsAt: salon.starts_at,
-        hostNote: salon.host_note,
-        kind: reminder.kind.replace('salon_', ''),
-      })));
+      const outcomes = await Promise.all(claimed.map(async (person) => {
+        const actionUrl = await issueMemberAccessLink(env, person.id, timestamp);
+        return sendClubSalonEmail(env, {
+          email: person.email,
+          name: person.display_name,
+          salonStartsAt: salon.starts_at,
+          hostNote: salon.host_note,
+          kind: reminder.kind.replace('salon_', ''),
+          actionUrl,
+        });
+      }));
       sent += outcomes.filter(Boolean).length;
     }
   }
