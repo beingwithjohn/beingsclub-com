@@ -115,7 +115,7 @@ export async function clubRoute(request, env, ctx, url) {
   }
   const rsvp = /^\/api\/club\/salons\/(\d+)\/rsvp$/.exec(path);
   if (rsvp && method === 'POST') {
-    return setMemberRsvp(env, who, Number(rsvp[1]), await readJson(request));
+    return setMemberRsvp(env, who, Number(rsvp[1]), await readJson(request), ctx);
   }
   if (path === '/api/club/field-notes' && method === 'GET') return getMemberFieldNotes(env, who);
   if (path === '/api/club/field-notes' && method === 'POST') {

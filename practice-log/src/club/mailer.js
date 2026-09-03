@@ -1,5 +1,5 @@
 import { bad, json } from '../api.js';
-import { sendClubSalonEmail } from '../mail/send.js';
+import { sendClubSalonEmail, sendClubSalonRsvpEmail } from '../mail/send.js';
 import { retryHostJoinNotices } from './onboarding.js';
 import { issueMemberAccessLink } from './member-links.js';
 
@@ -11,6 +11,30 @@ const REMINDERS = [
   { kind: 'salon_day', preference: 'salon_day', offset: DAY },
   { kind: 'salon_hour', preference: 'salon_hour', offset: 60 * 60 },
 ];
+
+export async function queueSalonRsvpConfirmation(env, who, salon, ctx, timestamp = now()) {
+  const result = await env.MEMBERS.prepare(
+    `INSERT INTO club_send_log (member_id, kind, scope, claimed_at)
+     VALUES (?1, 'salon_rsvp', ?2, ?3)
+     ON CONFLICT(member_id, kind, scope) DO NOTHING`,
+  ).bind(who.id, String(salon.id), timestamp).run();
+  if ((result.meta?.changes ?? 0) !== 1) return false;
+
+  const actionUrl = await issueMemberAccessLink(env, who.id, timestamp);
+  const delivery = sendClubSalonRsvpEmail(env, {
+    email: who.email,
+    name: who.display_name,
+    salonId: salon.id,
+    salonStartsAt: salon.starts_at,
+    durationMinutes: salon.duration_minutes,
+    hostNote: salon.host_note,
+    actionUrl,
+    idempotencyKey: `club-salon-rsvp-${salon.id}-${who.id}`,
+  });
+  if (ctx?.waitUntil) ctx.waitUntil(delivery);
+  else await delivery;
+  return true;
+}
 
 export async function announceSalon(env, salonId, ctx, timestamp = now()) {
   if (!Number.isSafeInteger(salonId) || salonId <= 0) return bad(404, 'not found');

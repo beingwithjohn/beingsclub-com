@@ -31,7 +31,9 @@ export async function claim(env, personId, kind, scope) {
   }
 }
 
-async function post(env, { to, from, subject, html, text, idempotencyKey }) {
+async function post(env, {
+  to, from, subject, html, text, idempotencyKey, attachments,
+}) {
   if (!env.RESEND_API_KEY) {
     console.warn('no RESEND_API_KEY — not sending', subject, 'to', to);
     return false;
@@ -51,6 +53,7 @@ async function post(env, { to, from, subject, html, text, idempotencyKey }) {
       subject,
       html,
       text,
+      ...(attachments?.length ? { attachments } : {}),
     }),
   });
   if (!res.ok) {
@@ -338,6 +341,45 @@ export async function sendClubSalonEmail(env, {
   return post(env, { to: email, from: club(env), subject: version.subject, text, html });
 }
 
+/** One transactional confirmation after a member says they are coming. */
+export async function sendClubSalonRsvpEmail(env, {
+  email, name, salonId, salonStartsAt, durationMinutes, hostNote, actionUrl,
+  idempotencyKey,
+}) {
+  const when = clubSalonTime(salonStartsAt);
+  const settingsUrl = 'https://beingsclub.com/members/#settings';
+  const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
+  const plainGreeting = name ? `Hello, ${name}.` : 'Hello, being.';
+  const note = String(hostNote || '').trim();
+  const subject = 'You’re in for the next Salon';
+  const privateLinkNote = 'This is a private link that logs you into your account, so please don’t share it.';
+  const doorway = 'The Zoom doorway will appear on the Salon page ten minutes before we begin.';
+  const text = `${plainGreeting}\n\nYou’re in. We’ll gather on ${when}.\n\n${note ? `${note}\n\n` : ''}A calendar invitation is attached. ${doorway}\n\nOpen the Salon:\n${actionUrl}\n\n${privateLinkNote}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    preheader: `You’re in for the next Salon on ${when}.`,
+    heading: 'You’re <span style="color:#5A4B7C">in</span>.',
+    body: `<p style="margin:0 0 16px">${greeting}</p>`
+      + `<p style="margin:0 0 16px">We’ll gather on ${escapeHtml(when)}.</p>`
+      + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
+      + `<p style="margin:0">A calendar invitation is attached. ${escapeHtml(doorway)}</p>`,
+    actionUrl,
+    actionLabel: 'open the Salon',
+    afterBody: `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`,
+    settingsUrl,
+  });
+  return post(env, {
+    to: email,
+    from: club(env),
+    subject,
+    text,
+    html,
+    idempotencyKey,
+    attachments: [salonCalendarAttachment({
+      salonId, salonStartsAt, durationMinutes,
+    })],
+  });
+}
+
 export function clubSalonTime(seconds) {
   const date = new Date(Number(seconds) * 1000);
   const day = new Intl.DateTimeFormat('en-GB', {
@@ -348,6 +390,36 @@ export function clubSalonTime(seconds) {
     timeZoneName: 'short',
   }).format(date).replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
   return `${day}, ${time}`;
+}
+
+function salonCalendarAttachment({ salonId, salonStartsAt, durationMinutes }) {
+  const start = new Date(Number(salonStartsAt) * 1000);
+  const end = new Date(start.getTime() + (Number(durationMinutes || 90) * 60 * 1000));
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  const date = (value) => value.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  const calendar = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Beings Club//Salon//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:salon-${Number(salonId)}@beingsclub.com`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART:${date(start)}`,
+    `DTEND:${date(end)}`,
+    'SUMMARY:Beings Club Salon',
+    'DESCRIPTION:The Zoom doorway appears inside Beings Club ten minutes before the Salon begins.',
+    'URL:https://beingsclub.com/members/#salon',
+    'END:VEVENT',
+    'END:VCALENDAR',
+    '',
+  ].join('\r\n');
+  return {
+    filename: 'beings-club-salon.ics',
+    content: btoa(calendar),
+    content_type: 'text/calendar; charset=utf-8',
+  };
 }
 
 function clubEmailLayout({

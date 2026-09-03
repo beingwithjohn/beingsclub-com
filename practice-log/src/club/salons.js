@@ -2,6 +2,7 @@ import { bad, json } from '../api.js';
 import {
   createZoomMeeting, deleteZoomMeeting, isZoomJoinUrl, zoomConfigured,
 } from './zoom.js';
+import { queueSalonRsvpConfirmation } from './mailer.js';
 
 const NOTE_MAX = 2400;
 const URL_MAX = 2000;
@@ -30,13 +31,13 @@ export async function getMemberSalon(env, who, timestamp = now()) {
   return json({ salon: salon ? shapeMemberSalon(salon, timestamp) : null });
 }
 
-export async function setMemberRsvp(env, who, salonId, body, timestamp = now()) {
+export async function setMemberRsvp(env, who, salonId, body, ctx, timestamp = now()) {
   if (!Number.isSafeInteger(salonId) || salonId <= 0) return bad(404, 'not found');
   const status = validRsvpStatus(body?.status);
   if (body?.status != null && !status) return bad(400, 'status');
 
   const salon = await env.MEMBERS.prepare(
-    `SELECT id, starts_at FROM salon
+    `SELECT id, starts_at, duration_minutes, host_note FROM salon
       WHERE id = ?1 AND status = 'published'`,
   ).bind(salonId).first();
   if (!salon) return bad(404, 'not found');
@@ -54,6 +55,10 @@ export async function setMemberRsvp(env, who, salonId, body, timestamp = now()) 
        ON CONFLICT(salon_id, member_id) DO UPDATE SET
          status = excluded.status, updated_at = excluded.updated_at`,
     ).bind(salonId, memberId(who), status, timestamp).run();
+  }
+
+  if (status === 'in') {
+    await queueSalonRsvpConfirmation(env, who, salon, ctx, timestamp);
   }
 
   return getMemberSalon(env, who, timestamp);

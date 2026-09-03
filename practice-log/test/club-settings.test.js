@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseEmailPreferences, parseLeavePolicy } from '../src/club/settings.js';
-import { announceSalon, reminderWindow } from '../src/club/mailer.js';
+import { announceSalon, queueSalonRsvpConfirmation, reminderWindow } from '../src/club/mailer.js';
 import { clubSalonTime } from '../src/mail/send.js';
 
 test('Club email settings accept only an explicit complete set of choices', () => {
@@ -113,4 +113,46 @@ test('a later announcement reaches only members who have not already received it
   assert.deepEqual(await response.json(), { ok: true, recipientCount: 1 });
   assert.equal(claims.size, 2);
   await Promise.all(queued);
+});
+
+test('RSVP confirmation is claimed once for each member and Salon', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ id: 'email_rsvp' }), { status: 200 });
+  const claims = new Set();
+  const queued = [];
+  const env = {
+    RESEND_API_KEY: 'test-key',
+    MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
+    MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    MEMBERS: {
+      prepare(sql) {
+        return {
+          bind(...args) {
+            return {
+              async run() {
+                if (!sql.includes('INSERT INTO club_send_log')) return { meta: { changes: 1 } };
+                const key = `${args[0]}:${args[1]}`;
+                if (claims.has(key)) return { meta: { changes: 0 } };
+                claims.add(key);
+                return { meta: { changes: 1 } };
+              },
+            };
+          },
+        };
+      },
+    },
+  };
+  const who = { id: 2, email: 'mira@example.test', display_name: 'Mira' };
+  const salon = {
+    id: 7, starts_at: 2_000_000_000, duration_minutes: 90, host_note: 'Come as you are.',
+  };
+  const ctx = { waitUntil(value) { queued.push(value); } };
+  try {
+    assert.equal(await queueSalonRsvpConfirmation(env, who, salon, ctx, 1_900_000_000), true);
+    assert.equal(await queueSalonRsvpConfirmation(env, who, salon, ctx, 1_900_000_001), false);
+    assert.equal(queued.length, 1);
+    await Promise.all(queued);
+  } finally {
+    globalThis.fetch = original;
+  }
 });
