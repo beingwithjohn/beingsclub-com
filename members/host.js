@@ -749,7 +749,7 @@
     const month = now.toLocaleString('en-GB', { month: 'short' }).toLowerCase();
     document.getElementById('clock').textContent = `${days[now.getDay()]} ${now.getDate()} ${month} ${String(now.getFullYear()).slice(2)} · ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const greeting = now.getHours() < 12 ? 'morning' : now.getHours() < 18 ? 'afternoon' : 'evening';
-    document.querySelector('.greeting').textContent = `good ${greeting}, John`;
+    document.querySelector('.greeting').textContent = `good ${greeting}, john`;
   }
 
   async function signOut() {

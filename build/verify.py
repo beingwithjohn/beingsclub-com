@@ -298,6 +298,9 @@ ok("prospective members see a native Beings Club calendar rather than an embed",
    'frame-src' not in login_html and
    "prospectCall(`/api/club/prospect/slots?${query}`)" in members_after.get("members/app.js", "") and
    "prospectCall('/api/club/prospect/booking'" in members_after.get("members/app.js", ""))
+ok("the mobile first-conversation page remains vertically scrollable",
+   ".prospect-page{position:absolute;inset:0;overflow-y:auto" in members_after.get("members/app.css", "") and
+   ".prospect-page{position:relative;inset:auto" not in members_after.get("members/app.css", ""))
 ok("timezone search understands place names and seasonal acronyms",
    'role="combobox"' in login_html and 'id="prospect-timezone-results" role="listbox"' in login_html and
    "timezoneAbbreviation(zone, new Date(Date.UTC(year, 0, 15, 12)))" in members_after.get("members/app.js", "") and
@@ -316,6 +319,10 @@ ok("member mobile controls keep the viewport and keyboard focus usable",
    "menuClose.focus()" in members_after.get("members/app.js", "") and
    "event.key === 'Escape'" in members_after.get("members/app.js", "") and
    "event.key === 'Escape'" in members_after.get("members/host.js", ""))
+ok("member and host greeting names stay lowercase",
+   "toLocaleLowerCase('en-GB')" in members_after.get("members/app.js", "") and
+   "`good ${greeting}, john`" in members_after.get("members/host.js", "") and
+   "good evening, john" in host_html)
 ok("quiet email mode is conveyed to keyboard and screen-reader users",
    "salonOptions.setAttribute('aria-disabled', String(quiet))" in members_after.get("members/app.js", "") and
    "fieldNoteRow.setAttribute('aria-disabled', String(quiet))" in members_after.get("members/app.js", "") and

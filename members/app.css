@@ -689,7 +689,7 @@ button{cursor:pointer}
   .setting-row,.settings-copy-row{gap:18px}
   .prospect-status{right:22px;top:28px;font-size:8.5px}
   .prospect-nav{display:none}
-  .prospect-page{position:relative;inset:auto;padding:13vh 22px 90px;grid-template-columns:1fr;gap:32px;min-height:100vh;min-height:100dvh}
+  .prospect-page{padding:13vh 22px 90px;grid-template-columns:1fr;gap:32px}
   .prospect-intro{gap:18px}
   .prospect-intro h1{font-size:clamp(38px,12vw,56px)}
   .prospect-calendar-head{align-items:start;flex-direction:column;padding:24px 20px 20px}

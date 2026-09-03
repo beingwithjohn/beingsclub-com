@@ -586,7 +586,8 @@
     const month = current.toLocaleString('en-GB', { month: 'short' }).toLowerCase();
     document.getElementById('member-clock').textContent = `${days[current.getDay()]} ${current.getDate()} ${month} ${String(current.getFullYear()).slice(2)} · ${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`;
     const greeting = current.getHours() < 12 ? 'morning' : current.getHours() < 18 ? 'afternoon' : 'evening';
-    document.getElementById('member-greeting').textContent = `good ${greeting}, ${member?.name || 'being'}`;
+    const greetingName = (member?.name || 'being').toLocaleLowerCase('en-GB');
+    document.getElementById('member-greeting').textContent = `good ${greeting}, ${greetingName}`;
   }
 
   function updateProspectGreeting() {
