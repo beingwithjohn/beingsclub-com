@@ -13,6 +13,7 @@ import io, os, re, sys, json, subprocess, tempfile, urllib.request
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGIN = "https://beingsclub.com"
 PAGES = ["index.html"]
+EVENT_PAGE = "events/index.html"
 REDIRECT_PAGES = {
     "about/index.html": "https://beingsclub.com/#about",
     "salons/index.html": "https://beingsclub.com/#salon",
@@ -23,8 +24,8 @@ REDIRECT_PAGES = {
     "beyondbelief/companion/print/index.html": "https://spacetobe.xyz/beyond-belief/companion/print/",
     "practice-map/index.html": "https://spacetobe.xyz/practice-map/",
 }
-GENERATED_PAGES = PAGES + list(REDIRECT_PAGES)
-ROUTES = ["/"]
+GENERATED_PAGES = PAGES + [EVENT_PAGE] + list(REDIRECT_PAGES)
+ROUTES = ["/", "/events/"]
 
 fails, checks = [], 0
 
@@ -129,7 +130,7 @@ def audit(html, label):
         ok(label + ": public threshold matches the supplied app actions",
            'href="/members/"' in home and '>login</a>' in home and
            'href="/members/?join=1"' in home and '>join</a>' in home and
-           'https://lu.ma/beingsclub' in home and '>public events ↗</a>' in home)
+           'href="/events/"' in home and '>public events ↗</a>' in home)
         ok(label + ": the closing invitation repeats all three public actions",
            'data-note-actions="foot"' in home and
            home.count('>login</a>') >= 2 and home.count('>join</a>') >= 2 and
@@ -206,13 +207,26 @@ before = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in GE
 r = subprocess.run([sys.executable, os.path.join(ROOT, "build", "build_shell.py")],
                    capture_output=True, text=True, cwd=ROOT)
 ok("generator runs clean", r.returncode == 0, r.stderr.strip()[-200:])
-after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in before}
+after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read()
+         for p in GENERATED_PAGES if os.path.exists(os.path.join(ROOT, p))}
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
+ok("generator emits every public and compatibility page",
+   set(after) == set(GENERATED_PAGES),
+   "missing: " + ", ".join(sorted(set(GENERATED_PAGES) - set(after))))
 ok("public controls keep visible focus and mobile-sized primary actions",
    ':where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C' in after.get("index.html", "") and
    '#s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px' in after.get("index.html", "") and
    '#A5A198' not in after.get("index.html", ""))
+events_html = after.get(EVENT_PAGE, "")
+ok("public events page wraps the live Coliven list in Beings Club chrome",
+   '<link rel="canonical" href="https://beingsclub.com/events/">' in events_html and
+   '<h1>Public <strong>events</strong>.</h1>' in events_html and
+   'src="https://coliven.com/embed/community/beingsclub?layout=list&amp;theme=light"' in events_html and
+   '<script src="https://coliven.com/embed.js" async></script>' in events_html and
+   'frame-src https://coliven.com' in events_html and
+   'data-navmark="1"' in events_html and
+   '<script src="/assets/navmark.js" defer></script>' in events_html)
 
 for path, destination in REDIRECT_PAGES.items():
     html = after.get(path, "")
@@ -298,8 +312,8 @@ ok("member login distinguishes access and hands non-members to joining",
 ok("prospective members see a native Beings Club calendar rather than an embed",
    'id="prospect-timezone-search"' in login_html and 'id="prospect-days"' in login_html and
    'id="prospect-time-list"' in login_html and 'id="prospect-booking-form"' in login_html and
-   '<iframe' not in login_html and 'app.cal.com' not in login_html and
-   'frame-src' not in login_html and
+   login_html.count('<iframe') == 1 and 'app.cal.com' not in login_html and
+   'frame-src https://coliven.com' in login_html and
    "prospectCall(`/api/club/prospect/slots?${query}`)" in members_after.get("members/app.js", "") and
    "prospectCall('/api/club/prospect/booking'" in members_after.get("members/app.js", ""))
 ok("the mobile first-conversation page remains vertically scrollable",
@@ -434,8 +448,17 @@ ok("in-person navigation opens an honest page backed by host publishing",
    "call('/api/club/in-person')" in members_after.get("members/app.js", "") and
    "call('/api/club/host/in-person')" in members_after.get("members/host.js", "") and
    'The next in-person happening will appear here when it is ready.' in login_html and
-   login_html.count('href="https://lu.ma/beingsclub"') >= 2 and
-   host_html.count('href="https://lu.ma/beingsclub"') >= 2)
+   login_html.count('href="#public" data-member-view="public"') >= 2 and
+   host_html.count('href="/members/#public"') >= 2)
+ok("public events have a separate member-area page while the public route stays open",
+   'id="public-events-page"' in login_html and
+   '<h1>Public <strong>events</strong>.</h1>' in login_html and
+   'src="https://coliven.com/embed/community/beingsclub?layout=list&amp;theme=light"' in login_html and
+   'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"' in login_html and
+   'frame-src https://coliven.com' in login_html and
+   "'#public': 'public'" in members_after.get("members/app.js", "") and
+   "document.getElementById('public-events-page').hidden = !publicEvents" in members_after.get("members/app.js", "") and
+   '.public-events-content' in members_after.get("members/app.css", ""))
 ok("member Settings carries every Salon timing, welcome replay and quiet-email language",
    'data-member-view="settings"' in login_html and 'id="settings-page"' in login_html and
    'id="email-salon-announced"' in login_html and 'id="email-salon-month"' in login_html and
@@ -611,7 +634,7 @@ ok("sitemap lists every public canonical page", listed_urls == public_urls,
    "missing or extra: " + ", ".join(sorted(public_urls ^ listed_urls)))
 dated_urls = dict(re.findall(r"<url><loc>(https://[^<]+)</loc><lastmod>(\d{4}-\d{2}-\d{2})</lastmod></url>", sitemap))
 ok("sitemap gives every public page an accurate freshness signal",
-   set(dated_urls) == public_urls and all(date <= '2026-09-01' for date in dated_urls.values()))
+   set(dated_urls) == public_urls and all(date <= '2026-09-03' for date in dated_urls.values()))
 for archive in ["archive-refined.html", "archive-v4-dark-plates.html"]:
     archive_html = io.open(os.path.join(ROOT, archive), encoding="utf-8").read()
     ok(archive + ": excluded from search", '<meta name="robots" content="noindex,follow">' in archive_html)
@@ -686,7 +709,8 @@ if "--live" in sys.argv:
         with urllib.request.urlopen(ORIGIN + route) as resp:
             return resp.status, resp.read().decode("utf-8", "replace")
 
-    for route, local in list(zip(ROUTES, PAGES)) + [("/members/", "members/index.html"),
+    for route, local in [("/", "index.html"), ("/events/", EVENT_PAGE),
+                                                    ("/members/", "members/index.html"),
                                                     ("/members/host/", "members/host/index.html"),
                                                     ("/practice-map/", "practice-map/index.html"),
                                                     ("/" + indexnow_key + ".txt", indexnow_key + ".txt"),

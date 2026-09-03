@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="bc-members-api" content="https://practice-log.beingsclub.workers.dev">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://practice-log.beingsclub.workers.dev; img-src 'self' data: blob:; frame-src https://coliven.com; base-uri 'none'; form-action 'self'">
   <title>Members · Beings Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -335,7 +335,7 @@
       <a href="#members" data-member-view="members">members</a>
       <a href="#in-person" data-member-view="in-person">in person</a>
       <a href="#giving" data-member-view="giving">giving</a>
-      <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public</a>
+      <a href="#public" data-member-view="public">public</a>
       <a class="nav-break" href="#profile" data-member-view="profile">profile</a>
       <a href="#settings" data-member-view="settings">settings</a>
       <a id="member-host-link" href="/members/host/" hidden>host</a>
@@ -346,7 +346,7 @@
     <nav class="mobile-menu" id="mobile-menu" aria-label="Members area" hidden>
       <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
       <a class="current" href="#salon" data-member-view="salon">next salon</a>
-      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><a href="#in-person" data-member-view="in-person">in person</a><a href="#giving" data-member-view="giving">giving</a><a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public</a>
+      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><a href="#in-person" data-member-view="in-person">in person</a><a href="#giving" data-member-view="giving">giving</a><a href="#public" data-member-view="public">public</a>
       <a class="nav-break" href="#profile" data-member-view="profile">profile</a><a href="#settings" data-member-view="settings">settings</a>
       <a id="mobile-host-link" href="/members/host/" hidden>host</a>
       <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
@@ -483,6 +483,20 @@
           <span class="eyebrow">nothing announced yet</span>
           <p>The next in-person happening will appear here when it is ready.</p>
         </section>
+      </div>
+    </main>
+
+    <main class="public-events-page" id="public-events-page" hidden>
+      <div class="public-events-content">
+        <header class="public-events-heading">
+          <span class="eyebrow">public</span>
+          <h1>Public <strong>events</strong>.</h1>
+          <p>Open gatherings from Beings Club.</p>
+        </header>
+        <div class="public-events-frame-wrap">
+          <iframe class="public-events-frame" src="https://coliven.com/embed/community/beingsclub?layout=list&amp;theme=light" loading="lazy" title="Beings Club public events on Coliven" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+        </div>
+        <p class="public-events-fallback">If the list does not appear, <a href="/events/" target="_blank" rel="noopener">open the public events page</a>.</p>
       </div>
     </main>
 

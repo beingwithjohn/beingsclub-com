@@ -1294,7 +1294,7 @@
 
   function viewFromHash() {
     return ({
-      '#field-notes': 'field-notes', '#in-person': 'in-person', '#giving': 'giving',
+      '#field-notes': 'field-notes', '#in-person': 'in-person', '#giving': 'giving', '#public': 'public',
       '#members': 'members', '#profile': 'profile',
       '#settings': 'settings',
     })[location.hash] || 'salon';
@@ -1304,20 +1304,22 @@
     const field = name === 'field-notes';
     const inPerson = name === 'in-person';
     const giving = name === 'giving';
+    const publicEvents = name === 'public';
     const directory = name === 'members';
     const profile = name === 'profile';
     const settings = name === 'settings';
     const directoryPage = document.getElementById('directory-page');
     const directoryOpening = directory && directoryPage.hidden;
-    document.getElementById('salon-page').hidden = field || inPerson || giving || directory || profile || settings;
+    document.getElementById('salon-page').hidden = field || inPerson || giving || publicEvents || directory || profile || settings;
     document.getElementById('field-notes-page').hidden = !field;
     document.getElementById('in-person-page').hidden = !inPerson;
     document.getElementById('giving-page').hidden = !giving;
+    document.getElementById('public-events-page').hidden = !publicEvents;
     directoryPage.hidden = !directory;
     document.getElementById('profile-page').hidden = !profile;
     document.getElementById('settings-page').hidden = !settings;
     document.querySelectorAll('[data-member-view]').forEach((link) => {
-      const selected = field ? 'field-notes' : inPerson ? 'in-person' : giving ? 'giving'
+      const selected = field ? 'field-notes' : inPerson ? 'in-person' : giving ? 'giving' : publicEvents ? 'public'
         : directory ? 'members' : profile ? 'profile' : settings ? 'settings' : 'salon';
       const current = link.dataset.memberView === selected;
       link.classList.toggle('current', current);

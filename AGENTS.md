@@ -4,9 +4,9 @@ Read this before changing anything. Most of it is here because something broke.
 
 ## The one rule
 
-**The public landing and retired route files are generated. Never hand-edit them.**
+**The public landing, public events page and retired route files are generated. Never hand-edit them.**
 
-`index.html` is the public landing. The retired `about/`, `salons/`, `join/`,
+`index.html` is the public landing and `events/` is the public Coliven-backed events page. The retired `about/`, `salons/`, `join/`,
 `sits/`, `beyondbelief/` and `practice-map/` addresses are move pages produced
 by `build/build_shell.py`; the meditation routes point to Space to Be. The old
 design sources remain vendored in `build/src/*.dc.html` so the landing can
@@ -28,6 +28,7 @@ exists" below.
 | Path | Generated? | Notes |
 |---|---|---|
 | `index.html` | **yes** | members-first public landing |
+| `events/` | **yes** | bespoke public events page containing the Coliven list |
 | `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/`, `practice-map/` | **yes** | retired addresses with noindex move pages |
 | `404.html` | no | hand-maintained utility with the simplified public map |
 | `giving/` | no | hand-maintained public giving page; payment API lives in `practice-log/` |

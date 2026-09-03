@@ -1580,6 +1580,116 @@ def redirect_page(destination, label):
 '''.format(label=label_text, destination=destination_attr,
            destination_json=json.dumps(destination))
 
+def events_page():
+    """A Beings Club public page around Coliven's live event listing."""
+    title = "Public events · Beings Club"
+    desc = "Public gatherings from Beings Club."
+    page_url = ORIGIN + "/events/"
+    image_path, image_alt = SOCIAL_DEFAULT
+    jsonld = json.dumps({
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': page_url + '#webpage',
+        'url': page_url,
+        'name': title,
+        'description': desc,
+        'inLanguage': 'en-GB',
+        'isPartOf': {'@id': ORIGIN + '/#website'},
+        'about': {'@id': ORIGIN + '/#organization'},
+    }, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    return '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<meta name="google-site-verification" content="{verification}">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://coliven.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://coliven.com; connect-src 'self' https://coliven.com https://*.coliven.com; base-uri 'self'; form-action 'self'">
+<link rel="canonical" href="{page_url}">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Beings Club">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:url" content="{page_url}">
+<meta property="og:image" content="{origin}{image_path}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{image_alt}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{origin}{image_path}">
+<script type="application/ld+json">{jsonld}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://coliven.com">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
+<style>
+  *{{box-sizing:border-box}}
+  html{{background:#FDFCF9}}
+  body{{margin:0;background:#FDFCF9;color:#171916;font-family:'Host Grotesk',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}}
+  a{{color:inherit;text-decoration:none}}
+  a:focus-visible{{outline:2px solid #5A4B7C;outline-offset:4px}}
+  ::selection{{background:#E9E2FA;color:#171916}}
+  .events-shell{{width:min(100%,1280px);min-height:100svh;margin:0 auto;padding:0 clamp(22px,4vw,58px) 54px}}
+  .events-nav{{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 0 18px;border-bottom:1px solid #E7E4DB}}
+  .events-mark{{display:block;width:clamp(82px,9vw,112px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat}}
+  .events-links{{display:flex;align-items:center;gap:clamp(18px,3vw,34px)}}
+  .events-links a{{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:lowercase;color:#75726A;transition:color .18s ease}}
+  .events-links a:hover{{color:#5A4B7C}}
+  .events-intro{{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.5fr);gap:28px 72px;align-items:end;padding:clamp(58px,8vw,104px) 0 clamp(38px,5vw,62px)}}
+  .events-eyebrow{{display:block;margin-bottom:20px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C}}
+  h1{{margin:0;font-size:clamp(54px,8vw,112px);font-weight:600;line-height:.88;letter-spacing:-.065em}}
+  h1 strong{{color:#5A4B7C;font-weight:600}}
+  .events-intro p{{margin:0 0 4px;max-width:29ch;font-size:clamp(18px,2vw,24px);line-height:1.5;color:#57534B}}
+  .events-frame-wrap{{overflow:hidden;border:1px solid #DDD8CB;border-radius:12px;background:#F8F6F1;box-shadow:0 24px 70px rgba(45,38,29,.07)}}
+  .events-frame{{display:block;width:100%;height:690px;border:0;border-radius:12px;background:#FDFCF9}}
+  .events-fallback{{margin:18px 2px 0;font-size:12px;line-height:1.6;color:#75726A}}
+  .events-fallback a{{color:#5A4B7C;text-decoration:underline;text-underline-offset:4px}}
+  .events-footer{{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:54px;padding-top:18px;border-top:1px solid #E7E4DB;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#75726A}}
+  @media (max-width:720px){{
+    .events-shell{{padding-inline:18px}}
+    .events-nav{{padding-top:18px}}
+    .events-intro{{grid-template-columns:1fr;gap:22px;padding:48px 4px 34px}}
+    h1{{font-size:clamp(52px,18vw,82px)}}
+    .events-intro p{{font-size:18px}}
+    .events-frame{{height:720px}}
+  }}
+</style>
+<script src="/assets/navmark.js" defer></script>
+</head>
+<body>
+<div class="events-shell">
+  <nav class="events-nav" aria-label="Public">
+    <a href="/" aria-label="Beings Club home"><span class="events-mark" data-navmark="1"></span></a>
+    <div class="events-links"><a href="/">home</a><a href="/members/">members</a></div>
+  </nav>
+  <main>
+    <header class="events-intro">
+      <div><span class="events-eyebrow">happenings</span><h1>Public <strong>events</strong>.</h1></div>
+      <p>Public gatherings from Beings Club.</p>
+    </header>
+    <div class="events-frame-wrap">
+      <iframe class="events-frame" src="https://coliven.com/embed/community/beingsclub?layout=list&amp;theme=light" loading="lazy" title="Beings Club public events on Coliven"></iframe>
+    </div>
+    <p class="events-fallback">If the list does not appear, <a href="https://coliven.com/communities" target="_blank" rel="noopener">open Coliven</a>.</p>
+  </main>
+  <footer class="events-footer"><span>For the benefit of all beings</span><a href="mailto:john@spacetobe.xyz">john@spacetobe.xyz</a></footer>
+</div>
+<script src="https://coliven.com/embed.js" async></script>
+</body>
+</html>
+'''.format(title=title, desc=desc, page_url=page_url, origin=ORIGIN,
+           image_path=image_path, image_alt=image_alt, jsonld=jsonld,
+           verification=GOOGLE_SITE_VERIFICATION)
+
 written = []
 for key, _, slug, title, desc in SCREENS:
     out = os.path.join(SITE, 'index.html' if slug == '/' else slug.strip('/') + '/index.html')
@@ -1594,6 +1704,12 @@ for slug, (destination, label) in REDIRECTS.items():
     html = redirect_page(destination, label)
     io.open(out, 'w', encoding='utf-8').write(html)
     written.append((slug, out, len(html)))
+
+out = os.path.join(SITE, 'events', 'index.html')
+os.makedirs(os.path.dirname(out), exist_ok=True)
+html = events_page()
+io.open(out, 'w', encoding='utf-8').write(html)
+written.append(('/events/', out, len(html)))
 
 for slug, out, n in written:
     print('%-16s -> %-58s %6.1f KB' % (slug, out.replace(SITE + '/', ''), n / 1024.0))
