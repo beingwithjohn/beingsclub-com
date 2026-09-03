@@ -393,6 +393,8 @@ ok("member profile requires only a chosen name",
 ok("in-person navigation opens an honest coming-soon member page",
    'data-member-view="in-person"' in login_html and 'id="in-person-page"' in login_html and
    'In-person <strong>happenings</strong>.' in login_html and
+   'id="in-person-event-preview"' in login_html and
+   "previewParams.get('in-person') === 'event'" in members_after.get("members/app.js", "") and
    'Nothing has been announced yet' in login_html and
    login_html.count('href="https://lu.ma/beingsclub"') >= 2 and
    host_html.count('href="https://lu.ma/beingsclub"') >= 2)

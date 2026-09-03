@@ -23,8 +23,8 @@
       <a href="/members/#field-notes">field notes</a>
       <a href="/members/#members">members</a>
       <a href="/members/#in-person">in person</a>
-      <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public events ↗</a>
       <a href="/members/#giving">giving</a>
+      <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public events</a>
       <a class="nav-break" href="/members/#profile">profile</a>
       <a href="/members/#settings">settings</a>
       <a class="current" href="/members/host/" aria-current="page">host</a>
@@ -34,7 +34,7 @@
     <button class="menu-button" id="menu-button" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
     <div class="mobile-menu" id="mobile-menu" hidden>
       <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
-      <a href="/members/">next salon</a><a href="/members/#field-notes">field notes</a><a href="/members/#members">members</a><a href="/members/#in-person">in person</a><a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public events ↗</a><a href="/members/#giving">giving</a>
+      <a href="/members/">next salon</a><a href="/members/#field-notes">field notes</a><a href="/members/#members">members</a><a href="/members/#in-person">in person</a><a href="/members/#giving">giving</a><a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public events</a>
       <a class="nav-break" href="/members/#profile">profile</a><a href="/members/#settings">settings</a><a class="current" href="/members/host/">host</a>
       <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
     </div>
@@ -89,6 +89,54 @@
           </div>
         </section>
 
+        <section class="host-section" id="in-person-event-host-preview" hidden>
+          <h2>in-person happenings</h2>
+          <p>Add the practical details that members will see. The exact address can stay private until someone books.</p>
+          <form class="salon-form" id="in-person-event-form" novalidate>
+            <label>
+              <span>event title</span>
+              <input id="in-person-event-title" type="text" value="A gathering in London" required>
+            </label>
+            <div class="in-person-host-form-grid">
+              <label>
+                <span>date</span>
+                <input id="in-person-event-date" type="date" value="2026-10-18" required>
+              </label>
+              <label>
+                <span>starts</span>
+                <input id="in-person-event-start" type="time" value="11:00" required>
+              </label>
+              <label>
+                <span>ends</span>
+                <input id="in-person-event-end" type="time" value="17:00" required>
+              </label>
+            </div>
+            <label>
+              <span>location shown to members</span>
+              <input id="in-person-event-location" type="text" value="London · the exact place shared after booking" required>
+              <small>Use the city or area here if the full address should remain private.</small>
+            </label>
+            <label>
+              <span>description</span>
+              <textarea id="in-person-event-description" required>A day to practise curiosity together through guided practice, conversation, shared food and whatever else the day makes possible.</textarea>
+            </label>
+            <label>
+              <span>event image</span>
+              <input id="in-person-event-image" type="file" accept="image/jpeg,image/png,image/webp">
+              <small>A landscape image works best here.</small>
+            </label>
+            <label>
+              <span>booking link</span>
+              <input id="in-person-event-url" type="url" inputmode="url" value="https://lu.ma/beingsclub" required>
+            </label>
+            <div class="salon-form-actions">
+              <button class="outline" id="save-in-person-event" type="submit">save draft</button>
+              <button class="primary" id="publish-in-person-event" type="button">publish event</button>
+            </div>
+          </form>
+          <span class="status" id="in-person-event-status" role="status" aria-live="polite">Preview only. Nothing entered here will be saved or published.</span>
+        </section>
+
         <section class="host-section">
           <h2>field notes</h2>
           <p id="field-note-host-intro">After a Salon, mark the members who were there. Their invitation appears inside the member area immediately; email arrives once where enabled.</p>
@@ -115,7 +163,7 @@
         </section>
 
         <section class="host-section">
-          <h2>the list</h2>
+          <h2>members</h2>
           <p>Adding someone opens the door and sends one personal invitation from John. If delivery fails, they remain on the list and you can try again.</p>
           <form class="invite-form" id="invite-form" novalidate>
             <label class="sr-only" for="invite-email">Email to add</label>
@@ -134,6 +182,6 @@
     </main>
   </div>
   <div class="page-waiting" id="host-waiting">Stay curious...</div>
-  <script src="/members/host.js?v=20260902-welcome" defer></script>
+  <script src="/members/host.js?v=20260903-host-sections" defer></script>
 </body>
 </html>

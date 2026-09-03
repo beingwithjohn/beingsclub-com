@@ -2120,6 +2120,9 @@
         },
         account: { email: 'john@spacetobe.xyz', joinedAt: '2026-08-01T12:00:00.000Z', isHost: true },
       };
+      const showInPersonEvent = previewParams.get('in-person') === 'event';
+      document.getElementById('in-person-event-preview').hidden = !showInPersonEvent;
+      document.getElementById('in-person-soon').hidden = showInPersonEvent;
       showMemberApp(); return;
     }
     const welcomeToken = takeWelcomeToken();

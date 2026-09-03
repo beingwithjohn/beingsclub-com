@@ -99,9 +99,15 @@ button{cursor:pointer}
 .intro{margin:0;font-size:15px;font-weight:500;line-height:1.7;letter-spacing:-.01em;color:var(--body);max-width:58ch}
 .host-section{display:grid;gap:14px}
 .host-section h2{margin:0;font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--violet);padding-bottom:14px;border-bottom:1px solid var(--line)}
-.host-section>p{margin:0;font-size:12px;line-height:1.7;color:#75726A;max-width:58ch}
+.host-section-toggle{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;text-align:left;cursor:pointer}
+.host-section-toggle::after{content:'+';font:400 16px/1 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.host-section-toggle[aria-expanded="true"]::after{content:'−'}
+.host-section-body{display:grid;gap:14px}
+.host-section-body[hidden]{display:none}
+.host-section-body>p{margin:0;font-size:12px;line-height:1.7;color:#75726A;max-width:58ch}
 .salon-form{display:grid;gap:18px}
 .salon-form-grid{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:26px}
+.in-person-host-form-grid{display:grid;grid-template-columns:minmax(0,1fr) 140px 140px;gap:26px}
 .salon-form label{display:grid;gap:5px}
 .salon-form label>span{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#75726A}
 .salon-form label>small{font-size:10.5px;line-height:1.55;color:var(--soft)}
@@ -360,6 +366,15 @@ button{cursor:pointer}
 .in-person-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
 .in-person-heading h1 strong{font-weight:750;color:var(--violet)}
 .in-person-heading>p{margin:0;font-size:17px;line-height:1.7;color:var(--body);max-width:68ch}
+.in-person-event{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(320px,1.2fr);max-width:920px;border:1px solid var(--line);background:#FCFBF8}
+.in-person-event>img{width:100%;height:100%;min-height:390px;object-fit:cover;filter:saturate(.86)}
+.in-person-event-words{display:grid;align-content:center;justify-items:start;gap:17px;padding:42px 44px}
+.in-person-event-words h2{margin:0;font-size:clamp(28px,3vw,44px);line-height:1.05;letter-spacing:-.045em;font-weight:600}
+.in-person-event-words h2 strong{font-weight:750;color:var(--violet)}
+.in-person-event-words p{margin:0;font-size:14px;line-height:1.7;color:#656159}
+.in-person-event-words .in-person-event-time{font-size:16px;font-weight:600;color:var(--ink)}
+.in-person-event-words .in-person-event-place{font:400 10.5px/1.6 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.in-person-event-words .outline{margin-top:7px;text-decoration:none}
 .in-person-soon{display:grid;gap:12px;max-width:680px;padding:26px 28px;border:1px solid var(--line);background:#FCFBF8}
 .in-person-soon p{margin:0;font-size:14px;line-height:1.7;color:#656159}
 
@@ -578,6 +593,8 @@ button{cursor:pointer}
   .field-note-composer{grid-template-columns:1fr}
   .giving-content{padding-left:30%;padding-right:30px}
   .in-person-content{padding-left:30%;padding-right:30px}
+  .in-person-event{grid-template-columns:minmax(180px,.7fr) minmax(300px,1.3fr)}
+  .in-person-event-words{padding:34px 32px}
   .giving-options{grid-template-columns:1fr}
   .directory-content,.profile-content,.settings-content{padding-left:30%;padding-right:30px}
   .directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -607,7 +624,7 @@ button{cursor:pointer}
   .member-actions{gap:8px}
   .attendance-row{grid-template-columns:20px minmax(0,1fr)}
   .attendance-row em{grid-column:2}
-  .salon-form-grid{grid-template-columns:1fr}
+  .salon-form-grid,.in-person-host-form-grid{grid-template-columns:1fr}
   .salon-view{padding:12vh 22px 80px}
   .salon-art{position:relative;top:auto;right:auto;width:100%;height:150px;margin:0 0 24px;object-position:center 75%}
   .salon-hero{gap:24px}
@@ -619,6 +636,9 @@ button{cursor:pointer}
   .field-note-group-head{align-items:start;flex-direction:column;gap:6px}
   .field-note-card{padding:20px}
   .in-person-content{padding:16vh 22px 80px;gap:36px}
+  .in-person-event{grid-template-columns:1fr}
+  .in-person-event>img{min-height:0;aspect-ratio:4/3}
+  .in-person-event-words{padding:28px 24px}
   .in-person-soon{padding:24px 20px}
   .giving-content{padding:12vh 22px 80px;gap:40px}
   .giving-options{grid-template-columns:1fr}

@@ -594,12 +594,58 @@
   menuButton.addEventListener('click', () => { menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); });
   document.getElementById('menu-close').addEventListener('click', () => { menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); menuButton.focus(); });
 
+  function prepareHostSections() {
+    document.querySelectorAll('.host-section').forEach((section, index) => {
+      const heading = section.querySelector(':scope > h2');
+      if (!heading) return;
+      const body = document.createElement('div');
+      body.className = 'host-section-body';
+      body.id = `host-section-body-${index + 1}`;
+      while (heading.nextSibling) body.append(heading.nextSibling);
+      section.append(body);
+
+      const label = heading.textContent.trim();
+      const toggle = document.createElement('button');
+      toggle.className = 'host-section-toggle';
+      toggle.type = 'button';
+      toggle.textContent = label;
+      toggle.setAttribute('aria-controls', body.id);
+      const setOpen = (open) => {
+        toggle.setAttribute('aria-expanded', String(open));
+        body.hidden = !open;
+      };
+      setOpen(section.dataset.hostOpen === 'true');
+      toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+      heading.replaceChildren(toggle);
+    });
+  }
+
+  prepareHostSections();
+
   (async () => {
     // A static localhost-only state for visual QA. It never opens on the live
     // domain and contains no real member data beyond the public host identity.
+    const previewParams = new URLSearchParams(location.search);
     if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-        && new URLSearchParams(location.search).has('preview')) {
+        && previewParams.has('preview')) {
       previewMode = true;
+      const inPersonEventPreview = document.getElementById('in-person-event-host-preview');
+      if (previewParams.get('in-person') === 'event') {
+        inPersonEventPreview.hidden = false;
+        const eventToggle = inPersonEventPreview.querySelector('.host-section-toggle');
+        const eventBody = inPersonEventPreview.querySelector('.host-section-body');
+        eventToggle.setAttribute('aria-expanded', 'true');
+        eventBody.hidden = false;
+        const inPersonEventForm = document.getElementById('in-person-event-form');
+        const inPersonEventStatus = document.getElementById('in-person-event-status');
+        inPersonEventForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+          inPersonEventStatus.textContent = 'Preview: draft saved.';
+        });
+        document.getElementById('publish-in-person-event').addEventListener('click', () => {
+          inPersonEventStatus.textContent = 'Preview: event published to the in-person page.';
+        });
+      }
       updateClock();
       render([
         { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canInvite: false, canRemove: false },
