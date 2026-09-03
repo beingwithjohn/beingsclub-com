@@ -33,6 +33,10 @@ import {
   listProspects, requestProspectCode,
   resendProspectWelcome, saveProspectTimeNote, verifyProspectCode,
 } from './prospects.js';
+import {
+  deleteHostInPersonEvent, getHostInPersonEvents, getInPersonEventImage,
+  getMemberInPersonEvents, publishHostInPersonEvent, saveHostInPersonEvent,
+} from './in-person.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -104,6 +108,11 @@ export async function clubRoute(request, env, ctx, url) {
   }
 
   if (path === '/api/club/salon' && method === 'GET') return getMemberSalon(env, who);
+  if (path === '/api/club/in-person' && method === 'GET') return getMemberInPersonEvents(env);
+  const inPersonImage = /^\/api\/club\/in-person\/(\d+)\/image$/.exec(path);
+  if (inPersonImage && method === 'GET') {
+    return getInPersonEventImage(env, who, Number(inPersonImage[1]));
+  }
   const rsvp = /^\/api\/club\/salons\/(\d+)\/rsvp$/.exec(path);
   if (rsvp && method === 'POST') {
     return setMemberRsvp(env, who, Number(rsvp[1]), await readJson(request));
@@ -177,6 +186,18 @@ export async function clubRoute(request, env, ctx, url) {
   if (path === '/api/club/host/salon/announce' && method === 'POST') {
     const body = await readJson(request);
     return announceSalon(env, Number(body?.id), ctx);
+  }
+  if (path === '/api/club/host/in-person' && method === 'GET') return getHostInPersonEvents(env);
+  if (path === '/api/club/host/in-person' && method === 'POST') {
+    return saveHostInPersonEvent(env, who, await readJson(request));
+  }
+  const publishInPerson = /^\/api\/club\/host\/in-person\/(\d+)\/publish$/.exec(path);
+  if (publishInPerson && method === 'POST') {
+    return publishHostInPersonEvent(env, Number(publishInPerson[1]));
+  }
+  const deleteInPerson = /^\/api\/club\/host\/in-person\/(\d+)$/.exec(path);
+  if (deleteInPerson && method === 'DELETE') {
+    return deleteHostInPersonEvent(env, Number(deleteInPerson[1]));
   }
   if (path === '/api/club/host/field-notes' && method === 'GET') return getHostFieldNotes(env);
   const inviteFieldNotes = /^\/api\/club\/host\/salons\/(\d+)\/field-note-invitations$/.exec(path);

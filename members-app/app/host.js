@@ -19,6 +19,9 @@
   let currentSalon = null;
   let autoZoom = false;
   let previewMode = false;
+  let inPersonHostState = [];
+  let currentInPersonEvent = null;
+  let inPersonImageData = null;
   let fieldNoteHostState = { salon: null, candidates: [], groups: [] };
   let prospectHostState = [];
   const imageObjectUrls = new Set();
@@ -192,6 +195,113 @@
 
   async function loadSalon() {
     renderSalon(await call('/api/club/host/salon'));
+  }
+
+  function formatInPersonTime(event) {
+    const zone = event.timezone || 'Europe/London';
+    const start = new Date(event.startsAt); const end = new Date(event.endsAt);
+    const date = new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+    }).format(start);
+    const formatTime = (value) => new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(value).replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
+    return `${date} · ${formatTime(start)}–${formatTime(end)}`;
+  }
+
+  function clearInPersonForm() {
+    currentInPersonEvent = null; inPersonImageData = null;
+    const eventForm = document.getElementById('in-person-event-form'); eventForm.reset();
+    document.getElementById('in-person-event-id').value = '';
+    document.getElementById('in-person-event-image-help').textContent = 'A landscape image works best here · JPEG, PNG or WebP · up to 5MB.';
+    document.getElementById('publish-in-person-event').textContent = 'publish event';
+    document.getElementById('publish-in-person-event').disabled = false;
+    document.getElementById('in-person-event-status').textContent = '';
+  }
+
+  function editInPersonEvent(event) {
+    currentInPersonEvent = event; inPersonImageData = null;
+    document.getElementById('in-person-event-id').value = String(event.id);
+    document.getElementById('in-person-event-title').value = event.title;
+    const start = londonParts(event.startsAt); const end = londonParts(event.endsAt);
+    document.getElementById('in-person-event-date').value = start.date;
+    document.getElementById('in-person-event-start').value = start.time;
+    document.getElementById('in-person-event-end').value = end.time;
+    document.getElementById('in-person-event-location').value = event.location;
+    document.getElementById('in-person-event-description').value = event.description;
+    document.getElementById('in-person-event-url').value = event.bookingUrl;
+    document.getElementById('in-person-event-image').value = '';
+    document.getElementById('in-person-event-image-help').textContent = event.hasImage
+      ? 'The current image will be kept unless you choose a replacement.'
+      : 'A landscape image works best here · JPEG, PNG or WebP · up to 5MB.';
+    document.getElementById('publish-in-person-event').textContent = event.status === 'published' ? 'published' : 'publish event';
+    document.getElementById('publish-in-person-event').disabled = event.status === 'published';
+    document.getElementById('in-person-event-title').focus();
+  }
+
+  function renderHostInPersonEvents(data) {
+    inPersonHostState = data.events || [];
+    const listNode = document.getElementById('in-person-host-list'); listNode.replaceChildren();
+    if (!inPersonHostState.length) {
+      listNode.append(text('p', 'in-person-host-empty', 'No in-person happenings have been prepared yet.'));
+      return;
+    }
+    inPersonHostState.forEach((event) => {
+      const row = document.createElement('div'); row.className = 'in-person-host-row';
+      const words = document.createElement('div'); words.className = 'in-person-host-row-words';
+      words.append(text('strong', '', event.title));
+      words.append(text('span', '', formatInPersonTime(event)));
+      words.append(text('span', `in-person-host-state ${event.status}`, event.status));
+      const actions = document.createElement('div'); actions.className = 'in-person-host-actions';
+      const edit = text('button', 'text-button', 'edit'); edit.type = 'button';
+      edit.addEventListener('click', () => editInPersonEvent(event));
+      const remove = text('button', 'text-button danger', 'delete'); remove.type = 'button';
+      remove.addEventListener('click', () => deleteInPersonEvent(event));
+      actions.append(edit, remove); row.append(words, actions); listNode.append(row);
+    });
+  }
+
+  async function loadInPersonEvents() {
+    renderHostInPersonEvents(await call('/api/club/host/in-person'));
+  }
+
+  function inPersonPayload() {
+    const date = document.getElementById('in-person-event-date').value;
+    return {
+      id: currentInPersonEvent?.id || null,
+      title: document.getElementById('in-person-event-title').value,
+      startsAt: londonInstant(date, document.getElementById('in-person-event-start').value),
+      endsAt: londonInstant(date, document.getElementById('in-person-event-end').value),
+      location: document.getElementById('in-person-event-location').value,
+      description: document.getElementById('in-person-event-description').value,
+      bookingUrl: document.getElementById('in-person-event-url').value,
+      imageData: inPersonImageData,
+    };
+  }
+
+  async function saveInPersonEvent() {
+    const data = await call('/api/club/host/in-person', {
+      method: 'POST', body: JSON.stringify(inPersonPayload()),
+    });
+    renderHostInPersonEvents(data);
+    const saved = data.events.find((event) => event.id === currentInPersonEvent?.id)
+      || data.events.find((event) => event.status === 'draft') || data.events[0];
+    if (saved) editInPersonEvent(saved);
+    return saved;
+  }
+
+  async function deleteInPersonEvent(event) {
+    if (!window.confirm(`Delete “${event.title}”? It will disappear from the member page. This cannot be undone.`)) return;
+    const statusNode = document.getElementById('in-person-event-status'); statusNode.textContent = '';
+    try {
+      if (previewMode) {
+        renderHostInPersonEvents({ events: inPersonHostState.filter((item) => item.id !== event.id) });
+      } else {
+        renderHostInPersonEvents(await call(`/api/club/host/in-person/${event.id}`, { method: 'DELETE' }));
+      }
+      if (currentInPersonEvent?.id === event.id) clearInPersonForm();
+      statusNode.textContent = 'Event deleted.';
+    } catch (error) { statusNode.textContent = error.message || 'The event could not be deleted.'; }
   }
 
   function monthLabel(iso) {
@@ -492,6 +602,64 @@
     finally { publishSalon.disabled = currentSalon?.status === 'published'; }
   });
 
+  document.getElementById('in-person-event-image').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    const help = document.getElementById('in-person-event-image-help');
+    if (!file) { inPersonImageData = null; return; }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      event.target.value = ''; inPersonImageData = null;
+      help.textContent = 'Choose a JPEG, PNG or WebP no larger than 5MB.'; return;
+    }
+    try {
+      inPersonImageData = await new Promise((resolve, reject) => {
+        const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      help.textContent = `${file.name} will replace the current image when you save.`;
+    } catch (_) { inPersonImageData = null; help.textContent = 'That image could not be read.'; }
+  });
+
+  document.getElementById('in-person-event-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const eventForm = event.currentTarget;
+    const statusNode = document.getElementById('in-person-event-status'); statusNode.textContent = '';
+    if (!eventForm.checkValidity()) { eventForm.reportValidity(); return; }
+    const button = document.getElementById('save-in-person-event'); button.disabled = true;
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'Preview: draft saved.';
+      } else {
+        await saveInPersonEvent(); statusNode.textContent = 'Draft saved.';
+      }
+    } catch (error) { statusNode.textContent = error.message || 'The event could not be saved.'; }
+    finally { button.disabled = false; }
+  });
+
+  document.getElementById('publish-in-person-event').addEventListener('click', async () => {
+    const eventForm = document.getElementById('in-person-event-form');
+    const statusNode = document.getElementById('in-person-event-status'); statusNode.textContent = '';
+    if (!eventForm.checkValidity()) { eventForm.reportValidity(); return; }
+    const button = document.getElementById('publish-in-person-event'); button.disabled = true;
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'Preview: event published to the in-person page.';
+      } else {
+        const saved = await saveInPersonEvent();
+        if (!saved) throw new Error('The event could not be found after saving.');
+        const data = await call(`/api/club/host/in-person/${saved.id}/publish`, { method: 'POST', body: '{}' });
+        renderHostInPersonEvents(data);
+        const published = data.events.find((item) => item.id === saved.id);
+        if (published) editInPersonEvent(published);
+        statusNode.textContent = 'Published to the in-person page.';
+      }
+    } catch (error) {
+      statusNode.textContent = error.message || 'The event could not be published.';
+      button.disabled = false;
+    }
+  });
+
+  document.getElementById('new-in-person-event').addEventListener('click', clearInPersonForm);
+
   startNextSalon.addEventListener('click', async () => {
     if (!currentSalon?.hasEnded) return;
     salonStatus.textContent = ''; startNextSalon.disabled = true;
@@ -629,22 +797,12 @@
     if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1')
         && previewParams.has('preview')) {
       previewMode = true;
-      const inPersonEventPreview = document.getElementById('in-person-event-host-preview');
+      const inPersonEventPreview = document.getElementById('in-person-event-host');
       if (previewParams.get('in-person') === 'event') {
-        inPersonEventPreview.hidden = false;
         const eventToggle = inPersonEventPreview.querySelector('.host-section-toggle');
         const eventBody = inPersonEventPreview.querySelector('.host-section-body');
         eventToggle.setAttribute('aria-expanded', 'true');
         eventBody.hidden = false;
-        const inPersonEventForm = document.getElementById('in-person-event-form');
-        const inPersonEventStatus = document.getElementById('in-person-event-status');
-        inPersonEventForm.addEventListener('submit', (event) => {
-          event.preventDefault();
-          inPersonEventStatus.textContent = 'Preview: draft saved.';
-        });
-        document.getElementById('publish-in-person-event').addEventListener('click', () => {
-          inPersonEventStatus.textContent = 'Preview: event published to the in-person page.';
-        });
       }
       updateClock();
       render([
@@ -668,6 +826,14 @@
           { name: 'Noor', email: 'noor@example.com', status: 'not_this_time' },
         ],
       });
+      renderHostInPersonEvents({ events: [{
+        id: 12, title: 'A gathering in London',
+        description: 'A day to practise curiosity together through guided practice, conversation, shared food and whatever else the day makes possible.',
+        startsAt: '2026-10-18T10:00:00.000Z', endsAt: '2026-10-18T16:00:00.000Z',
+        timezone: 'Europe/London', location: 'London · the exact place shared after booking',
+        bookingUrl: 'https://lu.ma/beingsclub', hasImage: true, status: 'draft', publishedAt: null,
+      }] });
+      if (previewParams.get('in-person') === 'event') editInPersonEvent(inPersonHostState[0]);
       renderFieldNoteHost({
         salon: { id: 9, startsAt: '2026-07-30T18:00:00.000Z' },
         candidates: [
@@ -699,7 +865,7 @@
       if (!data.member.isHost) { location.replace('/members/'); return; }
       if (!data.member.agreementAccepted) { location.replace('/members/?onboarding=1'); return; }
       updateClock(); setInterval(updateClock, 30000);
-      await Promise.all([loadMembers(), loadSalon(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects()]);
+      await Promise.all([loadMembers(), loadSalon(), loadInPersonEvents(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects()]);
       waiting.hidden = true; shell.hidden = false;
     } catch (_) { forgetToken(); location.replace('/members/'); }
   })();

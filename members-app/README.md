@@ -79,9 +79,9 @@ The private foundation and first complete member slice:
   coming-soon page rather than a dead label;
 - desktop and mobile member navigation also link directly to the Club’s public
   Luma events listing;
-- a local-only sample listing for the future in-person page is available at
-  `/members/?preview=member&in-person=event#in-person`; it is visual scaffolding,
-  not a live event or production data model;
+- host-managed in-person happenings can be saved as drafts and deliberately
+  published to members, with optional images kept in the private member-media
+  bucket;
 - members can revoke every session and can leave the Club immediately, choosing
   whether their existing Field Notes remain signed, become anonymous or are
   permanently removed; a last remaining host cannot accidentally leave;
@@ -163,9 +163,9 @@ must state the action and its consequence before performing one of those
 operations, and must never infer permission to announce or remove from a
 request merely to inspect or draft.
 
-## In-person event preview
+## In-person events
 
 The member-side sample listing is available locally at
 `/members/?preview=member&in-person=event#in-person`. Its matching host input
-preview is at `/members/host/?preview=1&in-person=event`. Both are visual
-scaffolds only and do not store or publish an event.
+preview is at `/members/host/?preview=1&in-person=event`. In production, the
+same host form saves drafts to D1 and publishes them to the private member page.

@@ -116,6 +116,16 @@ button{cursor:pointer}
 .salon-form input:focus,.salon-form textarea:focus{border-color:var(--violet)}
 .salon-form-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .salon-form-actions .danger{margin-left:auto;color:#7B3E45}
+.in-person-host-list{display:grid;border-top:1px solid var(--line);margin-top:4px}
+.in-person-host-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid var(--line)}
+.in-person-host-row-words{display:flex;align-items:baseline;gap:8px 14px;flex-wrap:wrap;font-size:12px}
+.in-person-host-row-words strong{font-weight:650}
+.in-person-host-row-words>span{color:var(--soft)}
+.in-person-host-state{font:400 9.5px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.14em;text-transform:uppercase}
+.in-person-host-state.published{color:var(--violet)}
+.in-person-host-actions{display:flex;gap:12px;flex-shrink:0}
+.in-person-host-actions .danger{color:#7B3E45}
+.in-person-host-empty{margin:0;padding:14px 0;font-size:11px;color:var(--soft)}
 .salon-host-state{display:flex;gap:12px 24px;flex-wrap:wrap;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft)}
 .salon-next{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:#75726A}
 .salon-roster{display:grid}
@@ -366,7 +376,9 @@ button{cursor:pointer}
 .in-person-heading h1{margin:0;font-size:clamp(32px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:600}
 .in-person-heading h1 strong{font-weight:750;color:var(--violet)}
 .in-person-heading>p{margin:0;font-size:17px;line-height:1.7;color:var(--body);max-width:68ch}
+.in-person-events{display:grid;gap:28px}
 .in-person-event{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(320px,1.2fr);max-width:920px;border:1px solid var(--line);background:#FCFBF8}
+.in-person-event.has-no-image{grid-template-columns:1fr;max-width:680px}
 .in-person-event>img{width:100%;height:100%;min-height:390px;object-fit:cover;filter:saturate(.86)}
 .in-person-event-words{display:grid;align-content:center;justify-items:start;gap:17px;padding:42px 44px}
 .in-person-event-words h2{margin:0;font-size:clamp(28px,3vw,44px);line-height:1.05;letter-spacing:-.045em;font-weight:600}
@@ -622,6 +634,7 @@ button{cursor:pointer}
   .prospect-host-card{grid-template-columns:1fr}
   .prospect-host-actions{justify-items:start}
   .member-actions{gap:8px}
+  .in-person-host-row{align-items:flex-start;flex-direction:column}
   .attendance-row{grid-template-columns:20px minmax(0,1fr)}
   .attendance-row em{grid-column:2}
   .salon-form-grid,.in-person-host-form-grid{grid-template-columns:1fr}

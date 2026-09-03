@@ -43,6 +43,7 @@
   let timezoneChoices = [];
   let prospectMessageSource = 'calendar';
   let salon = null;
+  let inPersonEvents = [];
   let fieldNotes = { prompt: null, groups: [] };
   let givingState = { testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null };
   let directoryState = { profile: null, members: [] };
@@ -661,6 +662,49 @@
     renderTime(); renderRsvp(); renderDoor();
   }
 
+  function formatInPersonEventTime(event) {
+    const zone = event.timezone || 'Europe/London';
+    const start = new Date(event.startsAt); const end = new Date(event.endsAt);
+    const date = new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    }).format(start);
+    const formatTime = (value) => new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(value).replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
+    return `${date} · ${formatTime(start)}–${formatTime(end)}`;
+  }
+
+  async function loadInPersonImage(event, image) {
+    if (previewMode && event.previewImage) { image.src = event.previewImage; return; }
+    try {
+      const blob = await callBlob(`/api/club/in-person/${event.id}/image`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url); image.src = url;
+    } catch (_) {
+      const card = image.closest('.in-person-event'); image.remove(); card?.classList.add('has-no-image');
+    }
+  }
+
+  function renderInPersonEvents() {
+    const list = document.getElementById('in-person-events'); list.replaceChildren();
+    document.getElementById('in-person-soon').hidden = inPersonEvents.length > 0;
+    inPersonEvents.forEach((event) => {
+      const card = document.createElement('section'); card.className = 'in-person-event';
+      if (event.hasImage) {
+        const image = document.createElement('img'); image.alt = event.title;
+        card.append(image); loadInPersonImage(event, image);
+      } else card.classList.add('has-no-image');
+      const words = document.createElement('div'); words.className = 'in-person-event-words';
+      words.append(makeText('span', 'eyebrow', 'in person'));
+      words.append(makeText('h2', '', `${event.title}.`.replace(/\.\.$/, '.')));
+      words.append(makeText('p', 'in-person-event-time', formatInPersonEventTime(event)));
+      words.append(makeText('p', 'in-person-event-place', event.location));
+      words.append(makeText('p', '', event.description));
+      const link = makeText('a', 'outline', 'view the event ↗');
+      link.href = event.bookingUrl; link.target = '_blank'; link.rel = 'noopener';
+      words.append(link); card.append(words); list.append(card);
+    });
+  }
+
   function monthLabel(iso) {
     return new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Europe/London', month: 'long', year: 'numeric',
@@ -1251,7 +1295,7 @@
     memberApp.hidden = false;
     document.getElementById('member-host-link').hidden = !member.isHost;
     document.getElementById('mobile-host-link').hidden = !member.isHost;
-    updateClock(); renderSalon();
+    updateClock(); renderSalon(); renderInPersonEvents();
     showView(member.name ? viewFromHash() : 'profile');
   }
 
@@ -1262,11 +1306,12 @@
       return;
     }
     showLogin(waiting);
-    const [salonState, notesState, memberGiving, directory, settings] = await Promise.all([
-      call('/api/club/salon'), call('/api/club/field-notes'), call('/api/club/giving'),
-      call('/api/club/directory'), call('/api/club/settings'),
+    const [salonState, inPersonState, notesState, memberGiving, directory, settings] = await Promise.all([
+      call('/api/club/salon'), call('/api/club/in-person'), call('/api/club/field-notes'),
+      call('/api/club/giving'), call('/api/club/directory'), call('/api/club/settings'),
     ]);
-    salon = salonState.salon; fieldNotes = notesState; givingState = memberGiving;
+    salon = salonState.salon; inPersonEvents = inPersonState.events || [];
+    fieldNotes = notesState; givingState = memberGiving;
     directoryState = directory; settingsState = settings;
     await new Promise((resolve) => setTimeout(resolve, 500));
     if (!member.onboardingCompleted) showWelcome(Number.isInteger(options.welcomeStep) ? options.welcomeStep : 4);
@@ -2120,9 +2165,14 @@
         },
         account: { email: 'john@spacetobe.xyz', joinedAt: '2026-08-01T12:00:00.000Z', isHost: true },
       };
-      const showInPersonEvent = previewParams.get('in-person') === 'event';
-      document.getElementById('in-person-event-preview').hidden = !showInPersonEvent;
-      document.getElementById('in-person-soon').hidden = showInPersonEvent;
+      inPersonEvents = previewParams.get('in-person') === 'event' ? [{
+        id: 12, title: 'A gathering in London',
+        description: 'A day to practise curiosity together through guided practice, conversation, shared food and whatever else the day makes possible.',
+        startsAt: '2026-10-18T10:00:00.000Z', endsAt: '2026-10-18T16:00:00.000Z',
+        timezone: 'Europe/London', location: 'London · the exact place shared after booking',
+        bookingUrl: 'https://lu.ma/beingsclub', hasImage: true,
+        previewImage: '/assets/img/tree-gathering.jpg', status: 'published',
+      }] : [];
       showMemberApp(); return;
     }
     const welcomeToken = takeWelcomeToken();

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/members/app.css?v=20260902-responsive-calendar">
+  <link rel="stylesheet" href="/members/app.css?v=20260903-in-person-live">
 </head>
 <body class="app-body">
   <main class="login-page" id="login-page">
@@ -317,7 +317,7 @@
       <a href="#members" data-member-view="members">members</a>
       <a href="#in-person" data-member-view="in-person">in person</a>
       <a href="#giving" data-member-view="giving">giving</a>
-      <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public events</a>
+      <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public</a>
       <a class="nav-break" href="#profile" data-member-view="profile">profile</a>
       <a href="#settings" data-member-view="settings">settings</a>
       <a id="member-host-link" href="/members/host/" hidden>host</a>
@@ -328,7 +328,7 @@
     <div class="mobile-menu" id="mobile-menu" hidden>
       <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">×</button>
       <a class="current" href="#salon" data-member-view="salon">next salon</a>
-      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><a href="#in-person" data-member-view="in-person">in person</a><a href="#giving" data-member-view="giving">giving</a><a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public events</a>
+      <a href="#field-notes" data-member-view="field-notes">field notes</a><a href="#members" data-member-view="members">members</a><a href="#in-person" data-member-view="in-person">in person</a><a href="#giving" data-member-view="giving">giving</a><a href="https://lu.ma/beingsclub" target="_blank" rel="noopener">public</a>
       <a class="nav-break" href="#profile" data-member-view="profile">profile</a><a href="#settings" data-member-view="settings">settings</a>
       <a id="mobile-host-link" href="/members/host/" hidden>host</a>
       <button class="nav-signout" id="mobile-sign-out" type="button">sign out</button>
@@ -456,17 +456,7 @@
           <h1>In-person <strong>happenings</strong>.</h1>
           <p>Occasional gatherings of curious people, in changing places. There may be music, tea, a guided curiosity practice and room to discover what arises.</p>
         </header>
-        <section class="in-person-event" id="in-person-event-preview" hidden>
-          <img src="/assets/img/tree-gathering.jpg" alt="People gathered beneath a tree">
-          <div class="in-person-event-words">
-            <span class="eyebrow">sample listing</span>
-            <h2>A gathering in <strong>London</strong>.</h2>
-            <p class="in-person-event-time">Sunday 18 October 2026 · 11 AM–5 PM</p>
-            <p class="in-person-event-place">London · the exact place shared after booking</p>
-            <p>A day to practise curiosity together through guided practice, conversation, shared food and whatever else the day makes possible.</p>
-            <a class="outline" href="https://lu.ma/beingsclub" target="_blank" rel="noopener">view the event ↗</a>
-          </div>
-        </section>
+        <div class="in-person-events" id="in-person-events" aria-live="polite"></div>
         <section class="in-person-soon" id="in-person-soon">
           <span class="eyebrow">coming later</span>
           <p>Nothing has been announced yet. When an in-person gathering is ready, you’ll find it here.</p>
@@ -746,6 +736,6 @@
       </div>
     </form>
   </dialog>
-  <script src="/members/app.js?v=20260902-onboarding-profile" defer></script>
+  <script src="/members/app.js?v=20260903-in-person-live" defer></script>
 </body>
 </html>

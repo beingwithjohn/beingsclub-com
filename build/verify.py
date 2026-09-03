@@ -248,7 +248,7 @@ for member_script in ["members/app.js", "members/host.js"]:
     ok(member_script + ": parses", good, err)
 host_html = members_after.get("members/host/index.html", "")
 ok("private host page keeps the supplied Host tools design",
-   "Host <strong>tools</strong>." in host_html and "the list" in host_html and
+   "Host <strong>tools</strong>." in host_html and ">members</h2>" in host_html and
    "Only hosts see this page" in host_html and "add + invite" in host_html)
 ok("adding a member sends one visible, retryable invitation",
    "sends one personal invitation from John" in host_html and
@@ -390,11 +390,12 @@ ok("member profile requires only a chosen name",
    'This is never shown to other members' in login_html and
    'id="profile-cropper"' in login_html and 'id="profile-crop-canvas"' in login_html and
    "toDataURL('image/jpeg', 0.9)" in members_after.get("members/app.js", ""))
-ok("in-person navigation opens an honest coming-soon member page",
+ok("in-person navigation opens an honest page backed by host publishing",
    'data-member-view="in-person"' in login_html and 'id="in-person-page"' in login_html and
    'In-person <strong>happenings</strong>.' in login_html and
-   'id="in-person-event-preview"' in login_html and
-   "previewParams.get('in-person') === 'event'" in members_after.get("members/app.js", "") and
+   'id="in-person-events"' in login_html and 'id="in-person-event-host"' in host_html and
+   "call('/api/club/in-person')" in members_after.get("members/app.js", "") and
+   "call('/api/club/host/in-person')" in members_after.get("members/host.js", "") and
    'Nothing has been announced yet' in login_html and
    login_html.count('href="https://lu.ma/beingsclub"') >= 2 and
    host_html.count('href="https://lu.ma/beingsclub"') >= 2)
