@@ -332,7 +332,7 @@ export async function sendClubSalonEmail(env, {
       + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
       + `<p style="margin:0">${escapeHtml(description)}</p>`,
     actionUrl: salonUrl,
-    actionLabel: 'open the Salon',
+    actionLabel: 'Salon page',
     afterBody: privateLinkNote
       ? `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`
       : '',
@@ -343,8 +343,8 @@ export async function sendClubSalonEmail(env, {
 
 /** One transactional confirmation after a member says they are coming. */
 export async function sendClubSalonRsvpEmail(env, {
-  email, name, salonId, salonStartsAt, durationMinutes, hostNote, actionUrl,
-  idempotencyKey,
+  email, name, salonId, salonStartsAt, durationMinutes, hostNote, zoomUrl,
+  actionUrl, idempotencyKey,
 }) {
   const when = clubSalonTime(salonStartsAt);
   const settingsUrl = 'https://beingsclub.com/members/#settings';
@@ -353,17 +353,22 @@ export async function sendClubSalonRsvpEmail(env, {
   const note = String(hostNote || '').trim();
   const subject = 'You’re in for the next Salon';
   const privateLinkNote = 'This is a private link that logs you into your account, so please don’t share it.';
-  const doorway = 'The Zoom doorway will appear on the Salon page ten minutes before we begin.';
-  const text = `${plainGreeting}\n\nYou’re in. We’ll gather on ${when}.\n\n${note ? `${note}\n\n` : ''}A calendar invitation is attached. ${doorway}\n\nOpen the Salon:\n${actionUrl}\n\n${privateLinkNote}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
+  const calendarUrl = salonGoogleCalendarUrl({
+    salonStartsAt, durationMinutes, zoomUrl,
+  });
+  const calendarCopy = 'The Zoom link is included in the calendar invitation.';
+  const text = `${plainGreeting}\n\nYou’re in. We’ll gather on ${when}.\n\n${note ? `${note}\n\n` : ''}${calendarCopy}\n\nAdd to your calendar:\n${calendarUrl}\n\nOpen the Salon:\n${actionUrl}\n\n${privateLinkNote}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: `You’re in for the next Salon on ${when}.`,
     heading: 'You’re <span style="color:#5A4B7C">in</span>.',
     body: `<p style="margin:0 0 16px">${greeting}</p>`
       + `<p style="margin:0 0 16px">We’ll gather on ${escapeHtml(when)}.</p>`
       + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
-      + `<p style="margin:0">A calendar invitation is attached. ${escapeHtml(doorway)}</p>`,
+      + `<p style="margin:0">${escapeHtml(calendarCopy)}</p>`,
     actionUrl,
-    actionLabel: 'open the Salon',
+    actionLabel: 'Salon page',
+    secondaryActionUrl: calendarUrl,
+    secondaryActionLabel: 'add to your calendar',
     afterBody: `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`,
     settingsUrl,
   });
@@ -375,7 +380,7 @@ export async function sendClubSalonRsvpEmail(env, {
     html,
     idempotencyKey,
     attachments: [salonCalendarAttachment({
-      salonId, salonStartsAt, durationMinutes,
+      salonId, salonStartsAt, durationMinutes, zoomUrl,
     })],
   });
 }
@@ -392,7 +397,7 @@ export function clubSalonTime(seconds) {
   return `${day}, ${time}`;
 }
 
-function salonCalendarAttachment({ salonId, salonStartsAt, durationMinutes }) {
+function salonCalendarAttachment({ salonId, salonStartsAt, durationMinutes, zoomUrl }) {
   const start = new Date(Number(salonStartsAt) * 1000);
   const end = new Date(start.getTime() + (Number(durationMinutes || 90) * 60 * 1000));
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
@@ -409,8 +414,9 @@ function salonCalendarAttachment({ salonId, salonStartsAt, durationMinutes }) {
     `DTSTART:${date(start)}`,
     `DTEND:${date(end)}`,
     'SUMMARY:Beings Club Salon',
-    'DESCRIPTION:The Zoom doorway appears inside Beings Club ten minutes before the Salon begins.',
-    'URL:https://beingsclub.com/members/#salon',
+    `DESCRIPTION:${calendarEscape(`Join the Salon on Zoom: ${zoomUrl}`)}`,
+    `LOCATION:${calendarEscape(zoomUrl)}`,
+    `URL:${calendarEscape(zoomUrl)}`,
     'END:VEVENT',
     'END:VCALENDAR',
     '',
@@ -422,13 +428,35 @@ function salonCalendarAttachment({ salonId, salonStartsAt, durationMinutes }) {
   };
 }
 
+function salonGoogleCalendarUrl({ salonStartsAt, durationMinutes, zoomUrl }) {
+  const start = new Date(Number(salonStartsAt) * 1000);
+  const end = new Date(start.getTime() + (Number(durationMinutes || 90) * 60 * 1000));
+  const date = (value) => value.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: 'Beings Club Salon',
+    dates: `${date(start)}/${date(end)}`,
+    details: `Join the Salon on Zoom: ${zoomUrl}`,
+    location: zoomUrl,
+  });
+  return `https://calendar.google.com/calendar/render?${params}`;
+}
+
+function calendarEscape(value) {
+  return String(value || '').replace(/\\/g, '\\\\').replace(/([,;])/g, '\\$1').replace(/\r?\n/g, '\\n');
+}
+
 function clubEmailLayout({
   title = 'Beings Club', preheader, heading, body, actionUrl, actionLabel, settingsUrl,
+  secondaryActionUrl, secondaryActionLabel,
   footerLinkLabel = 'choose what we send you', afterBody = '', footerNote = '',
   logoWidth = 180,
 }) {
   const action = actionUrl && actionLabel
     ? `<tr><td style="padding:30px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#171916" style="mso-line-height-rule:exactly;"><a href="${actionUrl}" style="display:block;padding:14px 32px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;text-decoration:none;">${escapeHtml(actionLabel)}</a></td></tr></table></td></tr>`
+    : '';
+  const secondaryAction = secondaryActionUrl && secondaryActionLabel
+    ? `<tr><td style="padding:12px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="border:1px solid #5A4B7C;mso-line-height-rule:exactly;"><a href="${secondaryActionUrl}" style="display:block;padding:13px 31px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;text-decoration:none;">${escapeHtml(secondaryActionLabel)}</a></td></tr></table></td></tr>`
     : '';
   return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -441,6 +469,7 @@ function clubEmailLayout({
     + `<tr><td style="padding:28px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:34px;font-weight:bold;letter-spacing:-1px;color:#171916;mso-line-height-rule:exactly;line-height:40px;">${heading}</td></tr>`
     + `<tr><td style="padding:20px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#4A473F;mso-line-height-rule:exactly;line-height:27px;">${body}</td></tr>`
     + action
+    + secondaryAction
     + afterBody
     + '<tr><td style="padding:36px 48px 44px 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="504" style="width:100%;border-top:1px solid #E7E4DB;">'
     + '<tr><td style="padding:22px 0 0 0;font-family:\'Courier New\',Courier,monospace;font-size:11px;color:#A5A198;mso-line-height-rule:exactly;line-height:19px;">for the benefit of all beings</td></tr>'

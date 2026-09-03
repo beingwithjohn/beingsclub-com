@@ -28,6 +28,7 @@ export async function queueSalonRsvpConfirmation(env, who, salon, ctx, timestamp
     salonStartsAt: salon.starts_at,
     durationMinutes: salon.duration_minutes,
     hostNote: salon.host_note,
+    zoomUrl: salon.zoom_join_url,
     actionUrl,
     idempotencyKey: `club-salon-rsvp-${salon.id}-${who.id}`,
   });

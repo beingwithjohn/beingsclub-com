@@ -147,7 +147,7 @@ test('Salon email opens through the member-specific private entrance', async () 
     assert.match(body.text, /private link that logs you into your account/);
     assert.match(body.text, /please don’t share it/);
     assert.match(body.html, /#welcome=AAAA/);
-    assert.match(body.html, /open the Salon/);
+    assert.match(body.html, />Salon page</);
     assert.match(body.html, /private link that logs you into your account/);
     assert.doesNotMatch(body.text, /members\/#salon/);
   } finally {
@@ -172,6 +172,7 @@ test('RSVP confirmation includes a private entrance and a calendar invitation', 
       salonStartsAt: Date.parse('2026-09-30T18:00:00Z') / 1000,
       durationMinutes: 90,
       hostNote: 'Looking forward to being with you all.',
+      zoomUrl: 'https://zoom.us/j/123456789?pwd=secret',
       actionUrl: 'https://beingsclub.com/members/#welcome=AAAA',
       idempotencyKey: 'club-salon-rsvp-7-2',
     });
@@ -180,16 +181,19 @@ test('RSVP confirmation includes a private entrance and a calendar invitation', 
     const body = JSON.parse(request.options.body);
     assert.equal(body.subject, 'You’re in for the next Salon');
     assert.match(body.text, /Wednesday 30 September, 7 PM BST/);
-    assert.match(body.text, /calendar invitation is attached/i);
+    assert.match(body.text, /Zoom link is included in the calendar invitation/);
+    assert.match(body.text, /Add to your calendar:\nhttps:\/\/calendar\.google\.com/);
     assert.match(body.text, /private link that logs you into your account/);
-    assert.match(body.html, /open the Salon/);
+    assert.match(body.html, />Salon page</);
+    assert.match(body.html, />add to your calendar</);
     assert.equal(body.attachments[0].filename, 'beings-club-salon.ics');
     const calendar = Buffer.from(body.attachments[0].content, 'base64').toString('utf8');
     assert.match(calendar, /METHOD:PUBLISH/);
     assert.match(calendar, /UID:salon-7@beingsclub\.com/);
     assert.match(calendar, /DTSTART:20260930T180000Z/);
     assert.match(calendar, /DTEND:20260930T193000Z/);
-    assert.doesNotMatch(calendar, /zoom\.us/);
+    assert.match(calendar, /LOCATION:https:\/\/zoom\.us\/j\/123456789\?pwd=secret/);
+    assert.match(calendar, /URL:https:\/\/zoom\.us\/j\/123456789\?pwd=secret/);
   } finally {
     globalThis.fetch = original;
   }

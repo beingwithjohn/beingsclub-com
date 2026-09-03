@@ -37,7 +37,7 @@ export async function setMemberRsvp(env, who, salonId, body, ctx, timestamp = no
   if (body?.status != null && !status) return bad(400, 'status');
 
   const salon = await env.MEMBERS.prepare(
-    `SELECT id, starts_at, duration_minutes, host_note FROM salon
+    `SELECT id, starts_at, duration_minutes, host_note, zoom_join_url FROM salon
       WHERE id = ?1 AND status = 'published'`,
   ).bind(salonId).first();
   if (!salon) return bad(404, 'not found');
