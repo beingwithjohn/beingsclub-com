@@ -759,8 +759,19 @@
   document.getElementById('host-sign-out').addEventListener('click', signOut);
   document.getElementById('mobile-sign-out').addEventListener('click', signOut);
   const menu = document.getElementById('mobile-menu'); const menuButton = document.getElementById('menu-button');
-  menuButton.addEventListener('click', () => { menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); });
-  document.getElementById('menu-close').addEventListener('click', () => { menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); menuButton.focus(); });
+  const menuClose = document.getElementById('menu-close');
+  function closeMobileMenu(restoreFocus = true) {
+    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) menuButton.focus();
+  }
+  menuButton.addEventListener('click', () => {
+    menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); menuClose.focus();
+  });
+  menuClose.addEventListener('click', () => closeMobileMenu());
+  menu.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { event.preventDefault(); closeMobileMenu(); }
+  });
+  menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMobileMenu(false)));
 
   function prepareHostSections() {
     document.querySelectorAll('.host-section').forEach((section, index) => {

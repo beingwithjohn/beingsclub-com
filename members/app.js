@@ -1167,8 +1167,17 @@
     document.getElementById('email-salon-hour').checked = !!preferences.salonHour;
     document.getElementById('email-field-notes').checked = !!preferences.fieldNotes;
     document.getElementById('email-quiet').checked = !!preferences.quiet;
-    document.getElementById('salon-email-options').classList.toggle('settings-email-muted', !!preferences.quiet);
-    document.getElementById('field-note-email-row').classList.toggle('settings-email-muted', !!preferences.quiet);
+    const quiet = !!preferences.quiet;
+    const salonOptions = document.getElementById('salon-email-options');
+    const fieldNoteRow = document.getElementById('field-note-email-row');
+    salonOptions.classList.toggle('settings-email-muted', quiet);
+    fieldNoteRow.classList.toggle('settings-email-muted', quiet);
+    salonOptions.setAttribute('aria-disabled', String(quiet));
+    fieldNoteRow.setAttribute('aria-disabled', String(quiet));
+    ['email-salon-announced', 'email-salon-month', 'email-salon-week', 'email-salon-day',
+      'email-salon-hour', 'email-field-notes'].forEach((id) => {
+      document.getElementById(id).disabled = quiet;
+    });
     document.getElementById('settings-account-email').textContent = settingsState.account?.email || member?.email || '';
     document.getElementById('settings-email-note').textContent = preferences.quiet
       ? 'Everything is quiet · turn off the last switch to hear from us again.'
@@ -2001,10 +2010,19 @@
 
   const menu = document.getElementById('mobile-menu');
   const menuButton = document.getElementById('menu-button');
-  menuButton.addEventListener('click', () => { menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); });
-  document.getElementById('menu-close').addEventListener('click', () => {
-    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); menuButton.focus();
+  const menuClose = document.getElementById('menu-close');
+  function closeMobileMenu(restoreFocus = true) {
+    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) menuButton.focus();
+  }
+  menuButton.addEventListener('click', () => {
+    menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); menuClose.focus();
   });
+  menuClose.addEventListener('click', () => closeMobileMenu());
+  menu.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') { event.preventDefault(); closeMobileMenu(); }
+  });
+  menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMobileMenu(false)));
   document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
     button.addEventListener('click', () => showProspectPreview(button.dataset.prospectPreview));
   });

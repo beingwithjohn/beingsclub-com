@@ -42,6 +42,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   a{color:#171916;text-decoration:none;}
   a:hover{color:#5A4B7C;}
   input,textarea,select,button{font-family:inherit;}
+  :where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C;outline-offset:3px;}
   ::selection{background:#F2ECFF;color:#171916;}
 
   /* One complete page map. Solid paper keeps passing content legible; the
@@ -98,7 +99,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   .bc-john-portrait{margin:0;display:grid;gap:10px;}
   .bc-john-portrait img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#171916;}
   .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;
-    line-height:1.5;letter-spacing:.12em;color:#A5A198;}
+    line-height:1.5;letter-spacing:.12em;color:#75726A;}
   .bc-john-letter-label{display:block;margin-bottom:18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
   .bc-john-letter-words{display:block;}
   .bc-john-letter-words p{margin:0 0 15px;font-size:15px;line-height:1.76;color:#4A473F;}
@@ -114,7 +115,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   .bc-john-practical-link:hover span,.bc-john-practical-link:focus-visible span{color:#5A4B7C;}
   .bc-john-socials{display:grid;gap:8px;padding-top:13px;}
   .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;letter-spacing:.16em;
-    text-transform:uppercase;color:#A5A198;}
+    text-transform:uppercase;color:#75726A;}
   .bc-john-socials>div{display:flex;flex-wrap:wrap;gap:6px 12px;}
   .bc-john-socials a{font-size:10px;color:#6F6961;text-decoration:none;border-bottom:1px solid #D8D4CA;}
   .bc-john-socials a:hover,.bc-john-socials a:focus-visible{color:#5A4B7C;border-color:#5A4B7C;}
@@ -314,6 +315,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   }
 
   @media (max-width:44rem){
+    input,textarea,select{font-size:16px!important;}
     [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(290px,92vw,360px)!important;}
     [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
     [data-splitcopy]{padding:32px 24px!important;}
@@ -327,6 +329,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     #bc-door{height:auto!important;min-height:100svh;overflow:visible!important;}
     #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
+    #s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
   }
 
   /* the realisationhouse card: hover or focus on a pointer, one tap on touch */
@@ -423,7 +426,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
 <div id="bc-app-public-scroll" style="position:absolute;inset:0;overflow-y:auto;background:#FDFCF9;animation:bc-app-appear .45s cubic-bezier(.22,1,.36,1) both;">
   <div data-m="vh" style="position:relative;height:100vh;">
     <span style="position:absolute;top:28px;left:10%;font-size:11px;letter-spacing:.3em;color:#75726A;">hello, being</span>
-    <span data-m="clock" style="position:absolute;top:28px;right:10%;font-size:11px;letter-spacing:.18em;color:#A5A198;z-index:6;">00:00</span>
+    <span data-m="clock" style="position:absolute;top:28px;right:10%;font-size:11px;letter-spacing:.18em;color:#75726A;z-index:6;">00:00</span>
 
     <div data-m="hero" style="position:absolute;left:10%;top:50%;transform:translateY(-50%);display:grid;gap:30px;max-width:620px;">
       <h1 style="margin:0;font-size:clamp(44px,5.2vw,76px);line-height:1.04;letter-spacing:-.04em;font-weight:600;color:#171916;">A <span data-public-word="1" style="cursor:help;">realisationhouse</span> for the <span style="font-weight:750;color:#5A4B7C;animation:bc-app-pulse 7s ease-in-out infinite;">curious</span>.</h1>
@@ -436,13 +439,13 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
             <a href="/members/?join=1" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;border:1px solid #171916;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="1">join</a>
             <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#3E3357;background:#C9BEE8;border:1px solid #C9BEE8;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="2">public events ↗</a>
           </div>
-          <span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;line-height:1.9;color:#A5A198;white-space:nowrap;">Beings Club is where curiosity connects. Stay curious.</span>
+          <span style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;line-height:1.9;color:#75726A;white-space:nowrap;">Beings Club is where curiosity connects. Stay curious.</span>
         </div>
 
         <form data-m="notecard" data-note-form="top" hidden style="position:absolute;top:0;left:0;display:grid;gap:12px;width:min(520px,86vw);background:#FDFCF9;z-index:2;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span>
-            <button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#A5A198;border:0;background:transparent;">×</button>
+            <button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#75726A;border:0;background:transparent;">×</button>
           </div>
           <div class="bc-app-note-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <input name="name" placeholder="Name" aria-label="Name" autocomplete="name" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;">
@@ -451,24 +454,24 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
           <textarea name="note" placeholder="Leave a note" aria-label="Leave a note" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;line-height:1.6;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;min-height:56px;resize:vertical;outline:none;"></textarea>
           <div style="display:flex;align-items:center;gap:14px;">
             <button type="submit" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:10px 22px;border:0;">send</button>
-            <span style="font-size:11px;color:#A5A198;">Membership is free and begins with a conversation and a mutual yes.</span>
+            <span style="font-size:11px;color:#75726A;">Membership is free and begins with a conversation and a mutual yes.</span>
           </div>
           <span data-note-status="1" role="status" aria-live="polite" style="font-size:11px;color:#5A4B7C;"></span>
         </form>
 
         <div data-note-sent="top" hidden style="position:absolute;top:0;left:0;display:grid;gap:8px;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
           <span style="width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#5A4B7C;padding:11px 24px;">note left</span>
-          <span style="font-size:11px;color:#A5A198;">Thank you. Membership is free and begins with a conversation and a mutual yes.</span>
+          <span style="font-size:11px;color:#75726A;">Thank you. Membership is free and begins with a conversation and a mutual yes.</span>
         </div>
       </div>
     </div>
 
     <div id="bc-logo" aria-label="Beings Club" style="position:absolute;right:9%;top:50%;transform:translateY(-50%);width:min(300px,22vw);opacity:.9;"><img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;"></div>
-    <span style="position:absolute;left:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#A5A198;">est. 2025</span>
-    <span style="position:absolute;right:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#A5A198;">for the benefit of all beings</span>
+    <span style="position:absolute;left:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#75726A;">est. 2025</span>
+    <span style="position:absolute;right:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;letter-spacing:.14em;color:#75726A;">for the benefit of all beings</span>
 
     <div data-m="pop" data-word-pop="1" hidden style="position:fixed;transform:translate(14px,18px);z-index:20;pointer-events:none;width:300px;background:#FDFCF9;border:1px solid #DAD6CB;box-shadow:0 8px 28px rgba(23,25,22,.12);padding:18px 20px;display:grid;gap:8px;animation:bc-app-appear .2s cubic-bezier(.22,1,.36,1) both;">
-      <span style="font-size:14px;font-weight:600;color:#171916;">realisationhouse <span style="font-weight:400;color:#A5A198;font-size:12px;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span> <em style="font-weight:600;color:#5A4B7C;font-size:12px;">n.</em></span>
+      <span style="font-size:14px;font-weight:600;color:#171916;">realisationhouse <span style="font-weight:400;color:#75726A;font-size:12px;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span> <em style="font-weight:600;color:#5A4B7C;font-size:12px;">n.</em></span>
       <span style="font-size:12.5px;line-height:1.7;color:#4A473F;">A social gathering place where contemplative practice is recognised and engaged as a means of realising new possibilities.</span>
     </div>
 
@@ -487,11 +490,11 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
         <p style="margin:0;font-size:19px;font-weight:500;line-height:1.6;letter-spacing:-.01em;color:#4A473F;max-width:52ch;">Our monthly online gathering is called a Salon. We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prescribed conversation topics. There is nothing to do except <b><span style="font-style:normal;">stay </span>curious<span style="font-weight:normal;">.</span></b></p>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:16px 48px;border-top:1px solid #E7E4DB;padding-top:30px;">
-        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">duration</span><span style="font-size:15px;color:#4A473F;">About 90 minutes</span></div>
-        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">rhythm</span><span style="font-size:15px;color:#4A473F;">Monthly</span></div>
-        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">time</span><span style="font-size:15px;color:#4A473F;">7pm UK</span></div>
-        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">where</span><span style="font-size:15px;color:#4A473F;">Online, from anywhere</span></div>
-        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#A5A198;">cost</span><span style="font-size:15px;color:#4A473F;">Freely offered</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#75726A;">duration</span><span style="font-size:15px;color:#4A473F;">About 90 minutes</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#75726A;">rhythm</span><span style="font-size:15px;color:#4A473F;">Monthly</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#75726A;">time</span><span style="font-size:15px;color:#4A473F;">7pm UK</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#75726A;">where</span><span style="font-size:15px;color:#4A473F;">Online, from anywhere</span></div>
+        <div style="display:grid;gap:5px;"><span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#75726A;">cost</span><span style="font-size:15px;color:#4A473F;">Freely offered</span></div>
       </div>
       <div style="display:grid;gap:26px;">
         <div style="display:grid;gap:10px;"><span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">how a salon unfolds</span><span style="font-size:15px;line-height:1.7;color:#75726A;">The form stays reliable so what happens inside it can be free.</span></div>
@@ -555,13 +558,13 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
           <a href="https://lu.ma/beingsclub" target="_blank" rel="noopener" style="cursor:pointer;width:max-content;box-sizing:border-box;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#3E3357;background:#C9BEE8;border:1px solid #C9BEE8;padding:10px 24px;transition:color .18s ease,background .18s ease,border-color .18s ease;" data-vh="2">public events ↗</a>
         </div>
         <form data-note-form="foot" hidden style="display:grid;gap:12px;width:min(520px,86vw);animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span><button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#A5A198;border:0;background:transparent;">×</button></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">leave a note</span><button type="button" data-note-close="1" aria-label="Close" style="cursor:pointer;font-size:20px;line-height:1;padding:4px 6px;color:#75726A;border:0;background:transparent;">×</button></div>
           <div class="bc-app-note-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><input name="name" placeholder="Name" aria-label="Name" autocomplete="name" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;"><input name="email" placeholder="Email" aria-label="Email" type="email" autocomplete="email" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;outline:none;min-width:0;"></div>
           <textarea name="note" placeholder="Leave a note" aria-label="Leave a note" required style="font-family:'Host Grotesk',system-ui,sans-serif;font-size:13px;line-height:1.6;color:#171916;background:transparent;border:none;border-bottom:1px solid #DAD6CB;padding:9px 0;min-height:56px;resize:vertical;outline:none;"></textarea>
-          <div style="display:flex;align-items:center;gap:14px;"><button type="submit" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:10px 22px;border:0;">send</button><span style="font-size:11px;color:#A5A198;">Membership is free and begins with a conversation and a mutual yes.</span></div>
+          <div style="display:flex;align-items:center;gap:14px;"><button type="submit" style="cursor:pointer;width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#171916;padding:10px 22px;border:0;">send</button><span style="font-size:11px;color:#75726A;">Membership is free and begins with a conversation and a mutual yes.</span></div>
           <span data-note-status="1" role="status" aria-live="polite" style="font-size:11px;color:#5A4B7C;"></span>
         </form>
-        <div data-note-sent="foot" hidden style="display:grid;gap:8px;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;"><span style="width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#5A4B7C;padding:11px 24px;">note left</span><span style="font-size:11px;color:#A5A198;">Thank you. Membership is free and begins with a conversation and a mutual yes.</span></div>
+        <div data-note-sent="foot" hidden style="display:grid;gap:8px;animation:bc-app-appear .4s cubic-bezier(.22,1,.36,1) both;"><span style="width:max-content;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:#FFFFFF;background:#5A4B7C;padding:11px 24px;">note left</span><span style="font-size:11px;color:#75726A;">Thank you. Membership is free and begins with a conversation and a mutual yes.</span></div>
       </div>
     </div>
   </div>

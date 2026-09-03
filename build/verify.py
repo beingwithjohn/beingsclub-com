@@ -209,6 +209,10 @@ ok("generator runs clean", r.returncode == 0, r.stderr.strip()[-200:])
 after = {p: io.open(os.path.join(ROOT, p), encoding="utf-8").read() for p in before}
 drifted = [p for p in before if before[p] != after[p]]
 ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(drifted))
+ok("public controls keep visible focus and mobile-sized primary actions",
+   ':where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C' in after.get("index.html", "") and
+   '#s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px' in after.get("index.html", "") and
+   '#A5A198' not in after.get("index.html", ""))
 
 for path, destination in REDIRECT_PAGES.items():
     html = after.get(path, "")
@@ -301,8 +305,21 @@ ok("timezone search understands place names and seasonal acronyms",
    "aliases.includes(query)" in members_after.get("members/app.js", ""))
 ok("member surfaces keep one uninterrupted warm paper",
    "--paper:#FDFCF9" in members_after.get("members/app.css", "") and
+   "--soft:#75726A" in members_after.get("members/app.css", "") and
    "background:#FFF" not in members_after.get("members/app.css", "") and
    "background:#FFFFFF" not in members_after.get("members/app.css", ""))
+ok("member mobile controls keep the viewport and keyboard focus usable",
+   "height:100dvh" in members_after.get("members/app.css", "") and
+   ":focus-visible{outline:2px solid var(--violet)" in members_after.get("members/app.css", "") and
+   'aria-controls="mobile-menu"' in login_html and 'aria-controls="mobile-menu"' in host_html and
+   'aria-label="Members area"' in login_html and 'aria-label="Members area"' in host_html and
+   "menuClose.focus()" in members_after.get("members/app.js", "") and
+   "event.key === 'Escape'" in members_after.get("members/app.js", "") and
+   "event.key === 'Escape'" in members_after.get("members/host.js", ""))
+ok("quiet email mode is conveyed to keyboard and screen-reader users",
+   "salonOptions.setAttribute('aria-disabled', String(quiet))" in members_after.get("members/app.js", "") and
+   "fieldNoteRow.setAttribute('aria-disabled', String(quiet))" in members_after.get("members/app.js", "") and
+   "document.getElementById(id).disabled = quiet" in members_after.get("members/app.js", ""))
 ok("first entry carries a concise, versioned member agreement",
    'id="welcome-page"' in login_html and 'id="agreement-form"' in login_html and
    'data-welcome-step="3"' in login_html and

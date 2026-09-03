@@ -54,6 +54,9 @@ hover_rules, hover_seen = [], {}
 
 def convert(body, key):
     """Turn one screen's design markup into shell-ready markup."""
+    # Keep secondary copy quiet but readable against the warm paper. The
+    # prototype's former grey only reached 2.5:1 contrast at small sizes.
+    body = body.replace('#A5A198', '#75726A')
     # style-hover="…" -> a data-vh hook plus a collected :hover rule
     def hov(m):
         decls = m.group(1)
@@ -598,6 +601,7 @@ CSS = """
   a{color:#171916;text-decoration:none;}
   a:hover{color:#5A4B7C;}
   input,textarea,select,button{font-family:inherit;}
+  :where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C;outline-offset:3px;}
   ::selection{background:#F2ECFF;color:#171916;}
 
   /* One complete page map. Solid paper keeps passing content legible; the
@@ -654,7 +658,7 @@ CSS = """
   .bc-john-portrait{margin:0;display:grid;gap:10px;}
   .bc-john-portrait img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#171916;}
   .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;
-    line-height:1.5;letter-spacing:.12em;color:#A5A198;}
+    line-height:1.5;letter-spacing:.12em;color:#75726A;}
   .bc-john-letter-label{display:block;margin-bottom:18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
   .bc-john-letter-words{display:block;}
   .bc-john-letter-words p{margin:0 0 15px;font-size:15px;line-height:1.76;color:#4A473F;}
@@ -670,7 +674,7 @@ CSS = """
   .bc-john-practical-link:hover span,.bc-john-practical-link:focus-visible span{color:#5A4B7C;}
   .bc-john-socials{display:grid;gap:8px;padding-top:13px;}
   .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;letter-spacing:.16em;
-    text-transform:uppercase;color:#A5A198;}
+    text-transform:uppercase;color:#75726A;}
   .bc-john-socials>div{display:flex;flex-wrap:wrap;gap:6px 12px;}
   .bc-john-socials a{font-size:10px;color:#6F6961;text-decoration:none;border-bottom:1px solid #D8D4CA;}
   .bc-john-socials a:hover,.bc-john-socials a:focus-visible{color:#5A4B7C;border-color:#5A4B7C;}
@@ -870,6 +874,7 @@ CSS = """
   }
 
   @media (max-width:44rem){
+    input,textarea,select{font-size:16px!important;}
     [data-sidefig]{width:100%!important;max-width:100%!important;flex:0 0 auto!important;align-self:stretch!important;height:clamp(290px,92vw,360px)!important;}
     [data-sidefig] img{width:100%!important;height:100%!important;object-fit:cover!important;}
     [data-splitcopy]{padding:32px 24px!important;}
@@ -883,6 +888,7 @@ CSS = """
     #bc-door{height:auto!important;min-height:100svh;overflow:visible!important;}
     #bc-door form{overflow:visible!important;grid-template-rows:auto auto auto!important;padding:28px 24px 32px!important;}
     #bc-door [data-next]{border-left:0!important;border-top:1px solid rgba(38,34,26,0.10)!important;flex-basis:100%!important;}
+    #s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
   }
 
   /* the realisationhouse card: hover or focus on a pointer, one tap on touch */
