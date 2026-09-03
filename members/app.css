@@ -122,6 +122,21 @@ button{cursor:pointer}
 .salon-form input:focus,.salon-form textarea:focus{border-color:var(--violet)}
 .salon-form-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .salon-form-actions .danger{margin-left:auto;color:#7B3E45}
+.salon-plan-list{display:grid;border-top:1px solid var(--line)}
+.salon-plan{border-bottom:1px solid var(--line)}
+.salon-plan h3{margin:0}
+.salon-plan-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 0;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
+.salon-plan-toggle::after{content:'+';font:400 17px/1 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.salon-plan-toggle[aria-expanded="true"]::after{content:'−'}
+.salon-plan-heading{display:flex;align-items:baseline;gap:10px 16px;flex-wrap:wrap}
+.salon-plan-heading strong{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.salon-plan-state{font:400 9.5px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.salon-plan-state.published{color:var(--violet)}
+.salon-plan-state.completed{color:#75726A}
+.salon-plan-body{display:grid;gap:14px;padding:2px 0 20px}
+.salon-plan-body[hidden]{display:none}
+.salon-plan-empty{margin:0;padding:16px 0;border-bottom:1px solid var(--line);font-size:12px;color:#75726A}
+.salon-add{justify-self:start}
 .in-person-host-list{display:grid;border-top:1px solid var(--line);margin-top:4px}
 .in-person-host-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid var(--line)}
 .in-person-host-row-words{display:flex;align-items:baseline;gap:8px 14px;flex-wrap:wrap;font-size:12px}

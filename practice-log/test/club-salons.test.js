@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  deleteHostSalon, joinWindow, parseSalonDraft, publicationProblem, salonHasEnded, validRsvpStatus,
+  deleteHostSalon, getHostSalon, joinWindow, parseSalonDraft, publicationProblem,
+  salonHasEnded, saveHostSalon, validRsvpStatus,
 } from '../src/club/salons.js';
 
 test('Salon drafts store one UTC instant and only secure Zoom links', () => {
@@ -75,6 +76,10 @@ test('deleting an upcoming Salon removes its managed Zoom meeting first', async 
     MEMBERS: {
       prepare(sql) {
         return {
+          async all() {
+            if (sql.includes('SELECT s.*')) return { results: [] };
+            return { results: [] };
+          },
           async first() {
             if (sql.includes('SELECT s.*')) return null;
             return null;
@@ -111,10 +116,67 @@ test('deleting an upcoming Salon removes its managed Zoom meeting first', async 
 
   const response = await deleteHostSalon(env, { id: 7 }, 1_900_000_000, fetchImpl);
   assert.deepEqual(await response.json(), {
-    salon: null, rsvps: [], capabilities: { autoZoom: true },
+    salons: [], salon: null, rsvps: [], capabilities: { autoZoom: true }, deletedSalonId: 7,
   });
   const zoomDelete = calls.find((call) => call.url?.includes('/v2/meetings/'));
   const dbDelete = calls.find((call) => call.sql?.includes('DELETE FROM salon'));
   assert.equal(zoomDelete.deleted, false);
   assert.ok(dbDelete);
+});
+
+test('the host Salon planner returns every open Salon in chronological order', async () => {
+  const salonRows = [{
+    id: 4, host_note: 'September', starts_at: 2_000_000_000, timezone: 'Europe/London',
+    duration_minutes: 90, zoom_join_url: null, zoom_meeting_id: null, status: 'published',
+    published_at: 1_900_000_000, announcement_sent_at: null,
+    announcement_recipient_count: 2, rsvp_count: 1,
+  }, {
+    id: 5, host_note: 'October', starts_at: 2_002_000_000, timezone: 'Europe/London',
+    duration_minutes: 90, zoom_join_url: null, zoom_meeting_id: null, status: 'draft',
+    published_at: null, announcement_sent_at: null,
+    announcement_recipient_count: 3, rsvp_count: 0,
+  }];
+  const env = {
+    MEMBERS: {
+      prepare(sql) {
+        if (sql.includes('SELECT s.*')) return { async all() { return { results: salonRows }; } };
+        return {
+          bind(id) {
+            return { async all() { return { results: id === 4 ? [{
+              status: 'in', updated_at: 1_950_000_000, id: 8,
+              email: 'mira@example.test', display_name: 'Mira',
+            }] : [] }; } };
+          },
+        };
+      },
+    },
+  };
+  const response = await getHostSalon(env, 1_990_000_000);
+  const data = await response.json();
+  assert.deepEqual(data.salons.map((salon) => salon.id), [4, 5]);
+  assert.equal(data.salons[0].rsvps[0].name, 'Mira');
+  assert.equal(data.salon.id, 4);
+});
+
+test('saving without an id creates another draft even while other Salons are open', async () => {
+  const calls = [];
+  const env = {
+    MEMBERS: {
+      prepare(sql) {
+        calls.push(sql);
+        if (sql.includes('INSERT INTO salon')) return {
+          bind() { return { async run() { return { meta: { changes: 1, last_row_id: 12 } }; } }; },
+        };
+        if (sql.includes('SELECT s.*')) return { async all() { return { results: [] }; } };
+        throw new Error(`unexpected SQL: ${sql}`);
+      },
+    },
+  };
+  const response = await saveHostSalon(env, { id: 1 }, {
+    note: 'A future gathering', startsAt: '2033-05-18T18:00:00.000Z', durationMinutes: 90,
+  }, 2_000_000_000);
+  const data = await response.json();
+  assert.equal(data.savedSalonId, 12);
+  assert.equal(calls.some((sql) => sql.includes('active salon exists')), false);
+  assert.equal(calls.filter((sql) => sql.includes('INSERT INTO salon')).length, 1);
 });

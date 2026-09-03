@@ -259,23 +259,27 @@ ok("adding a member sends one visible, retryable invitation",
    "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", "") and
    "resend invite" in members_after.get("members/host.js", ""))
 ok("host controls keep drafting, publishing and email as separate actions",
-   'id="salon-form"' in host_html and 'id="publish-salon"' in host_html and
-   'type="button" disabled>email announcement</button>' in host_html and
-   "publishSalon.disabled = currentSalon?.status === 'published'" in members_after.get("members/host.js", ""))
+   'id="salon-plan-list"' in host_html and 'id="add-salon"' in host_html and
+   "saveSalonEditor" in members_after.get("members/host.js", "") and
+   "publishSalonEditor" in members_after.get("members/host.js", "") and
+   "announceSalonEditor" in members_after.get("members/host.js", "") and
+   "salon.status !== 'published'" in members_after.get("members/host.js", ""))
 ok("host can safely delete an upcoming Salon or announce it to later members",
-   'id="delete-salon"' in host_html and 'id="email-announcement"' in host_html and
+   "deleteSalonEditor" in members_after.get("members/host.js", "") and
+   "announceSalonEditor" in members_after.get("members/host.js", "") and
    "call('/api/club/host/salon/delete'" in members_after.get("members/host.js", "") and
    'Each person receives this announcement once.' in members_after.get("members/host.js", "") and
    '@media(max-width:720px)' in members_after.get("members/app.css", "") and
    '.clock{display:none}' in members_after.get("members/app.css", ""))
 ok("host publishing offers automatic Zoom creation with a manual fallback",
-   'Zoom join link · optional fallback' in host_html and
-   'Leave this blank for a fresh Zoom meeting' in host_html and
-   'id="salon-zoom-url" type="url" inputmode="url"' in host_html and
-   'id="salon-zoom-url" type="url" inputmode="url" placeholder="Created automatically when you publish" required' not in host_html)
-ok("host can retain a completed Salon and start the next one",
-   'id="salon-next"' in host_html and 'id="start-next-salon"' in host_html and
-   'The gathering is kept with its RSVPs and Field Notes.' in host_html)
+   'Zoom join link · optional fallback' in members_after.get("members/host.js", "") and
+   'Leave this blank for a fresh Zoom meeting' in members_after.get("members/host.js", "") and
+   "zoom.type = 'url'" in members_after.get("members/host.js", "") and
+   "zoom.placeholder = autoZoom ? 'Created automatically when you publish'" in members_after.get("members/host.js", ""))
+ok("host can plan several Salons ahead while retaining completed gatherings",
+   'Prepare several Salons in advance' in host_html and 'plan another Salon' in host_html and
+   'closeSalonEditor' in members_after.get("members/host.js", "") and
+   'The completed Salon is kept with its RSVPs and Field Notes.' in members_after.get("members/host.js", ""))
 ok("host can open attendee-only Field Note invitations and moderate the archive",
    'id="attendance-list"' in host_html and 'id="open-field-note-invitations"' in host_html and
    'id="host-field-note-archive"' in host_html and
@@ -557,10 +561,12 @@ ok("deleting an upcoming Salon removes its automatically created Zoom meeting",
    "path === '/api/club/host/salon/delete'" in club_router and
    'deleteZoomMeeting' in salons_api and "method: 'DELETE'" in zoom_api and
    "DELETE FROM salon WHERE id" in salons_api)
-ok("completed Salons are retained before a fresh draft and Zoom meeting",
+ok("completed Salons are retained and several future Salons can coexist",
    "path === '/api/club/host/salon/close'" in club_router and
    "status = 'closed'" in salons_api and 'hasEnded: salonHasEnded' in salons_api and
-   "status IN ('draft', 'published')" in salons_api)
+   "status IN ('draft', 'published')" in salons_api and
+   'const rows = await env.MEMBERS.prepare' in salons_api and
+   'const salons = await Promise.all' in salons_api and 'active salon exists' not in salons_api)
 ok("the member agreement gates every private surface server-side",
    "MEMBER_AGREEMENT_VERSION = '2026-09-01'" in agreement_api and
    "path === '/api/club/agreement'" in club_router and

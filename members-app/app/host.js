@@ -7,17 +7,12 @@
   const list = document.getElementById('member-list');
   const form = document.getElementById('invite-form');
   const status = document.getElementById('invite-status');
-  const salonForm = document.getElementById('salon-form');
   const salonStatus = document.getElementById('salon-status');
-  const publishSalon = document.getElementById('publish-salon');
-  const saveSalonButton = document.getElementById('save-salon');
-  const deleteSalonButton = document.getElementById('delete-salon');
-  const salonNext = document.getElementById('salon-next');
-  const startNextSalon = document.getElementById('start-next-salon');
-  const emailAnnouncement = document.getElementById('email-announcement');
+  const salonPlanList = document.getElementById('salon-plan-list');
   let pendingRemove = null;
-  let currentSalon = null;
+  let salonHostState = [];
   let autoZoom = false;
+  const openSalonIds = new Set();
   let previewMode = false;
   let inPersonHostState = [];
   let currentInPersonEvent = null;
@@ -124,77 +119,129 @@
     return instant.toISOString();
   }
 
-  function renderSalon(data) {
-    currentSalon = data.salon;
-    autoZoom = !!data.capabilities?.autoZoom;
-    const rsvps = data.rsvps || [];
-    const state = document.getElementById('salon-state');
-    const summary = document.getElementById('salon-rsvp-summary');
-    const roster = document.getElementById('salon-roster');
-    const zoomInput = document.getElementById('salon-zoom-url');
-    document.getElementById('salon-zoom-label').textContent = autoZoom
-      ? 'Zoom join link · optional fallback' : 'Zoom join link';
-    document.getElementById('salon-zoom-help').textContent = autoZoom
+  function salonHeading(salon) {
+    if (!salon.startsAt) return 'Untitled Salon';
+    const date = new Date(salon.startsAt);
+    const day = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric',
+    }).format(date);
+    const timeValue = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London', hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(date).replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
+    return `${day} · ${timeValue}`;
+  }
+
+  function field(labelText, control, helpText = '') {
+    const label = document.createElement('label');
+    label.append(text('span', '', labelText), control);
+    if (helpText) label.append(text('small', '', helpText));
+    return label;
+  }
+
+  function renderSalonEditor(salon) {
+    const key = String(salon.id ?? salon.clientId);
+    const article = document.createElement('article'); article.className = 'salon-plan'; article.dataset.salonKey = key;
+    const heading = document.createElement('h3');
+    const toggle = document.createElement('button'); toggle.className = 'salon-plan-toggle'; toggle.type = 'button';
+    const headingWords = document.createElement('span'); headingWords.className = 'salon-plan-heading';
+    headingWords.append(text('strong', '', salonHeading(salon)));
+    const statusLabel = salon.hasEnded ? 'completed' : salon.status === 'published' ? 'published' : 'draft';
+    headingWords.append(text('em', `salon-plan-state ${statusLabel}`, statusLabel));
+    toggle.append(headingWords);
+    const body = document.createElement('div'); body.className = 'salon-plan-body'; body.id = `salon-plan-${key.replace(/[^a-z0-9_-]/gi, '-')}`;
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', String(open)); body.hidden = !open;
+      if (open) openSalonIds.add(key); else openSalonIds.delete(key);
+    };
+    toggle.setAttribute('aria-controls', body.id); setOpen(openSalonIds.has(key));
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    heading.append(toggle); article.append(heading);
+
+    const formNode = document.createElement('form'); formNode.className = 'salon-form'; formNode.noValidate = true;
+    const local = londonParts(salon.startsAt);
+    const dateInput = document.createElement('input'); dateInput.type = 'date'; dateInput.name = 'date'; dateInput.required = true; dateInput.value = local.date;
+    const timeInput = document.createElement('input'); timeInput.type = 'time'; timeInput.name = 'time'; timeInput.required = true; timeInput.value = local.time;
+    const grid = document.createElement('div'); grid.className = 'salon-form-grid';
+    grid.append(field('date · UK time', dateInput), field('time · GMT or BST', timeInput));
+    const note = document.createElement('textarea'); note.name = 'note'; note.maxLength = 2400; note.required = true;
+    note.placeholder = 'A few lines for this gathering.'; note.value = salon.note || '';
+    const zoom = document.createElement('input'); zoom.type = 'url'; zoom.inputMode = 'url'; zoom.name = 'zoomUrl'; zoom.value = salon.zoomUrl || '';
+    zoom.placeholder = autoZoom ? 'Created automatically when you publish' : 'https://…';
+    const zoomHelp = autoZoom
       ? 'Leave this blank for a fresh Zoom meeting. Paste a secure Zoom link only when you need the fallback.'
       : 'Automatic creation is not connected yet, so add a secure Zoom link before publishing.';
-    zoomInput.placeholder = autoZoom ? 'Created automatically when you publish' : 'https://…';
-    roster.replaceChildren();
+    formNode.append(grid, field('your note · appears above RSVP', note), field(autoZoom ? 'Zoom join link · optional fallback' : 'Zoom join link', zoom, zoomHelp));
+    formNode.querySelectorAll('input,textarea').forEach((input) => { input.disabled = !!salon.hasEnded; });
 
-    if (!currentSalon) {
-      salonForm.reset(); document.getElementById('salon-id').value = '';
-      salonForm.querySelectorAll('input:not([type="hidden"]),textarea').forEach((field) => { field.disabled = false; });
-      state.textContent = 'No Salon is being prepared.'; summary.textContent = '';
-      publishSalon.textContent = 'publish to members';
-      publishSalon.disabled = false; saveSalonButton.disabled = false; salonNext.hidden = true;
-      deleteSalonButton.hidden = true; deleteSalonButton.disabled = false;
-      emailAnnouncement.disabled = true; emailAnnouncement.textContent = 'email announcement';
-      document.getElementById('announcement-copy').textContent = 'Publish the Salon before announcing it.';
-      return;
+    const actions = document.createElement('div'); actions.className = 'salon-form-actions';
+    const save = text('button', 'outline', 'save draft'); save.type = 'submit'; save.disabled = !!salon.hasEnded;
+    const publish = text('button', 'primary', salon.status === 'published' ? 'published' : 'publish to members');
+    publish.type = 'button'; publish.disabled = !!salon.hasEnded || salon.status === 'published';
+    publish.addEventListener('click', () => publishSalonEditor(salon, formNode, publish));
+    actions.append(save, publish);
+    if (salon.id && !salon.hasEnded) {
+      const remove = text('button', 'text-button danger', 'delete Salon'); remove.type = 'button';
+      remove.addEventListener('click', () => deleteSalonEditor(salon, remove)); actions.append(remove);
     }
+    if (salon.id && salon.hasEnded) {
+      const close = text('button', 'outline', 'close completed Salon'); close.type = 'button';
+      close.addEventListener('click', () => closeSalonEditor(salon, close)); actions.append(close);
+    }
+    formNode.append(actions);
+    formNode.addEventListener('submit', (event) => saveSalonEditor(event, salon, formNode, save));
+    body.append(formNode);
 
-    const local = londonParts(currentSalon.startsAt);
-    document.getElementById('salon-id').value = String(currentSalon.id);
-    document.getElementById('salon-date').value = local.date;
-    document.getElementById('salon-start-time').value = local.time;
-    document.getElementById('salon-host-note').value = currentSalon.note || '';
-    zoomInput.value = currentSalon.zoomUrl || '';
-    salonForm.querySelectorAll('input:not([type="hidden"]),textarea').forEach((field) => { field.disabled = !!currentSalon.hasEnded; });
-    state.textContent = currentSalon.hasEnded
+    const state = document.createElement('div'); state.className = 'salon-host-state';
+    state.append(text('span', '', salon.hasEnded
       ? 'This Salon has ended.'
-      : currentSalon.status === 'published'
-      ? `Published to members.${currentSalon.zoomManaged ? ' Fresh Zoom meeting created.' : ''}`
-      : 'Saved privately as a draft.';
-    publishSalon.textContent = currentSalon.hasEnded
-      ? 'Salon ended' : currentSalon.status === 'published' ? 'published' : 'publish to members';
-    publishSalon.disabled = currentSalon.status === 'published';
-    saveSalonButton.disabled = !!currentSalon.hasEnded;
-    deleteSalonButton.hidden = !!currentSalon.hasEnded;
-    deleteSalonButton.disabled = false;
-    salonNext.hidden = !currentSalon.hasEnded;
-    const announcementCount = Number(currentSalon.announcementRecipientCount || 0);
-    emailAnnouncement.disabled = !!currentSalon.hasEnded || currentSalon.status !== 'published' || announcementCount === 0;
-    emailAnnouncement.textContent = currentSalon.announcementSentAt
-      ? announcementCount ? `email new members · ${announcementCount}` : 'email new members'
-      : 'email announcement';
-    document.getElementById('announcement-copy').textContent = currentSalon.hasEnded
-      ? 'This Salon has ended. Its gathering remains here and in Field Notes.'
-      : currentSalon.announcementSentAt
-      ? announcementCount
-        ? `${announcementCount} ${announcementCount === 1 ? 'member has' : 'members have'} not received this announcement yet.`
-        : 'Everyone currently eligible has received this announcement. If somebody joins later, you can send it to them here.'
-      : currentSalon.status === 'published'
-        ? `${announcementCount} ${announcementCount === 1 ? 'member will' : 'members will'} receive it. Each person receives this announcement once.`
-        : 'Publish the Salon before announcing it.';
-    summary.textContent = `${currentSalon.rsvpCount || 0} ${currentSalon.rsvpCount === 1 ? 'being is' : 'beings are'} in`;
-    rsvps.forEach((rsvp) => {
+      : salon.status === 'published'
+        ? `Published to members.${salon.zoomManaged ? ' Fresh Zoom meeting created.' : ''}`
+        : salon.id ? 'Saved privately as a draft.' : 'Not saved yet.'));
+    state.append(text('span', '', `${salon.rsvpCount || 0} ${salon.rsvpCount === 1 ? 'being is' : 'beings are'} in`));
+    body.append(state);
+
+    const roster = document.createElement('div'); roster.className = 'salon-roster';
+    (salon.rsvps || []).forEach((rsvp) => {
       const row = document.createElement('div'); row.className = 'salon-roster-row';
       row.append(text('span', '', rsvp.name || rsvp.email), text('span', '', rsvp.status === 'in' ? 'in' : 'not this time'));
       roster.append(row);
     });
+    body.append(roster);
+
+    if (salon.id) {
+      const announcement = document.createElement('div'); announcement.className = 'announcement-hold';
+      const count = Number(salon.announcementRecipientCount || 0);
+      const email = text('button', 'outline', salon.announcementSentAt
+        ? count ? `email new members · ${count}` : 'email new members'
+        : 'email announcement');
+      email.type = 'button'; email.disabled = !!salon.hasEnded || salon.status !== 'published' || count === 0;
+      email.addEventListener('click', () => announceSalonEditor(salon, email));
+      const copy = salon.hasEnded
+        ? 'This Salon has ended. Its gathering remains here and in Field Notes.'
+        : salon.announcementSentAt
+          ? count
+            ? `${count} ${count === 1 ? 'member has' : 'members have'} not received this announcement yet.`
+            : 'Everyone currently eligible has received this announcement. If somebody joins later, you can send it to them here.'
+          : salon.status === 'published'
+            ? `${count} ${count === 1 ? 'member will' : 'members will'} receive it. Each person receives this announcement once.`
+            : 'Publish the Salon before announcing it.';
+      announcement.append(email, text('span', '', copy)); body.append(announcement);
+    }
+
+    article.append(body); return article;
+  }
+
+  function renderSalons(data, preferredOpenId = null) {
+    autoZoom = !!data.capabilities?.autoZoom;
+    salonHostState = data.salons || (data.salon ? [{ ...data.salon, rsvps: data.rsvps || [] }] : []);
+    if (preferredOpenId != null) openSalonIds.add(String(preferredOpenId));
+    salonPlanList.replaceChildren();
+    if (!salonHostState.length) salonPlanList.append(text('p', 'salon-plan-empty', 'No Salons are being prepared yet.'));
+    salonHostState.forEach((salon) => salonPlanList.append(renderSalonEditor(salon)));
   }
 
   async function loadSalon() {
-    renderSalon(await call('/api/club/host/salon'));
+    renderSalons(await call('/api/club/host/salon'));
   }
 
   function formatInPersonTime(event) {
@@ -505,25 +552,150 @@
     } catch (_) { statusNode.textContent = 'That Field Note could not be removed.'; }
   }
 
-  function salonPayload() {
+  function salonPayload(formNode, salon) {
     const startsAt = londonInstant(
-      document.getElementById('salon-date').value,
-      document.getElementById('salon-start-time').value,
+      formNode.elements.date.value,
+      formNode.elements.time.value,
     );
     return {
-      id: currentSalon?.id || null,
-      note: document.getElementById('salon-host-note').value,
+      id: salon.id || null,
+      note: formNode.elements.note.value,
       startsAt,
       durationMinutes: 90,
-      zoomUrl: document.getElementById('salon-zoom-url').value,
+      zoomUrl: formNode.elements.zoomUrl.value,
     };
   }
 
-  async function saveSalon() {
+  async function saveSalon(formNode, salon) {
     const data = await call('/api/club/host/salon', {
-      method: 'POST', body: JSON.stringify(salonPayload()),
+      method: 'POST', body: JSON.stringify(salonPayload(formNode, salon)),
     });
-    renderSalon(data); return data.salon;
+    const savedId = data.savedSalonId || salon.id;
+    renderSalons(data, savedId);
+    return data.salons.find((item) => item.id === savedId);
+  }
+
+  async function saveSalonEditor(event, salon, formNode, button) {
+    event.preventDefault(); salonStatus.textContent = '';
+    if (!formNode.checkValidity()) { formNode.reportValidity(); return; }
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        const savedId = salon.id || Math.max(0, ...salonHostState.map((item) => Number(item.id) || 0)) + 1;
+        const payload = salonPayload(formNode, salon);
+        const saved = {
+          ...salon, id: savedId, clientId: undefined, note: payload.note, startsAt: payload.startsAt,
+          zoomUrl: payload.zoomUrl || null, status: salon.status || 'draft', rsvps: salon.rsvps || [],
+        };
+        salonHostState = salonHostState.filter((item) => item !== salon).concat(saved)
+          .sort((a, b) => String(a.startsAt || '9999').localeCompare(String(b.startsAt || '9999')));
+        openSalonIds.delete(String(salon.clientId)); openSalonIds.add(String(savedId));
+        renderSalons({ salons: salonHostState, capabilities: { autoZoom } }, savedId);
+      } else await saveSalon(formNode, salon);
+      salonStatus.textContent = 'Draft saved.';
+    } catch (error) { salonStatus.textContent = error.message || 'The Salon could not be saved.'; }
+    finally { button.disabled = false; }
+  }
+
+  async function publishSalonEditor(salon, formNode, button) {
+    salonStatus.textContent = '';
+    if (!formNode.checkValidity()) { formNode.reportValidity(); return; }
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        const savedId = salon.id || Math.max(0, ...salonHostState.map((item) => Number(item.id) || 0)) + 1;
+        const payload = salonPayload(formNode, salon);
+        const saved = {
+          ...salon, id: savedId, clientId: undefined, note: payload.note, startsAt: payload.startsAt,
+          zoomUrl: payload.zoomUrl || null, status: 'published', zoomManaged: !payload.zoomUrl,
+          rsvps: salon.rsvps || [],
+        };
+        salonHostState = salonHostState.filter((item) => item !== salon).concat(saved)
+          .sort((a, b) => String(a.startsAt || '9999').localeCompare(String(b.startsAt || '9999')));
+        openSalonIds.delete(String(salon.clientId)); openSalonIds.add(String(savedId));
+        renderSalons({ salons: salonHostState, capabilities: { autoZoom } }, savedId);
+        salonStatus.textContent = 'Preview: fresh Zoom meeting created and published to members. No email has been sent.';
+        return;
+      }
+      const saved = await saveSalon(formNode, salon);
+      const data = await call('/api/club/host/salon/publish', {
+        method: 'POST', body: JSON.stringify({ id: saved.id }),
+      });
+      renderSalons(data, saved.id);
+      const published = data.salons.find((item) => item.id === saved.id);
+      salonStatus.textContent = published?.zoomManaged
+        ? 'Fresh Zoom meeting created and published to members. No email has been sent.'
+        : 'Published to members with the fallback Zoom link. No email has been sent.';
+    } catch (error) { salonStatus.textContent = error.message || 'The Salon could not be published.'; }
+    finally { button.disabled = false; }
+  }
+
+  async function closeSalonEditor(salon, button) {
+    salonStatus.textContent = ''; button.disabled = true;
+    try {
+      if (previewMode) {
+        salonHostState = salonHostState.filter((item) => item.id !== salon.id);
+        renderSalons({ salons: salonHostState, capabilities: { autoZoom } });
+      } else {
+        const data = await call('/api/club/host/salon/close', {
+          method: 'POST', body: JSON.stringify({ id: salon.id }),
+        });
+        renderSalons(data);
+        await loadFieldNoteHost();
+      }
+      salonStatus.textContent = 'The completed Salon is kept with its RSVPs and Field Notes.';
+    } catch (error) {
+      salonStatus.textContent = error.message === 'Salon has not ended'
+        ? 'This Salon has not ended yet.' : 'The Salon could not be closed. Nothing has changed.';
+      button.disabled = false;
+    }
+  }
+
+  async function deleteSalonEditor(salon, button) {
+    if (!window.confirm('Delete this Salon? It will disappear for every member and its RSVPs will be removed. Any automatically created Zoom meeting will be cancelled. This cannot be undone.')) return;
+    salonStatus.textContent = ''; button.disabled = true;
+    try {
+      if (previewMode) {
+        salonHostState = salonHostState.filter((item) => item.id !== salon.id);
+        renderSalons({ salons: salonHostState, capabilities: { autoZoom } });
+      } else {
+        renderSalons(await call('/api/club/host/salon/delete', {
+          method: 'POST', body: JSON.stringify({ id: salon.id }),
+        }));
+      }
+      openSalonIds.delete(String(salon.id));
+      salonStatus.textContent = 'The Salon and its RSVPs were deleted.';
+    } catch (error) {
+      salonStatus.textContent = error.message || 'The Salon could not be deleted. Nothing has changed.';
+      button.disabled = false;
+    }
+  }
+
+  async function announceSalonEditor(salon, button) {
+    if (salon.status !== 'published' || salon.hasEnded) return;
+    const count = Number(salon.announcementRecipientCount || 0);
+    if (!count) return;
+    const question = salon.announcementSentAt
+      ? `Email the Salon announcement to ${count} ${count === 1 ? 'new member' : 'new members'} now?`
+      : `Email the Salon announcement to ${count} ${count === 1 ? 'member' : 'members'} now?`;
+    if (!window.confirm(question)) return;
+    salonStatus.textContent = ''; button.disabled = true;
+    try {
+      if (previewMode) {
+        salon.announcementSentAt = new Date().toISOString(); salon.announcementRecipientCount = 0;
+        renderSalons({ salons: salonHostState, capabilities: { autoZoom } }, salon.id);
+        salonStatus.textContent = `Preview: announcement queued for ${count} ${count === 1 ? 'member' : 'members'}.`;
+        return;
+      }
+      const result = await call('/api/club/host/salon/announce', {
+        method: 'POST', body: JSON.stringify({ id: salon.id }),
+      });
+      renderSalons(await call('/api/club/host/salon'), salon.id);
+      salonStatus.textContent = `Announcement queued for ${result.recipientCount} ${result.recipientCount === 1 ? 'member' : 'members'}.`;
+    } catch (_) {
+      salonStatus.textContent = 'The announcement could not be sent. Nothing was retried.';
+      try { renderSalons(await call('/api/club/host/salon'), salon.id); } catch (_) {}
+    }
   }
 
   async function removeMember(id) {
@@ -574,32 +746,6 @@
       } else status.textContent = 'That address could not be added. Try again.';
     }
     finally { button.disabled = false; }
-  });
-
-  salonForm.addEventListener('submit', async (event) => {
-    event.preventDefault(); salonStatus.textContent = '';
-    if (!salonForm.checkValidity()) { salonForm.reportValidity(); return; }
-    const button = document.getElementById('save-salon'); button.disabled = true;
-    try { await saveSalon(); salonStatus.textContent = 'Draft saved.'; }
-    catch (error) { salonStatus.textContent = error.message || 'The Salon could not be saved.'; }
-    finally { button.disabled = false; }
-  });
-
-  publishSalon.addEventListener('click', async () => {
-    salonStatus.textContent = '';
-    if (!salonForm.checkValidity()) { salonForm.reportValidity(); return; }
-    publishSalon.disabled = true;
-    try {
-      const saved = await saveSalon();
-      const data = await call('/api/club/host/salon/publish', {
-        method: 'POST', body: JSON.stringify({ id: saved.id }),
-      });
-      renderSalon(data);
-      salonStatus.textContent = data.salon?.zoomManaged
-        ? 'Fresh Zoom meeting created and published to members. No email has been sent.'
-        : 'Published to members with the fallback Zoom link. No email has been sent.';
-    } catch (error) { salonStatus.textContent = error.message || 'The Salon could not be published.'; }
-    finally { publishSalon.disabled = currentSalon?.status === 'published'; }
   });
 
   document.getElementById('in-person-event-image').addEventListener('change', async (event) => {
@@ -660,71 +806,20 @@
 
   document.getElementById('new-in-person-event').addEventListener('click', clearInPersonForm);
 
-  startNextSalon.addEventListener('click', async () => {
-    if (!currentSalon?.hasEnded) return;
-    salonStatus.textContent = ''; startNextSalon.disabled = true;
-    try {
-      if (previewMode) {
-        renderSalon({ salon: null, rsvps: [], capabilities: { autoZoom } });
-      } else {
-        renderSalon(await call('/api/club/host/salon/close', {
-          method: 'POST', body: JSON.stringify({ id: currentSalon.id }),
-        }));
-        await loadFieldNoteHost();
-      }
-      salonStatus.textContent = 'The completed Salon is kept. You can prepare the next one.';
-      document.getElementById('salon-date').focus();
-    } catch (error) {
-      salonStatus.textContent = error.message === 'Salon has not ended'
-        ? 'The current Salon has not ended yet.' : 'The next Salon could not be started. Nothing has changed.';
-    } finally { startNextSalon.disabled = false; }
-  });
-
-  deleteSalonButton.addEventListener('click', async () => {
-    if (!currentSalon || currentSalon.hasEnded) return;
-    if (!window.confirm('Delete this Salon? It will disappear for every member and its RSVPs will be removed. Any automatically created Zoom meeting will be cancelled. This cannot be undone.')) return;
-    salonStatus.textContent = ''; deleteSalonButton.disabled = true;
-    try {
-      if (previewMode) {
-        renderSalon({ salon: null, rsvps: [], capabilities: { autoZoom } });
-      } else {
-        renderSalon(await call('/api/club/host/salon/delete', {
-          method: 'POST', body: JSON.stringify({ id: currentSalon.id }),
-        }));
-      }
-      salonStatus.textContent = 'The Salon and its RSVPs were deleted.';
-    } catch (error) {
-      salonStatus.textContent = error.message || 'The Salon could not be deleted. Nothing has changed.';
-      deleteSalonButton.disabled = false;
+  document.getElementById('add-salon').addEventListener('click', () => {
+    const existing = salonHostState.find((salon) => salon.clientId === 'new');
+    if (existing) {
+      openSalonIds.add('new'); renderSalons({ salons: salonHostState, capabilities: { autoZoom } }, 'new');
+    } else {
+      const draft = {
+        clientId: 'new', id: null, note: '', startsAt: null, durationMinutes: 90,
+        zoomUrl: null, zoomManaged: false, status: 'draft', announcementSentAt: null,
+        announcementRecipientCount: 0, rsvpCount: 0, rsvps: [], hasEnded: false,
+      };
+      salonHostState = [...salonHostState, draft]; openSalonIds.add('new');
+      renderSalons({ salons: salonHostState, capabilities: { autoZoom } }, 'new');
     }
-  });
-
-  emailAnnouncement.addEventListener('click', async () => {
-    if (!currentSalon || currentSalon.status !== 'published' || currentSalon.hasEnded) return;
-    const count = Number(currentSalon.announcementRecipientCount || 0);
-    if (!count) return;
-    const question = currentSalon.announcementSentAt
-      ? `Email the Salon announcement to ${count} ${count === 1 ? 'new member' : 'new members'} now?`
-      : `Email the Salon announcement to ${count} ${count === 1 ? 'member' : 'members'} now?`;
-    if (!window.confirm(question)) return;
-    salonStatus.textContent = ''; emailAnnouncement.disabled = true;
-    try {
-      if (previewMode) {
-        currentSalon.announcementSentAt = new Date().toISOString();
-        currentSalon.announcementRecipientCount = 0;
-        renderSalon({ salon: currentSalon, rsvps: [] });
-        salonStatus.textContent = `Preview: announcement queued for ${count} ${count === 1 ? 'member' : 'members'}.`;
-        return;
-      }
-      const result = await call('/api/club/host/salon/announce', {
-        method: 'POST', body: JSON.stringify({ id: currentSalon.id }),
-      });
-      const data = await call('/api/club/host/salon'); renderSalon(data);
-      salonStatus.textContent = `Announcement queued for ${result.recipientCount} ${result.recipientCount === 1 ? 'member' : 'members'}.`;
-    } catch (error) {
-      salonStatus.textContent = 'The announcement could not be sent. Nothing was retried.';
-      try { renderSalon(await call('/api/club/host/salon')); } catch (_) {}
-    }
+    salonPlanList.querySelector('[data-salon-key="new"] input[name="date"]')?.focus();
   });
 
   document.getElementById('attendance-form').addEventListener('submit', async (event) => {
@@ -808,7 +903,14 @@
     if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1')
         && previewParams.has('preview')) {
       previewMode = true;
+      const salonPreview = document.querySelector('.host-section');
       const inPersonEventPreview = document.getElementById('in-person-event-host');
+      if (previewParams.get('salon') === 'open') {
+        const salonToggle = salonPreview.querySelector('.host-section-toggle');
+        const salonBody = salonPreview.querySelector('.host-section-body');
+        salonToggle.setAttribute('aria-expanded', 'true'); salonBody.hidden = false;
+        openSalonIds.add('1');
+      }
       if (previewParams.get('in-person') === 'event') {
         const eventToggle = inPersonEventPreview.querySelector('.host-section-toggle');
         const eventBody = inPersonEventPreview.querySelector('.host-section-body');
@@ -821,21 +923,28 @@
         { id: 2, email: 'mira@example.com', name: 'Mira', isHost: false, status: 'invited', canInvite: true, canRemove: true },
         { id: 3, email: 'sam@example.com', name: null, isHost: false, status: 'on_list', canInvite: true, canRemove: true },
       ]);
-      renderSalon({
+      renderSalons({
         capabilities: { autoZoom: true },
-        salon: {
+        salons: [{
           id: 1,
           note: 'We’ll sit first, then wander into pairs and threes. Bring whatever the month has left you with.',
           startsAt: '2026-09-30T18:00:00.000Z', timezone: 'Europe/London',
           durationMinutes: 90, zoomUrl: null, zoomManaged: false,
-          status: 'draft', announcementSentAt: null, announcementRecipientCount: 3, rsvpCount: 3,
+          status: 'published', announcementSentAt: '2026-09-03T12:00:00.000Z', announcementRecipientCount: 1, rsvpCount: 3,
           hasEnded: false,
-        },
-        rsvps: [
-          { name: 'Mira', email: 'mira@example.com', status: 'in' },
-          { name: 'Sam', email: 'sam@example.com', status: 'in' },
-          { name: 'Noor', email: 'noor@example.com', status: 'not_this_time' },
-        ],
+          rsvps: [
+            { name: 'Mira', email: 'mira@example.com', status: 'in' },
+            { name: 'Sam', email: 'sam@example.com', status: 'in' },
+            { name: 'Noor', email: 'noor@example.com', status: 'not_this_time' },
+          ],
+        }, {
+          id: 2,
+          note: 'A quiet winter gathering. More detail can take shape nearer the time.',
+          startsAt: '2026-10-28T19:00:00.000Z', timezone: 'Europe/London',
+          durationMinutes: 90, zoomUrl: null, zoomManaged: false,
+          status: 'draft', announcementSentAt: null, announcementRecipientCount: 3, rsvpCount: 0,
+          hasEnded: false, rsvps: [],
+        }],
       });
       renderHostInPersonEvents({ events: [{
         id: 12, title: 'A gathering in London',

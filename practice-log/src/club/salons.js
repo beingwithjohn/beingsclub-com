@@ -64,8 +64,8 @@ export async function setMemberRsvp(env, who, salonId, body, ctx, timestamp = no
   return getMemberSalon(env, who, timestamp);
 }
 
-export async function getHostSalon(env, timestamp = now()) {
-  const salon = await env.MEMBERS.prepare(
+export async function getHostSalon(env, timestamp = now(), extra = {}) {
+  const rows = await env.MEMBERS.prepare(
     `SELECT s.*,
             (SELECT COUNT(*) FROM salon_rsvp r
               JOIN member active_member ON active_member.id = r.member_id
@@ -87,36 +87,38 @@ export async function getHostSalon(env, timestamp = now()) {
                      AND announcement_log.kind = 'salon_announced'
                      AND announcement_log.scope = CAST(s.id AS TEXT)
                 )) AS announcement_recipient_count
-       FROM salon s
+      FROM salon s
       WHERE s.status IN ('draft', 'published')
-      ORDER BY CASE s.status WHEN 'published' THEN 0 ELSE 1 END,
-               COALESCE(s.starts_at, 9223372036854775807), s.created_at DESC
-      LIMIT 1`,
-  ).first();
-  if (!salon) return json({
-    salon: null,
-    rsvps: [],
-    capabilities: { autoZoom: zoomConfigured(env) },
-  });
-
-  const rsvps = await env.MEMBERS.prepare(
-    `SELECT r.status, r.updated_at, m.id, m.email, m.display_name
-       FROM salon_rsvp r JOIN member m ON m.id = r.member_id
-      WHERE r.salon_id = ?1 AND m.disabled_at IS NULL AND m.left_at IS NULL
-      ORDER BY CASE r.status WHEN 'in' THEN 0 ELSE 1 END,
-               COALESCE(m.display_name, m.email) COLLATE NOCASE`,
-  ).bind(salon.id).all();
-
+      ORDER BY CASE WHEN s.starts_at IS NULL THEN 1 ELSE 0 END,
+               s.starts_at ASC, s.created_at ASC`,
+  ).all();
+  const salons = await Promise.all((rows.results || []).map(async (salon) => {
+    const rsvps = await env.MEMBERS.prepare(
+      `SELECT r.status, r.updated_at, m.id, m.email, m.display_name
+         FROM salon_rsvp r JOIN member m ON m.id = r.member_id
+        WHERE r.salon_id = ?1 AND m.disabled_at IS NULL AND m.left_at IS NULL
+        ORDER BY CASE r.status WHEN 'in' THEN 0 ELSE 1 END,
+                 COALESCE(m.display_name, m.email) COLLATE NOCASE`,
+    ).bind(salon.id).all();
+    return {
+      ...shapeHostSalon(salon, timestamp),
+      rsvps: (rsvps.results || []).map((row) => ({
+        memberId: row.id,
+        name: row.display_name,
+        email: row.email,
+        status: row.status,
+        updatedAt: iso(row.updated_at),
+      })),
+    };
+  }));
+  const first = salons[0] || null;
   return json({
-    salon: shapeHostSalon(salon, timestamp),
+    salons,
+    // Keep the singular fields while older host builds are still cached.
+    salon: first,
+    rsvps: first?.rsvps || [],
     capabilities: { autoZoom: zoomConfigured(env) },
-    rsvps: (rsvps.results || []).map((row) => ({
-      memberId: row.id,
-      name: row.display_name,
-      email: row.email,
-      status: row.status,
-      updatedAt: iso(row.updated_at),
-    })),
+    ...extra,
   });
 }
 
@@ -137,15 +139,10 @@ export async function saveHostSalon(env, who, body, timestamp = now()) {
       draft.duration, draft.zoomUrl, timestamp, id,
     ).run();
     if ((result.meta?.changes ?? 0) !== 1) return bad(404, 'not found');
-    return getHostSalon(env, timestamp);
+    return getHostSalon(env, timestamp, { savedSalonId: id });
   }
 
-  const existing = await env.MEMBERS.prepare(
-    `SELECT id FROM salon WHERE status IN ('draft', 'published') LIMIT 1`,
-  ).first();
-  if (existing) return bad(409, 'active salon exists');
-
-  await env.MEMBERS.prepare(
+  const result = await env.MEMBERS.prepare(
     `INSERT INTO salon
       (host_note, starts_at, timezone, duration_minutes, zoom_join_url,
        status, created_by, created_at, updated_at)
@@ -154,7 +151,7 @@ export async function saveHostSalon(env, who, body, timestamp = now()) {
     draft.note, draft.startsAt, DEFAULT_TIMEZONE, draft.duration,
     draft.zoomUrl, memberId(who), timestamp,
   ).run();
-  return getHostSalon(env, timestamp);
+  return getHostSalon(env, timestamp, { savedSalonId: Number(result.meta?.last_row_id) });
 }
 
 export async function publishHostSalon(env, body, timestamp = now(), fetchImpl = fetch) {
@@ -199,7 +196,7 @@ export async function publishHostSalon(env, body, timestamp = now(), fetchImpl =
         WHERE id = ?2 AND status = 'draft'`,
     ).bind(timestamp, id).run();
   }
-  return getHostSalon(env, timestamp);
+  return getHostSalon(env, timestamp, { publishedSalonId: id });
 }
 
 export async function closeCompletedSalon(env, body, timestamp = now()) {
@@ -211,7 +208,7 @@ export async function closeCompletedSalon(env, body, timestamp = now()) {
         AND starts_at + (duration_minutes * 60) < ?1`,
   ).bind(timestamp, id).run();
   if ((result.meta?.changes ?? 0) !== 1) return bad(409, 'Salon has not ended');
-  return getHostSalon(env, timestamp);
+  return getHostSalon(env, timestamp, { closedSalonId: id });
 }
 
 export async function deleteHostSalon(env, body, timestamp = now(), fetchImpl = fetch) {
@@ -241,7 +238,7 @@ export async function deleteHostSalon(env, body, timestamp = now(), fetchImpl = 
     `DELETE FROM club_send_log
       WHERE scope = ?1 AND kind IN ('salon_announced', 'salon_month', 'salon_week', 'salon_day', 'salon_hour')`,
   ).bind(String(id)).run();
-  return getHostSalon(env, timestamp);
+  return getHostSalon(env, timestamp, { deletedSalonId: id });
 }
 
 export function validRsvpStatus(value) {
