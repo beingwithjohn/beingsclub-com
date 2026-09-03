@@ -76,7 +76,7 @@
 
   <section class="welcome-page" id="welcome-page" hidden>
     <button class="welcome-skip" id="welcome-skip" type="button">skip →</button>
-    <span class="welcome-count" id="welcome-count">1 / 7</span>
+    <span class="welcome-count" id="welcome-count">1 / 8</span>
     <div class="welcome-card">
       <article class="welcome-step" data-welcome-step="0">
         <h1>Welcome, <strong id="welcome-name">being</strong>.</h1>
@@ -156,6 +156,24 @@
         <small>nothing to prepare and nothing to bring</small>
       </article>
       <article class="welcome-step" data-welcome-step="6" hidden>
+        <span class="eyebrow">email</span>
+        <h1>Salon <strong>emails</strong>.</h1>
+        <p>By default, everyone receives the announcement and a note one week before. The other reminders are only sent after you say I’m in. Your confirmation and calendar invitation always arrive once. You can change these choices later in Settings.</p>
+        <form class="welcome-email-form" id="welcome-email-form">
+          <div class="welcome-email-options">
+            <strong>For every Salon</strong>
+            <label class="setting-choice"><input id="welcome-email-salon-announced" type="checkbox"><span>when it is announced</span></label>
+            <label class="setting-choice"><input id="welcome-email-salon-week" type="checkbox"><span>one week before</span></label>
+            <strong>After I say I’m in</strong>
+            <label class="setting-choice"><input id="welcome-email-salon-month" type="checkbox"><span>one month before</span></label>
+            <label class="setting-choice"><input id="welcome-email-salon-day" type="checkbox"><span>one day before</span></label>
+            <label class="setting-choice"><input id="welcome-email-salon-hour" type="checkbox"><span>one hour before</span></label>
+          </div>
+          <button class="primary" id="welcome-email-save" type="submit">save and continue</button>
+          <span class="status" id="welcome-email-status" role="status" aria-live="polite"></span>
+        </form>
+      </article>
+      <article class="welcome-step" data-welcome-step="7" hidden>
         <h1>Freely <strong>offered</strong>.</h1>
         <p>Membership is freely offered. You can give if and when you want to. Choosing not to give changes nothing about your membership.</p>
         <small>giving is always optional</small>
@@ -352,7 +370,11 @@
           <div class="salon-heading">
             <span class="eyebrow">the next salon</span>
             <h1>The next <strong>Salon</strong> is <button class="time-toggle" id="salon-time" type="button"></button></h1>
-            <span class="time-hint" id="time-hint">your local time · select to see Beings Club time</span>
+            <span class="time-hint" id="time-hint" aria-label="Choose how the Salon time is shown">
+              <button id="time-local" type="button" aria-pressed="true">your local time</button>
+              <span aria-hidden="true">·</span>
+              <button id="time-uk" type="button" aria-pressed="false">UK time</button>
+            </span>
           </div>
 
           <p class="salon-intro">We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes. There is nothing to do except stay curious.</p>
@@ -458,8 +480,8 @@
         </header>
         <div class="in-person-events" id="in-person-events" aria-live="polite"></div>
         <section class="in-person-soon" id="in-person-soon">
-          <span class="eyebrow">coming later</span>
-          <p>Nothing has been announced yet. When an in-person gathering is ready, you’ll find it here.</p>
+          <span class="eyebrow">nothing announced yet</span>
+          <p>The next in-person happening will appear here when it is ready.</p>
         </section>
       </div>
     </main>
@@ -627,11 +649,12 @@
           <div class="settings-group" id="salon-email-options">
             <div class="settings-group-copy">
               <strong>Salons</strong>
-              <span>Email me about the next Salon:</span>
+              <span>The announcement and one-week note can reach everyone. Other reminders are only sent after you say I’m in.</span>
             </div>
             <label class="setting-choice"><input id="email-salon-announced" type="checkbox"><span>when it is announced</span></label>
-            <label class="setting-choice"><input id="email-salon-month" type="checkbox"><span>one month before</span></label>
             <label class="setting-choice"><input id="email-salon-week" type="checkbox"><span>one week before</span></label>
+            <span class="settings-choice-context">after I say I’m in</span>
+            <label class="setting-choice"><input id="email-salon-month" type="checkbox"><span>one month before</span></label>
             <label class="setting-choice"><input id="email-salon-day" type="checkbox"><span>one day before</span></label>
             <label class="setting-choice"><input id="email-salon-hour" type="checkbox"><span>one hour before</span></label>
           </div>

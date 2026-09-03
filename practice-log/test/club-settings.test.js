@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseEmailPreferences, parseLeavePolicy } from '../src/club/settings.js';
-import { announceSalon, queueSalonRsvpConfirmation, reminderWindow } from '../src/club/mailer.js';
+import { announceSalon, eligibleMembers, queueSalonRsvpConfirmation, reminderWindow } from '../src/club/mailer.js';
 import { clubSalonTime } from '../src/mail/send.js';
 
 test('Club email settings accept only an explicit complete set of choices', () => {
@@ -31,6 +31,40 @@ test('Salon reminder windows are narrow and idempotence can own the retry', () =
   assert.equal(reminderWindow(start, 'salon_day', start - 86400), true);
   assert.equal(reminderWindow(start, 'salon_hour', start - 3600), true);
   assert.equal(reminderWindow(start, 'unknown', start), false);
+});
+
+test('announcements and week notices can reach every opted-in member while other reminders require an RSVP', async () => {
+  const seen = [];
+  const env = {
+    MEMBERS: {
+      prepare(sql) {
+        seen.push({ sql, bound: null });
+        const current = seen.at(-1);
+        return {
+          async all() { return { results: [] }; },
+          bind(...args) {
+            current.bound = args;
+            return { async all() { return { results: [] }; } };
+          },
+        };
+      },
+    },
+  };
+
+  await eligibleMembers(env, 'salon_announced');
+  await eligibleMembers(env, 'salon_week');
+  await eligibleMembers(env, 'salon_day', 17);
+
+  assert.doesNotMatch(seen[0].sql, /salon_rsvp/);
+  assert.match(seen[0].sql, /p\.salon_announced/);
+  assert.equal(seen[0].bound, null);
+  assert.doesNotMatch(seen[1].sql, /salon_rsvp/);
+  assert.match(seen[1].sql, /p\.salon_week/);
+  assert.equal(seen[1].bound, null);
+  assert.match(seen[2].sql, /FROM salon_rsvp r/);
+  assert.match(seen[2].sql, /p\.salon_day/);
+  assert.match(seen[2].sql, /r\.status = 'in'/);
+  assert.deepEqual(seen[2].bound, [17]);
 });
 
 test('Club time names BST and GMT correctly in Salon email copy', () => {

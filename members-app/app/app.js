@@ -139,17 +139,18 @@
     document.querySelectorAll('[data-welcome-step]').forEach((node) => {
       node.hidden = Number(node.dataset.welcomeStep) !== welcomeStep;
     });
-    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 7`;
+    document.getElementById('welcome-count').textContent = `${welcomeStep + 1} / 8`;
     const nextButton = document.getElementById('welcome-next');
     const skipButton = document.getElementById('welcome-skip');
-    nextButton.hidden = welcomeStep === 3 || welcomeStep === 4;
-    nextButton.textContent = welcomeStep === 6 ? 'enter the club' : 'next';
+    nextButton.hidden = welcomeStep === 3 || welcomeStep === 4 || welcomeStep === 6;
+    nextButton.textContent = welcomeStep === 7 ? 'enter the club' : 'next';
     skipButton.hidden = welcomeStep === 3;
     if (welcomeStep === 3 && replayingWelcome && member?.agreementAccepted) {
       document.getElementById('agreement-check').checked = true;
     }
     document.getElementById('welcome-name').textContent = member?.name || 'being';
     if (welcomeStep === 4) prepareWelcomeProfile();
+    if (welcomeStep === 6) prepareWelcomeEmailSettings();
     const heading = document.getElementById('welcome-salon-heading');
     heading.textContent = salon?.startsAt
       ? `The next one is ${formatSalonTime(salon.startsAt, Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')}.`
@@ -611,11 +612,13 @@
     if (!salon) return;
     const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const zone = showClubTime ? 'Europe/London' : localZone;
-    const sameZone = localZone === 'Europe/London';
     document.getElementById('salon-time').textContent = formatSalonTime(salon.startsAt, zone);
-    document.getElementById('time-hint').textContent = sameZone
-      ? 'your local time · Beings Club time'
-      : (showClubTime ? 'Beings Club time · select for your local time' : 'your local time · select for Beings Club time');
+    const localButton = document.getElementById('time-local');
+    const ukButton = document.getElementById('time-uk');
+    localButton.classList.toggle('is-active', !showClubTime);
+    ukButton.classList.toggle('is-active', showClubTime);
+    localButton.setAttribute('aria-pressed', showClubTime ? 'false' : 'true');
+    ukButton.setAttribute('aria-pressed', showClubTime ? 'true' : 'false');
   }
 
   function renderPresence() {
@@ -699,7 +702,7 @@
       words.append(makeText('p', 'in-person-event-time', formatInPersonEventTime(event)));
       words.append(makeText('p', 'in-person-event-place', event.location));
       words.append(makeText('p', '', event.description));
-      const link = makeText('a', 'outline', 'view the event ↗');
+      const link = makeText('a', 'outline', 'event page');
       link.href = event.bookingUrl; link.target = '_blank'; link.rel = 'noopener';
       words.append(link); card.append(words); list.append(card);
     });
@@ -1173,6 +1176,41 @@
           && !preferences.salonDay && !preferences.salonHour && !preferences.fieldNotes)
         ? 'No optional Club email · this member area is the only door.'
         : 'Every Club email ends with a link back to this page.';
+  }
+
+  function prepareWelcomeEmailSettings() {
+    const preferences = settingsState.email;
+    document.getElementById('welcome-email-salon-announced').checked = !!preferences.salonAnnounced;
+    document.getElementById('welcome-email-salon-month').checked = !!preferences.salonMonth;
+    document.getElementById('welcome-email-salon-week').checked = !!preferences.salonWeek;
+    document.getElementById('welcome-email-salon-day').checked = !!preferences.salonDay;
+    document.getElementById('welcome-email-salon-hour').checked = !!preferences.salonHour;
+    document.getElementById('welcome-email-status').textContent = '';
+  }
+
+  async function submitWelcomeEmailSettings(event) {
+    event.preventDefault();
+    const previous = settingsState.email;
+    const emailSettings = {
+      ...previous,
+      salonAnnounced: document.getElementById('welcome-email-salon-announced').checked,
+      salonMonth: document.getElementById('welcome-email-salon-month').checked,
+      salonWeek: document.getElementById('welcome-email-salon-week').checked,
+      salonDay: document.getElementById('welcome-email-salon-day').checked,
+      salonHour: document.getElementById('welcome-email-salon-hour').checked,
+    };
+    const statusNode = document.getElementById('welcome-email-status');
+    const button = document.getElementById('welcome-email-save');
+    settingsState.email = emailSettings; statusNode.textContent = 'Saving…'; button.disabled = true;
+    try {
+      if (!previewMode) settingsState = await call('/api/club/settings', {
+        method: 'PATCH', body: JSON.stringify({ email: emailSettings }),
+      });
+      showWelcome(7);
+    } catch (_) {
+      settingsState.email = previous;
+      statusNode.textContent = 'Those choices could not be saved. Try again.';
+    } finally { button.disabled = false; }
   }
 
   function emailPreferencesFromPage() {
@@ -1772,11 +1810,12 @@
     await finishWelcome();
   });
   document.getElementById('welcome-next').addEventListener('click', async () => {
-    if (welcomeStep >= 6) { await finishWelcome(); return; }
+    if (welcomeStep >= 7) { await finishWelcome(); return; }
     welcomeStep += 1;
     renderWelcome();
   });
   document.getElementById('welcome-profile-form').addEventListener('submit', submitWelcomeProfile);
+  document.getElementById('welcome-email-form').addEventListener('submit', submitWelcomeEmailSettings);
   document.getElementById('welcome-profile-later').addEventListener('click', () => {
     profileImageData = null;
     showWelcome(5);
@@ -1810,6 +1849,8 @@
   document.getElementById('rsvp-clear-not').addEventListener('click', () => setRsvp(null));
   document.getElementById('calendar-link').addEventListener('click', downloadCalendar);
   document.getElementById('salon-time').addEventListener('click', () => { showClubTime = !showClubTime; renderTime(); });
+  document.getElementById('time-local').addEventListener('click', () => { showClubTime = false; renderTime(); });
+  document.getElementById('time-uk').addEventListener('click', () => { showClubTime = true; renderTime(); });
   document.getElementById('sign-out').addEventListener('click', signOut);
   document.getElementById('mobile-sign-out').addEventListener('click', signOut);
   document.getElementById('field-note-form').addEventListener('submit', submitFieldNote);
@@ -2109,7 +2150,8 @@
         onboardingCompleted: preview !== 'onboarding',
       };
       if (preview === 'onboarding') {
-        showWelcome(previewParams.get('step') === 'profile' ? 4 : 0);
+        const onboardingSteps = { profile: 4, salon: 5, email: 6, giving: 7 };
+        showWelcome(onboardingSteps[previewParams.get('step')] ?? 0);
         return;
       }
       salon = preview === 'empty' ? null : {

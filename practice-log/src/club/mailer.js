@@ -79,8 +79,10 @@ export async function runClubMail(env, scheduledTime = Date.now()) {
           AND starts_at - ?1 <= ?2 AND starts_at - ?1 > ?3`,
     ).bind(reminder.offset, timestamp, timestamp - HALF_HOUR).all();
     if (!(salons.results || []).length) continue;
-    const recipients = await eligibleMembers(env, reminder.preference);
     for (const salon of salons.results || []) {
+      const recipients = await eligibleMembers(
+        env, reminder.preference, reminder.kind === 'salon_week' ? null : salon.id,
+      );
       const claimed = await claimRecipients(
         env, recipients, reminder.kind, String(salon.id), timestamp,
       );
@@ -108,16 +110,22 @@ export function reminderWindow(startsAt, kind, timestamp) {
   return target <= Number(timestamp) && target > Number(timestamp) - HALF_HOUR;
 }
 
-async function eligibleMembers(env, preference) {
+export async function eligibleMembers(env, preference, salonId = null) {
   if (!['salon_announced', 'salon_month', 'salon_week', 'salon_day', 'salon_hour'].includes(preference)) return [];
-  const rows = await env.MEMBERS.prepare(
+  const rsvpClause = salonId === null ? '' : `
+        AND EXISTS (
+          SELECT 1 FROM salon_rsvp r
+           WHERE r.salon_id = ?1 AND r.member_id = m.id AND r.status = 'in'
+        )`;
+  const statement = env.MEMBERS.prepare(
     `SELECT m.id, m.email, m.display_name
        FROM member m LEFT JOIN member_email_pref p ON p.member_id = m.id
       WHERE m.joined_at IS NOT NULL AND m.disabled_at IS NULL AND m.left_at IS NULL
         AND COALESCE(p.quiet, 0) = 0
-        AND COALESCE(p.${preference}, 1) = 1
+        AND COALESCE(p.${preference}, 1) = 1${rsvpClause}
       ORDER BY m.id`,
-  ).all();
+  );
+  const rows = salonId === null ? await statement.all() : await statement.bind(salonId).all();
   return rows.results || [];
 }
 

@@ -314,8 +314,8 @@ ok("first entry carries a concise, versioned member agreement",
    'id="agreement-check" name="agreement" type="checkbox" required' in login_html and
    'I agree to these principles.' in login_html and
    'id="agreement-version" type="hidden" value="2026-09-01"' in login_html)
-ok("the required principles and optional profile sit inside the seven-part welcome before the next Salon",
-   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 7 and
+ok("the required principles, profile and Salon email choices sit inside the eight-part welcome",
+   'id="welcome-page"' in login_html and login_html.count('data-welcome-step=') == 8 and
    'Curiosity</strong> connects.' in login_html and
    'Curiosity connects us to ourselves, to each other, and to what is possible.' in login_html and
    'The <strong>Salon</strong> is the heart of it.' in login_html and
@@ -328,6 +328,10 @@ ok("the required principles and optional profile sit inside the seven-part welco
    login_html.rfind('</section>') < login_html.find('<dialog class="profile-cropper"') and
    'data-welcome-step="5"' in login_html and
    'id="welcome-salon-heading"' in login_html and
+   'data-welcome-step="6"' in login_html and
+   'id="welcome-email-form"' in login_html and
+   'By default, everyone receives the announcement and a note one week before.' in login_html and
+   'only sent after you say I’m in' in login_html and
    'Freely <strong>offered</strong>.' in login_html and
    "await enter(data.member, { welcomeStep: 4 })" in members_after.get("members/app.js", "") and
    "submitWelcomeProfile" in members_after.get("members/app.js", "") and
@@ -338,6 +342,11 @@ ok("member landing is Salon-first in the supplied dashboard language",
    'guided curiosity practice' in login_html and 'data-rsvp="in"' in login_html and
    'data-rsvp="not_this_time"' in login_html and 'id="calendar-link"' in login_html and
    'id="member-host-link"' in login_html)
+ok("next Salon time explicitly switches between local and UK time",
+   'id="time-local"' in login_html and '>your local time</button>' in login_html and
+   'id="time-uk"' in login_html and '>UK time</button>' in login_html and
+   "localButton.classList.toggle('is-active', !showClubTime)" in members_after.get("members/app.js", "") and
+   "ukButton.classList.toggle('is-active', showClubTime)" in members_after.get("members/app.js", ""))
 ok("Field Notes are grouped by Salon and cannot become a response feed",
    'id="field-note-archive"' in login_html and 'id="field-note-composer"' in login_html and
    'data-member-view="field-notes"' in login_html and
@@ -396,7 +405,7 @@ ok("in-person navigation opens an honest page backed by host publishing",
    'id="in-person-events"' in login_html and 'id="in-person-event-host"' in host_html and
    "call('/api/club/in-person')" in members_after.get("members/app.js", "") and
    "call('/api/club/host/in-person')" in members_after.get("members/host.js", "") and
-   'Nothing has been announced yet' in login_html and
+   'The next in-person happening will appear here when it is ready.' in login_html and
    login_html.count('href="https://lu.ma/beingsclub"') >= 2 and
    host_html.count('href="https://lu.ma/beingsclub"') >= 2)
 ok("member Settings carries every Salon timing, welcome replay and quiet-email language",
@@ -512,6 +521,9 @@ ok("Salon announcement and reminder mail is member-controlled and at-most-once",
    'salon_announced' in mailer_api and 'salon_month' in mailer_api and
    'salon_week' in mailer_api and 'salon_day' in mailer_api and 'salon_hour' in mailer_api and
    'announcement already sent' not in mailer_api and 'announcement_recipient_count' in salons_api)
+ok("only the month, day and hour Salon reminders require an RSVP",
+   "reminder.kind === 'salon_week' ? null : salon.id" in mailer_api and
+   'FROM salon_rsvp r' in mailer_api and "r.status = 'in'" in mailer_api)
 ok("Salon publishing creates a locked-down Zoom meeting without storing the host URL",
    'account_credentials' in zoom_api and "method: 'POST'" in zoom_api and
    'mute_upon_entry: true' in zoom_api and 'waiting_room: true' in zoom_api and

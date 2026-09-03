@@ -49,6 +49,11 @@ button{cursor:pointer}
 .welcome-profile-form input{border:0;border-bottom:1px solid #DAD6CB;background:transparent;padding:9px 0;font-size:13px;outline:0}
 .welcome-profile-form input:focus{border-color:var(--violet)}
 .welcome-profile-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-top:2px}
+.welcome-email-form{display:grid;gap:18px}
+.welcome-email-options{display:grid;gap:12px;padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.welcome-email-options>strong{margin-top:4px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--violet)}
+.welcome-email-options>strong:first-child{margin-top:0}
+.welcome-email-form>.primary{justify-self:start}
 .welcome-facts{display:flex;flex-wrap:wrap;gap:18px 40px;border-top:1px solid var(--line);padding-top:22px}
 .welcome-facts>span{display:grid;gap:4px;min-width:120px;font-size:13px;color:var(--body)}
 .welcome-facts small{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--soft)}
@@ -300,7 +305,10 @@ button{cursor:pointer}
 .salon-heading h1 strong,.salon-empty h1 strong{font-weight:750;color:var(--violet)}
 .time-toggle{display:inline;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;border-bottom:1px solid rgba(90,75,124,.35)}
 .time-toggle:hover,.time-toggle:focus-visible{color:var(--violet);border-bottom-color:var(--violet)}
-.time-hint{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;color:var(--soft)}
+.time-hint{display:flex;align-items:center;gap:6px;width:max-content;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;color:var(--soft)}
+.time-hint button{border:0;background:transparent;padding:3px 5px;color:var(--soft);font:inherit;letter-spacing:.04em}
+.time-hint button:hover,.time-hint button:focus-visible{color:var(--violet);outline:1px solid rgba(90,75,124,.35);outline-offset:1px}
+.time-hint button.is-active{color:var(--paper);background:var(--violet)}
 .salon-intro{margin:0;font-size:17px;font-weight:500;line-height:1.65;letter-spacing:-.01em;color:var(--body);max-width:58ch}
 .rsvp-panel{display:grid;gap:14px;justify-items:start}
 .rsvp-actions,.rsvp-going,.rsvp-not-going{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
@@ -538,6 +546,7 @@ button{cursor:pointer}
 .settings-group-copy{display:grid;gap:4px;margin-bottom:2px}
 .settings-group-copy strong,.setting-row strong,.settings-copy-row strong{font-size:13.5px;font-weight:600}
 .settings-group-copy span,.setting-row small,.settings-copy-row small{font-size:12px;line-height:1.6;color:#75726A}
+.settings-choice-context{margin-top:4px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet)}
 .setting-choice{display:flex;align-items:center;gap:12px;width:max-content;font-size:12.5px;color:var(--body);cursor:pointer}
 .setting-choice input,.setting-row>input{appearance:none;width:16px;height:16px;flex:none;margin:0;border:1px solid var(--violet);background:var(--paper);display:grid;place-items:center;cursor:pointer}
 .setting-choice input:checked,.setting-row>input:checked{background:var(--violet)}
