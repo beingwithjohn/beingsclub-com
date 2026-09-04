@@ -74,10 +74,10 @@ export async function postGivingPortal(env, person, returnUrl) {
   if (!env.STRIPE_SECRET_KEY) return bad(503, 'giving is not set up yet');
 
   const row = await env.DB.prepare(
-    `SELECT stripe_customer_ref
+    `SELECT stripe_customer_ref, stripe_subscription_ref
        FROM giving_subscription
       WHERE lower(email) = lower(?1)
-        AND status NOT IN ('canceled', 'incomplete_expired')
+        AND status NOT IN ('canceled', 'incomplete_expired', 'test_mode')
       ORDER BY updated_at DESC LIMIT 1`,
   ).bind(person.email).first();
   if (!row?.stripe_customer_ref) return bad(404, 'No monthly gift was found for this email.');
@@ -95,7 +95,18 @@ export async function postGivingPortal(env, person, returnUrl) {
     body: form,
   });
   if (!res.ok) {
-    console.error('stripe portal', res.status, (await res.text()).slice(0, 400));
+    const errorBody = await res.text();
+    console.error('stripe portal', res.status, errorBody.slice(0, 400));
+    let stripeError = {};
+    try { stripeError = JSON.parse(errorBody)?.error || {}; } catch (_) {}
+    if (stripeError.code === 'resource_missing'
+        && /similar object exists in test mode/i.test(String(stripeError.message || ''))) {
+      await env.DB.prepare(
+        `UPDATE giving_subscription SET status = 'test_mode', updated_at = unixepoch()
+          WHERE stripe_customer_ref = ?1 AND stripe_subscription_ref = ?2`,
+      ).bind(row.stripe_customer_ref, row.stripe_subscription_ref).run();
+      return bad(409, 'monthly gift was created in Stripe test mode');
+    }
     return bad(502, 'could not open Stripe');
   }
   const session = await res.json();

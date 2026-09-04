@@ -82,7 +82,7 @@ test('member giving returns to the integrated member Giving page', async () => {
 });
 
 test('an authenticated giver can open Stripe to manage or cancel monthly giving', async () => {
-  const db = fakeDb({ stripe_customer_ref: 'cus_monthly' });
+  const db = fakeDb({ stripe_customer_ref: 'cus_monthly', stripe_subscription_ref: 'sub_monthly' });
   await withFetch({ url: 'https://billing.stripe.test/session' }, async (sent) => {
     const response = await postGivingPortal(env(db), { email: 'person@example.com' });
     assert.equal(response.status, 200);
@@ -92,6 +92,27 @@ test('an authenticated giver can open Stripe to manage or cancel monthly giving'
     assert.match(db.calls[0].sql, /lower\(email\) = lower\(\?1\)/);
     assert.deepEqual(db.calls[0].values, ['person@example.com']);
   });
+});
+
+test('a test-mode monthly gift is retired when the live portal rejects its customer', async () => {
+  const db = fakeDb({
+    stripe_customer_ref: 'cus_test_monthly',
+    stripe_subscription_ref: 'sub_test_monthly',
+  });
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ error: {
+    code: 'resource_missing',
+    message: "No such customer; a similar object exists in test mode, but a live mode key was used.",
+  } }), { status: 400, headers: { 'content-type': 'application/json' } });
+  try {
+    const response = await postGivingPortal(env(db), { email: 'person@example.com' });
+    assert.equal(response.status, 409);
+    assert.deepEqual(await response.json(), { error: 'monthly gift was created in Stripe test mode' });
+    assert.match(db.calls[1].sql, /status = 'test_mode'/);
+    assert.deepEqual(db.calls[1].values, ['cus_test_monthly', 'sub_test_monthly']);
+  } finally {
+    globalThis.fetch = original;
+  }
 });
 
 test('monthly Checkout remembers Stripe’s email without linking a Practice Log person', async () => {

@@ -435,6 +435,22 @@ ok("member Giving integrates financial support and one quiet testimonial each mo
    'href="https://x.com/beings_club"' in login_html and
    'Following and sharing Beings Club is another way to support.' in login_html and
    'id="testimonial-edit"' in login_html and 'id="testimonial-withdraw"' in login_html)
+ok("test-mode monthly gifts cannot masquerade as live subscriptions",
+   "status NOT IN ('canceled', 'incomplete_expired', 'test_mode')" in open(
+       os.path.join(ROOT, "practice-log/src/giving.js"), encoding="utf-8"
+   ).read() and
+   "status = 'test_mode'" in open(
+       os.path.join(ROOT, "practice-log/src/giving.js"), encoding="utf-8"
+   ).read() and
+   'created in Stripe test mode' in members_after.get("members/app.js", ""))
+ok("the next Salon uses a direct RSVP action",
+   'class="rsvp-button" data-rsvp="in" type="button">RSVP</button>' in login_html)
+ok("sharing a Field Note ends with a quiet route into giving",
+   'id="field-note-thanks"' in login_html and
+   'Help keep the door open.' in login_html and
+   'If the Salon was valuable' in login_html and
+   'href="#giving" data-member-view="giving">support Beings Club</a>' in login_html and
+   'fieldNoteThanks = !wasEditing' in members_after.get("members/app.js", ""))
 ok("member directory is contextual rather than social infrastructure",
    'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
    'Members mostly meet each other through Salons. This page offers a little more context.' in login_html and

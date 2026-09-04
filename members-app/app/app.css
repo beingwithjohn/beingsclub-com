@@ -386,6 +386,16 @@ button{cursor:pointer}
 .field-notes-heading h1 strong{font-weight:750;color:var(--violet)}
 .field-notes-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:60ch}
 .field-note-composer{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(300px,1.28fr);gap:44px;padding:34px;border:1px solid #DAD6CB;background:#FCFBF8}
+.field-note-thanks{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(300px,1.28fr);gap:44px;padding:34px;border:1px solid #DED7EA;background:#F8F4FF}
+.field-note-thanks[hidden]{display:none}
+.field-note-thanks-copy{display:grid;align-content:start;gap:14px}
+.field-note-thanks-copy h2,.field-note-giving-appeal h3{margin:0;letter-spacing:-.035em;color:var(--ink)}
+.field-note-thanks-copy h2{font-size:28px;line-height:1.12}
+.field-note-giving-appeal{display:grid;align-content:start;gap:14px}
+.field-note-giving-appeal h3{font-size:22px;line-height:1.15}
+.field-note-giving-appeal p{margin:0;font-size:13px;line-height:1.72;color:#656159;max-width:58ch}
+.field-note-giving-appeal a{justify-self:start;padding:12px 17px;border:1px solid var(--violet);color:var(--violet);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;transition:background .2s,color .2s}
+.field-note-giving-appeal a:hover,.field-note-giving-appeal a:focus-visible{background:var(--violet);color:var(--paper)}
 .composer-intro{display:grid;align-content:start;gap:14px}
 .composer-intro h2{margin:0;font-size:28px;line-height:1.12;letter-spacing:-.035em}
 .composer-intro p{margin:0;font-size:13px;line-height:1.72;color:#656159}
@@ -670,6 +680,7 @@ button{cursor:pointer}
   .salon-art{position:relative;right:auto;top:auto;width:100%;height:150px;margin:0 0 24px;object-position:center 75%}
   .field-notes-content{padding-left:30%;padding-right:30px}
   .field-note-composer{grid-template-columns:1fr}
+  .field-note-thanks{grid-template-columns:1fr}
   .giving-content{padding-left:30%;padding-right:30px}
   .in-person-content{padding-left:30%;padding-right:30px}
   .public-events-content{padding-left:30%;padding-right:30px}
@@ -722,6 +733,7 @@ button{cursor:pointer}
   .salon-empty{position:relative;left:auto;top:auto;width:auto;padding:20vh 22px 80px}
   .field-notes-content{padding:12vh 22px 80px;gap:42px}
   .field-note-composer{grid-template-columns:1fr;padding:24px 20px;gap:30px}
+  .field-note-thanks{grid-template-columns:1fr;padding:24px 20px;gap:30px}
   .field-note-grid{grid-template-columns:1fr}
   .field-note-group-head{align-items:start;flex-direction:column;gap:6px}
   .field-note-card{padding:20px}

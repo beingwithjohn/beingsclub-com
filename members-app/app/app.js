@@ -57,6 +57,7 @@
   let showClubTime = false;
   let previewMode = false;
   let editingNote = null;
+  let fieldNoteThanks = false;
   let chosenImageData = null;
   let removeExistingImage = false;
   let editingTestimonial = false;
@@ -746,6 +747,7 @@
   }
 
   function beginEdit(note) {
+    fieldNoteThanks = false;
     editingNote = note; chosenImageData = null; removeExistingImage = false;
     const composer = document.getElementById('field-note-composer'); composer.hidden = false;
     document.getElementById('field-note-body').value = note.body || '';
@@ -769,6 +771,7 @@
     for (const url of imageObjectUrls) URL.revokeObjectURL(url);
     imageObjectUrls.clear();
     const archive = document.getElementById('field-note-archive'); archive.replaceChildren();
+    document.getElementById('field-note-thanks').hidden = !fieldNoteThanks;
     const composer = document.getElementById('field-note-composer');
     if (!editingNote) {
       resetComposer(); composer.hidden = !fieldNotes.prompt;
@@ -908,9 +911,15 @@
       const result = await call('/api/club/giving/manage', { method: 'POST', body: '{}' });
       location.href = result.url;
     } catch (error) {
-      statusNode.textContent = error.status === 404
-        ? 'No active monthly gift was found for your sign-in email.'
-        : 'Monthly giving could not be opened. Try again.';
+      if (error.status === 409 && error.message === 'monthly gift was created in Stripe test mode') {
+        givingState.monthlyGiving = null;
+        renderGiving();
+        statusNode.textContent = 'That earlier monthly gift was created in Stripe test mode. You can begin a new live monthly gift below.';
+      } else {
+        statusNode.textContent = error.status === 404
+          ? 'No active monthly gift was found for your sign-in email.'
+          : 'Monthly giving could not be opened. Try again.';
+      }
     } finally { button.disabled = false; }
   }
 
@@ -1528,6 +1537,7 @@
       isAnonymous: document.querySelector('input[name="field-note-attribution"]:checked').value === 'anonymous',
     };
     const button = document.getElementById('field-note-share'); button.disabled = true;
+    const wasEditing = !!editingNote;
     try {
       if (previewMode) {
         if (editingNote) Object.assign(editingNote, payload, { linkUrl: payload.linkUrl || null, editedAt: new Date().toISOString() });
@@ -1540,6 +1550,7 @@
         });
       }
       editingNote = null;
+      fieldNoteThanks = !wasEditing;
       if (!previewMode) fieldNotes = await call('/api/club/field-notes');
       renderFieldNotes();
     } catch (error) {
@@ -1551,6 +1562,7 @@
     if (!fieldNotes.prompt) return;
     const button = document.getElementById('field-note-dismiss'); button.disabled = true;
     try {
+      fieldNoteThanks = false;
       if (!previewMode) {
         await call(`/api/club/field-note-invitations/${fieldNotes.prompt.salonId}/dismiss`, { method: 'POST', body: '{}' });
         fieldNotes = await call('/api/club/field-notes');
@@ -2221,6 +2233,10 @@
           },
         ],
       };
+      if (previewParams.get('field-note') === 'thanks') {
+        fieldNotes.prompt = null;
+        fieldNoteThanks = true;
+      }
       givingState = {
         month: '2026-08', testimonial: null, canSubmit: true,
         suggestedName: 'John', consentVersion: 'public-any-channel-light-edit-v1',
