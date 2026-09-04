@@ -23,6 +23,7 @@
   let fieldNoteHostState = { salon: null, candidates: [], groups: [] };
   let prospectHostState = [];
   const imageObjectUrls = new Set();
+  const NOTION_NOTE_PREFIX = 'bc_notion_invitation_note_';
 
   function token() { try { return localStorage.getItem(KEY); } catch (_) { return null; } }
   function forgetToken() { try { localStorage.removeItem(KEY); } catch (_) {} }
@@ -98,6 +99,63 @@
     }
   }
 
+  function notionDraft(pageId) {
+    try { return sessionStorage.getItem(`${NOTION_NOTE_PREFIX}${pageId}`) || ''; } catch (_) { return ''; }
+  }
+
+  function saveNotionDraft(pageId, value) {
+    try {
+      const key = `${NOTION_NOTE_PREFIX}${pageId}`;
+      if (value) sessionStorage.setItem(key, value); else sessionStorage.removeItem(key);
+    } catch (_) {}
+  }
+
+  async function previewNotionInvitation(person, note, button, statusNode) {
+    button.disabled = true; statusNode.textContent = '';
+    try {
+      const mail = previewMode ? localInvitationPreview(person.name || '', note.value) : await call(
+        '/api/club/host/members/invitation-preview', {
+          method: 'POST', body: JSON.stringify({
+            name: person.name || '', invitationNote: note.value,
+          }),
+        },
+      );
+      invitationPreviewSubject.textContent = mail.subject;
+      invitationPreviewFrame.srcdoc = mail.html;
+      invitationPreview.showModal();
+    } catch (_) {
+      statusNode.textContent = 'The email preview could not be opened. Try again.';
+    } finally { button.disabled = false; }
+  }
+
+  async function sendNotionInvitation(person, note, button, statusNode) {
+    button.disabled = true; statusNode.textContent = 'Sending this invitation…';
+    try {
+      if (previewMode) {
+        statusNode.textContent = `Preview: ${person.name || person.email} would receive this invitation${note.value.trim() ? ' with your note' : ''}.`;
+        return;
+      }
+      const result = await call('/api/club/host/notion-members/invite-one', {
+        method: 'POST', body: JSON.stringify({
+          confirmation: 'INVITE NOTION MEMBER', pageId: person.pageId,
+          email: person.email, invitationNote: note.value,
+        }),
+      });
+      saveNotionDraft(person.pageId, '');
+      const sentMessage = result.notionMarked
+        ? 'Invitation sent and marked in Notion.'
+        : 'Invitation sent. The Notion mark needs another attempt.';
+      statusNode.textContent = sentMessage;
+      await Promise.all([loadMembers(), checkNotionInvites()]);
+      document.getElementById('notion-invite-status').textContent = sentMessage;
+    } catch (error) {
+      if (error.message === 'invitation note') statusNode.textContent = 'Keep the personal note to 1,200 characters.';
+      else if (error.message === 'invitation email did not send') statusNode.textContent = 'They are on the member list, but the email did not send. Try again from the member list.';
+      else if (error.status === 409) statusNode.textContent = 'This person is no longer ready for an invitation. Check the Notion list again.';
+      else statusNode.textContent = error.message || 'This invitation could not be sent.';
+    } finally { button.disabled = false; }
+  }
+
   function render(members) {
     list.replaceChildren();
     members.filter((member) => member.status !== 'removed').forEach((member) => {
@@ -147,29 +205,42 @@
 
   function renderNotionInvitePreview(data) {
     const listNode = document.getElementById('notion-invite-list');
-    const send = document.getElementById('notion-invite-send');
     const statusNode = document.getElementById('notion-invite-status');
     listNode.replaceChildren();
     if (!data.configured) {
-      send.hidden = true;
       statusNode.textContent = 'Connect the Notion integration before checking this list.';
       return;
     }
     (data.people || []).forEach((person) => {
-      const row = document.createElement('div'); row.className = `notion-invite-row ${person.status}`;
-      row.append(
-        text('span', '', person.name ? `${person.name} · ${person.email}` : person.email),
-        text('em', '', notionStatusLabels[person.status] || person.status),
-      );
+      const row = document.createElement('details'); row.className = `notion-invite-row ${person.status}`;
+      const summary = document.createElement('summary');
+      const identity = document.createElement('span');
+      identity.append(text('strong', '', person.name || person.email));
+      if (person.name) identity.append(text('small', '', person.email));
+      summary.append(identity, text('em', '', notionStatusLabels[person.status] || person.status));
+      row.append(summary);
+      if (person.status === 'ready') {
+        const draft = document.createElement('div'); draft.className = 'notion-invite-draft';
+        const label = document.createElement('label');
+        label.append(text('span', '', 'a personal note · optional'));
+        const note = document.createElement('textarea');
+        note.maxLength = 1200; note.placeholder = 'A few words from you…'; note.value = notionDraft(person.pageId);
+        note.addEventListener('input', () => saveNotionDraft(person.pageId, note.value));
+        label.append(note);
+        const actions = document.createElement('div'); actions.className = 'notion-person-actions';
+        const preview = text('button', 'outline', 'preview email'); preview.type = 'button';
+        const send = text('button', 'primary', 'send invitation'); send.type = 'button';
+        const personStatus = text('span', 'status', '');
+        personStatus.setAttribute('role', 'status'); personStatus.setAttribute('aria-live', 'polite');
+        preview.addEventListener('click', () => previewNotionInvitation(person, note, preview, personStatus));
+        send.addEventListener('click', () => sendNotionInvitation(person, note, send, personStatus));
+        actions.append(preview, send); draft.append(label, actions, personStatus); row.append(draft);
+      }
       listNode.append(row);
     });
     const ready = Number(data.readyCount || 0);
     const repair = Number(data.repairCount || 0);
     statusNode.textContent = `${data.people.length} in Notion · ${ready} ready to invite${repair ? ` · ${repair} Notion ${repair === 1 ? 'mark' : 'marks'} to repair` : ''}.`;
-    send.hidden = ready + repair === 0;
-    send.textContent = ready
-      ? `send ${ready} ${ready === 1 ? 'invitation' : 'invitations'}`
-      : `repair ${repair} Notion ${repair === 1 ? 'mark' : 'marks'}`;
   }
 
   async function checkNotionInvites() {
@@ -181,35 +252,15 @@
         renderNotionInvitePreview({
           configured: true, readyCount: 2, repairCount: 1,
           people: [
-            { name: 'Ana', email: 'ana@example.com', status: 'ready' },
-            { name: 'Mira', email: 'mira@example.com', status: 'ready' },
-            { name: 'Sam', email: 'sam@example.com', status: 'invited_needs_mark' },
-            { name: 'John', email: 'john@example.com', status: 'joined' },
+            { pageId: 'preview-ana', name: 'Ana', email: 'ana@example.com', status: 'ready' },
+            { pageId: 'preview-mira', name: 'Mira', email: 'mira@example.com', status: 'ready' },
+            { pageId: 'preview-sam', name: 'Sam', email: 'sam@example.com', status: 'invited_needs_mark' },
+            { pageId: 'preview-john', name: 'John', email: 'john@example.com', status: 'joined' },
           ],
         });
       } else renderNotionInvitePreview(await call('/api/club/host/notion-members'));
     } catch (error) {
       statusNode.textContent = error.message || 'The Notion member list could not be checked.';
-    } finally { button.disabled = false; }
-  }
-
-  async function sendNotionInvites() {
-    const button = document.getElementById('notion-invite-send');
-    const statusNode = document.getElementById('notion-invite-status');
-    if (!window.confirm('Send the displayed invitations now? Already joined, inactive, duplicate and previously marked people will not be emailed.')) return;
-    button.disabled = true; statusNode.textContent = 'Sending invitations…';
-    try {
-      if (previewMode) {
-        statusNode.textContent = 'Preview: invitations would be sent once and successful sends marked in Notion.';
-        return;
-      }
-      const result = await call('/api/club/host/notion-members/invite', {
-        method: 'POST', body: JSON.stringify({ confirmation: 'INVITE NOTION MEMBERS' }),
-      });
-      statusNode.textContent = `${result.sentCount} ${result.sentCount === 1 ? 'invitation' : 'invitations'} sent${result.markedCount ? ` · ${result.markedCount} Notion ${result.markedCount === 1 ? 'mark' : 'marks'} repaired` : ''}${result.failedCount ? ` · ${result.failedCount} ${result.failedCount === 1 ? 'item needs' : 'items need'} attention` : ''}.`;
-      await Promise.all([loadMembers(), checkNotionInvites()]);
-    } catch (error) {
-      statusNode.textContent = error.message || 'The invitations could not be sent.';
     } finally { button.disabled = false; }
   }
 
@@ -592,7 +643,8 @@
     prospectHostState.forEach((prospect) => {
       const card = document.createElement('article'); card.className = 'prospect-host-card';
       const main = document.createElement('div'); main.className = 'prospect-host-main';
-      main.append(text('strong', '', prospect.email));
+      main.append(text('strong', '', prospect.name || prospect.email));
+      if (prospect.name) main.append(text('span', '', prospect.email));
       if (prospect.booking?.startTime) {
         const when = new Intl.DateTimeFormat('en-GB', {
           dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/London',
@@ -888,7 +940,6 @@
   });
 
   document.getElementById('notion-invite-check').addEventListener('click', checkNotionInvites);
-  document.getElementById('notion-invite-send').addEventListener('click', sendNotionInvites);
 
   document.getElementById('in-person-event-image').addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
@@ -1131,8 +1182,8 @@
         submittedAt: '2026-08-28T12:00:00.000Z', updatedAt: '2026-08-28T12:00:00.000Z',
       }] });
       renderProspects({ prospects: [
-        { id: 1, email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false },
-        { id: 2, email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: true, canResendWelcome: true },
+        { id: 1, name: 'Mira', email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false },
+        { id: 2, name: 'Noor', email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: true, canResendWelcome: true },
       ] });
       waiting.hidden = true; shell.hidden = false; return;
     }

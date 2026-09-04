@@ -144,7 +144,7 @@ export async function inviteNotionMembers(env, body) {
   const results = [];
 
   for (const person of notionPeople) {
-    let member = members.get(person.email);
+    const member = members.get(person.email);
     const status = notionInviteStatus(person, member, counts.get(person.email));
     if (status === 'invited_needs_mark') {
       const marked = await markRebootInvite(env, person.pageId);
@@ -155,45 +155,7 @@ export async function inviteNotionMembers(env, body) {
       results.push({ email: person.email, status });
       continue;
     }
-    if (!member) {
-      await env.MEMBERS.prepare(
-        `INSERT INTO member (email, display_name, is_host, invited_at, created_at, updated_at)
-         VALUES (?1, ?2, 0, ?3, ?3, ?3)`,
-      ).bind(person.email, person.name || null, timestamp).run();
-      member = await env.MEMBERS.prepare(
-        `SELECT id, email, joined_at, disabled_at, left_at, invitation_sent_at
-           FROM member WHERE email = ?1`,
-      ).bind(person.email).first();
-      members.set(person.email, member);
-    } else if (person.name) {
-      await env.MEMBERS.prepare(
-        `UPDATE member SET display_name = COALESCE(display_name, ?1), updated_at = ?2
-          WHERE id = ?3`,
-      ).bind(person.name, timestamp, member.id).run();
-    }
-    await env.MEMBERS.prepare(
-      `INSERT INTO member_notion_sync
-        (member_id, notion_page_id, pending_at, last_attempt_at, synced_at, attempts)
-       VALUES (?1, ?2, ?3, ?3, ?3, 1)
-       ON CONFLICT(member_id) DO UPDATE SET notion_page_id = excluded.notion_page_id,
-         pending_at = excluded.pending_at, last_attempt_at = excluded.last_attempt_at,
-         synced_at = excluded.synced_at, last_error = NULL`,
-    ).bind(member.id, person.pageId, timestamp).run();
-    const sent = await sendClubInvitation(env, {
-      email: member.email,
-      name: person.name,
-      idempotencyKey: `club-reboot-${member.id}-2026`,
-    });
-    await env.MEMBERS.prepare(
-      `UPDATE member SET invitation_sent_at = ?1,
-         invitation_last_attempt_at = ?2, invitation_last_error = ?3,
-         updated_at = ?2 WHERE id = ?4`,
-    ).bind(sent ? timestamp : null, timestamp, sent ? null : 'delivery failed', member.id).run();
-    const marked = sent ? await markRebootInvite(env, person.pageId) : false;
-    results.push({
-      email: person.email,
-      status: !sent ? 'send_failed' : marked ? 'sent' : 'sent_mark_failed',
-    });
+    results.push(await deliverNotionInvitation(env, person, member, timestamp));
   }
 
   return json({
@@ -205,6 +167,87 @@ export async function inviteNotionMembers(env, body) {
       || result.status === 'sent_mark_failed' || result.status === 'mark_failed').length,
     results,
   });
+}
+
+export async function inviteNotionMember(env, body) {
+  if (!configured(env)) return bad(503, 'Notion is not connected');
+  if (body?.confirmation !== 'INVITE NOTION MEMBER') return bad(400, 'confirmation required');
+  const pageId = String(body?.pageId || '').trim();
+  const email = normalizeEmail(body?.email);
+  const personalNote = String(body?.invitationNote || '').trim();
+  if (!pageId || !email) return bad(400, 'person');
+  if (personalNote.length > 1200) return bad(400, 'invitation note');
+
+  let notionPeople;
+  try {
+    notionPeople = await listNotionMembers(env);
+  } catch (error) {
+    console.error('notion invitation load failed', cleanError(error));
+    return bad(502, 'Notion member list unavailable');
+  }
+  const person = notionPeople.find((candidate) => (
+    candidate.pageId === pageId && candidate.email === email
+  ));
+  if (!person) return bad(404, 'Notion member not found');
+  const member = await env.MEMBERS.prepare(
+    `SELECT id, email, joined_at, disabled_at, left_at, invitation_sent_at
+       FROM member WHERE lower(email) = lower(?1)`,
+  ).bind(email).first();
+  const duplicateCount = notionPeople.filter((candidate) => candidate.email === email).length;
+  const status = notionInviteStatus(person, member, duplicateCount);
+  if (status !== 'ready') return bad(409, status);
+
+  const result = await deliverNotionInvitation(env, person, member, now(), personalNote);
+  if (result.status === 'send_failed') return bad(502, 'invitation email did not send');
+  return json({
+    ok: true,
+    email: result.email,
+    sent: true,
+    notionMarked: result.status === 'sent',
+  });
+}
+
+async function deliverNotionInvitation(env, person, existingMember, timestamp, personalNote = '') {
+  let member = existingMember;
+  if (!member) {
+    await env.MEMBERS.prepare(
+      `INSERT INTO member (email, display_name, is_host, invited_at, created_at, updated_at)
+       VALUES (?1, ?2, 0, ?3, ?3, ?3)`,
+    ).bind(person.email, person.name || null, timestamp).run();
+    member = await env.MEMBERS.prepare(
+      `SELECT id, email, joined_at, disabled_at, left_at, invitation_sent_at
+         FROM member WHERE email = ?1`,
+    ).bind(person.email).first();
+  } else if (person.name) {
+    await env.MEMBERS.prepare(
+      `UPDATE member SET display_name = COALESCE(display_name, ?1), updated_at = ?2
+        WHERE id = ?3`,
+    ).bind(person.name, timestamp, member.id).run();
+  }
+  await env.MEMBERS.prepare(
+    `INSERT INTO member_notion_sync
+      (member_id, notion_page_id, pending_at, last_attempt_at, synced_at, attempts)
+     VALUES (?1, ?2, ?3, ?3, ?3, 1)
+     ON CONFLICT(member_id) DO UPDATE SET notion_page_id = excluded.notion_page_id,
+       pending_at = excluded.pending_at, last_attempt_at = excluded.last_attempt_at,
+       synced_at = excluded.synced_at, last_error = NULL`,
+  ).bind(member.id, person.pageId, timestamp).run();
+  const sent = await sendClubInvitation(env, {
+    email: member.email,
+    name: person.name,
+    personalNote,
+    idempotencyKey: `club-reboot-${member.id}-2026`,
+  });
+  await env.MEMBERS.prepare(
+    `UPDATE member SET invitation_sent_at = ?1,
+       invitation_last_attempt_at = ?2, invitation_last_error = ?3,
+       updated_at = ?2 WHERE id = ?4`,
+  ).bind(sent ? timestamp : null, timestamp, sent ? null : 'delivery failed', member.id).run();
+  const marked = sent ? await markRebootInvite(env, person.pageId) : false;
+  return {
+    email: person.email,
+    status: !sent ? 'send_failed' : marked ? 'sent' : 'sent_mark_failed',
+  };
 }
 
 async function findNotionMember(env, email) {

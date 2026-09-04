@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  inviteNotionMembers, queueMemberNotionSync, runMemberNotionSync, syncMemberToNotion,
+  inviteNotionMember, inviteNotionMembers, queueMemberNotionSync,
+  runMemberNotionSync, syncMemberToNotion,
 } from '../src/club/notion-members.js';
 
 function notionDb(member) {
@@ -203,6 +204,86 @@ test('the confirmed Notion transition sends each ready invitation once and marks
     assert.deepEqual(JSON.parse(notionMark.options.body).properties, {
       'Reboot Invite Sent?': { checkbox: true },
     });
+    assert.equal(runs.some((run) => run.sql.includes('invitation_sent_at = ?1')), true);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('one Notion member can receive an individually reviewed personal invitation', async () => {
+  const original = globalThis.fetch;
+  const member = {
+    id: 14, email: 'mira@example.test', joined_at: null,
+    disabled_at: null, left_at: null, invitation_sent_at: null,
+  };
+  const runs = [];
+  const members = {
+    prepare(sql) {
+      let args = [];
+      return {
+        bind(...values) { args = values; return this; },
+        async all() {
+          return sql.includes('FROM member') ? { results: [{ ...member }] } : { results: [] };
+        },
+        async first() { return { ...member }; },
+        async run() { runs.push({ sql, args }); return { meta: { changes: 1 } }; },
+      };
+    },
+  };
+  const requests = [];
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url: String(url), options });
+    if (String(url).endsWith('/query')) {
+      return Response.json({
+        results: [
+          {
+            id: 'notion-mira', in_trash: false,
+            properties: {
+              Name: { title: [{ plain_text: 'Mira' }] },
+              Email: { email: 'mira@example.test' },
+              'Reboot Invite Sent?': { checkbox: false },
+            },
+          },
+          {
+            id: 'notion-ana', in_trash: false,
+            properties: {
+              Name: { title: [{ plain_text: 'Ana' }] },
+              Email: { email: 'ana@example.test' },
+              'Reboot Invite Sent?': { checkbox: false },
+            },
+          },
+        ],
+        has_more: false,
+      });
+    }
+    if (String(url) === 'https://api.resend.com/emails') {
+      return Response.json({ id: 'email-mira' });
+    }
+    return Response.json({ id: 'notion-mira' });
+  };
+  try {
+    const response = await inviteNotionMember({
+      ...configured(members),
+      RESEND_API_KEY: 'resend-secret',
+      MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
+      MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    }, {
+      confirmation: 'INVITE NOTION MEMBER',
+      pageId: 'notion-mira', email: 'mira@example.test',
+      invitationNote: 'I thought this new space might feel like a good home for you.',
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), {
+      ok: true, email: 'mira@example.test', sent: true, notionMarked: true,
+    });
+    const emails = requests.filter((request) => request.url === 'https://api.resend.com/emails');
+    assert.equal(emails.length, 1);
+    const emailBody = JSON.parse(emails[0].options.body);
+    assert.match(emailBody.text, /A note from John:\nI thought this new space/);
+    assert.doesNotMatch(emailBody.text, /Ana/);
+    assert.equal(emails[0].options.headers['idempotency-key'], 'club-reboot-14-2026');
+    assert.equal(requests.some((request) => request.url.endsWith('/pages/notion-mira')), true);
+    assert.equal(requests.some((request) => request.url.endsWith('/pages/notion-ana')), false);
     assert.equal(runs.some((run) => run.sql.includes('invitation_sent_at = ?1')), true);
   } finally {
     globalThis.fetch = original;

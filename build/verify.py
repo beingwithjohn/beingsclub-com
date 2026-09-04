@@ -272,10 +272,12 @@ ok("adding a member sends one visible, retryable invitation",
    "sends one personal invitation from Beings Club" in host_html and
    "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", "") and
    "resend invite" in members_after.get("members/host.js", ""))
-ok("the Notion transition is previewed before its separate confirmed send",
+ok("Notion invitations are reviewed, personalised and sent one person at a time",
    'id="notion-invite-check"' in host_html and
-   'id="notion-invite-send"' in host_html and
-   "confirmation: 'INVITE NOTION MEMBERS'" in members_after.get("members/host.js", "") and
+   'id="notion-invite-send"' not in host_html and
+   "confirmation: 'INVITE NOTION MEMBER'" in members_after.get("members/host.js", "") and
+   "invitationNote: note.value" in members_after.get("members/host.js", "") and
+   "sessionStorage.setItem(key, value)" in members_after.get("members/host.js", "") and
    "Reboot Invite Sent?" in open(
        os.path.join(ROOT, "practice-log/src/club/notion-members.js"), encoding="utf-8"
    ).read())
@@ -296,6 +298,9 @@ ok("host can name an invitee and preview the exact invitation without sending",
    "clubInvitationEmail({ name, personalNote })" in open(
        os.path.join(ROOT, "practice-log/src/club/index.js"), encoding="utf-8"
    ).read())
+ok("first-conversation cards show the collected name above the email",
+   "prospect.name || prospect.email" in members_after.get("members/host.js", "") and
+   "if (prospect.name) main.append(text('span', '', prospect.email))" in members_after.get("members/host.js", ""))
 ok("host controls keep drafting, publishing and email as separate actions",
    'id="salon-plan-list"' in host_html and 'id="add-salon"' in host_html and
    "saveSalonEditor" in members_after.get("members/host.js", "") and

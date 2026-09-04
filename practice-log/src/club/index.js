@@ -38,7 +38,7 @@ import {
   getMemberInPersonEvents, publishHostInPersonEvent, saveHostInPersonEvent,
 } from './in-person.js';
 import {
-  getNotionInvitePreview, inviteNotionMembers, queueMemberNotionSync,
+  getNotionInvitePreview, inviteNotionMember, inviteNotionMembers, queueMemberNotionSync,
 } from './notion-members.js';
 
 const CODE_LIFETIME = 10 * 60;
@@ -229,6 +229,9 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (path === '/api/club/host/notion-members/invite' && method === 'POST') {
     return inviteNotionMembers(env, await readJson(request));
+  }
+  if (path === '/api/club/host/notion-members/invite-one' && method === 'POST') {
+    return inviteNotionMember(env, await readJson(request));
   }
   if (path === '/api/club/host/members' && method === 'POST') {
     return addMember(env, who, await readJson(request), ctx);
