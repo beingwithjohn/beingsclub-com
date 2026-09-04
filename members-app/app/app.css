@@ -349,7 +349,7 @@ button{cursor:pointer}
 .member-shell{background:var(--paper)}
 .member-shell::before{content:'';position:absolute;inset:0 0 auto;height:72px;z-index:5;pointer-events:none;background:linear-gradient(#FDFCF9 0%,#FDFCF9 58%,rgba(253,252,249,.94) 76%,rgba(253,252,249,0) 100%)}
 .salon-page{position:absolute;inset:0;overflow-y:auto;animation:appear .45s cubic-bezier(.22,1,.36,1) both}
-.salon-view{position:relative;min-height:100vh;padding:18vh min(22vw,300px) 100px 24%}
+.salon-view{position:relative;min-height:100vh;padding:18vh min(25vw,360px) 100px 24%}
 .salon-art{position:fixed;right:0;top:19vh;width:min(18vw,240px);height:62vh;object-fit:cover;object-position:center 75%;animation:appear .6s cubic-bezier(.22,1,.36,1) both}
 .salon-hero{display:grid;gap:28px;max-width:840px}
 .host-note{margin:0;padding:18px 22px;background:#F2ECFF;border-left:2px solid var(--violet);display:grid;gap:8px;max-width:58ch}
@@ -359,6 +359,7 @@ button{cursor:pointer}
 .salon-heading h1,.salon-empty h1{margin:0;font-size:clamp(28px,min(3.8vw,6.6vh),56px);line-height:1.1;letter-spacing:-.04em;font-weight:600}
 .salon-heading h1 strong,.salon-empty h1 strong{font-weight:750;color:var(--violet)}
 .time-toggle{display:inline;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;border-bottom:1px solid rgba(90,75,124,.35)}
+.salon-time-clock::before{content:', '}
 .time-toggle:hover,.time-toggle:focus-visible{color:var(--violet);border-bottom-color:var(--violet)}
 .time-hint{display:flex;align-items:center;gap:6px;width:max-content;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;color:var(--soft)}
 .time-hint button{border:0;background:transparent;padding:3px 5px;color:var(--soft);font:inherit;letter-spacing:.04em}
@@ -676,6 +677,10 @@ button{cursor:pointer}
 }
 
 @media(min-width:981px){
+  .salon-heading{max-width:760px}
+  .time-toggle{display:inline-block;vertical-align:top}
+  .salon-time-clock{display:block}
+  .salon-time-clock::before{content:''}
   .prospect-calendar-body{height:clamp(360px,54vh,440px);min-height:0}
   .prospect-month{grid-template-rows:auto auto minmax(0,1fr)}
   .prospect-days{container-type:size;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(6,1fr)}

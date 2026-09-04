@@ -154,7 +154,7 @@
     if (welcomeStep === 6) prepareWelcomeEmailSettings();
     const heading = document.getElementById('welcome-salon-heading');
     heading.textContent = salon?.startsAt
-      ? `The next one is ${formatSalonTime(salon.startsAt, Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')}.`
+      ? `The next Salon is ${formatSalonTime(salon.startsAt, Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC')}.`
       : 'The next Salon will appear here when it is announced.';
   }
 
@@ -614,7 +614,23 @@
     if (!salon) return;
     const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const zone = showClubTime ? 'Europe/London' : localZone;
-    document.getElementById('salon-time').textContent = formatSalonTime(salon.startsAt, zone);
+    const timeButton = document.getElementById('salon-time');
+    const date = new Date(salon.startsAt);
+    const day = new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, weekday: 'long', day: 'numeric', month: 'long',
+    }).format(date);
+    const rawTime = new Intl.DateTimeFormat('en-GB', {
+      timeZone: zone, hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short',
+    }).format(date);
+    const time = rawTime.replace(':00', '').replace(/\bam\b/i, 'AM').replace(/\bpm\b/i, 'PM');
+    const dateLine = document.createElement('span');
+    dateLine.className = 'salon-time-date';
+    dateLine.textContent = day;
+    const timeLine = document.createElement('span');
+    timeLine.className = 'salon-time-clock';
+    timeLine.textContent = time;
+    timeButton.replaceChildren(dateLine, timeLine);
+    timeButton.setAttribute('aria-label', `${day}, ${time}`);
     const localButton = document.getElementById('time-local');
     const ukButton = document.getElementById('time-uk');
     localButton.classList.toggle('is-active', !showClubTime);
