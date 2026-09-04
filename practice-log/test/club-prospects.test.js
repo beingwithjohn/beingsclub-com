@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
 import { sendProspectCode, sendProspectTimeNote } from '../src/mail/send.js';
 import {
-  createProspectBooking, enterMemberWelcome, getProspectSlots, resendProspectWelcome,
-  validWebhookSignature,
+  createProspectBooking, dismissProspect, enterMemberWelcome, getProspectSlots, resendProspectWelcome,
+  listProspects, validWebhookSignature,
 } from '../src/club/prospects.js';
 
 function prospectDb(row) {
@@ -80,6 +80,42 @@ test('Cal.com webhooks require the exact HMAC of the raw request body', async ()
   assert.equal(await validWebhookSignature(secret, raw, signature), true);
   assert.equal(await validWebhookSignature(secret, `${raw} `, signature), false);
   assert.equal(await validWebhookSignature(secret, raw, 'not-a-signature'), false);
+});
+
+test('cancelled or resolved first conversations leave the host working queue without deleting the prospect', async () => {
+  let query = '';
+  const response = await listProspects({
+    MEMBERS: {
+      prepare(sql) {
+        query = sql;
+        return { async all() { return { results: [] }; } };
+      },
+    },
+  });
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).prospects, []);
+  assert.match(query, /p\.granted_at IS NULL AND p\.archived_at IS NULL/);
+  assert.match(query, /p\.booking_status IS NULL OR p\.booking_status != 'cancelled'/);
+});
+
+test('the host can dismiss an unresolved first conversation while preserving its record', async () => {
+  let statement;
+  const response = await dismissProspect({
+    MEMBERS: {
+      prepare(sql) {
+        statement = { sql, args: [] };
+        return {
+          bind(...args) { statement.args = args; return this; },
+          async run() { return { meta: { changes: 1 } }; },
+        };
+      },
+    },
+  }, 7);
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).ok, true);
+  assert.match(statement.sql, /SET archived_at = \?1/);
+  assert.match(statement.sql, /granted_at IS NULL/);
+  assert.equal(statement.args[1], 7);
 });
 
 test('a prospective member receives a one-use Beings Club code without membership language', async () => {

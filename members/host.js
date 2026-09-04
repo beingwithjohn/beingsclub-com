@@ -662,7 +662,10 @@
         }
       } else {
         const grant = text('button', 'outline', 'grant membership'); grant.type = 'button';
-        grant.addEventListener('click', () => grantProspect(prospect.id, grant)); actions.append(grant);
+        grant.addEventListener('click', () => grantProspect(prospect.id, grant));
+        const dismiss = text('button', 'text-button', 'remove from queue'); dismiss.type = 'button';
+        dismiss.addEventListener('click', () => dismissProspect(prospect, dismiss));
+        actions.append(grant, dismiss);
       }
       card.append(main, actions); listNode.append(card);
     });
@@ -677,8 +680,7 @@
     button.disabled = true;
     try {
       if (previewMode) {
-        const prospect = prospectHostState.find((item) => item.id === id);
-        if (prospect) prospect.granted = true;
+        prospectHostState = prospectHostState.filter((item) => item.id !== id);
         renderProspects({ prospects: prospectHostState });
         statusNode.textContent = 'Preview: membership opens and one welcome email is sent.';
         return;
@@ -690,6 +692,28 @@
         : 'Membership granted. The welcome email needs another attempt from the list below.';
     } catch (_) { statusNode.textContent = 'Membership could not be granted. Try again.'; }
     finally { button.disabled = false; }
+  }
+
+  async function dismissProspect(prospect, button) {
+    const label = prospect.name || prospect.email;
+    if (!window.confirm(`Remove ${label} from the first-conversation queue? Their history will be kept, and they can reappear if they begin the joining flow again.`)) return;
+    const statusNode = document.getElementById('prospect-host-status'); statusNode.textContent = '';
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        prospectHostState = prospectHostState.filter((item) => item.id !== prospect.id);
+        renderProspects({ prospects: prospectHostState });
+        statusNode.textContent = 'Preview: removed from the queue; their history is kept.';
+        return;
+      }
+      await call(`/api/club/host/prospects/${prospect.id}/dismiss`, { method: 'POST', body: '{}' });
+      await loadProspects();
+      statusNode.textContent = 'Removed from the queue. Their history is kept.';
+    } catch (error) {
+      statusNode.textContent = error.message === 'prospect unavailable'
+        ? 'This conversation has already been resolved.'
+        : 'This person could not be removed from the queue. Try again.';
+    } finally { button.disabled = false; }
   }
 
   async function resendProspectWelcome(id, button) {
@@ -1183,7 +1207,7 @@
       }] });
       renderProspects({ prospects: [
         { id: 1, name: 'Mira', email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false },
-        { id: 2, name: 'Noor', email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: true, canResendWelcome: true },
+        { id: 2, name: 'Noor', email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: false },
       ] });
       waiting.hidden = true; shell.hidden = false; return;
     }

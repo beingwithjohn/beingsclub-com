@@ -38,7 +38,7 @@ export async function requestProspectCode(request, env, ctx, body) {
     `INSERT INTO prospect (email, display_name, created_at, updated_at)
      VALUES (?1, ?2, ?3, ?3)
      ON CONFLICT(email) DO UPDATE SET display_name = excluded.display_name,
-       updated_at = excluded.updated_at`,
+       archived_at = NULL, updated_at = excluded.updated_at`,
   ).bind(email, name, timestamp).run();
   const prospect = await env.MEMBERS.prepare(
     'SELECT id, email, display_name FROM prospect WHERE email = ?1',
@@ -347,9 +347,21 @@ export async function listProspects(env) {
             p.granted_at, p.member_id, p.created_at, p.updated_at,
             m.joined_at AS member_joined_at
        FROM prospect p LEFT JOIN member m ON m.id = p.member_id
-      ORDER BY p.granted_at IS NOT NULL, p.updated_at DESC`,
+      WHERE p.granted_at IS NULL AND p.archived_at IS NULL
+        AND (p.booking_status IS NULL OR p.booking_status != 'cancelled')
+      ORDER BY p.updated_at DESC`,
   ).all();
   return json({ prospects: (rows.results || []).map(shapeHostProspect) });
+}
+
+export async function dismissProspect(env, id) {
+  if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  const result = await env.MEMBERS.prepare(
+    `UPDATE prospect SET archived_at = ?1, updated_at = ?1
+      WHERE id = ?2 AND archived_at IS NULL AND granted_at IS NULL`,
+  ).bind(now(), id).run();
+  if (!Number(result?.meta?.changes || 0)) return bad(409, 'prospect unavailable');
+  return json({ ok: true });
 }
 
 export async function grantProspect(env, host, id, ctx) {

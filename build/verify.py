@@ -8,7 +8,7 @@ Exists because a broken build once shipped: a syntax error in the emitted script
 took every page down, and the deploy looked successful because nobody checked
 that the commit Pages built was the commit we pushed.
 """
-import io, os, re, sys, json, subprocess, tempfile, urllib.request
+import io, os, re, sys, json, struct, subprocess, tempfile, urllib.request
 
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGIN = "https://beingsclub.com"
@@ -214,6 +214,30 @@ ok("built files match the generator", not drifted, "hand-edited: " + ", ".join(d
 ok("generator emits every public and compatibility page",
    set(after) == set(GENERATED_PAGES),
    "missing: " + ", ".join(sorted(set(GENERATED_PAGES) - set(after))))
+home_html = after.get("index.html", "")
+social_preview = os.path.join(ROOT, "assets", "social-preview.png")
+try:
+    with open(social_preview, "rb") as image_file:
+        signature = image_file.read(24)
+    social_preview_size = struct.unpack(">II", signature[16:24]) if signature[:8] == b"\x89PNG\r\n\x1a\n" else None
+except (OSError, struct.error):
+    social_preview_size = None
+ok("the homepage shares as a complete large social card",
+   '<link rel="canonical" href="https://beingsclub.com/">' in home_html and
+   '<meta property="og:title" content="Beings Club — a realisationhouse for the curious">' in home_html and
+   '<meta property="og:url" content="https://beingsclub.com/">' in home_html and
+   '<meta property="og:image" content="https://beingsclub.com/assets/social-preview.png">' in home_html and
+   '<meta property="og:image:width" content="1200">' in home_html and
+   '<meta property="og:image:height" content="630">' in home_html and
+   '<meta name="twitter:card" content="summary_large_image">' in home_html and
+   '<meta name="twitter:image" content="https://beingsclub.com/assets/social-preview.png">' in home_html and
+   social_preview_size == (1200, 630))
+ok("the Club social identities are consistent across links and structured data",
+   home_html.count('https://instagram.com/beings_club') >= 1 and
+   home_html.count('https://x.com/beings_club') >= 1 and
+   'https://instagram.com/beingwithjohn' in home_html and
+   'https://x.com/beingwithjohn' in home_html and
+   'https://wonderfool.substack.com' in home_html)
 ok("public controls keep visible focus and mobile-sized primary actions",
    ':where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C' in after.get("index.html", "") and
    '#s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px' in after.get("index.html", "") and
@@ -261,6 +285,10 @@ for member_page in ["members/index.html", "members/host/index.html"]:
     ok(member_page + ": only approved API is connectable",
        "connect-src https://practice-log.beingsclub.workers.dev" in html)
     ok(member_page + ": has no inline executable script", "window.BC_MEMBERS_API" not in html)
+    ok(member_page + ": carries the Beings Club browser and home-screen icons",
+       'rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"' in html and
+       'rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png"' in html and
+       'rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png"' in html)
 for member_script in ["members/app.js", "members/host.js"]:
     good, err = js_parses(members_after.get(member_script, ""))
     ok(member_script + ": parses", good, err)
@@ -301,6 +329,20 @@ ok("host can name an invitee and preview the exact invitation without sending",
 ok("first-conversation cards show the collected name above the email",
    "prospect.name || prospect.email" in members_after.get("members/host.js", "") and
    "if (prospect.name) main.append(text('span', '', prospect.email))" in members_after.get("members/host.js", ""))
+prospect_archive_migration = open(
+    os.path.join(ROOT, "practice-log", "members-migrations", "0017_prospect_archive.sql"),
+    encoding="utf-8",
+).read()
+ok("first conversations leave the working queue when cancelled, granted or dismissed",
+   "p.granted_at IS NULL AND p.archived_at IS NULL" in open(
+       os.path.join(ROOT, "practice-log", "src", "club", "prospects.js"), encoding="utf-8"
+   ).read() and
+   "p.booking_status IS NULL OR p.booking_status != 'cancelled'" in open(
+       os.path.join(ROOT, "practice-log", "src", "club", "prospects.js"), encoding="utf-8"
+   ).read() and
+   "ALTER TABLE prospect ADD COLUMN archived_at" in prospect_archive_migration and
+   "remove from queue" in members_after.get("members/host.js", "") and
+   "/prospects/${prospect.id}/dismiss" in members_after.get("members/host.js", ""))
 ok("host controls keep drafting, publishing and email as separate actions",
    'id="salon-plan-list"' in host_html and 'id="add-salon"' in host_html and
    "saveSalonEditor" in members_after.get("members/host.js", "") and

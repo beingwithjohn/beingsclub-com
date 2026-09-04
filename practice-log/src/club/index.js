@@ -29,7 +29,7 @@ import { postGiving, postGivingPortal } from '../giving.js';
 import { completeOnboarding } from './onboarding.js';
 import {
   createProspectBooking, enterGrantedProspect, enterMemberWelcome,
-  getProspectSlots, getProspectState, grantProspect, identifyProspect,
+  dismissProspect, getProspectSlots, getProspectState, grantProspect, identifyProspect,
   listProspects, requestProspectCode,
   resendProspectWelcome, saveProspectTimeNote, verifyProspectCode,
 } from './prospects.js';
@@ -237,6 +237,10 @@ export async function clubRoute(request, env, ctx, url) {
     return addMember(env, who, await readJson(request), ctx);
   }
   if (path === '/api/club/host/prospects' && method === 'GET') return listProspects(env);
+  const dismissProspectMatch = /^\/api\/club\/host\/prospects\/(\d+)\/dismiss$/.exec(path);
+  if (dismissProspectMatch && method === 'POST') {
+    return dismissProspect(env, Number(dismissProspectMatch[1]));
+  }
   const grant = /^\/api\/club\/host\/prospects\/(\d+)\/grant$/.exec(path);
   if (grant && method === 'POST') {
     return grantProspect(env, who, Number(grant[1]), ctx);
