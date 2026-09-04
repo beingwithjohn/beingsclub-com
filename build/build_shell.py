@@ -174,11 +174,11 @@ def convert(body, key):
         # Stable anchors let old public URLs arrive at the relevant part of the
         # single landing page without recreating a public programme map.
         body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>',
-                            '<span id="about" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>', 1)
+                            '<h2 id="about" style="margin:0;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</h2>', 1)
         body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>',
                             '<span id="salon" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>', 1)
         body = body.replace('<div style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>',
-                            '<div id="membership" style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>', 1)
+                            '<div id="membership" style="display:grid;gap:24px;">\n        <h2 style="margin:0;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</h2>', 1)
 
         # A personal letter lets the public threshold feel held by a real
         # person without turning John into a conventional credentials block.
@@ -186,7 +186,7 @@ def convert(body, key):
                            '        <div data-note-actions="foot"')
         assert body.count(closing_actions) == 1, 'Home closing actions not found once'
         john_letter = '''<section id="john" class="bc-john-letter">
-        <span class="bc-john-letter-label">A note from John</span>
+        <h2 class="bc-john-letter-label">A note from John</h2>
         <aside class="bc-john-aside" aria-label="More from John">
           <figure class="bc-john-portrait">
             <img src="/assets/img/john-letter.jpeg" alt="John, host of Beings Club" loading="lazy" decoding="async">
@@ -659,7 +659,7 @@ CSS = """
   .bc-john-portrait img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#171916;}
   .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;
     line-height:1.5;letter-spacing:.12em;color:#75726A;}
-  .bc-john-letter-label{display:block;margin-bottom:18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
+  .bc-john-letter-label{display:block;margin:0 0 18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
   .bc-john-letter-words{display:block;}
   .bc-john-letter-words p{margin:0 0 15px;font-size:15px;line-height:1.76;color:#4A473F;}
   .bc-john-letter-words p:last-child{margin-bottom:0;}
@@ -670,7 +670,7 @@ CSS = """
   .bc-john-practical-link{display:grid;gap:4px;padding:12px 0;border-bottom:1px solid #E7E4DB;color:#171916;text-decoration:none;}
   .bc-john-practical-link span{font-size:12px;font-weight:650;line-height:1.4;}
   .bc-john-practical-link small{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;line-height:1.5;
-    letter-spacing:.1em;color:#8F8B82;}
+    letter-spacing:.1em;color:#75726A;}
   .bc-john-practical-link:hover span,.bc-john-practical-link:focus-visible span{color:#5A4B7C;}
   .bc-john-socials{display:grid;gap:8px;padding-top:13px;}
   .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;letter-spacing:.16em;
@@ -705,6 +705,13 @@ CSS = """
     #s-home .bc-app-note-fields{grid-template-columns:1fr!important;}
     .bc-john-letter{width:100%;padding:30px 0;}
     .bc-john-aside{float:none;width:min(240px,72vw);margin:0 0 26px;}
+  }
+  @media (max-width:360px){
+    #s-home [data-m="hero"]{margin-left:18px!important;margin-right:18px!important;}
+    #s-home [data-m="hero"] h1{font-size:clamp(30px,10vw,34px)!important;overflow-wrap:anywhere;}
+    #s-home [data-m="sub"]{width:100%;max-width:100%!important;font-size:15px!important;overflow-wrap:anywhere;}
+    #s-home [data-m="notecard"]>span{max-width:100%;white-space:normal!important;line-height:1.6!important;}
+    #s-home [data-m="below"]{padding-left:18px!important;padding-right:18px!important;}
   }
 
   /* Ribbon study: the reference's image shelf, oversized editorial statement and
@@ -1651,6 +1658,8 @@ def events_page():
   .events-intro p{{margin:0 0 4px;max-width:29ch;font-size:clamp(18px,2vw,24px);line-height:1.5;color:#57534B}}
   .events-frame-wrap{{overflow:hidden;border:1px solid #DDD8CB;border-radius:12px;background:#F8F6F1;box-shadow:0 24px 70px rgba(45,38,29,.07)}}
   .events-frame{{display:block;width:100%;height:690px;border:0;border-radius:12px;background:#FDFCF9}}
+  .events-frame:focus{{outline:0}}
+  .events-frame.has-focus{{border:3px solid #5A4B7C}}
   .events-fallback{{margin:18px 2px 0;font-size:12px;line-height:1.6;color:#75726A}}
   .events-fallback a{{color:#5A4B7C;text-decoration:underline;text-underline-offset:4px}}
   .events-footer{{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:54px;padding-top:18px;border-top:1px solid #E7E4DB;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#75726A}}
@@ -1663,7 +1672,7 @@ def events_page():
     .events-frame{{height:720px}}
   }}
 </style>
-<script src="/assets/navmark.js" defer></script>
+<script src="/assets/navmark.js?v=20260903-a11y" defer></script>
 </head>
 <body>
 <div class="events-shell">

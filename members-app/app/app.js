@@ -2014,18 +2014,37 @@
   const menu = document.getElementById('mobile-menu');
   const menuButton = document.getElementById('menu-button');
   const menuClose = document.getElementById('menu-close');
+  const menuBackground = [...menu.parentElement.children].filter((node) => node !== menu);
+  function setMenuBackgroundInert(inert) {
+    menuBackground.forEach((node) => { node.inert = inert; });
+  }
   function closeMobileMenu(restoreFocus = true) {
-    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false');
+    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); setMenuBackgroundInert(false);
     if (restoreFocus) menuButton.focus();
   }
   menuButton.addEventListener('click', () => {
-    menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); menuClose.focus();
+    menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); setMenuBackgroundInert(true); menuClose.focus();
   });
   menuClose.addEventListener('click', () => closeMobileMenu());
   menu.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') { event.preventDefault(); closeMobileMenu(); }
+    if (event.key === 'Tab') {
+      const focusable = [...menu.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')]
+        .filter((node) => !node.hidden && node.getClientRects().length);
+      if (!focusable.length) { event.preventDefault(); return; }
+      const first = focusable[0]; const last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !menu.contains(document.activeElement))) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    }
   });
   menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMobileMenu(false)));
+  const publicEventsFrame = document.querySelector('.public-events-frame');
+  window.setInterval(() => {
+    publicEventsFrame.classList.toggle('has-focus', document.activeElement === publicEventsFrame);
+  }, 100);
   document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
     button.addEventListener('click', () => showProspectPreview(button.dataset.prospectPreview));
   });

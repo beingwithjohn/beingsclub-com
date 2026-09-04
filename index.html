@@ -100,7 +100,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   .bc-john-portrait img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#171916;}
   .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;
     line-height:1.5;letter-spacing:.12em;color:#75726A;}
-  .bc-john-letter-label{display:block;margin-bottom:18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
+  .bc-john-letter-label{display:block;margin:0 0 18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
   .bc-john-letter-words{display:block;}
   .bc-john-letter-words p{margin:0 0 15px;font-size:15px;line-height:1.76;color:#4A473F;}
   .bc-john-letter-words p:last-child{margin-bottom:0;}
@@ -111,7 +111,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   .bc-john-practical-link{display:grid;gap:4px;padding:12px 0;border-bottom:1px solid #E7E4DB;color:#171916;text-decoration:none;}
   .bc-john-practical-link span{font-size:12px;font-weight:650;line-height:1.4;}
   .bc-john-practical-link small{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;line-height:1.5;
-    letter-spacing:.1em;color:#8F8B82;}
+    letter-spacing:.1em;color:#75726A;}
   .bc-john-practical-link:hover span,.bc-john-practical-link:focus-visible span{color:#5A4B7C;}
   .bc-john-socials{display:grid;gap:8px;padding-top:13px;}
   .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;letter-spacing:.16em;
@@ -146,6 +146,13 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     #s-home .bc-app-note-fields{grid-template-columns:1fr!important;}
     .bc-john-letter{width:100%;padding:30px 0;}
     .bc-john-aside{float:none;width:min(240px,72vw);margin:0 0 26px;}
+  }
+  @media (max-width:360px){
+    #s-home [data-m="hero"]{margin-left:18px!important;margin-right:18px!important;}
+    #s-home [data-m="hero"] h1{font-size:clamp(30px,10vw,34px)!important;overflow-wrap:anywhere;}
+    #s-home [data-m="sub"]{width:100%;max-width:100%!important;font-size:15px!important;overflow-wrap:anywhere;}
+    #s-home [data-m="notecard"]>span{max-width:100%;white-space:normal!important;line-height:1.6!important;}
+    #s-home [data-m="below"]{padding-left:18px!important;padding-right:18px!important;}
   }
 
   /* Ribbon study: the reference's image shelf, oversized editorial statement and
@@ -480,7 +487,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   <div data-m="below" style="box-sizing:border-box;padding:50px 44px 140px 10%;">
     <div style="display:grid;gap:56px;max-width:760px;">
       <div style="display:grid;gap:18px;">
-        <span id="about" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>
+        <h2 id="about" style="margin:0;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</h2>
         <p style="margin:0;font-size:clamp(24px,2.2vw,32px);font-weight:500;line-height:1.45;letter-spacing:-.02em;color:#4A473F;max-width:44ch;">Beings Club is where curiosity connects — a space for practice and conversation.</p>
         <p data-home-curiosity-definition="1" style="margin:0;font-size:16px;line-height:1.7;color:#75726A;max-width:76ch;">Beings Club defines curiosity as an orientation to experience that is open to discovery.</p>
       </div>
@@ -506,7 +513,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       </div>
       <div style="background:#F2ECFF;padding:30px 34px;"><span style="font-size:19px;line-height:1.6;font-weight:600;color:#5A4B7C;letter-spacing:-.01em;">What is important reveals itself.</span></div>
       <div id="membership" style="display:grid;gap:24px;">
-        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>
+        <h2 style="margin:0;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</h2>
         <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">How does membership work?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Membership begins with a conversation with John. If there is a mutual yes after you have spoken, the member area opens. Membership is ongoing and freely offered until you choose to leave.</span></div>
         <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">Is Beings Club only online or in-person too?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Salons are online. Occasional in-person gatherings may be announced separately.</span></div>
         <div style="display:grid;gap:10px;border-top:1px solid #E7E4DB;padding-top:20px;"><span style="font-size:16px;font-weight:600;">Are Salons recorded?</span><span style="font-size:15px;line-height:1.75;color:#75726A;">Nope. Salons exist for those who show up to them.</span></div>
@@ -517,7 +524,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
       </div>
 
       <section id="john" class="bc-john-letter">
-        <span class="bc-john-letter-label">A note from John</span>
+        <h2 class="bc-john-letter-label">A note from John</h2>
         <aside class="bc-john-aside" aria-label="More from John">
           <figure class="bc-john-portrait">
             <img src="/assets/img/john-letter.jpeg" alt="John, host of Beings Club" loading="lazy" decoding="async">

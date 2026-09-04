@@ -8,6 +8,7 @@ import {
 } from './security.js';
 import { agreementAccepted, MEMBER_AGREEMENT_VERSION } from './agreement.js';
 import { issueMemberWelcomeLink } from './member-links.js';
+import { queueMemberNotionSync } from './notion-members.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -351,7 +352,7 @@ export async function listProspects(env) {
   return json({ prospects: (rows.results || []).map(shapeHostProspect) });
 }
 
-export async function grantProspect(env, host, id) {
+export async function grantProspect(env, host, id, ctx) {
   if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
   const prospect = await env.MEMBERS.prepare(
     'SELECT * FROM prospect WHERE id = ?1',
@@ -376,6 +377,7 @@ export async function grantProspect(env, host, id) {
     `UPDATE prospect SET granted_at = ?1, granted_by = ?2, member_id = ?3,
        updated_at = ?1 WHERE id = ?4 AND granted_at IS NULL`,
   ).bind(timestamp, host.id, member.id, id).run();
+  await queueMemberNotionSync(env, member.id, ctx, timestamp);
   const actionUrl = await issueMemberWelcomeLink(env, member.id, timestamp);
   const sent = await sendClubWelcome(env, {
     email: member.email, name: member.display_name,

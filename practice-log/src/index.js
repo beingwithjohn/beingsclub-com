@@ -17,6 +17,7 @@ import { listReplies, getReplyAudio } from './replies.js';
 import { clubRoute } from './club/index.js';
 import { runClubMail } from './club/mailer.js';
 import { calWebhook } from './club/prospects.js';
+import { runMemberNotionSync } from './club/notion-members.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -48,6 +49,7 @@ export default {
     ctx.waitUntil(Promise.all([
       runNudges(env, scheduledTime),
       runClubMail(env, scheduledTime),
+      runMemberNotionSync(env, scheduledTime),
     ]));
   },
 };

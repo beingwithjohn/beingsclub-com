@@ -10,6 +10,13 @@
  * page's logo hover instead of taking a page down.
  */
 (function () {
+  var frame = document.querySelector('.events-frame');
+  if (frame) {
+    window.setInterval(function () {
+      frame.classList.toggle('has-focus', document.activeElement === frame);
+    }, 100);
+  }
+
   var marks = document.querySelectorAll('[data-navmark]');
   if (!marks.length) return;
   fetch('/assets/beings-logo-outline.svg').then(function (r) { return r.text(); }).then(function (txt) {

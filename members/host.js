@@ -7,6 +7,9 @@
   const list = document.getElementById('member-list');
   const form = document.getElementById('invite-form');
   const status = document.getElementById('invite-status');
+  const invitationPreview = document.getElementById('invitation-preview');
+  const invitationPreviewFrame = document.getElementById('invitation-preview-frame');
+  const invitationPreviewSubject = document.getElementById('invitation-preview-subject');
   const salonStatus = document.getElementById('salon-status');
   const salonPlanList = document.getElementById('salon-plan-list');
   let pendingRemove = null;
@@ -50,6 +53,51 @@
     const node = document.createElement(tag); node.className = className; node.textContent = value; return node;
   }
 
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[character]);
+  }
+
+  function localInvitationPreview(name, personalNote) {
+    const greeting = name.trim() ? `Hello, ${escapeHtml(name.trim())}.` : 'Hello,';
+    const note = personalNote.trim();
+    const noteMarkup = note
+      ? '<tr><td style="padding:24px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F2ECFF" style="width:100%;background:#F2ECFF;border:1px solid #DED7EA;"><tr><td style="padding:18px 20px 5px 20px;font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;">a note from John</td></tr><tr><td style="padding:5px 20px 20px 20px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#312E29;line-height:25px;">'
+        + `${escapeHtml(note).replace(/\r?\n/g, '<br>')}</td></tr></table></td></tr>`
+      : '';
+    return {
+      subject: 'You’re invited to Beings Club',
+      html: '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>You’re invited to Beings Club</title></head><body style="margin:0;padding:0;background-color:#F7F5EF;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#F7F5EF;"><tr><td align="center" style="padding:36px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:#FDFCF9;"><tr><td align="left" style="padding:44px 48px 0 48px;"><img src="/assets/beings-logo-outline.png" alt="Beings Club — concentric hand-drawn rings" width="180" style="display:block;width:180px;max-width:100%;height:auto;border:0;"></td></tr><tr><td style="padding:28px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:34px;font-weight:bold;letter-spacing:-1px;color:#171916;line-height:40px;">You’re invited to <span style="color:#5A4B7C">Beings Club</span>.</td></tr><tr><td style="padding:20px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#4A473F;line-height:27px;"><p style="margin:0 0 16px">'
+        + `${greeting}</p><p style="margin:0 0 16px">Membership is ongoing and freely offered.</p><p style="margin:0">Enter using this email address and we’ll send you a six-digit code.</p></td></tr>${noteMarkup}`
+        + '<tr><td style="padding:30px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#171916"><span style="display:block;padding:14px 32px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;">enter Beings Club</span></td></tr></table></td></tr><tr><td style="padding:36px 48px 44px 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="504" style="width:100%;border-top:1px solid #E7E4DB;"><tr><td style="padding:22px 0 0 0;font-family:\'Courier New\',Courier,monospace;font-size:11px;color:#A5A198;line-height:19px;">for the benefit of all beings</td></tr><tr><td style="padding:18px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#A5A198;line-height:18px;">Beings Club · London, United Kingdom · <u>member entrance</u></td></tr></table></td></tr></table></td></tr></table></body></html>',
+    };
+  }
+
+  async function previewInvitation() {
+    status.textContent = '';
+    const name = document.getElementById('invite-name');
+    const note = document.getElementById('invite-note');
+    const button = document.getElementById('invite-preview');
+    if (!name.checkValidity()) { name.reportValidity(); return; }
+    if (!note.checkValidity()) { note.reportValidity(); return; }
+    button.disabled = true;
+    try {
+      const mail = previewMode ? localInvitationPreview(name.value, note.value) : await call(
+        '/api/club/host/members/invitation-preview', {
+          method: 'POST', body: JSON.stringify({ name: name.value, invitationNote: note.value }),
+        },
+      );
+      invitationPreviewSubject.textContent = mail.subject;
+      invitationPreviewFrame.srcdoc = mail.html;
+      invitationPreview.showModal();
+    } catch (_) {
+      status.textContent = 'The email preview could not be opened. Try again.';
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   function render(members) {
     list.replaceChildren();
     members.filter((member) => member.status !== 'removed').forEach((member) => {
@@ -86,6 +134,83 @@
 
   async function loadMembers() {
     const data = await call('/api/club/host/members'); render(data.members);
+  }
+
+  const notionStatusLabels = {
+    ready: 'ready to invite',
+    joined: 'already joined',
+    invited_needs_mark: 'invited · Notion needs marking',
+    marked_sent: 'marked sent in Notion',
+    inactive: 'inactive · review separately',
+    duplicate: 'duplicate email · fix in Notion',
+  };
+
+  function renderNotionInvitePreview(data) {
+    const listNode = document.getElementById('notion-invite-list');
+    const send = document.getElementById('notion-invite-send');
+    const statusNode = document.getElementById('notion-invite-status');
+    listNode.replaceChildren();
+    if (!data.configured) {
+      send.hidden = true;
+      statusNode.textContent = 'Connect the Notion integration before checking this list.';
+      return;
+    }
+    (data.people || []).forEach((person) => {
+      const row = document.createElement('div'); row.className = `notion-invite-row ${person.status}`;
+      row.append(
+        text('span', '', person.name ? `${person.name} · ${person.email}` : person.email),
+        text('em', '', notionStatusLabels[person.status] || person.status),
+      );
+      listNode.append(row);
+    });
+    const ready = Number(data.readyCount || 0);
+    const repair = Number(data.repairCount || 0);
+    statusNode.textContent = `${data.people.length} in Notion · ${ready} ready to invite${repair ? ` · ${repair} Notion ${repair === 1 ? 'mark' : 'marks'} to repair` : ''}.`;
+    send.hidden = ready + repair === 0;
+    send.textContent = ready
+      ? `send ${ready} ${ready === 1 ? 'invitation' : 'invitations'}`
+      : `repair ${repair} Notion ${repair === 1 ? 'mark' : 'marks'}`;
+  }
+
+  async function checkNotionInvites() {
+    const button = document.getElementById('notion-invite-check');
+    const statusNode = document.getElementById('notion-invite-status');
+    button.disabled = true; statusNode.textContent = 'Checking Notion against the member list…';
+    try {
+      if (previewMode) {
+        renderNotionInvitePreview({
+          configured: true, readyCount: 2, repairCount: 1,
+          people: [
+            { name: 'Ana', email: 'ana@example.com', status: 'ready' },
+            { name: 'Mira', email: 'mira@example.com', status: 'ready' },
+            { name: 'Sam', email: 'sam@example.com', status: 'invited_needs_mark' },
+            { name: 'John', email: 'john@example.com', status: 'joined' },
+          ],
+        });
+      } else renderNotionInvitePreview(await call('/api/club/host/notion-members'));
+    } catch (error) {
+      statusNode.textContent = error.message || 'The Notion member list could not be checked.';
+    } finally { button.disabled = false; }
+  }
+
+  async function sendNotionInvites() {
+    const button = document.getElementById('notion-invite-send');
+    const statusNode = document.getElementById('notion-invite-status');
+    if (!window.confirm('Send the displayed invitations now? Already joined, inactive, duplicate and previously marked people will not be emailed.')) return;
+    button.disabled = true; statusNode.textContent = 'Sending invitations…';
+    try {
+      if (previewMode) {
+        statusNode.textContent = 'Preview: invitations would be sent once and successful sends marked in Notion.';
+        return;
+      }
+      const result = await call('/api/club/host/notion-members/invite', {
+        method: 'POST', body: JSON.stringify({ confirmation: 'INVITE NOTION MEMBERS' }),
+      });
+      statusNode.textContent = `${result.sentCount} ${result.sentCount === 1 ? 'invitation' : 'invitations'} sent${result.markedCount ? ` · ${result.markedCount} Notion ${result.markedCount === 1 ? 'mark' : 'marks'} repaired` : ''}${result.failedCount ? ` · ${result.failedCount} ${result.failedCount === 1 ? 'item needs' : 'items need'} attention` : ''}.`;
+      await Promise.all([loadMembers(), checkNotionInvites()]);
+    } catch (error) {
+      statusNode.textContent = error.message || 'The invitations could not be sent.';
+    } finally { button.disabled = false; }
   }
 
   function londonParts(iso) {
@@ -708,7 +833,7 @@
     status.textContent = ''; button.disabled = true;
     try {
       if (previewMode) {
-        status.textContent = 'Preview: one personal invitation would be sent from John.';
+        status.textContent = 'Preview: one personal invitation would be sent from Beings Club.';
         return;
       }
       await call(`/api/club/host/members/${id}/invite`, { method: 'POST', body: '{}' });
@@ -726,18 +851,26 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); status.textContent = '';
     const input = document.getElementById('invite-email');
+    const name = document.getElementById('invite-name');
+    const note = document.getElementById('invite-note');
     if (!input.checkValidity()) { input.reportValidity(); return; }
-    const button = form.querySelector('button'); button.disabled = true;
+    const button = form.querySelector('button[type="submit"]'); button.disabled = true;
     try {
       if (previewMode) {
-        input.value = '';
-        status.textContent = 'Preview: they would be added and receive one personal invitation from John.';
+        const hasNote = note.value.trim().length > 0;
+        input.value = ''; name.value = ''; note.value = '';
+        status.textContent = `Preview: they would be added and receive one invitation from Beings Club${hasNote ? ', including your note' : ''}.`;
         return;
       }
-      await call('/api/club/host/members', { method: 'POST', body: JSON.stringify({ email: input.value }) });
-      input.value = ''; status.textContent = 'Added and invited.'; await loadMembers(); input.focus();
+      await call('/api/club/host/members', {
+        method: 'POST', body: JSON.stringify({
+          email: input.value, name: name.value, invitationNote: note.value,
+        }),
+      });
+      input.value = ''; name.value = ''; note.value = ''; status.textContent = 'Added and invited.'; await loadMembers(); input.focus();
     } catch (error) {
-      if (error.status === 400) status.textContent = 'Enter a valid email address.';
+      if (error.message === 'invitation note') status.textContent = 'Keep the personal note to 1,200 characters.';
+      else if (error.status === 400) status.textContent = 'Enter a valid email address.';
       else if (error.message === 'already a member') status.textContent = 'That person is already a member.';
       else if (error.message === 'already invited') status.textContent = 'That person has already been invited. Use resend beside their name.';
       else if (error.message === 'member added but invitation email did not send') {
@@ -747,6 +880,15 @@
     }
     finally { button.disabled = false; }
   });
+
+  document.getElementById('invite-preview').addEventListener('click', previewInvitation);
+  document.getElementById('invitation-preview-close').addEventListener('click', () => invitationPreview.close());
+  invitationPreview.addEventListener('click', (event) => {
+    if (event.target === invitationPreview) invitationPreview.close();
+  });
+
+  document.getElementById('notion-invite-check').addEventListener('click', checkNotionInvites);
+  document.getElementById('notion-invite-send').addEventListener('click', sendNotionInvites);
 
   document.getElementById('in-person-event-image').addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
@@ -855,16 +997,31 @@
   document.getElementById('mobile-sign-out').addEventListener('click', signOut);
   const menu = document.getElementById('mobile-menu'); const menuButton = document.getElementById('menu-button');
   const menuClose = document.getElementById('menu-close');
+  const menuBackground = [...menu.parentElement.children].filter((node) => node !== menu);
+  function setMenuBackgroundInert(inert) {
+    menuBackground.forEach((node) => { node.inert = inert; });
+  }
   function closeMobileMenu(restoreFocus = true) {
-    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false');
+    menu.hidden = true; menuButton.setAttribute('aria-expanded', 'false'); setMenuBackgroundInert(false);
     if (restoreFocus) menuButton.focus();
   }
   menuButton.addEventListener('click', () => {
-    menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); menuClose.focus();
+    menu.hidden = false; menuButton.setAttribute('aria-expanded', 'true'); setMenuBackgroundInert(true); menuClose.focus();
   });
   menuClose.addEventListener('click', () => closeMobileMenu());
   menu.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') { event.preventDefault(); closeMobileMenu(); }
+    if (event.key === 'Tab') {
+      const focusable = [...menu.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])')]
+        .filter((node) => !node.hidden && node.getClientRects().length);
+      if (!focusable.length) { event.preventDefault(); return; }
+      const first = focusable[0]; const last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !menu.contains(document.activeElement))) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    }
   });
   menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMobileMenu(false)));
 

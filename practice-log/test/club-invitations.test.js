@@ -22,6 +22,8 @@ test('a member invitation is personal, idempotent and points to the member entra
       MAIL_REPLY_TO: 'john@spacetobe.xyz',
     }, {
       email: 'mira@example.test',
+      name: 'Mira',
+      personalNote: 'I thought you might value the space.\nI hope you’ll join us.',
       idempotencyKey: 'club-member-7-2000000000',
     });
     assert.equal(sent, true);
@@ -31,8 +33,14 @@ test('a member invitation is personal, idempotent and points to the member entra
     assert.equal(body.to[0], 'mira@example.test');
     assert.equal(body.from, 'Beings Club <practice@beingsclub.com>');
     assert.equal(body.subject, 'You’re invited to Beings Club');
+    assert.match(body.text, /^Hello, Mira\./);
     assert.match(body.text, /https:\/\/beingsclub\.com\/members\//);
+    assert.match(body.text, /A note from John:\nI thought you might value the space\./);
     assert.match(body.html, /enter Beings Club/);
+    assert.match(body.html, /Hello, Mira\./);
+    assert.match(body.html, /a note from John/);
+    assert.match(body.html, /background:#F2ECFF/);
+    assert.match(body.html, /I thought you might value the space\.<br>I hope you’ll join us\./);
   } finally {
     globalThis.fetch = original;
   }

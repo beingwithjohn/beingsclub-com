@@ -1,5 +1,5 @@
 import { json, bad } from '../api.js';
-import { sendClubCode, sendClubInvitation } from '../mail/send.js';
+import { clubInvitationEmail, sendClubCode, sendClubInvitation } from '../mail/send.js';
 import {
   bearerToken, keyedHash, normalizeEmail, randomCode, randomToken,
   sameText, tokenHash, validChallenge, validCode,
@@ -37,6 +37,9 @@ import {
   deleteHostInPersonEvent, getHostInPersonEvents, getInPersonEventImage,
   getMemberInPersonEvents, publishHostInPersonEvent, saveHostInPersonEvent,
 } from './in-person.js';
+import {
+  getNotionInvitePreview, inviteNotionMembers, queueMemberNotionSync,
+} from './notion-members.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -218,13 +221,22 @@ export async function clubRoute(request, env, ctx, url) {
     );
   }
   if (path === '/api/club/host/members' && method === 'GET') return listMembers(env);
+  if (path === '/api/club/host/members/invitation-preview' && method === 'POST') {
+    return previewMemberInvitation(await readJson(request));
+  }
+  if (path === '/api/club/host/notion-members' && method === 'GET') {
+    return getNotionInvitePreview(env);
+  }
+  if (path === '/api/club/host/notion-members/invite' && method === 'POST') {
+    return inviteNotionMembers(env, await readJson(request));
+  }
   if (path === '/api/club/host/members' && method === 'POST') {
-    return addMember(env, who, await readJson(request));
+    return addMember(env, who, await readJson(request), ctx);
   }
   if (path === '/api/club/host/prospects' && method === 'GET') return listProspects(env);
   const grant = /^\/api\/club\/host\/prospects\/(\d+)\/grant$/.exec(path);
   if (grant && method === 'POST') {
-    return grantProspect(env, who, Number(grant[1]));
+    return grantProspect(env, who, Number(grant[1]), ctx);
   }
   const resendWelcome = /^\/api\/club\/host\/prospects\/(\d+)\/welcome$/.exec(path);
   if (resendWelcome && method === 'POST') {
@@ -412,27 +424,39 @@ async function listMembers(env) {
   })) });
 }
 
-async function addMember(env, who, body) {
+async function addMember(env, who, body, ctx) {
   const email = normalizeEmail(body?.email);
   if (!email) return bad(400, 'email');
+  const name = cleanInvitationName(body?.name);
+  if (name === undefined) return bad(400, 'name');
+  const invitationNote = cleanInvitationNote(body?.invitationNote);
+  if (invitationNote === undefined) return bad(400, 'invitation note');
   const timestamp = now();
   const existing = await env.MEMBERS.prepare(
-    `SELECT id, joined_at, disabled_at, left_at, invitation_sent_at
+    `SELECT id, display_name, joined_at, disabled_at, left_at, invitation_sent_at, invitation_note
        FROM member WHERE email = ?1`,
   ).bind(email).first();
   if (existing && !existing.disabled_at && !existing.left_at) {
     if (existing.joined_at) return bad(409, 'already a member');
     if (existing.invitation_sent_at) return bad(409, 'already invited');
-    return deliverMemberInvitation(env, existing.id, email, timestamp);
+    await env.MEMBERS.prepare(
+      `UPDATE member SET display_name = COALESCE(?1, display_name), invitation_note = ?2,
+         updated_at = ?3 WHERE id = ?4`,
+    ).bind(name, invitationNote, timestamp, existing.id).run();
+    await queueMemberNotionSync(env, existing.id, ctx, timestamp);
+    return deliverMemberInvitation(
+      env, existing.id, email, timestamp, null,
+      name ?? existing.display_name, invitationNote,
+    );
   }
   if (existing) {
     await env.MEMBERS.prepare(
       `UPDATE member SET disabled_at = NULL, left_at = NULL, leave_note_policy = NULL,
               invited_at = ?1, invitation_sent_at = NULL,
               invitation_last_attempt_at = NULL, invitation_last_error = NULL,
-              updated_at = ?1
-        WHERE id = ?2`,
-    ).bind(timestamp, existing.id).run();
+              display_name = COALESCE(?2, display_name), invitation_note = ?3, updated_at = ?1
+        WHERE id = ?4`,
+    ).bind(timestamp, name, invitationNote, existing.id).run();
     await env.MEMBERS.prepare(
       `UPDATE member_email_pref SET salon_announced = 1, salon_month = 0,
          salon_week = 1, salon_day = 1, salon_hour = 0,
@@ -441,20 +465,25 @@ async function addMember(env, who, body) {
     ).bind(timestamp, existing.id).run();
   } else {
     await env.MEMBERS.prepare(
-      `INSERT INTO member (email, is_host, invited_at, created_at, updated_at)
-       VALUES (?1, 0, ?2, ?2, ?2)`,
-    ).bind(email, timestamp).run();
+      `INSERT INTO member
+        (email, display_name, is_host, invited_at, invitation_note, created_at, updated_at)
+       VALUES (?1, ?2, 0, ?3, ?4, ?3, ?3)`,
+    ).bind(email, name, timestamp, invitationNote).run();
   }
   const member = await env.MEMBERS.prepare(
-    'SELECT id, email FROM member WHERE email = ?1',
+    'SELECT id, email, display_name, invitation_note FROM member WHERE email = ?1',
   ).bind(email).first();
-  return deliverMemberInvitation(env, member.id, member.email, timestamp, who.id);
+  await queueMemberNotionSync(env, member.id, ctx, timestamp);
+  return deliverMemberInvitation(
+    env, member.id, member.email, timestamp, who.id,
+    member.display_name, member.invitation_note,
+  );
 }
 
 async function resendMemberInvitation(env, id) {
   if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
   const member = await env.MEMBERS.prepare(
-    `SELECT id, email, is_host, joined_at, disabled_at, left_at
+    `SELECT id, email, display_name, is_host, joined_at, disabled_at, left_at, invitation_note
        FROM member WHERE id = ?1`,
   ).bind(id).first();
   if (!member || member.is_host || member.joined_at || member.disabled_at || member.left_at) {
@@ -467,13 +496,20 @@ async function resendMemberInvitation(env, id) {
             updated_at = ?1
       WHERE id = ?2`,
   ).bind(timestamp, id).run();
-  return deliverMemberInvitation(env, member.id, member.email, timestamp);
+  return deliverMemberInvitation(
+    env, member.id, member.email, timestamp, null,
+    member.display_name, member.invitation_note,
+  );
 }
 
-async function deliverMemberInvitation(env, id, email, invitationVersion, hostId = null) {
+async function deliverMemberInvitation(
+  env, id, email, invitationVersion, hostId = null, name = null, personalNote = null,
+) {
   const timestamp = now();
   const delivered = await sendClubInvitation(env, {
     email,
+    name,
+    personalNote,
     idempotencyKey: `club-member-${id}-${invitationVersion}`,
   });
   await env.MEMBERS.prepare(
@@ -488,6 +524,34 @@ async function deliverMemberInvitation(env, id, email, invitationVersion, hostId
       canInvite: true, canRemove: hostId == null || id !== hostId,
     },
   }, 201);
+}
+
+function previewMemberInvitation(body) {
+  const name = cleanInvitationName(body?.name);
+  if (name === undefined) return bad(400, 'name');
+  const personalNote = cleanInvitationNote(body?.invitationNote);
+  if (personalNote === undefined) return bad(400, 'invitation note');
+  return json(clubInvitationEmail({ name, personalNote }));
+}
+
+function cleanInvitationName(value) {
+  if (value == null || value === '') return null;
+  if (typeof value !== 'string') return undefined;
+  const name = value.trim();
+  if (!name) return null;
+  if (name.length > 120 || /[\u0000-\u001F\u007F]/.test(name)) return undefined;
+  return name;
+}
+
+function cleanInvitationNote(value) {
+  if (value == null || value === '') return null;
+  if (typeof value !== 'string') return undefined;
+  const note = value.trim();
+  if (!note) return null;
+  if (note.length > 1200 || /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(note)) {
+    return undefined;
+  }
+  return note;
 }
 
 async function disableMember(env, who, id) {

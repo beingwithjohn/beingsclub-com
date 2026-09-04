@@ -6,12 +6,12 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
   <meta name="bc-members-api" content="__API__">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src __API__; img-src 'self' data: blob:; base-uri 'none'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src __API__; img-src 'self' data: blob:; frame-src 'self'; base-uri 'none'; form-action 'self'">
   <title>Host tools · Beings Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/members/app.css?v=20260903-in-person-live">
+  <link rel="stylesheet" href="/members/app.css?v=20260903-a11y">
 </head>
 <body class="app-body">
   <div class="app-shell" id="host-shell" hidden>
@@ -130,13 +130,38 @@
 
         <section class="host-section">
           <h2>members</h2>
-          <p>Adding someone opens the door and sends one personal invitation from John. If delivery fails, they remain on the list and you can try again.</p>
+          <p>Adding someone opens the door and sends one personal invitation from Beings Club. If delivery fails, they remain on the list and you can try again.</p>
           <form class="invite-form" id="invite-form" novalidate>
-            <label class="sr-only" for="invite-email">Email to add</label>
-            <input id="invite-email" name="email" type="email" autocomplete="off" placeholder="email@somewhere.com" required>
-            <button class="outline" type="submit">add + invite</button>
+            <label class="invite-email-field" for="invite-email">
+              <span>email</span>
+              <input id="invite-email" name="email" type="email" autocomplete="off" placeholder="email@somewhere.com" required>
+            </label>
+            <label class="invite-name-field" for="invite-name">
+              <span>name <em>optional</em></span>
+              <input id="invite-name" name="name" type="text" autocomplete="off" maxlength="120" placeholder="What should I call them?">
+            </label>
+            <label class="invite-note-field" for="invite-note">
+              <span>a personal note <em>optional</em></span>
+              <textarea id="invite-note" name="invitationNote" maxlength="1200" placeholder="A few words from you…"></textarea>
+            </label>
+            <div class="invite-form-actions">
+              <button class="outline" id="invite-preview" type="button">preview email</button>
+              <button class="primary" type="submit">add + invite</button>
+            </div>
           </form>
           <span class="status" id="invite-status" role="status" aria-live="polite"></span>
+          <div class="notion-invite-tool">
+            <div>
+              <h3>existing Notion members</h3>
+              <p>Check the old member list first. Nothing is sent until you review it and confirm.</p>
+            </div>
+            <div class="notion-invite-actions">
+              <button class="outline" id="notion-invite-check" type="button">check Notion list</button>
+              <button class="primary" id="notion-invite-send" type="button" hidden>send invitations</button>
+            </div>
+            <span class="status" id="notion-invite-status" role="status" aria-live="polite"></span>
+            <div class="notion-invite-list" id="notion-invite-list"></div>
+          </div>
           <div class="member-list" id="member-list" aria-live="polite"></div>
         </section>
 
@@ -147,7 +172,20 @@
       </div>
     </main>
   </div>
+  <dialog class="invitation-preview" id="invitation-preview" aria-labelledby="invitation-preview-title">
+    <div class="invitation-preview-card">
+      <header>
+        <div>
+          <span class="eyebrow">invitation email</span>
+          <h2 id="invitation-preview-title">Preview before sending.</h2>
+        </div>
+        <button class="invitation-preview-close" id="invitation-preview-close" type="button" aria-label="Close email preview">×</button>
+      </header>
+      <p class="invitation-preview-subject"><span>subject</span><strong id="invitation-preview-subject"></strong></p>
+      <iframe id="invitation-preview-frame" title="Invitation email preview" sandbox=""></iframe>
+    </div>
+  </dialog>
   <div class="page-waiting" id="host-waiting">Stay curious...</div>
-  <script src="/members/host.js?v=20260903-in-person-live" defer></script>
+  <script src="/members/host.js?v=20260903-a11y" defer></script>
 </body>
 </html>

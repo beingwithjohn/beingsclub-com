@@ -184,6 +184,21 @@ The key is used only by the Worker to read availability, create bookings and
 reschedule them. It is never sent to the browser. The separate
 `CAL_WEBHOOK_SECRET` verifies Cal.com's booking webhooks.
 
+Membership access remains authoritative in D1. To keep the host-facing Notion
+member list in step with it, create an internal Notion integration with read
+and insert/update content capabilities, share the **Beings Club Member List**
+with that integration, and add its token directly to the Worker:
+
+```bash
+npx wrangler secret put NOTION_API_KEY
+```
+
+Granting a prospective member, or adding a member directly in the host tools,
+queues an upsert by email into Notion. A failed Notion request never blocks the
+grant or its welcome email; the half-hourly Worker schedule retries it. The
+Notion integration writes only the existing `Name` and `Email` properties and
+does not alter `Reboot Invite Sent?`.
+
 In Stripe, register `https://practice-log.beingsclub.workers.dev/api/stripe/webhook`
 for `checkout.session.completed`, `invoice.paid`,
 `customer.subscription.created`, `customer.subscription.updated`, and

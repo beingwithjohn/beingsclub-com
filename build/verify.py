@@ -226,7 +226,7 @@ ok("public events page wraps the live Coliven list in Beings Club chrome",
    '<script src="https://coliven.com/embed.js" async></script>' in events_html and
    'frame-src https://coliven.com' in events_html and
    'data-navmark="1"' in events_html and
-   '<script src="/assets/navmark.js" defer></script>' in events_html)
+   '<script src="/assets/navmark.js?v=' in events_html and ' defer></script>' in events_html)
 
 for path, destination in REDIRECT_PAGES.items():
     html = after.get(path, "")
@@ -269,9 +269,33 @@ ok("private host page keeps the supplied Host tools design",
    "Host <strong>tools</strong>." in host_html and ">members</h2>" in host_html and
    "Only hosts see this page" in host_html and "add + invite" in host_html)
 ok("adding a member sends one visible, retryable invitation",
-   "sends one personal invitation from John" in host_html and
+   "sends one personal invitation from Beings Club" in host_html and
    "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", "") and
    "resend invite" in members_after.get("members/host.js", ""))
+ok("the Notion transition is previewed before its separate confirmed send",
+   'id="notion-invite-check"' in host_html and
+   'id="notion-invite-send"' in host_html and
+   "confirmation: 'INVITE NOTION MEMBERS'" in members_after.get("members/host.js", "") and
+   "Reboot Invite Sent?" in open(
+       os.path.join(ROOT, "practice-log/src/club/notion-members.js"), encoding="utf-8"
+   ).read())
+ok("individual member invitations can preserve a personal note from John",
+   'id="invite-note"' in host_html and
+   'invitationNote: note.value' in members_after.get("members/host.js", "") and
+   'personalInvitationNote' in open(
+       os.path.join(ROOT, "practice-log/src/mail/send.js"), encoding="utf-8"
+   ).read() and
+   'invitation_note' in open(
+       os.path.join(ROOT, "practice-log/src/club/index.js"), encoding="utf-8"
+   ).read())
+ok("host can name an invitee and preview the exact invitation without sending",
+   'id="invite-name"' in host_html and
+   'id="invite-preview"' in host_html and
+   'id="invitation-preview"' in host_html and
+   "/api/club/host/members/invitation-preview" in members_after.get("members/host.js", "") and
+   "clubInvitationEmail({ name, personalNote })" in open(
+       os.path.join(ROOT, "practice-log/src/club/index.js"), encoding="utf-8"
+   ).read())
 ok("host controls keep drafting, publishing and email as separate actions",
    'id="salon-plan-list"' in host_html and 'id="add-salon"' in host_html and
    "saveSalonEditor" in members_after.get("members/host.js", "") and

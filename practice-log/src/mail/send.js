@@ -188,29 +188,38 @@ export async function sendProspectTimeNote(env, { email, note, idempotencyKey })
 }
 
 /** A personal invitation after John adds somebody through the host tools. */
-export async function sendClubInvitation(env, { email, idempotencyKey }) {
+export async function sendClubInvitation(env, {
+  email, name, personalNote, idempotencyKey,
+}) {
+  const mail = clubInvitationEmail({ name, personalNote });
+  return post(env, {
+    to: email,
+    from: club(env),
+    ...mail,
+    idempotencyKey,
+  });
+}
+
+export function clubInvitationEmail({ name, personalNote } = {}) {
   const url = 'https://beingsclub.com/members/';
   const subject = 'You’re invited to Beings Club';
-  const text = `Hello,\n\nYou’re invited to Beings Club.\n\nMembership is ongoing and freely offered. Enter using this email address and we’ll send you a six-digit code.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const greeting = name ? `Hello, ${name}.` : 'Hello,';
+  const note = String(personalNote || '').trim();
+  const noteText = note ? `\n\nA note from John:\n${note}` : '';
+  const text = `${greeting}\n\nYou’re invited to Beings Club.\n\nMembership is ongoing and freely offered. Enter using this email address and we’ll send you a six-digit code.${noteText}\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: 'An invitation to Beings Club.',
     heading: 'You’re invited to <span style="color:#5A4B7C">Beings Club</span>.',
-    body: '<p style="margin:0 0 16px">Hello,</p>'
+    body: `<p style="margin:0 0 16px">${escapeHtml(greeting)}</p>`
       + '<p style="margin:0 0 16px">Membership is ongoing and freely offered.</p>'
       + '<p style="margin:0">Enter using this email address and we’ll send you a six-digit code.</p>',
+    beforeAction: note ? personalInvitationNote(note) : '',
     actionUrl: url,
     actionLabel: 'enter Beings Club',
     settingsUrl: url,
     footerLinkLabel: 'member entrance',
   });
-  return post(env, {
-    to: email,
-    from: club(env),
-    subject,
-    text,
-    html,
-    idempotencyKey,
-  });
+  return { subject, text, html };
 }
 
 /** A welcome after John and a prospective member have reached a mutual yes. */
@@ -449,7 +458,7 @@ function calendarEscape(value) {
 function clubEmailLayout({
   title = 'Beings Club', preheader, heading, body, actionUrl, actionLabel, settingsUrl,
   secondaryActionUrl, secondaryActionLabel,
-  footerLinkLabel = 'choose what we send you', afterBody = '', footerNote = '',
+  footerLinkLabel = 'choose what we send you', beforeAction = '', afterBody = '', footerNote = '',
   logoWidth = 180,
 }) {
   const action = actionUrl && actionLabel
@@ -468,6 +477,7 @@ function clubEmailLayout({
     + `<tr><td align="left" style="padding:44px 48px 0 48px;"><img src="https://beingsclub.com/assets/beings-logo-outline.png" alt="Beings Club — concentric hand-drawn rings" width="${logoWidth}" style="display:block;width:${logoWidth}px;max-width:100%;height:auto;border:0;"></td></tr>`
     + `<tr><td style="padding:28px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:34px;font-weight:bold;letter-spacing:-1px;color:#171916;mso-line-height-rule:exactly;line-height:40px;">${heading}</td></tr>`
     + `<tr><td style="padding:20px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#4A473F;mso-line-height-rule:exactly;line-height:27px;">${body}</td></tr>`
+    + beforeAction
     + action
     + secondaryAction
     + afterBody
@@ -476,6 +486,14 @@ function clubEmailLayout({
     + (footerNote ? `<tr><td style="padding:18px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#A5A198;mso-line-height-rule:exactly;line-height:18px;">${footerNote}</td></tr>` : '')
     + `<tr><td style="padding:${footerNote ? '8' : '18'}px 0 0 0;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#A5A198;mso-line-height-rule:exactly;line-height:18px;">Beings Club · London, United Kingdom · <a href="${settingsUrl}" style="color:#A5A198;text-decoration:underline;">${escapeHtml(footerLinkLabel)}</a></td></tr>`
     + '</table></td></tr></table></td></tr></table></body></html>';
+}
+
+function personalInvitationNote(note) {
+  return '<tr><td style="padding:24px 48px 0 48px;">'
+    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F2ECFF" style="width:100%;background:#F2ECFF;border:1px solid #DED7EA;">'
+    + '<tr><td style="padding:18px 20px 5px 20px;font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;">a note from John</td></tr>'
+    + `<tr><td style="padding:5px 20px 20px 20px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#312E29;mso-line-height-rule:exactly;line-height:25px;">${escapeHtml(note).replace(/\r?\n/g, '<br>')}</td></tr>`
+    + '</table></td></tr>';
 }
 
 function clubWelcomeLayout({ name, actionUrl }) {
