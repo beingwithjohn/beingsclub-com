@@ -1,5 +1,6 @@
 import { bad, json } from '../api.js';
 import { sendFieldNoteInvitation } from '../mail/send.js';
+import { issueMemberAccessLink } from './member-links.js';
 
 const BODY_MAX = 5000;
 const ALT_MAX = 240;
@@ -223,11 +224,15 @@ export async function inviteFieldNoteAttendees(env, who, salonId, body, ctx, tim
       wantsFieldNoteEmail(person) ? timestamp : null,
     )));
     const emailed = fresh.filter(wantsFieldNoteEmail);
-    ctx.waitUntil(Promise.all(emailed.map((person) => sendFieldNoteInvitation(env, {
-      email: person.email,
-      name: person.display_name,
-      salonStartsAt: salon.starts_at,
-    }))));
+    ctx.waitUntil(Promise.all(emailed.map(async (person) => {
+      const actionUrl = await issueMemberAccessLink(env, person.id, timestamp);
+      return sendFieldNoteInvitation(env, {
+        email: person.email,
+        name: person.display_name,
+        salonStartsAt: salon.starts_at,
+        actionUrl,
+      });
+    })));
   }
   return getHostFieldNotes(env, timestamp);
 }

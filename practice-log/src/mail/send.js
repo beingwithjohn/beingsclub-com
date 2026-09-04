@@ -189,9 +189,9 @@ export async function sendProspectTimeNote(env, { email, note, idempotencyKey })
 
 /** A personal invitation after John adds somebody through the host tools. */
 export async function sendClubInvitation(env, {
-  email, name, personalNote, idempotencyKey,
+  email, name, personalNote, actionUrl, idempotencyKey,
 }) {
-  const mail = clubInvitationEmail({ name, personalNote });
+  const mail = clubInvitationEmail({ name, personalNote, actionUrl });
   return post(env, {
     to: email,
     from: club(env),
@@ -200,24 +200,33 @@ export async function sendClubInvitation(env, {
   });
 }
 
-export function clubInvitationEmail({ name, personalNote } = {}) {
-  const url = 'https://beingsclub.com/members/';
+export function clubInvitationEmail({ name, personalNote, actionUrl } = {}) {
+  const url = actionUrl || 'https://beingsclub.com/members/';
   const subject = 'You’re invited to Beings Club';
   const greeting = name ? `Hello, ${name}.` : 'Hello,';
   const note = String(personalNote || '').trim();
   const noteText = note ? `\n\nA note from John:\n${note}` : '';
-  const text = `${greeting}\n\nYou’re invited to Beings Club.\n\nMembership is ongoing and freely offered. Enter using this email address and we’ll send you a six-digit code.${noteText}\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const privateLinkNote = actionUrl
+    ? 'This is a private link that logs you into your account, so please don’t share it.'
+    : '';
+  const entrance = actionUrl
+    ? 'The link below is your private entrance. It can be used once and expires in seven days.'
+    : 'Enter using this email address and we’ll send you a six-digit code.';
+  const text = `${greeting}\n\nYou’re invited to Beings Club.\n\nMembership is ongoing and freely offered. ${entrance}${noteText}\n\nEnter Beings Club:\n${url}${privateLinkNote ? `\n\n${privateLinkNote}` : ''}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: 'An invitation to Beings Club.',
     heading: 'You’re invited to <span style="color:#5A4B7C">Beings Club</span>.',
     body: `<p style="margin:0 0 16px">${escapeHtml(greeting)}</p>`
       + '<p style="margin:0 0 16px">Membership is ongoing and freely offered.</p>'
-      + '<p style="margin:0">Enter using this email address and we’ll send you a six-digit code.</p>',
+      + `<p style="margin:0">${escapeHtml(entrance)}</p>`,
     beforeAction: note ? personalInvitationNote(note) : '',
     actionUrl: url,
     actionLabel: 'enter Beings Club',
     settingsUrl: url,
     footerLinkLabel: 'member entrance',
+    afterBody: privateLinkNote
+      ? `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`
+      : '',
   });
   return { subject, text, html };
 }
@@ -268,13 +277,16 @@ export async function sendMemberJoinedNotification(env, {
 }
 
 /** One invitation after John marks somebody as having attended a Salon. */
-export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt }) {
+export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt, actionUrl }) {
   const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
   const subject = 'Share a Field Note';
-  const url = 'https://beingsclub.com/members/#field-notes';
+  const url = actionUrl || 'https://beingsclub.com/members/#field-notes';
   const settingsUrl = 'https://beingsclub.com/members/#settings';
   const invitation = 'You’re invited to share something of what you discovered at the Salon: a thought, question, image, reference or anything else that stayed with you.';
-  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${invitation}\n\nPlease respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share. Nobody can respond to a Field Note.\n\nShare or dismiss the invitation inside Beings Club:\n${url}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
+  const privateLinkNote = actionUrl
+    ? 'This is a private link that logs you into your account, so please don’t share it.'
+    : '';
+  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${invitation}\n\nPlease respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share. Nobody can respond to a Field Note.\n\nShare or dismiss the invitation inside Beings Club:\n${url}${privateLinkNote ? `\n\n${privateLinkNote}` : ''}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: 'Something from the Salon, if you would like to share it.',
     heading: 'What did you <span style="color:#5A4B7C">find</span>?',
@@ -283,6 +295,9 @@ export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt 
     actionUrl: url,
     actionLabel: 'leave a Field Note',
     settingsUrl,
+    afterBody: privateLinkNote
+      ? `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`
+      : '',
   });
   return post(env, { to: email, from: club(env), subject, text, html });
 }

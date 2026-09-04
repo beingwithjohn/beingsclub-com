@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   sendClubInvitation, sendClubSalonEmail, sendClubSalonRsvpEmail, sendClubWelcome,
+  sendFieldNoteInvitation,
   sendMemberJoinedNotification,
 } from '../src/mail/send.js';
 
@@ -24,6 +25,7 @@ test('a member invitation is personal, idempotent and points to the member entra
       email: 'mira@example.test',
       name: 'Mira',
       personalNote: 'I thought you might value the space.\nI hope you’ll join us.',
+      actionUrl: 'https://beingsclub.com/members/#welcome=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       idempotencyKey: 'club-member-7-2000000000',
     });
     assert.equal(sent, true);
@@ -35,12 +37,46 @@ test('a member invitation is personal, idempotent and points to the member entra
     assert.equal(body.subject, 'You’re invited to Beings Club');
     assert.match(body.text, /^Hello, Mira\./);
     assert.match(body.text, /https:\/\/beingsclub\.com\/members\//);
+    assert.match(body.text, /#welcome=AAAA/);
+    assert.match(body.text, /private link that logs you into your account/);
+    assert.doesNotMatch(body.text, /six-digit code/);
     assert.match(body.text, /A note from John:\nI thought you might value the space\./);
     assert.match(body.html, /enter Beings Club/);
     assert.match(body.html, /Hello, Mira\./);
     assert.match(body.html, /a note from John/);
     assert.match(body.html, /background:#F2ECFF/);
+    assert.match(body.html, /private link that logs you into your account/);
     assert.match(body.html, /I thought you might value the space\.<br>I hope you’ll join us\./);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('a Field Note invitation opens through a member-specific private entrance', async () => {
+  const original = globalThis.fetch;
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: 'email_field_note' }), { status: 200 });
+  };
+  try {
+    const sent = await sendFieldNoteInvitation({
+      RESEND_API_KEY: 'test-key',
+      MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
+      MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    }, {
+      email: 'mira@example.test',
+      name: 'Mira',
+      salonStartsAt: Date.parse('2026-09-30T18:00:00Z') / 1000,
+      actionUrl: 'https://beingsclub.com/members/#welcome=BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    });
+    assert.equal(sent, true);
+    const body = JSON.parse(request.options.body);
+    assert.match(body.text, /#welcome=BBBB/);
+    assert.match(body.text, /private link that logs you into your account/);
+    assert.match(body.html, />leave a Field Note</);
+    assert.match(body.html, /#welcome=BBBB/);
+    assert.match(body.html, /please don’t share it/);
   } finally {
     globalThis.fetch = original;
   }

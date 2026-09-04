@@ -152,6 +152,9 @@ test('the confirmed Notion transition sends each ready invitation once and marks
   };
   const runs = [];
   const members = {
+    async batch(statements) {
+      return Promise.all(statements.map((statement) => statement.run()));
+    },
     prepare(sql) {
       let args = [];
       return {
@@ -218,6 +221,9 @@ test('one Notion member can receive an individually reviewed personal invitation
   };
   const runs = [];
   const members = {
+    async batch(statements) {
+      return Promise.all(statements.map((statement) => statement.run()));
+    },
     prepare(sql) {
       let args = [];
       return {

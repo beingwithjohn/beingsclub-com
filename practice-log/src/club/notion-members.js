@@ -1,5 +1,6 @@
 import { json, bad } from '../api.js';
 import { sendClubInvitation } from '../mail/send.js';
+import { issueMemberWelcomeLink } from './member-links.js';
 import { normalizeEmail } from './security.js';
 
 const NOTION_API = 'https://api.notion.com/v1';
@@ -232,10 +233,12 @@ async function deliverNotionInvitation(env, person, existingMember, timestamp, p
        pending_at = excluded.pending_at, last_attempt_at = excluded.last_attempt_at,
        synced_at = excluded.synced_at, last_error = NULL`,
   ).bind(member.id, person.pageId, timestamp).run();
+  const actionUrl = await issueMemberWelcomeLink(env, member.id, timestamp);
   const sent = await sendClubInvitation(env, {
     email: member.email,
     name: person.name,
     personalNote,
+    actionUrl,
     idempotencyKey: `club-reboot-${member.id}-2026`,
   });
   await env.MEMBERS.prepare(

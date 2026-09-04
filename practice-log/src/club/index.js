@@ -40,6 +40,7 @@ import {
 import {
   getNotionInvitePreview, inviteNotionMember, inviteNotionMembers, queueMemberNotionSync,
 } from './notion-members.js';
+import { issueMemberWelcomeLink } from './member-links.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -349,7 +350,8 @@ async function verifyCode(env, body) {
   const row = await env.MEMBERS.prepare(
     `SELECT c.*, m.email, m.display_name, m.website, m.profile_line,
             m.profile_image, m.is_host, m.disabled_at, m.left_at,
-            m.agreement_version, m.agreement_accepted_at
+            m.agreement_version, m.agreement_accepted_at,
+            m.onboarding_completed_at
        FROM auth_challenge c
        LEFT JOIN member m ON m.id = c.member_id
       WHERE c.id = ?1`,
@@ -513,10 +515,12 @@ async function deliverMemberInvitation(
   env, id, email, invitationVersion, hostId = null, name = null, personalNote = null,
 ) {
   const timestamp = now();
+  const actionUrl = await issueMemberWelcomeLink(env, id, timestamp);
   const delivered = await sendClubInvitation(env, {
     email,
     name,
     personalNote,
+    actionUrl,
     idempotencyKey: `club-member-${id}-${invitationVersion}`,
   });
   await env.MEMBERS.prepare(
@@ -538,7 +542,11 @@ function previewMemberInvitation(body) {
   if (name === undefined) return bad(400, 'name');
   const personalNote = cleanInvitationNote(body?.invitationNote);
   if (personalNote === undefined) return bad(400, 'invitation note');
-  return json(clubInvitationEmail({ name, personalNote }));
+  return json(clubInvitationEmail({
+    name,
+    personalNote,
+    actionUrl: 'https://beingsclub.com/members/#welcome=private-preview',
+  }));
 }
 
 function cleanInvitationName(value) {

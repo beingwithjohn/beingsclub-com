@@ -323,7 +323,7 @@ ok("host can name an invitee and preview the exact invitation without sending",
    'id="invite-preview"' in host_html and
    'id="invitation-preview"' in host_html and
    "/api/club/host/members/invitation-preview" in members_after.get("members/host.js", "") and
-   "clubInvitationEmail({ name, personalNote })" in open(
+   "clubInvitationEmail({\n    name,\n    personalNote,\n    actionUrl:" in open(
        os.path.join(ROOT, "practice-log/src/club/index.js"), encoding="utf-8"
    ).read())
 ok("first-conversation cards show the collected name above the email",
@@ -604,9 +604,21 @@ ok("native calendar availability and booking stay behind the prospective-member 
    "authorization: `Bearer ${env.CAL_API_KEY}`" in prospects_api)
 ok("member invitation delivery is recorded and retryable server-side",
    "sendClubInvitation" in club_router and
+   "issueMemberWelcomeLink" in club_router and
+   "private link that logs you into your account" in mail_api and
    "/members\\/(\\d+)\\/invite" in club_router and
    "invitation_sent_at" in club_router and
    "idempotencyKey: `club-member-${id}-${invitationVersion}`" in club_router)
+ok("member-facing email buttons use private one-use entrances",
+   "issueMemberAccessLink" in open(
+       os.path.join(ROOT, "practice-log/src/club/field-notes.js"), encoding="utf-8"
+   ).read() and
+   "actionUrl" in open(
+       os.path.join(ROOT, "practice-log/src/club/field-notes.js"), encoding="utf-8"
+   ).read() and
+   "issueMemberAccessLink" in open(
+       os.path.join(ROOT, "practice-log/src/club/mailer.js"), encoding="utf-8"
+   ).read())
 ok("granting a prospective member sends one retry-safe welcome",
    "sendClubWelcome" in prospects_api and
    "idempotencyKey: `club-prospect-${id}-${timestamp}`" in prospects_api and
