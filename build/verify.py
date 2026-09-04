@@ -532,6 +532,9 @@ ok("Salon presence stays intriguing without exposing attendees",
    "Who’s joining? The only way to know is to be there." in login_html and
    'aria-describedby="rsvp-presence-hint"' in login_html and
    "dots.hidden = count === 0" in members_after.get("members/app.js", ""))
+ok("the feedback prompt uses only the real text caret",
+   "feedback-caret" not in members_after.get("members/app.css", "") and
+   ".member-feedback-input-wrap::after" not in members_after.get("members/app.css", ""))
 ok("sharing a Field Note ends with a quiet route into giving",
    'id="field-note-thanks"' in login_html and
    'Help keep the door open.' in login_html and

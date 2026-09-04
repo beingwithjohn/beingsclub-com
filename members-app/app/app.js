@@ -1487,7 +1487,6 @@
     const input = document.createElement('input');
     input.type = 'text'; input.name = 'feedback'; input.maxLength = 1000;
     input.placeholder = 'share feedback'; input.autocomplete = 'off'; input.required = true;
-    input.addEventListener('input', () => label.classList.toggle('has-value', !!input.value));
     label.append(labelText, input);
     const button = makeText('button', '', 'send directly to John');
     button.type = 'submit';
@@ -1507,7 +1506,7 @@
         await call('/api/club/feedback', {
           method: 'POST', body: JSON.stringify({ page, message }),
         });
-        form.reset(); label.classList.remove('has-value');
+        form.reset();
         status.textContent = 'Sent directly to John.';
       } catch (error) {
         status.textContent = error.message || 'That could not be sent. Try again.';
