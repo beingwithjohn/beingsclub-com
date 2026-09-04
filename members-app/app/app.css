@@ -408,9 +408,11 @@ button{cursor:pointer}
 .rsvp-quiet:hover,.rsvp-clear:hover,.calendar-link:hover{color:var(--ink)}
 .rsvp-confirmed,.join-room{color:#FFF;background:var(--violet)}
 .rsvp-not-going>span{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#75726A}
-.rsvp-presence{display:flex;align-items:center;gap:10px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft)}
-.rsvp-dots{display:flex;padding-left:8px}
+.rsvp-presence{position:relative;display:flex;align-items:center;gap:10px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft)}
+.rsvp-dots{display:flex;padding:0 0 0 8px;border:0;background:transparent;cursor:help}
 .rsvp-dots span{width:26px;height:26px;border-radius:50%;background:#EDEAF5;border:2px solid #FFF;margin-left:-8px;display:grid;place-items:center;font:600 11px/1 'Host Grotesk',system-ui,sans-serif;color:var(--violet)}
+.rsvp-presence-hint{position:absolute;left:0;top:calc(100% + 10px);z-index:2;width:max-content;max-width:min(310px,calc(100vw - 44px));padding:9px 11px;background:var(--ink);color:var(--paper);font:400 10px/1.55 ui-monospace,'SF Mono',Menlo,monospace;opacity:0;visibility:hidden;transform:translateY(-3px);transition:opacity .16s ease,transform .16s ease,visibility .16s;pointer-events:none}
+.rsvp-dots:hover~.rsvp-presence-hint,.rsvp-dots:focus-visible~.rsvp-presence-hint{opacity:1;visibility:visible;transform:none}
 .salon-door{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:22px;font-size:12px;line-height:1.6;color:#75726A}
 .join-room{background:var(--ink)}
 .join-room:hover{background:var(--violet)}

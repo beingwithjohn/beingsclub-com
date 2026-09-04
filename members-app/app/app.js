@@ -647,6 +647,7 @@
     for (let index = 0; index < Math.min(count, 3); index += 1) {
       const dot = document.createElement('span'); dot.textContent = '?'; dots.append(dot);
     }
+    dots.hidden = count === 0;
     document.getElementById('rsvp-count').textContent = count === 0
       ? 'no responses yet'
       : count === 1 ? 'one being is in' : `${count} beings are in`;

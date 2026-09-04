@@ -528,6 +528,10 @@ ok("test-mode monthly gifts cannot masquerade as live subscriptions",
    'created in Stripe test mode' in members_after.get("members/app.js", ""))
 ok("the next Salon uses a direct RSVP action",
    'class="rsvp-button" data-rsvp="in" type="button">RSVP</button>' in login_html)
+ok("Salon presence stays intriguing without exposing attendees",
+   "Who’s joining? The only way to know is to be there." in login_html and
+   'aria-describedby="rsvp-presence-hint"' in login_html and
+   "dots.hidden = count === 0" in members_after.get("members/app.js", ""))
 ok("sharing a Field Note ends with a quiet route into giving",
    'id="field-note-thanks"' in login_html and
    'Help keep the door open.' in login_html and
