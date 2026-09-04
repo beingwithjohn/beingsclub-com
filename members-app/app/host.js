@@ -20,7 +20,8 @@
   let inPersonHostState = [];
   let currentInPersonEvent = null;
   let inPersonImageData = null;
-  let fieldNoteHostState = { salon: null, candidates: [], groups: [] };
+  let fieldNoteHostState = { salon: null, salons: [], candidates: [], hostPosts: [], groups: [] };
+  let hostPostImageData = null;
   let prospectHostState = [];
   const imageObjectUrls = new Set();
   const NOTION_NOTE_PREFIX = 'bc_notion_invitation_note_';
@@ -314,6 +315,76 @@
     return label;
   }
 
+  function previousSalonNotes(salon) {
+    const target = Date.parse(salon.startsAt || '');
+    if (!Number.isFinite(target)) return { salonStartsAt: null, notes: [] };
+    const groups = (fieldNoteHostState.groups || [])
+      .filter((group) => Date.parse(group.salonStartsAt || '') < target)
+      .sort((left, right) => Date.parse(right.salonStartsAt) - Date.parse(left.salonStartsAt));
+    const group = groups[0];
+    if (!group) return { salonStartsAt: null, notes: [] };
+    const memberNotes = (group.notes || []).map((note) => ({
+      ...note, source: 'member', authorLabel: note.isAnonymous ? 'shared anonymously' : (note.author || 'A being'),
+    }));
+    const hostNotes = (fieldNoteHostState.hostPosts || [])
+      .filter((post) => post.kind === 'field_note' && Number(post.salonId) === Number(group.salonId))
+      .map((note) => ({ ...note, source: 'host', authorLabel: note.author || 'John' }));
+    return { salonStartsAt: group.salonStartsAt, notes: [...hostNotes, ...memberNotes] };
+  }
+
+  function roundupExcerpt(note) {
+    const words = String(note.body || note.title || note.imageAlt || (note.hasImage
+      ? 'An image was shared.' : 'A reference was shared.')).replace(/\s+/g, ' ').trim();
+    return words.length > 150 ? `${words.slice(0, 147).trimEnd()}…` : words;
+  }
+
+  function selectedRoundupItems(formNode) {
+    return [...formNode.querySelectorAll('input[name="roundupItem"]:checked')].map((input) => ({
+      source: input.dataset.source, id: Number(input.value),
+    }));
+  }
+
+  function sameRoundup(left = [], right = []) {
+    return JSON.stringify(left) === JSON.stringify(right);
+  }
+
+  function roundupChooser(salon) {
+    const section = document.createElement('section'); section.className = 'salon-roundup';
+    const head = document.createElement('div'); head.className = 'salon-roundup-head';
+    head.append(text('strong', '', 'Field Notes in the announcement'));
+    const previous = previousSalonNotes(salon);
+    const locked = !!salon.announcementSentAt;
+    const chosen = new Set((salon.roundupItems || []).map((item) => `${item.source}:${item.id}`));
+    head.append(text('span', '', locked
+      ? 'Sent · this selection is now fixed'
+      : 'Choose up to three from the previous Salon'));
+    section.append(head);
+    if (!previous.notes.length) {
+      section.append(text('p', 'salon-roundup-empty', 'No earlier Field Notes are available yet.'));
+      return section;
+    }
+    section.append(text('p', 'salon-roundup-intro', `${monthLabel(previous.salonStartsAt)} Salon · Selected notes appear in the announcement, followed by a private “read the rest” button.`));
+    const listNode = document.createElement('div'); listNode.className = 'salon-roundup-list';
+    previous.notes.forEach((note) => {
+      const label = document.createElement('label'); label.className = 'salon-roundup-note';
+      const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.name = 'roundupItem';
+      checkbox.value = String(note.id); checkbox.dataset.source = note.source;
+      checkbox.checked = chosen.has(`${note.source}:${note.id}`); checkbox.disabled = locked;
+      checkbox.addEventListener('change', () => {
+        const selected = listNode.querySelectorAll('input:checked');
+        if (selected.length > 3) {
+          checkbox.checked = false;
+          salonStatus.textContent = 'Choose no more than three Field Notes for the announcement.';
+        } else salonStatus.textContent = '';
+      });
+      const copy = document.createElement('span');
+      copy.append(text('strong', '', note.authorLabel), text('small', '', roundupExcerpt(note)));
+      label.append(checkbox, copy); listNode.append(label);
+    });
+    section.append(listNode);
+    return section;
+  }
+
   function renderSalonEditor(salon) {
     const key = String(salon.id ?? salon.clientId);
     const article = document.createElement('article'); article.className = 'salon-plan'; article.dataset.salonKey = key;
@@ -346,7 +417,12 @@
     const zoomHelp = autoZoom
       ? 'Leave this blank for a fresh Zoom meeting. Paste a secure Zoom link only when you need the fallback.'
       : 'Automatic creation is not connected yet, so add a secure Zoom link before publishing.';
-    formNode.append(grid, field('your note · appears above RSVP', note), field(autoZoom ? 'Zoom join link · optional fallback' : 'Zoom join link', zoom, zoomHelp));
+    formNode.append(
+      grid,
+      field('your note · appears above RSVP', note),
+      field(autoZoom ? 'Zoom join link · optional fallback' : 'Zoom join link', zoom, zoomHelp),
+      roundupChooser(salon),
+    );
     formNode.querySelectorAll('input,textarea').forEach((input) => { input.disabled = !!salon.hasEnded; });
 
     const actions = document.createElement('div'); actions.className = 'salon-form-actions';
@@ -391,7 +467,7 @@
         ? count ? `email new members · ${count}` : 'email new members'
         : 'email announcement');
       email.type = 'button'; email.disabled = !!salon.hasEnded || salon.status !== 'published' || count === 0;
-      email.addEventListener('click', () => announceSalonEditor(salon, email));
+      email.addEventListener('click', () => announceSalonEditor(salon, email, formNode));
       const copy = salon.hasEnded
         ? 'This Salon has ended. Its gathering remains here and in Field Notes.'
         : salon.announcementSentAt
@@ -540,10 +616,65 @@
     } catch (_) { image.remove(); }
   }
 
+  async function loadHostPostAdminImage(post, image) {
+    if (previewMode) {
+      if (post.previewImage) image.src = post.previewImage;
+      else image.remove();
+      return;
+    }
+    try {
+      const blob = await callBlob(`/api/club/host-field-posts/${post.id}/image`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url); image.src = url;
+    } catch (_) { image.remove(); }
+  }
+
+  function renderHostPostAdmin(posts) {
+    const listNode = document.getElementById('host-post-list'); listNode.replaceChildren();
+    if (!posts.length) {
+      listNode.append(text('p', 'host-post-admin-empty', 'No Field Reports or host Field Notes have been published.'));
+      return;
+    }
+    posts.forEach((post) => {
+      const card = document.createElement('article');
+      card.className = `host-post-admin-card is-${post.kind.replace('_', '-')}`;
+      const head = document.createElement('div'); head.className = 'host-post-admin-head';
+      const kindLabel = post.kind === 'announcement' ? 'field report'
+        : `field note · ${post.salonStartsAt ? `${monthLabel(post.salonStartsAt)} Salon` : 'Salon'}`;
+      head.append(text('span', 'host-post-admin-kind', kindLabel));
+      const remove = text('button', 'text-button', 'remove'); remove.type = 'button';
+      remove.addEventListener('click', () => removeHostPost(post.id)); head.append(remove); card.append(head);
+      if (post.title) card.append(text('h3', '', post.title));
+      if (post.hasImage) {
+        const image = document.createElement('img'); image.alt = post.imageAlt || '';
+        card.append(image); loadHostPostAdminImage(post, image);
+      }
+      if (post.body) card.append(text('p', '', post.body));
+      if (post.linkUrl) {
+        const link = text('a', '', 'open reference ↗'); link.href = post.linkUrl;
+        link.target = '_blank'; link.rel = 'noopener noreferrer'; card.append(link);
+      }
+      listNode.append(card);
+    });
+  }
+
   function renderFieldNoteHost(data) {
     fieldNoteHostState = data;
     for (const url of imageObjectUrls) URL.revokeObjectURL(url);
     imageObjectUrls.clear();
+    const salonSelect = document.getElementById('host-post-salon');
+    const selectedSalon = salonSelect.value;
+    salonSelect.replaceChildren();
+    const chooseSalon = document.createElement('option'); chooseSalon.value = '';
+    chooseSalon.textContent = 'Choose a completed Salon'; salonSelect.append(chooseSalon);
+    (data.salons || []).forEach((salon) => {
+      const option = document.createElement('option'); option.value = String(salon.id);
+      option.textContent = `${monthLabel(salon.startsAt)} Salon`; salonSelect.append(option);
+    });
+    if ([...salonSelect.options].some((option) => option.value === selectedSalon)) {
+      salonSelect.value = selectedSalon;
+    }
+    updateHostPostSalonVisibility();
+    renderHostPostAdmin(data.hostPosts || []);
     const attendance = document.getElementById('attendance-list'); attendance.replaceChildren();
     const submit = document.getElementById('open-field-note-invitations');
     const intro = document.getElementById('field-note-host-intro');
@@ -592,6 +723,7 @@
       });
       archive.append(section);
     });
+    if (salonHostState.length) renderSalons({ salons: salonHostState, capabilities: { autoZoom } });
   }
 
   async function loadFieldNoteHost() {
@@ -753,18 +885,59 @@
     } catch (_) { statusNode.textContent = 'That Field Note could not be removed.'; }
   }
 
+  async function removeHostPost(id) {
+    if (!window.confirm('Remove this host post? This cannot be undone.')) return;
+    const statusNode = document.getElementById('host-post-status'); statusNode.textContent = '';
+    try {
+      if (previewMode) {
+        fieldNoteHostState = {
+          ...fieldNoteHostState,
+          hostPosts: (fieldNoteHostState.hostPosts || []).filter((post) => post.id !== id),
+        };
+        renderFieldNoteHost(fieldNoteHostState);
+      } else {
+        await call(`/api/club/host/field-posts/${id}`, { method: 'DELETE' });
+        await loadFieldNoteHost();
+      }
+      statusNode.textContent = 'Removed from Field Notes.';
+    } catch (_) { statusNode.textContent = 'That host post could not be removed.'; }
+  }
+
+  function resetHostPostForm() {
+    hostPostImageData = null;
+    document.getElementById('host-post-form').reset();
+    document.querySelector('input[name="host-post-kind"][value="announcement"]').checked = true;
+    const preview = document.getElementById('host-post-image-preview');
+    preview.hidden = true; preview.removeAttribute('src');
+    document.getElementById('host-post-alt-wrap').hidden = true;
+    document.getElementById('host-post-image-help').textContent = 'JPEG, PNG, GIF or WebP · up to 5MB.';
+    updateHostPostSalonVisibility();
+  }
+
+  function updateHostPostSalonVisibility() {
+    const fieldNote = document.querySelector('input[name="host-post-kind"]:checked')?.value === 'field_note';
+    const wrap = document.getElementById('host-post-salon-wrap');
+    const select = document.getElementById('host-post-salon');
+    wrap.hidden = !fieldNote; select.required = fieldNote;
+    if (fieldNote && !select.value && select.options.length > 1) select.selectedIndex = 1;
+    document.getElementById('publish-host-post').textContent = fieldNote
+      ? 'publish field note' : 'publish field report';
+  }
+
   function salonPayload(formNode, salon) {
     const startsAt = londonInstant(
       formNode.elements.date.value,
       formNode.elements.time.value,
     );
-    return {
+    const payload = {
       id: salon.id || null,
       note: formNode.elements.note.value,
       startsAt,
       durationMinutes: 90,
       zoomUrl: formNode.elements.zoomUrl.value,
     };
+    if (!salon.announcementSentAt) payload.roundupItems = selectedRoundupItems(formNode);
+    return payload;
   }
 
   async function saveSalon(formNode, salon) {
@@ -786,7 +959,8 @@
         const payload = salonPayload(formNode, salon);
         const saved = {
           ...salon, id: savedId, clientId: undefined, note: payload.note, startsAt: payload.startsAt,
-          zoomUrl: payload.zoomUrl || null, status: salon.status || 'draft', rsvps: salon.rsvps || [],
+          zoomUrl: payload.zoomUrl || null, roundupItems: payload.roundupItems || salon.roundupItems || [],
+          status: salon.status || 'draft', rsvps: salon.rsvps || [],
         };
         salonHostState = salonHostState.filter((item) => item !== salon).concat(saved)
           .sort((a, b) => String(a.startsAt || '9999').localeCompare(String(b.startsAt || '9999')));
@@ -808,7 +982,8 @@
         const payload = salonPayload(formNode, salon);
         const saved = {
           ...salon, id: savedId, clientId: undefined, note: payload.note, startsAt: payload.startsAt,
-          zoomUrl: payload.zoomUrl || null, status: 'published', zoomManaged: !payload.zoomUrl,
+          zoomUrl: payload.zoomUrl || null, roundupItems: payload.roundupItems || salon.roundupItems || [],
+          status: 'published', zoomManaged: !payload.zoomUrl,
           rsvps: salon.rsvps || [],
         };
         salonHostState = salonHostState.filter((item) => item !== salon).concat(saved)
@@ -872,8 +1047,12 @@
     }
   }
 
-  async function announceSalonEditor(salon, button) {
+  async function announceSalonEditor(salon, button, formNode) {
     if (salon.status !== 'published' || salon.hasEnded) return;
+    if (!salon.announcementSentAt && !sameRoundup(selectedRoundupItems(formNode), salon.roundupItems || [])) {
+      salonStatus.textContent = 'Save the Salon before emailing this Field Note selection.';
+      return;
+    }
     const count = Number(salon.announcementRecipientCount || 0);
     if (!count) return;
     const question = salon.announcementSentAt
@@ -964,6 +1143,87 @@
   });
 
   document.getElementById('notion-invite-check').addEventListener('click', checkNotionInvites);
+
+  document.querySelectorAll('input[name="host-post-kind"]').forEach((input) => {
+    input.addEventListener('change', updateHostPostSalonVisibility);
+  });
+
+  document.getElementById('host-post-image').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    const help = document.getElementById('host-post-image-help');
+    const preview = document.getElementById('host-post-image-preview');
+    const altWrap = document.getElementById('host-post-alt-wrap');
+    if (!file) {
+      hostPostImageData = null; preview.hidden = true; preview.removeAttribute('src'); altWrap.hidden = true;
+      return;
+    }
+    if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
+        || file.size > 5 * 1024 * 1024) {
+      event.target.value = ''; hostPostImageData = null; preview.hidden = true; altWrap.hidden = true;
+      help.textContent = 'Choose a JPEG, PNG, GIF or WebP no larger than 5MB.'; return;
+    }
+    try {
+      hostPostImageData = await new Promise((resolve, reject) => {
+        const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      preview.src = hostPostImageData; preview.hidden = false; altWrap.hidden = false;
+      help.textContent = file.name;
+    } catch (_) {
+      hostPostImageData = null; preview.hidden = true; altWrap.hidden = true;
+      help.textContent = 'That image could not be read.';
+    }
+  });
+
+  document.getElementById('host-post-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formNode = event.currentTarget;
+    const statusNode = document.getElementById('host-post-status'); statusNode.textContent = '';
+    if (!formNode.checkValidity()) { formNode.reportValidity(); return; }
+    const title = document.getElementById('host-post-title').value.trim();
+    const body = document.getElementById('host-post-body').value.trim();
+    const linkUrl = document.getElementById('host-post-link').value.trim();
+    const imageAlt = document.getElementById('host-post-alt').value.trim();
+    if (!title && !body && !linkUrl && !hostPostImageData) {
+      statusNode.textContent = 'Add a title, some words, a link or an image.'; return;
+    }
+    const kind = document.querySelector('input[name="host-post-kind"]:checked').value;
+    const salonId = kind === 'field_note' ? Number(document.getElementById('host-post-salon').value) : null;
+    if (kind === 'field_note' && !salonId) {
+      statusNode.textContent = 'Choose the Salon this Field Note responds to.'; return;
+    }
+    const button = document.getElementById('publish-host-post'); button.disabled = true;
+    try {
+      if (previewMode) {
+        const linkedSalon = (fieldNoteHostState.salons || []).find((salon) => Number(salon.id) === salonId);
+        const post = {
+          id: Date.now(), kind, title: title || null, body: body || null,
+          linkUrl: linkUrl || null, hasImage: !!hostPostImageData,
+          previewImage: hostPostImageData, imageAlt: imageAlt || null,
+          salonId, salonStartsAt: linkedSalon?.startsAt || null,
+          author: 'John', publishedAt: new Date().toISOString(),
+        };
+        fieldNoteHostState = {
+          ...fieldNoteHostState,
+          hostPosts: [post, ...(fieldNoteHostState.hostPosts || [])],
+        };
+        renderFieldNoteHost(fieldNoteHostState);
+      } else {
+        const data = await call('/api/club/host/field-posts', {
+          method: 'POST',
+          body: JSON.stringify({ kind, salonId, title, body, linkUrl, imageData: hostPostImageData, imageAlt }),
+        });
+        renderFieldNoteHost(data);
+      }
+      resetHostPostForm();
+      statusNode.textContent = kind === 'announcement'
+        ? 'Field Report published above Field Notes.' : 'Field Note published in its Salon month.';
+    } catch (error) {
+      statusNode.textContent = error.message === 'link'
+        ? 'Use a complete secure link beginning with https://.'
+        : (error.message || 'That host post could not be published.');
+    } finally { button.disabled = false; }
+  });
 
   document.getElementById('in-person-event-image').addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
@@ -1137,6 +1397,7 @@
       previewMode = true;
       const salonPreview = document.querySelector('.host-section');
       const inPersonEventPreview = document.getElementById('in-person-event-host');
+      const fieldNotePreview = document.getElementById('field-note-host');
       if (previewParams.get('salon') === 'open') {
         const salonToggle = salonPreview.querySelector('.host-section-toggle');
         const salonBody = salonPreview.querySelector('.host-section-body');
@@ -1148,6 +1409,11 @@
         const eventBody = inPersonEventPreview.querySelector('.host-section-body');
         eventToggle.setAttribute('aria-expanded', 'true');
         eventBody.hidden = false;
+      }
+      if (previewParams.get('field-notes') === 'open') {
+        const fieldNoteToggle = fieldNotePreview.querySelector('.host-section-toggle');
+        const fieldNoteBody = fieldNotePreview.querySelector('.host-section-body');
+        fieldNoteToggle.setAttribute('aria-expanded', 'true'); fieldNoteBody.hidden = false;
       }
       updateClock();
       render([
@@ -1163,6 +1429,7 @@
           startsAt: '2026-09-30T18:00:00.000Z', timezone: 'Europe/London',
           durationMinutes: 90, zoomUrl: null, zoomManaged: false,
           status: 'published', announcementSentAt: '2026-09-03T12:00:00.000Z', announcementRecipientCount: 1, rsvpCount: 3,
+          roundupItems: [{ source: 'member', id: 7 }],
           hasEnded: false,
           rsvps: [
             { name: 'Mira', email: 'mira@example.com', status: 'in' },
@@ -1175,6 +1442,7 @@
           startsAt: '2026-10-28T19:00:00.000Z', timezone: 'Europe/London',
           durationMinutes: 90, zoomUrl: null, zoomManaged: false,
           status: 'draft', announcementSentAt: null, announcementRecipientCount: 3, rsvpCount: 0,
+          roundupItems: [],
           hasEnded: false, rsvps: [],
         }],
       });
@@ -1188,6 +1456,25 @@
       if (previewParams.get('in-person') === 'event') editInPersonEvent(inPersonHostState[0]);
       renderFieldNoteHost({
         salon: { id: 9, startsAt: '2026-07-30T18:00:00.000Z' },
+        salons: [
+          { id: 9, startsAt: '2026-07-30T18:00:00.000Z' },
+          { id: 8, startsAt: '2026-06-25T18:00:00.000Z' },
+        ],
+        hostPosts: [
+          {
+            id: 41, kind: 'announcement', title: 'A small change to the room.',
+            body: 'I’ll leave an occasional Field Report here when something about the Club changes or needs your attention.',
+            linkUrl: null, hasImage: false, imageAlt: null, author: 'John',
+            publishedAt: '2026-09-04T09:00:00.000Z',
+          },
+          {
+            id: 40, kind: 'field_note', title: null,
+            body: 'I keep thinking about what becomes possible when nobody has to arrive with an answer.',
+            linkUrl: 'https://beingsclub.com/', hasImage: false, imageAlt: null, author: 'John',
+            salonId: 9, salonStartsAt: '2026-07-30T18:00:00.000Z',
+            publishedAt: '2026-09-03T16:00:00.000Z',
+          },
+        ],
         candidates: [
           { memberId: 1, name: 'John', email: 'john@spacetobe.xyz', rsvp: 'in', prompted: true, emailed: true, shared: true },
           { memberId: 2, name: 'Mira', email: 'mira@example.com', rsvp: 'in', prompted: false, emailed: false, shared: false },

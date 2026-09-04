@@ -2,7 +2,7 @@ import { randomToken, tokenHash } from './security.js';
 
 const MEMBER_LINK_LIFETIME = 7 * 24 * 60 * 60;
 
-export async function issueMemberAccessLink(env, memberId, timestamp) {
+export async function issueMemberAccessLink(env, memberId, timestamp, destination = '') {
   const token = randomToken();
   await env.MEMBERS.prepare(
     `INSERT INTO member_welcome_link
@@ -14,7 +14,8 @@ export async function issueMemberAccessLink(env, memberId, timestamp) {
   await env.MEMBERS.prepare(
     'DELETE FROM member_welcome_link WHERE expires_at < ?1',
   ).bind(timestamp - 86400).run();
-  return `https://beingsclub.com/members/#welcome=${encodeURIComponent(token)}`;
+  const next = destination ? `&next=${encodeURIComponent(destination)}` : '';
+  return `https://beingsclub.com/members/#welcome=${encodeURIComponent(token)}${next}`;
 }
 
 export async function issueMemberWelcomeLink(env, memberId, timestamp) {

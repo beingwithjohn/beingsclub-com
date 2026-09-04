@@ -199,6 +199,45 @@ test('Salon email opens through the member-specific private entrance', async () 
   }
 });
 
+test('the Salon announcement can carry selected Field Notes and a private read-the-rest doorway', async () => {
+  const original = globalThis.fetch;
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: 'email_roundup' }), { status: 200 });
+  };
+  try {
+    const sent = await sendClubSalonEmail({
+      RESEND_API_KEY: 'test-key',
+      MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
+      MAIL_REPLY_TO: 'john@spacetobe.xyz',
+    }, {
+      email: 'mira@example.test', name: 'Mira',
+      salonStartsAt: Date.parse('2026-10-28T19:00:00Z') / 1000,
+      hostNote: 'Bring whatever the month has left you with.', kind: 'announcement',
+      actionUrl: 'https://beingsclub.com/members/#welcome=SALON',
+      fieldNotesUrl: 'https://beingsclub.com/members/#welcome=NOTES&next=field-notes',
+      roundupNotes: [{
+        body: 'Attention is already a form of relationship.', author: 'shared anonymously',
+      }, {
+        body: 'I left with a better question.', author: 'John',
+      }],
+    });
+    assert.equal(sent, true);
+    const body = JSON.parse(request.options.body);
+    assert.match(body.text, /From the last Salon:/);
+    assert.match(body.text, /Attention is already a form of relationship\./);
+    assert.match(body.text, /— shared anonymously/);
+    assert.match(body.text, /Read the rest of the Field Notes:/);
+    assert.match(body.text, /next=field-notes/);
+    assert.match(body.text, /private links that log you into your account/);
+    assert.match(body.html, /from the last Salon/);
+    assert.match(body.html, />read the rest</);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
 test('RSVP confirmation includes a private entrance and a calendar invitation', async () => {
   const original = globalThis.fetch;
   let request;

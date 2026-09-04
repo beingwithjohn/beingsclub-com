@@ -9,9 +9,9 @@ import {
   saveHostSalon, setMemberRsvp,
 } from './salons.js';
 import {
-  createFieldNote, dismissFieldNoteInvitation, getFieldNoteImage,
-  getHostFieldNotes, getMemberFieldNotes, hostRemoveFieldNote,
-  inviteFieldNoteAttendees, removeOwnFieldNote, updateFieldNote,
+  createFieldNote, createHostFieldPost, dismissFieldNoteInvitation, getFieldNoteImage,
+  getHostFieldPostImage, getHostFieldNotes, getMemberFieldNotes, hostRemoveFieldNote,
+  inviteFieldNoteAttendees, removeHostFieldPost, removeOwnFieldNote, updateFieldNote,
 } from './field-notes.js';
 import {
   createTestimonial, getHostTestimonials, getMemberGiving, resolveTestimonial,
@@ -41,6 +41,7 @@ import {
   getNotionInvitePreview, inviteNotionMember, inviteNotionMembers, queueMemberNotionSync,
 } from './notion-members.js';
 import { issueMemberWelcomeLink } from './member-links.js';
+import { sendMemberFeedback } from './feedback.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -127,6 +128,10 @@ export async function clubRoute(request, env, ctx, url) {
   }
   const fieldNoteImage = /^\/api\/club\/field-notes\/(\d+)\/image$/.exec(path);
   if (fieldNoteImage && method === 'GET') return getFieldNoteImage(env, Number(fieldNoteImage[1]));
+  const hostFieldPostImage = /^\/api\/club\/host-field-posts\/(\d+)\/image$/.exec(path);
+  if (hostFieldPostImage && method === 'GET') {
+    return getHostFieldPostImage(env, Number(hostFieldPostImage[1]));
+  }
   const fieldNote = /^\/api\/club\/field-notes\/(\d+)$/.exec(path);
   if (fieldNote && method === 'PATCH') {
     return updateFieldNote(env, who, Number(fieldNote[1]), await readJson(request));
@@ -169,6 +174,9 @@ export async function clubRoute(request, env, ctx, url) {
   if (path === '/api/club/settings/leave' && method === 'POST') {
     return leaveClub(env, who, await readJson(request));
   }
+  if (path === '/api/club/feedback' && method === 'POST') {
+    return sendMemberFeedback(env, who, await readJson(request));
+  }
   const profileImage = /^\/api\/club\/members\/(\d+)\/image$/.exec(path);
   if (profileImage && method === 'GET') return getProfileImage(env, Number(profileImage[1]));
 
@@ -204,6 +212,13 @@ export async function clubRoute(request, env, ctx, url) {
     return deleteHostInPersonEvent(env, Number(deleteInPerson[1]));
   }
   if (path === '/api/club/host/field-notes' && method === 'GET') return getHostFieldNotes(env);
+  if (path === '/api/club/host/field-posts' && method === 'POST') {
+    return createHostFieldPost(env, who, await readJson(request));
+  }
+  const removeHostFieldPostPath = /^\/api\/club\/host\/field-posts\/(\d+)$/.exec(path);
+  if (removeHostFieldPostPath && method === 'DELETE') {
+    return removeHostFieldPost(env, Number(removeHostFieldPostPath[1]));
+  }
   const inviteFieldNotes = /^\/api\/club\/host\/salons\/(\d+)\/field-note-invitations$/.exec(path);
   if (inviteFieldNotes && method === 'POST') {
     return inviteFieldNoteAttendees(

@@ -2,6 +2,7 @@ import { bad, json } from '../api.js';
 import { sendClubSalonEmail, sendClubSalonRsvpEmail } from '../mail/send.js';
 import { retryHostJoinNotices } from './onboarding.js';
 import { issueMemberAccessLink } from './member-links.js';
+import { readRoundupNotes } from './roundups.js';
 
 const HALF_HOUR = 30 * 60;
 const DAY = 24 * 60 * 60;
@@ -52,8 +53,12 @@ export async function announceSalon(env, salonId, ctx, timestamp = now()) {
       WHERE id = ?2 AND announcement_sent_at IS NULL`,
   ).bind(timestamp, salon.id).run();
   if (claimed.length) {
+    const roundupNotes = await readRoundupNotes(env, salon.roundup_items);
     ctx.waitUntil(Promise.all(claimed.map(async (person) => {
-      const actionUrl = await issueMemberAccessLink(env, person.id, timestamp);
+      const [actionUrl, fieldNotesUrl] = await Promise.all([
+        issueMemberAccessLink(env, person.id, timestamp),
+        roundupNotes.length ? issueMemberAccessLink(env, person.id, timestamp, 'field-notes') : null,
+      ]);
       return sendClubSalonEmail(env, {
         email: person.email,
         name: person.display_name,
@@ -61,6 +66,8 @@ export async function announceSalon(env, salonId, ctx, timestamp = now()) {
         hostNote: salon.host_note,
         kind: 'announcement',
         actionUrl,
+        fieldNotesUrl,
+        roundupNotes,
       });
     })));
   }

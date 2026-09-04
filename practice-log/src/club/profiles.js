@@ -1,4 +1,5 @@
 import { bad, json } from '../api.js';
+import { MEMBER_AGREEMENT_VERSION } from './agreement.js';
 import { parseImageData } from './field-notes.js';
 
 const NAME_MAX = 60;
@@ -10,9 +11,11 @@ export async function getDirectory(env, who) {
     `SELECT id, display_name, website, profile_line, profile_image
        FROM member
       WHERE joined_at IS NOT NULL AND disabled_at IS NULL AND left_at IS NULL
+        AND agreement_version = ?1 AND agreement_accepted_at IS NOT NULL
+        AND onboarding_completed_at IS NOT NULL
         AND display_name IS NOT NULL AND TRIM(display_name) <> ''
       ORDER BY display_name COLLATE NOCASE, id`,
-  ).all();
+  ).bind(MEMBER_AGREEMENT_VERSION).all();
   return json({
     profile: shapeProfile(who),
     members: (rows.results || []).map((row) => shapeDirectoryMember(row, memberId(who))),
@@ -54,8 +57,10 @@ export async function getProfileImage(env, memberIdValue) {
   const row = await env.MEMBERS.prepare(
     `SELECT profile_image FROM member
       WHERE id = ?1 AND joined_at IS NOT NULL AND disabled_at IS NULL
-        AND left_at IS NULL AND profile_image IS NOT NULL`,
-  ).bind(memberIdValue).first();
+        AND left_at IS NULL AND agreement_version = ?2
+        AND agreement_accepted_at IS NOT NULL AND onboarding_completed_at IS NOT NULL
+        AND profile_image IS NOT NULL`,
+  ).bind(memberIdValue, MEMBER_AGREEMENT_VERSION).first();
   if (!row || !isProfileKey(row.profile_image)) return bad(404, 'not found');
   const object = await env.MEMBER_MEDIA.get(row.profile_image);
   if (!object) return bad(404, 'not found');

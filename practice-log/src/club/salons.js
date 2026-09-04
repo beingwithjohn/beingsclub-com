@@ -3,6 +3,7 @@ import {
   createZoomMeeting, deleteZoomMeeting, isZoomJoinUrl, zoomConfigured,
 } from './zoom.js';
 import { queueSalonRsvpConfirmation } from './mailer.js';
+import { parseRoundupItems, storedRoundupItems, validateRoundupItems } from './roundups.js';
 
 const NOTE_MAX = 2400;
 const URL_MAX = 2000;
@@ -125,18 +126,23 @@ export async function getHostSalon(env, timestamp = now(), extra = {}) {
 export async function saveHostSalon(env, who, body, timestamp = now()) {
   const draft = parseSalonDraft(body);
   if (!draft.ok) return bad(400, draft.error);
+  if (!await validateRoundupItems(env, draft.roundupItems, draft.startsAt)) {
+    return bad(400, 'roundup notes');
+  }
   const id = Number(body?.id || 0);
+  const roundupJson = draft.roundupItems === undefined ? null : JSON.stringify(draft.roundupItems);
 
   if (id) {
     if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
     const result = await env.MEMBERS.prepare(
       `UPDATE salon SET
          host_note = ?1, starts_at = ?2, timezone = ?3,
-         duration_minutes = ?4, zoom_join_url = ?5, updated_at = ?6
-       WHERE id = ?7 AND status IN ('draft', 'published')`,
+         duration_minutes = ?4, zoom_join_url = ?5,
+         roundup_items = COALESCE(?6, roundup_items), updated_at = ?7
+       WHERE id = ?8 AND status IN ('draft', 'published')`,
     ).bind(
       draft.note, draft.startsAt, DEFAULT_TIMEZONE,
-      draft.duration, draft.zoomUrl, timestamp, id,
+      draft.duration, draft.zoomUrl, roundupJson, timestamp, id,
     ).run();
     if ((result.meta?.changes ?? 0) !== 1) return bad(404, 'not found');
     return getHostSalon(env, timestamp, { savedSalonId: id });
@@ -145,11 +151,11 @@ export async function saveHostSalon(env, who, body, timestamp = now()) {
   const result = await env.MEMBERS.prepare(
     `INSERT INTO salon
       (host_note, starts_at, timezone, duration_minutes, zoom_join_url,
-       status, created_by, created_at, updated_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, 'draft', ?6, ?7, ?7)`,
+       roundup_items, status, created_by, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'draft', ?7, ?8, ?8)`,
   ).bind(
     draft.note, draft.startsAt, DEFAULT_TIMEZONE, draft.duration,
-    draft.zoomUrl, memberId(who), timestamp,
+    draft.zoomUrl, roundupJson, memberId(who), timestamp,
   ).run();
   return getHostSalon(env, timestamp, { savedSalonId: Number(result.meta?.last_row_id) });
 }
@@ -260,7 +266,12 @@ export function parseSalonDraft(body) {
 
   const zoomUrl = cleanZoomUrl(body?.zoomUrl);
   if (body?.zoomUrl && !zoomUrl) return { ok: false, error: 'zoom url' };
-  return { ok: true, note: note || null, startsAt, duration, zoomUrl };
+  const roundup = parseRoundupItems(body?.roundupItems, !Object.hasOwn(body || {}, 'roundupItems'));
+  if (!roundup.ok) return roundup;
+  return {
+    ok: true, note: note || null, startsAt, duration, zoomUrl,
+    ...(roundup.items === undefined ? {} : { roundupItems: roundup.items }),
+  };
 }
 
 export function publicationProblem(salon, timestamp = now(), requireZoom = true) {
@@ -310,6 +321,7 @@ function shapeHostSalon(salon, timestamp) {
     publishedAt: iso(salon.published_at),
     announcementSentAt: iso(salon.announcement_sent_at),
     announcementRecipientCount: Number(salon.announcement_recipient_count || 0),
+    roundupItems: storedRoundupItems(salon.roundup_items),
     rsvpCount: Number(salon.rsvp_count || 0),
     joinAvailableAt: salon.starts_at ? iso(Number(salon.starts_at) - JOIN_EARLY_SECONDS) : null,
     isJoinWindow: salon.starts_at ? joinWindow(salon, timestamp) : false,

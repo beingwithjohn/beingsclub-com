@@ -44,7 +44,7 @@
   let prospectMessageSource = 'calendar';
   let salon = null;
   let inPersonEvents = [];
-  let fieldNotes = { prompt: null, groups: [] };
+  let fieldNotes = { prompt: null, hostPosts: [], groups: [] };
   let givingState = { testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null };
   let directoryState = { profile: null, members: [] };
   let settingsState = {
@@ -93,8 +93,9 @@
     const params = new URLSearchParams(location.hash.replace(/^#/, ''));
     const value = params.get('welcome');
     if (!value) return null;
+    const next = params.get('next');
     history.replaceState(null, '', `${location.pathname}${location.search}`);
-    return value;
+    return { token: value, next: next === 'field-notes' ? next : null };
   }
 
   async function call(path, options = {}) {
@@ -747,6 +748,58 @@
     } catch (_) { image.remove(); }
   }
 
+  async function loadHostFieldPostImage(post, image) {
+    if (previewMode) {
+      if (post.previewImage) image.src = post.previewImage;
+      else image.remove();
+      return;
+    }
+    try {
+      const blob = await callBlob(`/api/club/host-field-posts/${post.id}/image`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url); image.src = url;
+    } catch (_) { image.remove(); }
+  }
+
+  function renderHostFieldPosts() {
+    const wrap = document.getElementById('host-field-posts');
+    const list = document.getElementById('host-field-post-list');
+    const posts = (fieldNotes.hostPosts || []).filter((post) => post.kind === 'announcement');
+    list.replaceChildren(); wrap.hidden = posts.length === 0;
+    posts.forEach((post) => {
+      const article = document.createElement('details');
+      article.className = 'host-field-post-card is-announcement';
+      article.open = true;
+      const summary = document.createElement('summary');
+      const summaryCopy = document.createElement('span');
+      summaryCopy.className = 'host-field-post-summary-copy';
+      summaryCopy.append(makeText('span', 'host-field-post-kind', 'field report'));
+      summary.append(summaryCopy, makeText('span', 'host-field-post-toggle', 'hide'));
+      article.append(summary);
+      const content = document.createElement('div');
+      content.className = 'host-field-post-content';
+      content.append(makeText('h3', '', post.title || 'A note from John'));
+      if (post.hasImage) {
+        const image = document.createElement('img'); image.className = 'host-field-post-image';
+        image.alt = post.imageAlt || ''; content.append(image); loadHostFieldPostImage(post, image);
+      }
+      if (post.body) content.append(makeText('p', 'host-field-post-body', post.body));
+      if (post.linkUrl) {
+        const link = document.createElement('a'); link.className = 'host-field-post-link';
+        link.href = post.linkUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
+        try { link.textContent = `${new URL(post.linkUrl).hostname.replace(/^www\./, '')} ↗`; }
+        catch (_) { link.textContent = 'open reference ↗'; }
+        content.append(link);
+      }
+      content.append(makeText('footer', 'host-field-post-foot', `from ${post.author || 'John'}`));
+      article.append(content);
+      article.addEventListener('toggle', () => {
+        const toggle = article.querySelector('.host-field-post-toggle');
+        if (toggle) toggle.textContent = article.open ? 'hide' : 'show';
+      });
+      list.append(article);
+    });
+  }
+
   function resetComposer() {
     editingNote = null; chosenImageData = null; removeExistingImage = false;
     document.getElementById('field-note-form').reset();
@@ -787,6 +840,7 @@
     for (const url of imageObjectUrls) URL.revokeObjectURL(url);
     imageObjectUrls.clear();
     const archive = document.getElementById('field-note-archive'); archive.replaceChildren();
+    renderHostFieldPosts();
     document.getElementById('field-note-thanks').hidden = !fieldNoteThanks;
     const composer = document.getElementById('field-note-composer');
     if (!editingNote) {
@@ -795,8 +849,19 @@
         document.getElementById('composer-eyebrow').textContent = `${monthLabel(fieldNotes.prompt.salonStartsAt)} Salon`;
       }
     }
-    const groups = fieldNotes.groups || [];
-    document.getElementById('field-notes-empty').hidden = groups.length !== 0;
+    const groups = (fieldNotes.groups || []).map((group) => ({ ...group, notes: [...group.notes] }));
+    (fieldNotes.hostPosts || []).filter((post) => post.kind === 'field_note' && post.salonStartsAt)
+      .forEach((post) => {
+        let group = groups.find((item) => Number(item.salonId) === Number(post.salonId));
+        if (!group) {
+          group = { salonId: post.salonId, salonStartsAt: post.salonStartsAt, notes: [] };
+          groups.push(group);
+        }
+        group.notes.unshift({ ...post, isAnonymous: false, isMine: false, isHostPost: true });
+      });
+    groups.sort((left, right) => new Date(right.salonStartsAt) - new Date(left.salonStartsAt));
+    const announcementCount = (fieldNotes.hostPosts || []).filter((post) => post.kind === 'announcement').length;
+    document.getElementById('field-notes-empty').hidden = groups.length !== 0 || announcementCount !== 0;
     groups.forEach((group) => {
       const section = document.createElement('section'); section.className = 'field-note-group';
       const head = document.createElement('header'); head.className = 'field-note-group-head';
@@ -805,9 +870,19 @@
       group.notes.forEach((note) => {
         note.salonStartsAt = group.salonStartsAt;
         const article = document.createElement('article'); article.className = 'field-note-card';
+        if (member?.isHost) {
+          const hostRemove = makeText('button', 'field-note-host-delete', '×');
+          hostRemove.type = 'button';
+          hostRemove.title = 'Delete Field Note';
+          hostRemove.setAttribute('aria-label', 'Delete this Field Note');
+          hostRemove.addEventListener('click', () => removeNoteAsHost(note, hostRemove));
+          article.append(hostRemove);
+        }
+        if (note.title) article.append(makeText('h3', 'field-note-card-title', note.title));
         if (note.hasImage) {
           const image = document.createElement('img'); image.className = 'field-note-card-image';
-          image.alt = note.imageAlt || ''; article.append(image); loadNoteImage(note, image);
+          image.alt = note.imageAlt || ''; article.append(image);
+          if (note.isHostPost) loadHostFieldPostImage(note, image); else loadNoteImage(note, image);
         }
         if (note.body) article.append(makeText('p', 'field-note-card-body', note.body));
         if (note.linkUrl) {
@@ -823,8 +898,12 @@
         if (note.isMine) {
           const actions = document.createElement('span'); actions.className = 'field-note-own-actions';
           const edit = makeText('button', '', 'edit'); edit.type = 'button'; edit.addEventListener('click', () => beginEdit(note));
-          const remove = makeText('button', '', 'remove'); remove.type = 'button'; remove.addEventListener('click', () => removeNote(note));
-          actions.append(edit, remove); foot.append(actions);
+          actions.append(edit);
+          if (!member?.isHost) {
+            const remove = makeText('button', '', 'remove'); remove.type = 'button'; remove.addEventListener('click', () => removeNote(note));
+            actions.append(remove);
+          }
+          foot.append(actions);
         }
         article.append(foot); grid.append(article);
       });
@@ -1394,6 +1473,64 @@
     else showMemberApp();
   }
 
+  function makeMemberFeedbackFooter(page) {
+    const footer = document.createElement('footer');
+    footer.className = 'member-feedback';
+    const form = document.createElement('form');
+    form.className = 'member-feedback-form';
+    form.dataset.page = page;
+    form.noValidate = true;
+    const label = document.createElement('label');
+    label.className = 'member-feedback-input-wrap';
+    const labelText = makeText('span', 'sr-only', 'Share feedback directly with John');
+    const input = document.createElement('input');
+    input.type = 'text'; input.name = 'feedback'; input.maxLength = 1000;
+    input.placeholder = 'share feedback'; input.autocomplete = 'off'; input.required = true;
+    input.addEventListener('input', () => label.classList.toggle('has-value', !!input.value));
+    label.append(labelText, input);
+    const button = makeText('button', '', 'send directly to John');
+    button.type = 'submit';
+    const status = makeText('span', 'member-feedback-status', '');
+    status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    form.append(label, button, status);
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault(); status.textContent = '';
+      const message = input.value.trim();
+      if (!message) { input.focus(); return; }
+      button.disabled = true;
+      try {
+        if (previewMode) {
+          status.textContent = 'Preview only. In the live member area, this sends directly to John.';
+          return;
+        }
+        await call('/api/club/feedback', {
+          method: 'POST', body: JSON.stringify({ page, message }),
+        });
+        form.reset(); label.classList.remove('has-value');
+        status.textContent = 'Sent directly to John.';
+      } catch (error) {
+        status.textContent = error.message || 'That could not be sent. Try again.';
+      } finally { button.disabled = false; }
+    });
+    footer.append(form, makeText('p', 'member-feedback-signoff', 'for the benefit of all beings'));
+    return footer;
+  }
+
+  function installMemberFeedback() {
+    [
+      ['#salon-view .salon-hero', 'salon'],
+      ['#salon-empty', 'salon'],
+      ['#field-notes-page .field-notes-content', 'field-notes'],
+      ['#in-person-page .in-person-content', 'in-person'],
+      ['#public-events-page .public-events-content', 'public'],
+      ['#giving-page .giving-content', 'giving'],
+      ['#directory-page .directory-content', 'members'],
+    ].forEach(([selector, page]) => {
+      const target = document.querySelector(selector);
+      if (target) target.append(makeMemberFeedbackFooter(page));
+    });
+  }
+
   async function setRsvp(status) {
     if (!salon) return;
     const statusNode = document.getElementById('rsvp-status');
@@ -1533,6 +1670,33 @@
       }
       editingNote = null; renderFieldNotes();
     } catch (_) { statusNode.textContent = 'That Field Note could not be removed. Try again.'; }
+  }
+
+  async function removeNoteAsHost(note, button) {
+    if (!window.confirm('Are you sure you want to delete this Field Note? This cannot be undone.')) return;
+    const statusNode = document.getElementById('field-note-status'); statusNode.textContent = '';
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        if (note.isHostPost) {
+          fieldNotes.hostPosts = (fieldNotes.hostPosts || []).filter((post) => post.id !== note.id);
+        } else {
+          const group = (fieldNotes.groups || []).find((entry) => Number(entry.salonId) === Number(note.salonId));
+          if (group) group.notes = group.notes.filter((entry) => entry.id !== note.id);
+        }
+      } else {
+        const route = note.isHostPost
+          ? `/api/club/host/field-posts/${note.id}`
+          : `/api/club/host/field-notes/${note.id}`;
+        await call(route, { method: 'DELETE' });
+        fieldNotes = await call('/api/club/field-notes');
+      }
+      if (editingNote?.id === note.id) editingNote = null;
+      renderFieldNotes();
+    } catch (_) {
+      button.disabled = false;
+      statusNode.textContent = 'That Field Note could not be deleted. Try again.';
+    }
   }
 
   async function submitFieldNote(event) {
@@ -1884,6 +2048,7 @@
     }
     catch (_) { codeStatus.textContent = 'Something went wrong. Please try again.'; }
   });
+  installMemberFeedback();
   document.querySelectorAll('[data-rsvp]').forEach((button) => button.addEventListener('click', () => setRsvp(button.dataset.rsvp)));
   document.getElementById('rsvp-clear').addEventListener('click', () => setRsvp(null));
   document.getElementById('rsvp-clear-not').addEventListener('click', () => setRsvp(null));
@@ -2234,6 +2399,21 @@
           salonId: 2, salonStartsAt: '2026-08-27T18:00:00.000Z',
           promptedAt: '2026-08-27T20:00:00.000Z',
         },
+        hostPosts: [
+          {
+            id: 41, kind: 'announcement', title: 'A small change to the room.',
+            body: 'I’ll leave an occasional Field Report here when something about the Club changes or needs your attention.',
+            linkUrl: null, hasImage: false, imageAlt: null, author: 'John',
+            publishedAt: '2026-09-04T09:00:00.000Z',
+          },
+          {
+            id: 40, kind: 'field_note', title: null,
+            body: 'I keep thinking about what becomes possible when nobody has to arrive with an answer.',
+            linkUrl: 'https://beingsclub.com/', hasImage: false, imageAlt: null, author: 'John',
+            salonId: 1, salonStartsAt: '2026-07-30T18:00:00.000Z',
+            publishedAt: '2026-09-03T16:00:00.000Z',
+          },
+        ],
         groups: [
           {
             salonId: 1, salonStartsAt: '2026-07-30T18:00:00.000Z', notes: [
@@ -2289,13 +2469,14 @@
       }] : [];
       showMemberApp(); return;
     }
-    const welcomeToken = takeWelcomeToken();
-    if (welcomeToken) {
+    const welcomeLink = takeWelcomeToken();
+    if (welcomeLink) {
       showLogin(waiting);
       try {
         const data = await call('/api/club/auth/welcome', {
-          method: 'POST', body: JSON.stringify({ token: welcomeToken }),
+          method: 'POST', body: JSON.stringify({ token: welcomeLink.token }),
         });
+        if (welcomeLink.next) history.replaceState(null, '', `${location.pathname}${location.search}#${welcomeLink.next}`);
         saveToken(data.token); await enter(data.member); return;
       } catch (_) {
         forgetToken(); showLogin(emailForm);

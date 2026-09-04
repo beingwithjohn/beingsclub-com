@@ -368,7 +368,43 @@ ok("host can plan several Salons ahead while retaining completed gatherings",
 ok("host can open attendee-only Field Note invitations and moderate the archive",
    'id="attendance-list"' in host_html and 'id="open-field-note-invitations"' in host_html and
    'id="host-field-note-archive"' in host_html and
-   'email arrives once where enabled' in host_html)
+   'email arrives once where enabled' in host_html and
+   "member?.isHost" in members_after.get("members/app.js", "") and
+   "field-note-host-delete" in members_after.get("members/app.js", "") and
+   "Are you sure you want to delete this Field Note? This cannot be undone." in members_after.get("members/app.js", "") and
+   "/api/club/host/field-notes/${note.id}" in members_after.get("members/app.js", ""))
+host_post_migration = open(
+    os.path.join(ROOT, "practice-log", "members-migrations", "0018_host_field_posts.sql"),
+    encoding="utf-8",
+).read()
+ok("host can announce above the archive and place signed Field Notes in a Salon month",
+   'CREATE TABLE host_field_post' in host_post_migration and 'salon_id INTEGER' in host_post_migration and
+   'id="host-post-form"' in host_html and 'id="host-post-list"' in host_html and
+   'id="host-post-salon"' in host_html and
+   'Publishing here does not send an email.' in host_html and
+   'id="host-field-posts"' in members_after.get("members/index.html", "") and
+   'host-field-posts-head' not in members_after.get("members/index.html", "") and
+   "'field report'" in members_after.get("members/app.js", "") and
+   "document.createElement('details')" in members_after.get("members/app.js", "") and
+   "renderHostFieldPosts" in members_after.get("members/app.js", "") and
+   "post.kind === 'field_note' && post.salonStartsAt" in members_after.get("members/app.js", "") and
+   "call('/api/club/host/field-posts'" in members_after.get("members/host.js", "") and
+   "/api/club/host-field-posts/${post.id}/image" in members_after.get("members/app.js", ""))
+roundup_migration = open(
+    os.path.join(ROOT, "practice-log", "members-migrations", "0019_salon_roundups.sql"),
+    encoding="utf-8",
+).read()
+ok("the next-Salon announcement can carry a chosen Field Note roundup",
+   "roundup_items" in roundup_migration and
+   "Field Notes in the announcement" in members_after.get("members/host.js", "") and
+   "Choose up to three from the previous Salon" in members_after.get("members/host.js", "") and
+   "Save the Salon before emailing this Field Note selection." in members_after.get("members/host.js", "") and
+   "read the rest" in open(
+       os.path.join(ROOT, "practice-log", "src", "mail", "send.js"), encoding="utf-8"
+   ).read() and
+   "next=field-notes" in open(
+       os.path.join(ROOT, "practice-log", "test", "club-member-links.test.js"), encoding="utf-8"
+   ).read())
 ok("host testimonial queue is editorial and never auto-publishes",
    'id="testimonial-queue"' in host_html and 'Copy what you want to use' in host_html and
    'Nothing here generates a notification' in host_html)
@@ -570,9 +606,13 @@ ok("testimonials create no notification or automatic public placement",
    "status = 'pending'" in testimonial_api and 'public-any-channel-light-edit-v1' in testimonial_api)
 profiles_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "profiles.js"),
                        encoding="utf-8").read()
-ok("directory includes only active members with a chosen name",
+ok("directory includes only fully onboarded active members with a chosen name",
    'joined_at IS NOT NULL' in profiles_api and 'disabled_at IS NULL' in profiles_api and
-   'left_at IS NULL' in profiles_api and "TRIM(display_name) <> ''" in profiles_api)
+   'left_at IS NULL' in profiles_api and "TRIM(display_name) <> ''" in profiles_api and
+   'agreement_version = ?1' in profiles_api and
+   'agreement_accepted_at IS NOT NULL' in profiles_api and
+   'onboarding_completed_at IS NOT NULL' in profiles_api and
+   'bind(MEMBER_AGREEMENT_VERSION).all()' in profiles_api)
 directory_shape = profiles_api.split('function shapeDirectoryMember', 1)[1]
 ok("directory never exposes another member email or image storage key",
    'email:' not in directory_shape and 'profile_image:' not in directory_shape and
@@ -593,6 +633,14 @@ mail_api = io.open(os.path.join(ROOT, "practice-log", "src", "mail", "send.js"),
                    encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
                      encoding="utf-8").read()
+ok("member pages end with a private, in-place feedback line to John",
+   "send directly to John" in members_after.get("members/app.js", "") and
+   "for the benefit of all beings" in members_after.get("members/app.js", "") and
+   "installMemberFeedback" in members_after.get("members/app.js", "") and
+   "['#profile-page" not in members_after.get("members/app.js", "") and
+   "['#settings-page" not in members_after.get("members/app.js", "") and
+   "path === '/api/club/feedback'" in club_router and
+   'sendClubMemberFeedback' in mail_api)
 ok("native calendar availability and booking stay behind the prospective-member session",
    "path === '/api/club/prospect/slots'" in club_router and
    "path === '/api/club/prospect/booking'" in club_router and

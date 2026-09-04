@@ -32,7 +32,7 @@ export async function claim(env, personId, kind, scope) {
 }
 
 async function post(env, {
-  to, from, subject, html, text, idempotencyKey, attachments,
+  to, from, subject, html, text, idempotencyKey, attachments, replyTo,
 }) {
   if (!env.RESEND_API_KEY) {
     console.warn('no RESEND_API_KEY — not sending', subject, 'to', to);
@@ -49,7 +49,7 @@ async function post(env, {
     body: JSON.stringify({
       from: from || env.MAIL_FROM,
       to: [to],
-      reply_to: env.MAIL_REPLY_TO,
+      reply_to: replyTo || env.MAIL_REPLY_TO,
       subject,
       html,
       text,
@@ -276,6 +276,29 @@ export async function sendMemberJoinedNotification(env, {
   });
 }
 
+/** A member's short, in-place note to John from the bottom of a member page. */
+export async function sendClubMemberFeedback(env, {
+  email, name, pageLabel, message,
+}) {
+  const to = String(env.HOST_NOTIFY_EMAIL || env.MAIL_REPLY_TO || '').trim();
+  if (!to) return false;
+  const identity = name ? `${name} (${email})` : email;
+  const subject = `Member feedback · ${name || email}`;
+  const text = `${identity} shared feedback from ${pageLabel}:\n\n${message}\n\nReply to this email to reply directly to ${name || email}.\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    title: subject,
+    preheader: `${identity} shared feedback from ${pageLabel}.`,
+    heading: 'Member <span style="color:#5A4B7C">feedback</span>.',
+    body: `<p style="margin:0 0 16px"><strong>${escapeHtml(identity)}</strong> shared this from ${escapeHtml(pageLabel)}:</p>`
+      + `<div style="margin:0;padding:18px 20px;background:#F2ECFF;color:#312E29;font-size:16px;line-height:1.6;white-space:pre-wrap">${escapeHtml(message)}</div>`,
+    settingsUrl: 'https://beingsclub.com/members/',
+    footerLinkLabel: 'member area',
+  });
+  return post(env, {
+    to, from: club(env), subject, text, html, replyTo: email,
+  });
+}
+
 /** One invitation after John marks somebody as having attended a Salon. */
 export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt, actionUrl }) {
   const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
@@ -304,7 +327,7 @@ export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt,
 
 /** The five member-controlled Salon emails: announcement, month, week, day and hour. */
 export async function sendClubSalonEmail(env, {
-  email, name, salonStartsAt, hostNote, kind, actionUrl,
+  email, name, salonStartsAt, hostNote, kind, actionUrl, fieldNotesUrl, roundupNotes = [],
 }) {
   const when = clubSalonTime(salonStartsAt);
   const settingsUrl = 'https://beingsclub.com/members/#settings';
@@ -344,25 +367,57 @@ export async function sendClubSalonEmail(env, {
   };
   const version = versions[kind] || versions.announcement;
   const note = String(hostNote || '').trim();
+  const roundup = kind === 'announcement' ? roundupNotes.slice(0, 3) : [];
+  const roundupText = roundup.length
+    ? `\n\nFrom the last Salon:\n\n${roundup.map((item) => `${roundupPlainText(item)}\n— ${item.author}`).join('\n\n')}`
+    : '';
   const description = 'We begin with a guided curiosity practice, then meet one-to-one and in groups of three. There are no prompts or themes, and nothing to prepare or bring. There is nothing to do except stay curious.';
   const privateLinkNote = actionUrl
-    ? 'This is a private link that logs you into your account, so please don’t share it.'
+    ? fieldNotesUrl
+      ? 'These are private links that log you into your account, so please don’t share them.'
+      : 'This is a private link that logs you into your account, so please don’t share it.'
     : '';
-  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${version.opening}\n\n${note ? `${note}\n\n` : ''}${description}\n\nOpen the Salon to RSVP or add it to your calendar:\n${salonUrl}${privateLinkNote ? `\n\n${privateLinkNote}` : ''}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
+  const readRestText = roundup.length && fieldNotesUrl
+    ? `\n\nRead the rest of the Field Notes:\n${fieldNotesUrl}` : '';
+  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${version.opening}\n\n${note ? `${note}\n\n` : ''}${description}${roundupText}\n\nOpen the Salon to RSVP or add it to your calendar:\n${salonUrl}${readRestText}${privateLinkNote ? `\n\n${privateLinkNote}` : ''}\n\nChoose what we send you:\n${settingsUrl}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({
     preheader: version.preheader,
     heading: version.heading,
     body: `<p style="margin:0 0 16px">${greeting}</p><p style="margin:0 0 16px">${escapeHtml(version.opening)}</p>`
       + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
       + `<p style="margin:0">${escapeHtml(description)}</p>`,
+    beforeAction: roundup.length ? salonRoundupBlock(roundup) : '',
     actionUrl: salonUrl,
     actionLabel: 'Salon page',
+    secondaryActionUrl: roundup.length ? fieldNotesUrl : null,
+    secondaryActionLabel: roundup.length ? 'read the rest' : null,
     afterBody: privateLinkNote
       ? `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`
       : '',
     settingsUrl,
   });
   return post(env, { to: email, from: club(env), subject: version.subject, text, html });
+}
+
+function roundupPlainText(note) {
+  const words = String(note.body || note.title || note.imageAlt || (note.hasImage
+    ? 'An image was shared.' : 'A reference was shared.')).trim();
+  return words.length > 420 ? `${words.slice(0, 417).trimEnd()}…` : words;
+}
+
+function salonRoundupBlock(notes) {
+  const cards = notes.map((note) => {
+    const words = escapeHtml(roundupPlainText(note)).replace(/\r?\n/g, '<br>');
+    return '<tr><td style="padding:16px 0;border-top:1px solid #DED7EA;">'
+      + `<div style="font-family:Georgia,serif;font-size:17px;color:#312E29;mso-line-height-rule:exactly;line-height:27px;">${words}</div>`
+      + `<div style="padding-top:8px;font-family:'Courier New',Courier,monospace;font-size:10px;color:#7B728C;mso-line-height-rule:exactly;line-height:16px;">${escapeHtml(note.author)}</div>`
+      + '</td></tr>';
+  }).join('');
+  return '<tr><td style="padding:28px 48px 0 48px;">'
+    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F7F3FF" style="width:100%;background:#F7F3FF;border:1px solid #DED7EA;">'
+    + '<tr><td style="padding:20px 22px 8px 22px;font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;">from the last Salon</td></tr>'
+    + `<tr><td style="padding:0 22px 8px 22px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${cards}</table></td></tr>`
+    + '</table></td></tr>';
 }
 
 /** One transactional confirmation after a member says they are coming. */

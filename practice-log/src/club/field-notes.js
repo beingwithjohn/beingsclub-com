@@ -3,6 +3,7 @@ import { sendFieldNoteInvitation } from '../mail/send.js';
 import { issueMemberAccessLink } from './member-links.js';
 
 const BODY_MAX = 5000;
+const TITLE_MAX = 120;
 const ALT_MAX = 240;
 const URL_MAX = 2000;
 const IMAGE_MAX = 5 * 1024 * 1024;
@@ -10,7 +11,7 @@ const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp
 
 export async function getMemberFieldNotes(env, who) {
   const id = memberId(who);
-  const [prompt, notes] = await Promise.all([
+  const [prompt, hostPosts, notes] = await Promise.all([
     env.MEMBERS.prepare(
       `SELECT a.salon_id, a.prompted_at, s.starts_at
          FROM salon_attendance a JOIN salon s ON s.id = a.salon_id
@@ -21,6 +22,7 @@ export async function getMemberFieldNotes(env, who) {
           )
         ORDER BY s.starts_at DESC LIMIT 1`,
     ).bind(id).first(),
+    readHostPosts(env),
     readNotes(env, false),
   ]);
   return json({
@@ -29,6 +31,7 @@ export async function getMemberFieldNotes(env, who) {
       salonStartsAt: iso(prompt.starts_at),
       promptedAt: iso(prompt.prompted_at),
     } : null,
+    hostPosts,
     groups: groupNotes(notes, id, false),
   });
 }
@@ -148,13 +151,38 @@ export async function getFieldNoteImage(env, noteId) {
   });
 }
 
+export async function getHostFieldPostImage(env, postId) {
+  if (!env.MEMBER_MEDIA) return bad(503, 'image unavailable');
+  const post = await env.MEMBERS.prepare(
+    'SELECT image_key, image_type FROM host_field_post WHERE id = ?1 AND image_key IS NOT NULL',
+  ).bind(postId).first();
+  if (!post) return bad(404, 'not found');
+  const object = await env.MEMBER_MEDIA.get(post.image_key);
+  if (!object) return bad(404, 'not found');
+  return new Response(object.body, {
+    headers: {
+      'content-type': post.image_type || 'application/octet-stream',
+      'cache-control': 'private, max-age=300',
+      'x-content-type-options': 'nosniff',
+    },
+  });
+}
+
 export async function getHostFieldNotes(env, timestamp = now()) {
-  const salon = await env.MEMBERS.prepare(
-    `SELECT * FROM salon
-      WHERE status IN ('published', 'closed') AND starts_at IS NOT NULL
-        AND starts_at + (duration_minutes * 60) <= ?1
-      ORDER BY starts_at DESC LIMIT 1`,
-  ).bind(timestamp).first();
+  const [salon, completedSalons] = await Promise.all([
+    env.MEMBERS.prepare(
+      `SELECT * FROM salon
+        WHERE status IN ('published', 'closed') AND starts_at IS NOT NULL
+          AND starts_at + (duration_minutes * 60) <= ?1
+        ORDER BY starts_at DESC LIMIT 1`,
+    ).bind(timestamp).first(),
+    env.MEMBERS.prepare(
+      `SELECT id, starts_at FROM salon
+        WHERE status IN ('published', 'closed') AND starts_at IS NOT NULL
+          AND starts_at + (duration_minutes * 60) <= ?1
+        ORDER BY starts_at DESC`,
+    ).bind(timestamp).all(),
+  ]);
   let candidates = [];
   if (salon) {
     const rows = await env.MEMBERS.prepare(
@@ -181,9 +209,53 @@ export async function getHostFieldNotes(env, timestamp = now()) {
   }
   return json({
     salon: salon ? { id: salon.id, startsAt: iso(salon.starts_at) } : null,
+    salons: (completedSalons.results || []).map((item) => ({
+      id: item.id, startsAt: iso(item.starts_at),
+    })),
     candidates,
+    hostPosts: await readHostPosts(env),
     groups: groupNotes(await readNotes(env, true), null, true),
   });
+}
+
+export async function createHostFieldPost(env, who, body, timestamp = now()) {
+  const parsed = parseHostFieldPost(body);
+  if (!parsed.ok) return bad(400, parsed.error);
+  if (parsed.kind === 'field_note') {
+    const salon = await env.MEMBERS.prepare(
+      `SELECT id FROM salon WHERE id = ?1 AND status IN ('published', 'closed')
+        AND starts_at IS NOT NULL AND starts_at + (duration_minutes * 60) <= ?2`,
+    ).bind(parsed.salonId, timestamp).first();
+    if (!salon) return bad(400, 'salon');
+  }
+  const authorId = memberId(who);
+  const image = await storeImage(env, authorId, parsed.image);
+  if (parsed.image && !image) return bad(503, 'image unavailable');
+  try {
+    await env.MEMBERS.prepare(
+      `INSERT INTO host_field_post
+        (author_member_id, salon_id, kind, title, body, link_url, image_key, image_type,
+         image_alt, published_at, created_at, updated_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?10, ?10)`,
+    ).bind(
+      authorId, parsed.salonId, parsed.kind, parsed.title, parsed.body, parsed.linkUrl,
+      image?.key || null, image?.type || null, parsed.imageAlt, timestamp,
+    ).run();
+  } catch (error) {
+    if (image && env.MEMBER_MEDIA) await env.MEMBER_MEDIA.delete(image.key);
+    throw error;
+  }
+  return getHostFieldNotes(env, timestamp);
+}
+
+export async function removeHostFieldPost(env, postId) {
+  const post = await env.MEMBERS.prepare(
+    'SELECT image_key FROM host_field_post WHERE id = ?1',
+  ).bind(postId).first();
+  if (!post) return bad(404, 'not found');
+  await env.MEMBERS.prepare('DELETE FROM host_field_post WHERE id = ?1').bind(postId).run();
+  if (post.image_key && env.MEMBER_MEDIA) await env.MEMBER_MEDIA.delete(post.image_key);
+  return json({ ok: true });
 }
 
 export async function inviteFieldNoteAttendees(env, who, salonId, body, ctx, timestamp = now()) {
@@ -265,6 +337,19 @@ export function parseFieldNote(body, options = {}) {
   };
 }
 
+export function parseHostFieldPost(body) {
+  const kind = body?.kind === 'announcement' ? 'announcement'
+    : body?.kind === 'field_note' ? 'field_note' : null;
+  if (!kind) return { ok: false, error: 'kind' };
+  const title = String(body?.title ?? '').trim();
+  if (title.length > TITLE_MAX) return { ok: false, error: 'title too long' };
+  const parsed = parseFieldNote(body, { hasImage: !!title });
+  if (!parsed.ok) return parsed;
+  const salonId = kind === 'field_note' ? positiveId(body?.salonId) : null;
+  if (kind === 'field_note' && !salonId) return { ok: false, error: 'salon' };
+  return { ...parsed, kind, salonId, title: title || null, isAnonymous: false };
+}
+
 export function parseImageData(value) {
   if (!value) return null;
   const match = /^data:(image\/(?:jpeg|png|gif|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(String(value));
@@ -289,6 +374,29 @@ async function readNotes(env, host) {
       ORDER BY s.starts_at DESC, n.published_at ASC, n.id ASC`,
   ).all();
   return (rows.results || []).map((row) => ({ ...row, host }));
+}
+
+async function readHostPosts(env) {
+  const rows = await env.MEMBERS.prepare(
+    `SELECT p.*, m.display_name, s.starts_at AS salon_starts_at
+       FROM host_field_post p
+       JOIN member m ON m.id = p.author_member_id
+       LEFT JOIN salon s ON s.id = p.salon_id
+      ORDER BY p.published_at DESC, p.id DESC`,
+  ).all();
+  return (rows.results || []).map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    salonId: row.salon_id,
+    salonStartsAt: iso(row.salon_starts_at),
+    title: row.title,
+    body: row.body,
+    linkUrl: row.link_url,
+    hasImage: !!row.image_key,
+    imageAlt: row.image_alt,
+    author: row.display_name || 'John',
+    publishedAt: iso(row.published_at),
+  }));
 }
 
 function groupNotes(notes, viewerId, host) {

@@ -106,8 +106,54 @@
           <div class="in-person-host-list" id="in-person-host-list"></div>
         </section>
 
-        <section class="host-section">
+        <section class="host-section" id="field-note-host">
           <h2>field notes</h2>
+          <div class="host-post-composer">
+            <div>
+              <span class="eyebrow">field reports + field notes</span>
+              <h3>Publish something.</h3>
+              <p>Field Reports appear in a collapsible pink card above the archive. Your Field Notes join the Salon month they respond to. They remain until you remove them. Publishing here does not send an email.</p>
+            </div>
+            <form class="salon-form" id="host-post-form" novalidate>
+              <fieldset class="host-post-kind">
+                <legend>kind</legend>
+                <label><input type="radio" name="host-post-kind" value="announcement" checked> field report</label>
+                <label><input type="radio" name="host-post-kind" value="field_note"> field note</label>
+              </fieldset>
+              <label id="host-post-salon-wrap" hidden>
+                <span>in response to</span>
+                <select id="host-post-salon">
+                  <option value="">Choose a completed Salon</option>
+                </select>
+              </label>
+              <label>
+                <span>title <em>optional</em></span>
+                <input id="host-post-title" type="text" maxlength="120" placeholder="A short heading">
+              </label>
+              <label>
+                <span>words <em>optional</em></span>
+                <textarea id="host-post-body" maxlength="5000" placeholder="What would you like members to find?"></textarea>
+              </label>
+              <label>
+                <span>link <em>optional</em></span>
+                <input id="host-post-link" type="url" inputmode="url" placeholder="https://">
+              </label>
+              <label>
+                <span>image <em>optional</em></span>
+                <input id="host-post-image" type="file" accept="image/jpeg,image/png,image/gif,image/webp">
+                <small id="host-post-image-help">JPEG, PNG, GIF or WebP · up to 5MB.</small>
+              </label>
+              <img class="host-post-image-preview" id="host-post-image-preview" alt="" hidden>
+              <label id="host-post-alt-wrap" hidden>
+                <span>image description</span>
+                <input id="host-post-alt" type="text" maxlength="240" placeholder="Describe the image">
+              </label>
+              <button class="primary" id="publish-host-post" type="submit">publish field report</button>
+              <span class="status" id="host-post-status" role="status" aria-live="polite"></span>
+            </form>
+          </div>
+          <div class="host-post-admin-list" id="host-post-list"></div>
+          <div class="host-field-note-divider"></div>
           <p id="field-note-host-intro">After a Salon, mark the members who were there. Their invitation appears inside the member area immediately; email arrives once where enabled.</p>
           <form class="attendance-form" id="attendance-form">
             <div class="attendance-list" id="attendance-list"></div>
