@@ -173,6 +173,23 @@
         <section class="host-section" id="prospects">
           <h2>first conversations</h2>
           <p>People here have verified their email and stepped towards a conversation. A booking is confirmed by Cal.com. Grant membership only after you have spoken and there is a mutual yes.</p>
+          <div class="admissions-control">
+            <div>
+              <strong id="admissions-state">first conversations are open</strong>
+              <span id="admissions-state-copy">Anyone entering the joining flow can choose an available time.</span>
+            </div>
+            <button class="outline" id="admissions-toggle" type="button">pause new conversations</button>
+          </div>
+          <div class="waitlist-host">
+            <header>
+              <h3>waiting list</h3>
+              <span id="waitlist-count">0 waiting</span>
+            </header>
+            <div class="waitlist-host-list" id="waitlist-host-list"></div>
+            <span class="status" id="waitlist-host-status" role="status" aria-live="polite"></span>
+          </div>
+          <div class="host-field-note-divider"></div>
+          <h3 class="host-subheading">conversation queue</h3>
           <div class="prospect-host-list" id="prospect-host-list"></div>
           <span class="status" id="prospect-host-status" role="status" aria-live="polite"></span>
         </section>

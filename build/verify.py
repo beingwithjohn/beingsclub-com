@@ -636,6 +636,8 @@ club_router = io.open(os.path.join(ROOT, "practice-log", "src", "club", "index.j
                       encoding="utf-8").read()
 prospects_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "prospects.js"),
                         encoding="utf-8").read()
+waitlist_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "waitlist.js"),
+                       encoding="utf-8").read()
 mail_api = io.open(os.path.join(ROOT, "practice-log", "src", "mail", "send.js"),
                    encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
@@ -657,6 +659,39 @@ ok("native calendar availability and booking stay behind the prospective-member 
    "CAL_SLOTS_API_VERSION = '2024-09-04'" in prospects_api and
    "CAL_BOOKINGS_API_VERSION = '2026-02-25'" in prospects_api and
    "authorization: `Bearer ${env.CAL_API_KEY}`" in prospects_api)
+ok("members can share an attributed invitation into the existing joining flow",
+   "path === '/api/club/invitation-link'" in club_router and
+   "getMemberInvitationLink" in club_router and
+   'id="copy-member-invitation"' in login_html and
+   login_html.index('id="salon-view"') < login_html.index('id="member-invitation"') < login_html.index('id="field-notes-page"') and
+   "Copy your private invitation link" in login_html and
+   "invited_by_member_id" in waitlist_api and
+   "COALESCE(excluded.invited_by_member_id, invited_by_member_id)" in prospects_api and
+   "invitedBy: row.inviter_name" in prospects_api and
+   "agreement_accepted_at IS NOT NULL" in waitlist_api and
+   "onboarding_completed_at IS NOT NULL" in waitlist_api)
+ok("paused first conversations use a manually controlled waiting list",
+   "path === '/api/club/prospect/admissions'" in club_router and
+   "path === '/api/club/host/admissions'" in club_router and
+   "/waitlist\\/(\\d+)\\/offer" in club_router and
+   'id="admissions-toggle"' in host_html and
+   'id="waitlist-host-list"' in host_html and
+   "join the waiting list" in members_after.get("members/app.js", "") and
+   "offer a conversation" in members_after.get("members/host.js", ""))
+ok("booked people and members leave the active waitlist without losing history",
+   "p.waitlist_removed_at IS NULL" in waitlist_api and
+   "p.granted_at IS NULL" in waitlist_api and
+   "p.booking_uid IS NULL" in waitlist_api and
+   "waitlist_removed_at = COALESCE(waitlist_removed_at, ?2)" in waitlist_api and
+   "DELETE FROM prospect" not in waitlist_api and
+   "removeFromActiveWaitlist(env, who.id, 'booked'" in prospects_api and
+   "removeFromActiveWaitlist(env, id, 'member'" in prospects_api)
+ok("waiting-list emails use the settled copy and private POST-only booking entrance",
+   "path === '/api/club/prospect/waitlist/enter' && method === 'POST'" in club_router and
+   "#conversation=${token}" in waitlist_api and
+   "You’re on the Beings Club waiting list" in mail_api and
+   "We’ll write when conversations" in mail_api and
+   "For the benefit of all beings" in mail_api)
 ok("member invitation delivery is recorded and retryable server-side",
    "sendClubInvitation" in club_router and
    "issueMemberWelcomeLink" in club_router and

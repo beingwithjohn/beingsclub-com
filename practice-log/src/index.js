@@ -18,6 +18,7 @@ import { clubRoute } from './club/index.js';
 import { runClubMail } from './club/mailer.js';
 import { calWebhook } from './club/prospects.js';
 import { runMemberNotionSync } from './club/notion-members.js';
+import { runWaitlistNotionSync } from './club/waitlist.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -50,6 +51,7 @@ export default {
       runNudges(env, scheduledTime),
       runClubMail(env, scheduledTime),
       runMemberNotionSync(env, scheduledTime),
+      runWaitlistNotionSync(env, scheduledTime),
     ]));
   },
 };
@@ -62,7 +64,7 @@ async function route(request, env, ctx, url) {
 
   // Cal.com calls this directly. The request has no browser session and is
   // accepted only when its raw body matches the configured HMAC signature.
-  if (path === '/api/cal/webhook' && method === 'POST') return calWebhook(env, request);
+  if (path === '/api/cal/webhook' && method === 'POST') return calWebhook(env, request, ctx);
 
   // Membership has its own database and its own short-lived sessions. It
   // shares this Worker only to use the existing private mail configuration.

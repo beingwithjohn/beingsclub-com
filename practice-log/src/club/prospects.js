@@ -9,6 +9,9 @@ import {
 import { agreementAccepted, MEMBER_AGREEMENT_VERSION } from './agreement.js';
 import { issueMemberWelcomeLink } from './member-links.js';
 import { queueMemberNotionSync } from './notion-members.js';
+import {
+  isAdmissionsPaused, joinWaitlist, removeFromActiveWaitlist, resolveReferral,
+} from './waitlist.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -34,12 +37,21 @@ export async function requestProspectCode(request, env, ctx, body) {
     return json({ ok: true, challenge: responseChallenge });
   }
 
+  const invitation = await resolveReferral(env, body?.inviteToken);
+  if (await isAdmissionsPaused(env)) {
+    await env.MEMBERS.prepare(
+      'INSERT INTO prospect_auth_request (email_hash, ip_hash, created_at) VALUES (?1, ?2, ?3)',
+    ).bind(emailHash, ipHash, timestamp).run();
+    return joinWaitlist(env, { email, name, invitation, ctx, timestamp });
+  }
+
   await env.MEMBERS.prepare(
-    `INSERT INTO prospect (email, display_name, created_at, updated_at)
-     VALUES (?1, ?2, ?3, ?3)
+    `INSERT INTO prospect (email, display_name, invited_by_member_id, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?4)
      ON CONFLICT(email) DO UPDATE SET display_name = excluded.display_name,
+       invited_by_member_id = COALESCE(excluded.invited_by_member_id, invited_by_member_id),
        archived_at = NULL, updated_at = excluded.updated_at`,
-  ).bind(email, name, timestamp).run();
+  ).bind(email, name, invitation?.memberId || null, timestamp).run();
   const prospect = await env.MEMBERS.prepare(
     'SELECT id, email, display_name FROM prospect WHERE email = ?1',
   ).bind(email).first();
@@ -159,7 +171,7 @@ export async function getProspectSlots(env, who, url) {
   return json({ slots: result.slots, start, end, timeZone });
 }
 
-export async function createProspectBooking(env, who, body) {
+export async function createProspectBooking(env, who, body, ctx) {
   const startTime = instantText(body?.start);
   const timeZone = cleanTimezone(body?.timeZone);
   const rescheduling = body?.reschedule === true && activeBooking(who);
@@ -220,6 +232,7 @@ export async function createProspectBooking(env, who, body) {
   ).bind(uid, cleanText(booking?.title, 200) || 'A first conversation',
     bookedStart, bookedEnd, timeZone,
     booking?.status === 'accepted' ? 'booked' : 'awaiting_webhook', timestamp, name, who.id).run();
+  await removeFromActiveWaitlist(env, who.id, 'booked', ctx, timestamp);
   return json({ prospect: await getProspectShape(env, who.id) });
 }
 
@@ -345,10 +358,14 @@ export async function listProspects(env) {
             p.booking_start_at, p.booking_end_at, p.booking_timezone,
             p.booking_status, p.alternate_time_note, p.alternate_time_note_at,
             p.granted_at, p.member_id, p.created_at, p.updated_at,
-            m.joined_at AS member_joined_at
-       FROM prospect p LEFT JOIN member m ON m.id = p.member_id
+            m.joined_at AS member_joined_at,
+            inviter.display_name AS inviter_name
+       FROM prospect p
+       LEFT JOIN member m ON m.id = p.member_id
+       LEFT JOIN member inviter ON inviter.id = p.invited_by_member_id
       WHERE p.granted_at IS NULL AND p.archived_at IS NULL
         AND (p.booking_status IS NULL OR p.booking_status != 'cancelled')
+        AND (p.waitlist_status IS NULL OR p.waitlist_removed_at IS NOT NULL)
       ORDER BY p.updated_at DESC`,
   ).all();
   return json({ prospects: (rows.results || []).map(shapeHostProspect) });
@@ -389,6 +406,7 @@ export async function grantProspect(env, host, id, ctx) {
     `UPDATE prospect SET granted_at = ?1, granted_by = ?2, member_id = ?3,
        updated_at = ?1 WHERE id = ?4 AND granted_at IS NULL`,
   ).bind(timestamp, host.id, member.id, id).run();
+  await removeFromActiveWaitlist(env, id, 'member', ctx, timestamp);
   await queueMemberNotionSync(env, member.id, ctx, timestamp);
   const actionUrl = await issueMemberWelcomeLink(env, member.id, timestamp);
   const sent = await sendClubWelcome(env, {
@@ -435,7 +453,7 @@ export async function resendProspectWelcome(env, id) {
   return json({ ok: true, invitationSent: true });
 }
 
-export async function calWebhook(env, request) {
+export async function calWebhook(env, request, ctx) {
   if (!env.CAL_WEBHOOK_SECRET) return bad(503, 'cal webhook unavailable');
   const raw = await request.text();
   const signature = request.headers.get('x-cal-signature-256') || '';
@@ -470,6 +488,7 @@ export async function calWebhook(env, request) {
     cleanText(payload.title, 200) || 'A first conversation', instant(payload.startTime),
     instant(payload.endTime), cleanTimezone(attendee.timeZone),
     cancelled ? 'cancelled' : 'booked', joinUrl, timestamp, prospect.id).run();
+  if (!cancelled) await removeFromActiveWaitlist(env, prospect.id, 'booked', ctx, timestamp);
   return json({ ok: true });
 }
 
@@ -510,6 +529,7 @@ function shapeHostProspect(row) {
   return {
     ...shaped, createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
     grantedAt: iso(row.granted_at), memberId: row.member_id || null,
+    invitedBy: row.inviter_name || null,
     canResendWelcome: !!row.granted_at && !row.member_joined_at,
   };
 }

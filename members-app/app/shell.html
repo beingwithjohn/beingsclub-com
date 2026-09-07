@@ -32,8 +32,9 @@
 
     <form class="login-card prospect-login-card" id="prospect-email-form" hidden novalidate>
       <span class="eyebrow">membership</span>
-      <h1>Membership begins with a <strong>conversation</strong>.</h1>
-      <p class="body-copy">Enter your name and email and we’ll send you a six-digit code. Once confirmed, you’ll have a private place to book a first conversation with John, the host of Beings Club. Where there is a mutual yes after you have spoken, membership begins.</p>
+      <h1 id="prospect-entry-heading">Membership begins with a <strong>conversation</strong>.</h1>
+      <p class="prospect-inviter" id="prospect-inviter" hidden></p>
+      <p class="body-copy" id="prospect-entry-copy">Enter your name and email and we’ll send you a six-digit code. Once confirmed, you’ll have a private place to book a first conversation with John, the host of Beings Club. Where there is a mutual yes after you have spoken, membership begins.</p>
       <label class="sr-only" for="prospect-name">Your name</label>
       <input id="prospect-name" name="name" type="text" autocomplete="name" maxlength="120" placeholder="Your name" required>
       <label class="sr-only" for="prospect-email">Email</label>
@@ -42,6 +43,13 @@
       <span class="aside">Already a member? <a href="/members/">Log in</a>.</span>
       <span class="status" id="prospect-email-status" role="status" aria-live="polite"></span>
     </form>
+
+    <section class="login-card waitlist-confirmation" id="waitlist-confirmation" hidden>
+      <span class="eyebrow">waiting list</span>
+      <h1>You’re on the <strong>waiting list</strong>.</h1>
+      <p class="body-copy">Beings Club will write when there is room to choose a time.</p>
+      <a class="text-button" href="/">return to Beings Club</a>
+    </section>
 
     <form class="login-card" id="prospect-code-form" hidden novalidate>
       <span class="eyebrow">check your email</span>
@@ -209,6 +217,7 @@
     <main class="prospect-page">
       <section class="prospect-intro">
         <span class="eyebrow">membership</span>
+        <p class="prospect-inviter prospect-inviter--inside" id="prospect-inviter-inside" hidden></p>
         <h1>Membership begins with a <strong>conversation</strong>.</h1>
         <p>Meet John, the host of Beings Club, for 25 minutes. You can learn more about the Club and see whether joining feels right on both sides. Where there is a mutual yes after you have spoken, membership begins.</p>
       </section>
@@ -420,6 +429,18 @@
             <span>If you arrive late, admission cannot be guaranteed.</span>
             <span>Nothing is recorded.</span>
           </div>
+
+          <section class="member-invitation" id="member-invitation">
+            <div>
+              <span class="eyebrow">invite someone</span>
+              <h2>Someone you think might like it here?</h2>
+              <p>Copy your private invitation link and share it in whatever way feels right. They’ll know the invitation came from you.</p>
+            </div>
+            <div class="member-invitation-actions">
+              <button class="outline" id="copy-member-invitation" type="button">copy invitation link</button>
+              <span class="status" id="member-invitation-status" role="status" aria-live="polite"></span>
+            </div>
+          </section>
         </div>
       </section>
     </main>

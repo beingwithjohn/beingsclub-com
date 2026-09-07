@@ -218,10 +218,30 @@ button{cursor:pointer}
 .testimonial-queue-card blockquote{margin:0;font-size:15px;line-height:1.65;white-space:pre-wrap;color:#312E29}
 .testimonial-queue-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .prospect-host-list{display:grid;border-top:1px solid var(--line)}
+.admissions-control{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 20px;border:1px solid #DED7EA;background:#F8F4FF}
+.admissions-control>div{display:grid;gap:5px}
+.admissions-control strong{font-size:14px;line-height:1.3;color:var(--violet)}
+.admissions-control span{font-size:11px;line-height:1.6;color:#656159}
+.waitlist-host{display:grid;gap:0;border:1px solid var(--line);border-top:0}
+.waitlist-host>header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 18px;border-bottom:1px solid var(--line)}
+.waitlist-host h3{margin:0;font-size:13px;line-height:1.3}
+.waitlist-host>header span{font:400 10px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.waitlist-host-list{display:grid}
+.waitlist-host-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.waitlist-host-card:last-child{border-bottom:0}
+.waitlist-host-main{display:grid;gap:3px;min-width:0}
+.waitlist-host-main strong{font-size:13px;line-height:1.4}
+.waitlist-host-main span,.waitlist-host-main em{font-size:10.5px;line-height:1.5;color:var(--soft);font-style:normal}
+.waitlist-host-main em{color:var(--violet)}
+.waitlist-host>.status{padding:0 18px 14px}
+.host-subheading{margin:0;font-size:13px;line-height:1.3}
+.prospect-inviter{margin:0 0 16px;padding:12px 14px;background:#F8F4FF;border-left:3px solid #D9CAE9;font-size:12px;line-height:1.55;color:#5A4B7C}
+.waitlist-confirmation a{color:var(--violet);border-bottom:1px solid rgba(90,75,124,.4)}
 .prospect-host-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px;padding:18px 0;border-bottom:1px solid var(--line)}
 .prospect-host-main{display:grid;gap:5px;min-width:0}
 .prospect-host-main strong{font-size:13px;overflow-wrap:anywhere}
 .prospect-host-main span{font-size:11px;line-height:1.55;color:var(--soft)}
+.prospect-host-main em{font:400 10px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--violet)}
 .prospect-host-main blockquote{margin:8px 0 0;padding:11px 14px;border-left:2px solid var(--violet);background:#F8F4FF;font-size:12px;line-height:1.65;white-space:pre-wrap;color:var(--body)}
 .prospect-host-actions{display:grid;align-content:start;justify-items:end;gap:7px}
 .prospect-host-actions em{font:400 9.5px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
@@ -613,6 +633,12 @@ button{cursor:pointer}
 .directory-heading h1 strong,.profile-heading h1 strong,.settings-heading h1 strong{font-weight:750;color:var(--violet)}
 .directory-heading>p,.profile-heading>p,.settings-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body);max-width:64ch}
 .directory-randomise{width:max-content;margin-top:4px;color:var(--violet)}
+.member-invitation{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:24px 26px;border:1px solid #DED7EA;background:#F8F4FF;max-width:900px}
+.salon-hero>.member-invitation{margin-top:18px}
+.member-invitation>div:first-child{display:grid;gap:7px;max-width:620px}
+.member-invitation h2{margin:0;font-size:22px;line-height:1.15;letter-spacing:-.025em}
+.member-invitation p{margin:0;font-size:12.5px;line-height:1.65;color:#656159}
+.member-invitation-actions{display:grid;justify-items:end;gap:8px;flex:none}
 @keyframes directory-whirl{0%{transform:rotate(0) scale(1)}45%{transform:rotate(7deg) scale(1.04)}100%{transform:rotate(0) scale(1)}}
 .directory-randomise.is-shuffling{animation:directory-whirl .72s cubic-bezier(.22,1,.36,1)}
 .directory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 18px}
@@ -805,6 +831,10 @@ button{cursor:pointer}
   .member-row{align-items:flex-start}
   .prospect-host-card{grid-template-columns:1fr}
   .prospect-host-actions{justify-items:start}
+  .admissions-control,.member-invitation{align-items:stretch;flex-direction:column}
+  .member-invitation-actions{justify-items:start}
+  .waitlist-host-card{grid-template-columns:1fr}
+  .waitlist-host-card>button{width:max-content}
   .member-actions{gap:8px}
   .in-person-host-row{align-items:flex-start;flex-direction:column}
   .attendance-row{grid-template-columns:20px minmax(0,1fr)}

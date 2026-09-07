@@ -187,6 +187,47 @@ export async function sendProspectTimeNote(env, { email, note, idempotencyKey })
   return post(env, { to, from: club(env), subject, text, html, idempotencyKey });
 }
 
+/** Confirmation that somebody has joined the first-conversation waiting list. */
+export async function sendWaitlistConfirmation(env, { email, name, idempotencyKey }) {
+  const subject = 'You’re on the Beings Club waiting list';
+  const hello = name ? `Hello, ${name}.` : 'Hello.';
+  const text = `${hello}\n\nFirst conversations are taking a pause.\n\nYou’re on the waiting list. Beings Club will write when there is room to choose a time.\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    title: subject,
+    preheader: 'Beings Club will write when there is room to choose a time.',
+    heading: 'We’ll write when conversations <span style="color:#5A4B7C">reopen</span>.',
+    body: `<p style="margin:0 0 16px">${escapeHtml(hello)}</p>`
+      + '<p style="margin:0 0 16px">First conversations are taking a pause.</p>'
+      + '<p style="margin:0">You’re on the waiting list. Beings Club will write when there is room to choose a time.</p>',
+    settingsUrl: 'https://beingsclub.com/',
+    footerLinkLabel: 'Beings Club',
+  });
+  return post(env, { to: email, from: club(env), subject, text, html, idempotencyKey });
+}
+
+/** A host-selected opening in the calendar while general conversations are paused. */
+export async function sendWaitlistOffer(env, {
+  email, name, actionUrl, idempotencyKey,
+}) {
+  const subject = 'There is room for a first conversation';
+  const hello = name ? `Hello, ${name}.` : 'Hello.';
+  const privateNote = 'This is a private link that opens your place to choose a time, so please don’t share it.';
+  const text = `${hello}\n\nThere is room to choose a time for a first conversation.\n\nChoose a time:\n${actionUrl}\n\n${privateNote}\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    title: subject,
+    preheader: 'There is room to choose a time.',
+    heading: 'There is room for a first <span style="color:#5A4B7C">conversation</span>.',
+    body: `<p style="margin:0 0 16px">${escapeHtml(hello)}</p>`
+      + '<p style="margin:0">There is room to choose a time for a first conversation.</p>',
+    actionUrl,
+    actionLabel: 'choose a time',
+    settingsUrl: actionUrl,
+    footerLinkLabel: 'conversation entrance',
+    afterBody: `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateNote)}</td></tr>`,
+  });
+  return post(env, { to: email, from: club(env), subject, text, html, idempotencyKey });
+}
+
 /** A personal invitation after John adds somebody through the host tools. */
 export async function sendClubInvitation(env, {
   email, name, personalNote, actionUrl, idempotencyKey,

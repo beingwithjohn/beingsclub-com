@@ -42,6 +42,10 @@ import {
 } from './notion-members.js';
 import { issueMemberWelcomeLink } from './member-links.js';
 import { sendMemberFeedback } from './feedback.js';
+import {
+  enterWaitlistBooking, getHostAdmissions, getMemberInvitationLink,
+  getPublicAdmissions, offerWaitlistConversation, setAdmissionsPaused,
+} from './waitlist.js';
 
 const CODE_LIFETIME = 10 * 60;
 const SESSION_LIFETIME = 30 * 24 * 60 * 60;
@@ -66,6 +70,12 @@ export async function clubRoute(request, env, ctx, url) {
   if (path === '/api/club/prospect/auth/verify' && method === 'POST') {
     return verifyProspectCode(env, await readJson(request));
   }
+  if (path === '/api/club/prospect/admissions' && method === 'GET') {
+    return getPublicAdmissions(env, url);
+  }
+  if (path === '/api/club/prospect/waitlist/enter' && method === 'POST') {
+    return enterWaitlistBooking(env, await readJson(request));
+  }
   if (path.startsWith('/api/club/prospect/')) {
     const prospect = await identifyProspect(request, env);
     if (!prospect) return bad(401, 'no');
@@ -76,7 +86,7 @@ export async function clubRoute(request, env, ctx, url) {
       return getProspectSlots(env, prospect, url);
     }
     if (path === '/api/club/prospect/booking' && method === 'POST') {
-      return createProspectBooking(env, prospect, await readJson(request));
+      return createProspectBooking(env, prospect, await readJson(request), ctx);
     }
     if (path === '/api/club/prospect/note' && method === 'POST') {
       return saveProspectTimeNote(env, prospect, await readJson(request));
@@ -177,6 +187,9 @@ export async function clubRoute(request, env, ctx, url) {
   if (path === '/api/club/feedback' && method === 'POST') {
     return sendMemberFeedback(env, who, await readJson(request));
   }
+  if (path === '/api/club/invitation-link' && method === 'GET') {
+    return getMemberInvitationLink(env, who);
+  }
   const profileImage = /^\/api\/club\/members\/(\d+)\/image$/.exec(path);
   if (profileImage && method === 'GET') return getProfileImage(env, Number(profileImage[1]));
 
@@ -253,6 +266,14 @@ export async function clubRoute(request, env, ctx, url) {
     return addMember(env, who, await readJson(request), ctx);
   }
   if (path === '/api/club/host/prospects' && method === 'GET') return listProspects(env);
+  if (path === '/api/club/host/admissions' && method === 'GET') return getHostAdmissions(env);
+  if (path === '/api/club/host/admissions' && method === 'PATCH') {
+    return setAdmissionsPaused(env, who, await readJson(request));
+  }
+  const offerWaitlist = /^\/api\/club\/host\/waitlist\/(\d+)\/offer$/.exec(path);
+  if (offerWaitlist && method === 'POST') {
+    return offerWaitlistConversation(env, Number(offerWaitlist[1]), ctx);
+  }
   const dismissProspectMatch = /^\/api\/club\/host\/prospects\/(\d+)\/dismiss$/.exec(path);
   if (dismissProspectMatch && method === 'POST') {
     return dismissProspect(env, Number(dismissProspectMatch[1]));

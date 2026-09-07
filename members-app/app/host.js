@@ -23,6 +23,7 @@
   let fieldNoteHostState = { salon: null, salons: [], candidates: [], hostPosts: [], groups: [] };
   let hostPostImageData = null;
   let prospectHostState = [];
+  let admissionsHostState = { admissions: { paused: false }, waitlist: [] };
   const imageObjectUrls = new Set();
   const NOTION_NOTE_PREFIX = 'bc_notion_invitation_note_';
 
@@ -783,6 +784,7 @@
         }).format(new Date(prospect.booking.startTime));
         main.append(text('span', '', `${when} · ${prospect.booking.verified ? 'confirmed by Cal.com' : 'awaiting Cal.com'}`));
       } else main.append(text('span', '', 'No conversation booked yet.'));
+      if (prospect.invitedBy) main.append(text('em', '', `invited by ${prospect.invitedBy}`));
       if (prospect.alternateTimeNote) main.append(text('blockquote', '', prospect.alternateTimeNote));
       const actions = document.createElement('div'); actions.className = 'prospect-host-actions';
       if (prospect.granted) {
@@ -801,6 +803,66 @@
       }
       card.append(main, actions); listNode.append(card);
     });
+  }
+
+  function renderAdmissions(data) {
+    admissionsHostState = data;
+    const paused = !!data.admissions?.paused;
+    document.getElementById('admissions-state').textContent = paused
+      ? 'first conversations are taking a pause'
+      : 'first conversations are open';
+    document.getElementById('admissions-state-copy').textContent = paused
+      ? 'New people can join the waiting list. Only people you invite from below can enter the calendar.'
+      : 'Anyone entering the joining flow can choose an available time.';
+    document.getElementById('admissions-toggle').textContent = paused
+      ? 'open the calendar' : 'pause new conversations';
+    const people = data.waitlist || [];
+    document.getElementById('waitlist-count').textContent = `${people.length} ${people.length === 1 ? 'person' : 'people'} waiting`;
+    const listNode = document.getElementById('waitlist-host-list'); listNode.replaceChildren();
+    if (!people.length) {
+      listNode.append(text('p', 'prospect-host-empty', 'Nobody is waiting.'));
+      return;
+    }
+    people.forEach((person) => {
+      const card = document.createElement('article'); card.className = 'waitlist-host-card';
+      const main = document.createElement('div'); main.className = 'waitlist-host-main';
+      main.append(text('strong', '', person.name || person.email));
+      if (person.name) main.append(text('span', '', person.email));
+      const joined = person.joinedAt ? new Intl.DateTimeFormat('en-GB', {
+        dateStyle: 'medium', timeZone: 'Europe/London',
+      }).format(new Date(person.joinedAt)) : 'date unknown';
+      main.append(text('span', '', `joined the waiting list ${joined}`));
+      if (person.invitedBy) main.append(text('em', '', `invited by ${person.invitedBy}`));
+      const offer = text('button', 'outline', person.status === 'invited to book'
+        ? 'send a fresh link' : 'offer a conversation');
+      offer.type = 'button';
+      offer.addEventListener('click', () => offerConversation(person, offer));
+      card.append(main, offer); listNode.append(card);
+    });
+  }
+
+  async function loadAdmissions() {
+    renderAdmissions(await call('/api/club/host/admissions'));
+  }
+
+  async function offerConversation(person, button) {
+    const statusNode = document.getElementById('waitlist-host-status'); statusNode.textContent = '';
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        admissionsHostState.waitlist = admissionsHostState.waitlist.map((item) => (
+          item.id === person.id ? { ...item, status: 'invited to book', offeredAt: new Date().toISOString() } : item
+        ));
+        renderAdmissions(admissionsHostState);
+        statusNode.textContent = `Preview: a private booking link is sent to ${person.name || person.email}.`;
+        return;
+      }
+      await call(`/api/club/host/waitlist/${person.id}/offer`, { method: 'POST', body: '{}' });
+      await loadAdmissions();
+      statusNode.textContent = `A private booking link was sent to ${person.name || person.email}.`;
+    } catch (error) {
+      statusNode.textContent = error.message || 'The conversation could not be offered. Try again.';
+    } finally { button.disabled = false; }
   }
 
   async function loadProspects() {
@@ -1330,6 +1392,27 @@
   }
   document.getElementById('host-sign-out').addEventListener('click', signOut);
   document.getElementById('mobile-sign-out').addEventListener('click', signOut);
+  document.getElementById('admissions-toggle').addEventListener('click', async () => {
+    const button = document.getElementById('admissions-toggle');
+    const statusNode = document.getElementById('waitlist-host-status');
+    const nextPaused = !admissionsHostState.admissions?.paused;
+    button.disabled = true; statusNode.textContent = '';
+    try {
+      if (previewMode) {
+        admissionsHostState.admissions.paused = nextPaused;
+        renderAdmissions(admissionsHostState);
+      } else {
+        renderAdmissions(await call('/api/club/host/admissions', {
+          method: 'PATCH', body: JSON.stringify({ paused: nextPaused }),
+        }));
+      }
+      statusNode.textContent = nextPaused
+        ? 'New first conversations are paused. The waiting list is open.'
+        : 'The calendar is open again.';
+    } catch (error) {
+      statusNode.textContent = error.message || 'That setting could not be changed.';
+    } finally { button.disabled = false; }
+  });
   const menu = document.getElementById('mobile-menu'); const menuButton = document.getElementById('menu-button');
   const menuClose = document.getElementById('menu-close');
   const menuBackground = [...menu.parentElement.children].filter((node) => node !== menu);
@@ -1398,6 +1481,7 @@
       const salonPreview = document.querySelector('.host-section');
       const inPersonEventPreview = document.getElementById('in-person-event-host');
       const fieldNotePreview = document.getElementById('field-note-host');
+      const conversationPreview = document.getElementById('prospects');
       if (previewParams.get('salon') === 'open') {
         const salonToggle = salonPreview.querySelector('.host-section-toggle');
         const salonBody = salonPreview.querySelector('.host-section-body');
@@ -1414,6 +1498,11 @@
         const fieldNoteToggle = fieldNotePreview.querySelector('.host-section-toggle');
         const fieldNoteBody = fieldNotePreview.querySelector('.host-section-body');
         fieldNoteToggle.setAttribute('aria-expanded', 'true'); fieldNoteBody.hidden = false;
+      }
+      if (previewParams.get('waitlist') === 'open') {
+        const conversationToggle = conversationPreview.querySelector('.host-section-toggle');
+        const conversationBody = conversationPreview.querySelector('.host-section-body');
+        conversationToggle.setAttribute('aria-expanded', 'true'); conversationBody.hidden = false;
       }
       updateClock();
       render([
@@ -1493,9 +1582,16 @@
         submittedAt: '2026-08-28T12:00:00.000Z', updatedAt: '2026-08-28T12:00:00.000Z',
       }] });
       renderProspects({ prospects: [
-        { id: 1, name: 'Mira', email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false },
+        { id: 1, name: 'Mira', email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false, invitedBy: 'Leila' },
         { id: 2, name: 'Noor', email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: false },
       ] });
+      renderAdmissions({
+        admissions: { paused: true, pausedAt: '2026-09-07T10:00:00.000Z' },
+        waitlist: [
+          { id: 11, name: 'Leila', email: 'leila@example.com', status: 'waiting', joinedAt: '2026-09-05T14:00:00.000Z', invitedBy: 'Mira' },
+          { id: 12, name: 'Ari', email: 'ari@example.com', status: 'invited to book', joinedAt: '2026-09-06T09:30:00.000Z', invitedBy: null },
+        ],
+      });
       waiting.hidden = true; shell.hidden = false; return;
     }
     if (!token()) { location.replace('/members/'); return; }
@@ -1504,7 +1600,7 @@
       if (!data.member.isHost) { location.replace('/members/'); return; }
       if (!data.member.agreementAccepted) { location.replace('/members/?onboarding=1'); return; }
       updateClock(); setInterval(updateClock, 30000);
-      await Promise.all([loadMembers(), loadSalon(), loadInPersonEvents(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects()]);
+      await Promise.all([loadMembers(), loadSalon(), loadInPersonEvents(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects(), loadAdmissions()]);
       waiting.hidden = true; shell.hidden = false;
     } catch (_) { forgetToken(); location.replace('/members/'); }
   })();

@@ -13,6 +13,7 @@
   const prospectEmailForm = document.getElementById('prospect-email-form');
   const prospectCodeForm = document.getElementById('prospect-code-form');
   const waiting = document.getElementById('waiting');
+  const waitlistConfirmation = document.getElementById('waitlist-confirmation');
   const emailInput = document.getElementById('email');
   const codeInput = document.getElementById('code');
   const emailStatus = document.getElementById('email-status');
@@ -79,6 +80,8 @@
   let membersDrawerTouched = false;
   let membersDrawerPinnedId = null;
   let membersDrawerActiveId = null;
+  let admissions = { paused: false, invitation: null };
+  let referralToken = new URLSearchParams(location.search).get('invite') || '';
   const imageObjectUrls = new Set();
   const drawerImageObjectUrls = new Set();
 
@@ -96,6 +99,14 @@
     const next = params.get('next');
     history.replaceState(null, '', `${location.pathname}${location.search}`);
     return { token: value, next: next === 'field-notes' ? next : null };
+  }
+
+  function takeConversationToken() {
+    const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const value = params.get('conversation');
+    if (!value) return null;
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+    return value;
   }
 
   async function call(path, options = {}) {
@@ -133,8 +144,29 @@
     prospectApp.hidden = true;
     welcomePage.hidden = true;
     loginPage.hidden = false;
-    [emailForm, codeForm, prospectEmailForm, prospectCodeForm, waiting]
+    [emailForm, codeForm, prospectEmailForm, prospectCodeForm, waiting, waitlistConfirmation]
       .forEach((node) => { node.hidden = node !== element; });
+  }
+
+  function renderProspectEntry() {
+    const inviter = admissions.invitation?.name;
+    [document.getElementById('prospect-inviter'), document.getElementById('prospect-inviter-inside')]
+      .forEach((node) => {
+        node.hidden = !inviter;
+        node.textContent = inviter ? `${inviter} is inviting you to Beings Club.` : '';
+      });
+    const heading = document.getElementById('prospect-entry-heading');
+    const copy = document.getElementById('prospect-entry-copy');
+    const submit = prospectEmailForm.querySelector('button[type="submit"]');
+    if (admissions.paused) {
+      heading.innerHTML = 'First conversations are taking a <strong>pause</strong>.';
+      copy.textContent = 'Leave your name and email and Beings Club will write when there is room to choose a time.';
+      submit.textContent = 'join the waiting list';
+    } else {
+      heading.innerHTML = 'Membership begins with a <strong>conversation</strong>.';
+      copy.textContent = 'Enter your name and email and we’ll send you a six-digit code. Once confirmed, you’ll have a private place to book a first conversation with John, the host of Beings Club. Where there is a mutual yes after you have spoken, membership begins.';
+      submit.textContent = 'continue';
+    }
   }
 
   function renderWelcome() {
@@ -538,8 +570,15 @@
 
   async function requestProspectCode() {
     const data = await prospectCall('/api/club/prospect/auth/request', {
-      method: 'POST', body: JSON.stringify({ email: prospectEmail, name: prospectName }),
+      method: 'POST', body: JSON.stringify({
+        email: prospectEmail, name: prospectName, inviteToken: referralToken,
+      }),
     });
+    if (data.waitlisted) { showLogin(waitlistConfirmation); return 'waitlisted'; }
+    if (data.alreadyProgressed) {
+      prospectEmailStatus.textContent = 'You already have a conversation or membership in progress. Use the member entrance or your earlier email.';
+      return 'progressed';
+    }
     prospectChallenge = data.challenge;
     document.getElementById('prospect-email-shown').textContent = prospectEmail;
     prospectCodeInput.value = '';
@@ -1937,6 +1976,9 @@
     if (!prospectEmailInput.checkValidity()) { prospectEmailInput.reportValidity(); return; }
     const button = prospectEmailForm.querySelector('button[type="submit"]'); button.disabled = true;
     try {
+      if (previewMode && admissions.paused) {
+        showLogin(waitlistConfirmation); return;
+      }
       if (previewMode) {
         document.getElementById('prospect-email-shown').textContent = prospectEmail;
         showLogin(prospectCodeForm); prospectCodeInput.focus();
@@ -2354,6 +2396,21 @@
     } catch (_) { statusNode.textContent = 'The member entrance could not open. Try again.'; }
   });
 
+  document.getElementById('copy-member-invitation').addEventListener('click', async () => {
+    const button = document.getElementById('copy-member-invitation');
+    const statusNode = document.getElementById('member-invitation-status');
+    button.disabled = true; statusNode.textContent = '';
+    try {
+      const data = previewMode
+        ? { url: `${location.origin}/members/?join=1&invite=preview` }
+        : await call('/api/club/invitation-link');
+      await navigator.clipboard.writeText(data.url);
+      statusNode.textContent = 'Invitation link copied.';
+    } catch (_) {
+      statusNode.textContent = 'The invitation link could not be copied. Try again.';
+    } finally { button.disabled = false; }
+  });
+
   (async () => {
     const previewParams = new URLSearchParams(location.search);
     const preview = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
@@ -2366,6 +2423,12 @@
         return;
       }
       if (preview === 'prospective') {
+        admissions = {
+          paused: previewParams.get('state') === 'waitlist',
+          invitation: previewParams.get('invited-by')
+            ? { name: previewParams.get('invited-by') } : null,
+        };
+        renderProspectEntry();
         if (previewParams.get('step') === 'email') {
           showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
         }
@@ -2373,6 +2436,9 @@
           prospectEmail = 'you@example.com';
           document.getElementById('prospect-email-shown').textContent = prospectEmail;
           showLogin(prospectCodeForm); prospectCodeInput.focus(); return;
+        }
+        if (previewParams.get('state') === 'waitlist') {
+          showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
         }
         showProspectPreview(previewParams.get('state') === 'booked' ? 'booked' : 'calendar');
         return;
@@ -2469,6 +2535,22 @@
       }] : [];
       showMemberApp(); return;
     }
+    const conversationLink = takeConversationToken();
+    if (conversationLink) {
+      showLogin(waiting);
+      try {
+        const data = await prospectCall('/api/club/prospect/waitlist/enter', {
+          method: 'POST', body: JSON.stringify({ token: conversationLink }),
+        });
+        saveProspectToken(data.token);
+        const state = await prospectCall('/api/club/prospect/session');
+        prospect = state.prospect; renderProspect(); return;
+      } catch (_) {
+        forgetProspectToken(); showLogin(prospectEmailForm); renderProspectEntry();
+        prospectEmailStatus.textContent = 'That private conversation link is no longer available.';
+        return;
+      }
+    }
     const welcomeLink = takeWelcomeToken();
     if (welcomeLink) {
       showLogin(waiting);
@@ -2486,6 +2568,12 @@
     }
     const joining = previewParams.get('join') === '1';
     if (joining || (!token() && prospectToken())) {
+      try {
+        const query = new URLSearchParams();
+        if (referralToken) query.set('invite', referralToken);
+        admissions = await prospectCall(`/api/club/prospect/admissions?${query}`);
+      } catch (_) { admissions = { paused: false, invitation: null }; }
+      renderProspectEntry();
       if (!prospectToken()) {
         try {
           const joinEmail = sessionStorage.getItem(JOIN_EMAIL_KEY);

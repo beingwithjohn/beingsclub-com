@@ -50,6 +50,7 @@ MAIL_REPLY_TO = "john@spacetobe.xyz"
 HOST_NOTIFY_EMAIL = "john@spacetobe.xyz"
 ZOOM_HOST_USER_ID = "john@spacetobe.xyz"
 NOTION_MEMBERS_DATA_SOURCE_ID = "38dd39b4-61ab-8000-bccd-000b0af707d8"
+NOTION_WAITLIST_DATA_SOURCE_ID = "0d715e46-295a-4fd8-b35a-925c19438457"
 
 # Secrets — set with `wrangler secret put`, never written here:
 #   RESEND_API_KEY   the Resend key
@@ -66,4 +67,5 @@ NOTION_MEMBERS_DATA_SOURCE_ID = "38dd39b4-61ab-8000-bccd-000b0af707d8"
 #   ZOOM_CLIENT_ID         Server-to-Server OAuth app client ID
 #   ZOOM_CLIENT_SECRET     Server-to-Server OAuth app client secret
 #   NOTION_API_KEY         internal Notion integration secret. Share the
-#                          Beings Club Member List data source with it.
+#                          Beings Club Member List and Waiting List data
+#                          sources with it.
