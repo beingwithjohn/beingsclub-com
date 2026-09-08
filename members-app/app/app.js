@@ -46,7 +46,10 @@
   let salon = null;
   let inPersonEvents = [];
   let fieldNotes = { prompt: null, hostPosts: [], groups: [] };
-  let givingState = { testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null };
+  let givingState = {
+    testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null,
+    recentGift: false, suppressFieldNoteGivingAppeal: false,
+  };
   let directoryState = { profile: null, members: [] };
   let settingsState = {
     email: {
@@ -773,6 +776,13 @@
     }).format(new Date(iso));
   }
 
+  function fieldReportDate(iso) {
+    if (!iso) return 'date unavailable';
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric',
+    }).format(new Date(iso));
+  }
+
   function makeText(tag, className, value) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -803,41 +813,62 @@
   function renderHostFieldPosts() {
     const wrap = document.getElementById('host-field-posts');
     const list = document.getElementById('host-field-post-list');
-    const posts = (fieldNotes.hostPosts || []).filter((post) => post.kind === 'announcement');
+    const posts = (fieldNotes.hostPosts || [])
+      .filter((post) => post.kind === 'announcement')
+      .sort((left, right) => new Date(right.publishedAt || 0) - new Date(left.publishedAt || 0));
     list.replaceChildren(); wrap.hidden = posts.length === 0;
-    posts.forEach((post) => {
-      const article = document.createElement('details');
-      article.className = 'host-field-post-card is-announcement';
-      article.open = true;
-      const summary = document.createElement('summary');
-      const summaryCopy = document.createElement('span');
-      summaryCopy.className = 'host-field-post-summary-copy';
-      summaryCopy.append(makeText('span', 'host-field-post-kind', 'field report'));
-      summary.append(summaryCopy, makeText('span', 'host-field-post-toggle', 'hide'));
-      article.append(summary);
-      const content = document.createElement('div');
-      content.className = 'host-field-post-content';
-      content.append(makeText('h3', '', post.title || 'A note from John'));
+    if (!posts.length) return;
+    let reportIndex = 0;
+    const article = document.createElement('details');
+    article.className = 'host-field-post-card is-announcement';
+    article.open = true;
+    const summary = document.createElement('summary');
+    const summaryCopy = document.createElement('span');
+    summaryCopy.className = 'host-field-post-summary-copy';
+    const kind = makeText('span', 'host-field-post-kind', 'latest field report');
+    const date = makeText('span', 'host-field-post-date', '');
+    summaryCopy.append(kind, date);
+    const toggle = makeText('span', 'host-field-post-toggle', 'hide');
+    summary.append(summaryCopy, toggle); article.append(summary);
+    const content = document.createElement('div');
+    content.className = 'host-field-post-content'; article.append(content);
+
+    function showReport(index) {
+      reportIndex = index;
+      const post = posts[reportIndex];
+      kind.textContent = reportIndex === 0 ? 'latest field report' : 'field report';
+      date.textContent = fieldReportDate(post.publishedAt);
+      content.replaceChildren();
+      const report = document.createDocumentFragment();
+      report.append(makeText('h3', '', post.title || 'A note from John'));
       if (post.hasImage) {
         const image = document.createElement('img'); image.className = 'host-field-post-image';
-        image.alt = post.imageAlt || ''; content.append(image); loadHostFieldPostImage(post, image);
+        image.alt = post.imageAlt || ''; report.append(image); loadHostFieldPostImage(post, image);
       }
-      if (post.body) content.append(makeText('p', 'host-field-post-body', post.body));
+      if (post.body) report.append(makeText('p', 'host-field-post-body', post.body));
       if (post.linkUrl) {
         const link = document.createElement('a'); link.className = 'host-field-post-link';
         link.href = post.linkUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
         try { link.textContent = `${new URL(post.linkUrl).hostname.replace(/^www\./, '')} ↗`; }
         catch (_) { link.textContent = 'open reference ↗'; }
-        content.append(link);
+        report.append(link);
       }
-      content.append(makeText('footer', 'host-field-post-foot', `from ${post.author || 'John'}`));
-      article.append(content);
-      article.addEventListener('toggle', () => {
-        const toggle = article.querySelector('.host-field-post-toggle');
-        if (toggle) toggle.textContent = article.open ? 'hide' : 'show';
-      });
-      list.append(article);
-    });
+      report.append(makeText('footer', 'host-field-post-foot', `from ${post.author || 'John'}`));
+      if (posts.length > 1) {
+        const browser = document.createElement('nav'); browser.className = 'host-field-post-browser';
+        browser.setAttribute('aria-label', 'Browse Field Reports');
+        const newer = makeText('button', '', 'newer'); newer.type = 'button'; newer.disabled = reportIndex === 0;
+        newer.addEventListener('click', () => showReport(reportIndex - 1));
+        const position = makeText('span', 'host-field-post-position', `${reportIndex + 1} of ${posts.length}`);
+        const older = makeText('button', '', 'older'); older.type = 'button'; older.disabled = reportIndex === posts.length - 1;
+        older.addEventListener('click', () => showReport(reportIndex + 1));
+        browser.append(newer, position, older); report.append(browser);
+      }
+      content.append(report);
+    }
+
+    article.addEventListener('toggle', () => { toggle.textContent = article.open ? 'hide' : 'show'; });
+    list.append(article); showReport(0);
   }
 
   function resetComposer() {
@@ -882,6 +913,8 @@
     const archive = document.getElementById('field-note-archive'); archive.replaceChildren();
     renderHostFieldPosts();
     document.getElementById('field-note-thanks').hidden = !fieldNoteThanks;
+    document.getElementById('field-note-giving-appeal').hidden =
+      !!givingState.suppressFieldNoteGivingAppeal;
     const composer = document.getElementById('field-note-composer');
     if (!editingNote) {
       resetComposer(); composer.hidden = !fieldNotes.prompt;
@@ -2101,6 +2134,10 @@
   document.getElementById('sign-out').addEventListener('click', signOut);
   document.getElementById('mobile-sign-out').addEventListener('click', signOut);
   document.getElementById('field-note-form').addEventListener('submit', submitFieldNote);
+  document.getElementById('field-note-thanks-close').addEventListener('click', () => {
+    fieldNoteThanks = false;
+    document.getElementById('field-note-thanks').hidden = true;
+  });
   document.getElementById('field-note-dismiss').addEventListener('click', dismissInvitation);
   document.getElementById('field-note-cancel-edit').addEventListener('click', () => {
     editingNote = null; renderFieldNotes();
@@ -2473,6 +2510,18 @@
             publishedAt: '2026-09-04T09:00:00.000Z',
           },
           {
+            id: 39, kind: 'announcement', title: 'The room is open again.',
+            body: 'After a season away, the next Salon has taken its place in the calendar.',
+            linkUrl: null, hasImage: false, imageAlt: null, author: 'John',
+            publishedAt: '2026-08-12T09:00:00.000Z',
+          },
+          {
+            id: 38, kind: 'announcement', title: 'A pause between Salons.',
+            body: 'Beings Club is taking a little breathing room before we gather again.',
+            linkUrl: null, hasImage: false, imageAlt: null, author: 'John',
+            publishedAt: '2026-04-30T09:00:00.000Z',
+          },
+          {
             id: 40, kind: 'field_note', title: null,
             body: 'I keep thinking about what becomes possible when nobody has to arrive with an answer.',
             linkUrl: 'https://beingsclub.com/', hasImage: false, imageAlt: null, author: 'John',
@@ -2504,6 +2553,9 @@
         suggestedName: 'John', consentVersion: 'public-any-channel-light-edit-v1',
         monthlyGiving: previewParams.get('monthly') === 'active'
           ? { active: true, amount: 1000, currency: 'gbp' } : null,
+        recentGift: previewParams.get('gift') === 'recent',
+        suppressFieldNoteGivingAppeal:
+          previewParams.get('monthly') === 'active' || previewParams.get('gift') === 'recent',
       };
       directoryState = {
         profile: {

@@ -158,6 +158,7 @@ export async function stripeWebhook(env, request) {
       stripeRef: object.id,
       customer: idOf(object.customer),
       subscription: '',
+      email: object.customer_details?.email,
     });
   }
 
@@ -223,12 +224,10 @@ async function rememberSubscription(env, subscription, eventCreated) {
 async function recordInvoice(env, invoice) {
   const details = invoice.parent?.subscription_details || invoice.subscription_details || {};
   const subscription = idOf(details.subscription || invoice.subscription);
-  let known = details.metadata?.source === 'giving';
-  if (!known && subscription) {
-    known = !!(await env.DB.prepare(
-      `SELECT 1 FROM giving_subscription WHERE stripe_subscription_ref = ?1`,
-    ).bind(subscription).first());
-  }
+  const subscriptionRow = subscription ? await env.DB.prepare(
+    `SELECT email FROM giving_subscription WHERE stripe_subscription_ref = ?1`,
+  ).bind(subscription).first() : null;
+  const known = details.metadata?.source === 'giving' || !!subscriptionRow;
   if (!known) return json({ ok: true, ignored: 'other source' });
 
   const amount = Number(invoice.amount_paid);
@@ -242,6 +241,7 @@ async function recordInvoice(env, invoice) {
     stripeRef: invoice.id,
     customer: idOf(invoice.customer),
     subscription,
+    email: subscriptionRow?.email,
   });
 }
 
@@ -274,12 +274,13 @@ async function recordGift(env, data) {
   }
   await env.DB.prepare(
     `INSERT INTO gift
-       (amount, currency, cadence, stripe_ref, stripe_customer_ref, stripe_subscription_ref)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+       (amount, currency, cadence, stripe_ref, stripe_customer_ref, stripe_subscription_ref, email)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
      ON CONFLICT (stripe_ref) DO NOTHING`,
   ).bind(
     amount, String(data.currency || 'gbp'), data.cadence,
     String(data.stripeRef), String(data.customer || ''), String(data.subscription || ''),
+    String(data.email || '').trim().toLowerCase(),
   ).run();
   return json({ ok: true });
 }

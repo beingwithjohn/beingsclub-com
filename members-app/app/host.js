@@ -610,6 +610,13 @@
     }).format(new Date(iso));
   }
 
+  function fieldReportDate(iso) {
+    if (!iso) return 'date unavailable';
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/London', day: 'numeric', month: 'long', year: 'numeric',
+    }).format(new Date(iso));
+  }
+
   async function loadHostImage(note, image) {
     try {
       const blob = await callBlob(`/api/club/field-notes/${note.id}/image`);
@@ -639,7 +646,7 @@
       const card = document.createElement('article');
       card.className = `host-post-admin-card is-${post.kind.replace('_', '-')}`;
       const head = document.createElement('div'); head.className = 'host-post-admin-head';
-      const kindLabel = post.kind === 'announcement' ? 'field report'
+      const kindLabel = post.kind === 'announcement' ? `field report · ${fieldReportDate(post.publishedAt)}`
         : `field note · ${post.salonStartsAt ? `${monthLabel(post.salonStartsAt)} Salon` : 'Salon'}`;
       head.append(text('span', 'host-post-admin-kind', kindLabel));
       const remove = text('button', 'text-button', 'remove'); remove.type = 'button';
@@ -1555,6 +1562,12 @@
             body: 'I’ll leave an occasional Field Report here when something about the Club changes or needs your attention.',
             linkUrl: null, hasImage: false, imageAlt: null, author: 'John',
             publishedAt: '2026-09-04T09:00:00.000Z',
+          },
+          {
+            id: 39, kind: 'announcement', title: 'The room is open again.',
+            body: 'After a season away, the next Salon has taken its place in the calendar.',
+            linkUrl: null, hasImage: false, imageAlt: null, author: 'John',
+            publishedAt: '2026-08-12T09:00:00.000Z',
           },
           {
             id: 40, kind: 'field_note', title: null,

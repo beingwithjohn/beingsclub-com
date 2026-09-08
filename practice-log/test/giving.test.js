@@ -155,14 +155,17 @@ test('a signed paid gift is recorded without a Practice Log person', async () =>
     type: 'checkout.session.completed',
     data: { object: {
       id: 'cs_paid', mode: 'payment', payment_status: 'paid', amount_total: 725,
-      currency: 'gbp', customer: 'cus_giver', metadata: { source: 'giving' },
+      currency: 'gbp', customer: 'cus_giver',
+      customer_details: { email: 'Giver@Example.com' }, metadata: { source: 'giving' },
     } },
   });
   const request = await signedRequest(event);
   const response = await stripeWebhook(env(db), request);
   assert.equal(response.status, 200);
   assert.match(db.calls.at(-1).sql, /INSERT INTO gift/);
-  assert.deepEqual(db.calls.at(-1).values, [725, 'gbp', 'once', 'cs_paid', 'cus_giver', '']);
+  assert.deepEqual(db.calls.at(-1).values, [
+    725, 'gbp', 'once', 'cs_paid', 'cus_giver', '', 'giver@example.com',
+  ]);
 });
 
 test('a signed event from another Stripe flow is ignored', async () => {

@@ -4,10 +4,11 @@ const BODY_MAX = 2000;
 const NAME_MAX = 80;
 const CONSENT = 'public-any-channel-light-edit-v1';
 const CLUB_TIMEZONE = 'Europe/London';
+const RECENT_GIFT_SECONDS = 30 * 24 * 60 * 60;
 
 export async function getMemberGiving(env, who, timestamp = now()) {
   const month = clubMonth(timestamp);
-  const [row, subscription] = await Promise.all([
+  const [row, subscription, recentGiftRow] = await Promise.all([
     env.MEMBERS.prepare(
     `SELECT id, attribution_name, body, status, submitted_at, updated_at
        FROM member_testimonial WHERE member_id = ?1 AND month_key = ?2`,
@@ -19,6 +20,12 @@ export async function getMemberGiving(env, who, timestamp = now()) {
           AND status NOT IN ('canceled', 'incomplete_expired')
         ORDER BY updated_at DESC LIMIT 1`,
     ).bind(who.email).first(),
+    env.DB.prepare(
+      `SELECT 1 AS recent
+         FROM gift
+        WHERE lower(email) = lower(?1) AND created_at >= ?2
+        LIMIT 1`,
+    ).bind(who.email, timestamp - RECENT_GIFT_SECONDS).first(),
   ]);
   const monthlyGiving = subscription &&
     ['active', 'trialing'].includes(subscription.status) &&
@@ -36,6 +43,8 @@ export async function getMemberGiving(env, who, timestamp = now()) {
     suggestedName: who.display_name || '',
     consentVersion: CONSENT,
     monthlyGiving,
+    recentGift: !!recentGiftRow,
+    suppressFieldNoteGivingAppeal: !!monthlyGiving || !!recentGiftRow,
   });
 }
 

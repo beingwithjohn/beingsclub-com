@@ -537,10 +537,32 @@ ok("the feedback prompt uses only the real text caret",
    ".member-feedback-input-wrap::after" not in members_after.get("members/app.css", ""))
 ok("sharing a Field Note ends with a quiet route into giving",
    'id="field-note-thanks"' in login_html and
+   'id="field-note-thanks-close"' in login_html and
    'Help keep the door open.' in login_html and
    'If the Salon was valuable' in login_html and
    'href="#giving" data-member-view="giving">support Beings Club</a>' in login_html and
-   'fieldNoteThanks = !wasEditing' in members_after.get("members/app.js", ""))
+   'fieldNoteThanks = !wasEditing' in members_after.get("members/app.js", "") and
+   "document.getElementById('field-note-thanks-close').addEventListener('click'" in members_after.get("members/app.js", ""))
+ok("Field Reports form a compact dated archive",
+   "'latest field report'" in members_after.get("members/app.js", "") and
+   "fieldReportDate(post.publishedAt)" in members_after.get("members/app.js", "") and
+   "host-field-post-browser" in members_after.get("members/app.js", "") and
+   "Browse Field Reports" in members_after.get("members/app.js", "") and
+   "`${reportIndex + 1} of ${posts.length}`" in members_after.get("members/app.js", ""))
+gift_email_migration = open(
+    os.path.join(ROOT, "practice-log", "migrations", "0009_gift_email.sql"),
+    encoding="utf-8",
+).read()
+ok("recent and active givers are not solicited after sharing a Field Note",
+   'ALTER TABLE gift ADD COLUMN email' in gift_email_migration and
+   'id="field-note-giving-appeal"' in login_html and
+   'suppressFieldNoteGivingAppeal' in members_after.get("members/app.js", "") and
+   'created_at >= ?2' in open(
+       os.path.join(ROOT, "practice-log/src/club/testimonials.js"), encoding="utf-8"
+   ).read() and
+   "object.customer_details?.email" in open(
+       os.path.join(ROOT, "practice-log/src/giving.js"), encoding="utf-8"
+   ).read())
 ok("member directory is contextual rather than social infrastructure",
    'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
    'Members mostly meet each other through Salons. This page offers a little more context.' in login_html and
