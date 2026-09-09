@@ -11,6 +11,7 @@ export async function getDirectory(env, who) {
     `SELECT id, display_name, website, profile_line, profile_image
        FROM member
       WHERE joined_at IS NOT NULL AND disabled_at IS NULL AND left_at IS NULL
+        AND paused_at IS NULL
         AND agreement_version = ?1 AND agreement_accepted_at IS NOT NULL
         AND onboarding_completed_at IS NOT NULL
         AND display_name IS NOT NULL AND TRIM(display_name) <> ''
@@ -57,7 +58,7 @@ export async function getProfileImage(env, memberIdValue) {
   const row = await env.MEMBERS.prepare(
     `SELECT profile_image FROM member
       WHERE id = ?1 AND joined_at IS NOT NULL AND disabled_at IS NULL
-        AND left_at IS NULL AND agreement_version = ?2
+        AND left_at IS NULL AND paused_at IS NULL AND agreement_version = ?2
         AND agreement_accepted_at IS NOT NULL AND onboarding_completed_at IS NOT NULL
         AND profile_image IS NOT NULL`,
   ).bind(memberIdValue, MEMBER_AGREEMENT_VERSION).first();

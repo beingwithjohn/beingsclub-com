@@ -19,7 +19,8 @@ import {
 } from './testimonials.js';
 import { getDirectory, getProfileImage, updateProfile } from './profiles.js';
 import {
-  getMemberSettings, leaveClub, signOutEverywhere, updateMemberSettings,
+  getMemberSettings, leaveClub, pauseMembership, signOutEverywhere,
+  unpauseMembership, updateMemberSettings,
 } from './settings.js';
 import { announceSalon } from './mailer.js';
 import {
@@ -31,7 +32,7 @@ import {
   createProspectBooking, enterGrantedProspect, enterMemberWelcome,
   dismissProspect, getProspectSlots, getProspectState, grantProspect, identifyProspect,
   listProspects, requestProspectCode,
-  resendProspectWelcome, saveProspectTimeNote, verifyProspectCode,
+  resendProspectWelcome, saveProspectJoiningReason, saveProspectTimeNote, verifyProspectCode,
 } from './prospects.js';
 import {
   deleteHostInPersonEvent, getHostInPersonEvents, getInPersonEventImage,
@@ -82,6 +83,9 @@ export async function clubRoute(request, env, ctx, url) {
     if (path === '/api/club/prospect/session' && method === 'GET') {
       return getProspectState(env, prospect);
     }
+    if (path === '/api/club/prospect/intention' && method === 'POST') {
+      return saveProspectJoiningReason(env, prospect, await readJson(request));
+    }
     if (path === '/api/club/prospect/slots' && method === 'GET') {
       return getProspectSlots(env, prospect, url);
     }
@@ -113,6 +117,10 @@ export async function clubRoute(request, env, ctx, url) {
     ).bind(now(), who.session_id).run();
     return json({ ok: true });
   }
+  if (path === '/api/club/settings/unpause' && method === 'POST') {
+    return unpauseMembership(env, who);
+  }
+  if (who.paused_at) return bad(403, 'membership paused');
   if (path === '/api/club/agreement' && method === 'POST') {
     return acceptMemberAgreement(env, who, await readJson(request));
   }
@@ -180,6 +188,9 @@ export async function clubRoute(request, env, ctx, url) {
   }
   if (path === '/api/club/settings/sign-out-all' && method === 'POST') {
     return signOutEverywhere(env, who);
+  }
+  if (path === '/api/club/settings/pause' && method === 'POST') {
+    return pauseMembership(env, who);
   }
   if (path === '/api/club/settings/leave' && method === 'POST') {
     return leaveClub(env, who, await readJson(request));
@@ -386,6 +397,7 @@ async function verifyCode(env, body) {
   const row = await env.MEMBERS.prepare(
     `SELECT c.*, m.email, m.display_name, m.website, m.profile_line,
             m.profile_image, m.is_host, m.disabled_at, m.left_at,
+            m.paused_at,
             m.agreement_version, m.agreement_accepted_at,
             m.onboarding_completed_at
        FROM auth_challenge c
@@ -451,9 +463,12 @@ export async function identifyMember(request, env) {
 
 async function listMembers(env) {
   const rows = await env.MEMBERS.prepare(
-    `SELECT id, email, display_name, is_host, invited_at, joined_at,
-            disabled_at, left_at, invitation_sent_at, invitation_last_error
-       FROM member ORDER BY is_host DESC, COALESCE(joined_at, invited_at), email`,
+    `SELECT m.id, m.email, m.display_name, m.is_host, m.invited_at, m.joined_at,
+            m.disabled_at, m.left_at, m.paused_at,
+            m.invitation_sent_at, m.invitation_last_error,
+            p.salon_month, p.salon_week, p.salon_day, p.salon_hour, p.quiet
+       FROM member m LEFT JOIN member_email_pref p ON p.member_id = m.id
+      ORDER BY m.is_host DESC, COALESCE(m.joined_at, m.invited_at), m.email`,
   ).all();
   return json({ members: (rows.results || []).map((member) => ({
     id: member.id,
@@ -461,9 +476,18 @@ async function listMembers(env) {
     name: member.display_name,
     isHost: !!member.is_host,
     status: member.disabled_at ? 'removed' : member.left_at ? 'left'
+      : member.paused_at ? 'paused'
       : member.joined_at ? 'joined' : member.invitation_sent_at ? 'invited' : 'on_list',
     invitationSentAt: member.invitation_sent_at || null,
     invitationError: member.invitation_last_error || null,
+    salonEmail: {
+      announcement: true,
+      week: member.salon_week == null ? true : !!member.salon_week,
+      month: member.salon_month == null ? false : !!member.salon_month,
+      day: member.salon_day == null ? true : !!member.salon_day,
+      hour: member.salon_hour == null ? false : !!member.salon_hour,
+      quiet: !!member.quiet,
+    },
     canInvite: !member.is_host && !member.joined_at && !member.disabled_at && !member.left_at,
     canRemove: !member.is_host,
   })) });
@@ -636,6 +660,7 @@ function shapeMember(member) {
     agreementAccepted: agreementAccepted(member),
     agreementVersion: MEMBER_AGREEMENT_VERSION,
     onboardingCompleted: Number(member.onboarding_completed_at) > 0,
+    paused: !!member.paused_at,
   };
 }
 

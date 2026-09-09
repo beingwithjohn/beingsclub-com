@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseEmailPreferences, parseLeavePolicy } from '../src/club/settings.js';
+import {
+  parseEmailPreferences, parseLeavePolicy, pauseMembership,
+  unpauseMembership, updateMemberSettings,
+} from '../src/club/settings.js';
 import { announceSalon, eligibleMembers, queueSalonRsvpConfirmation, reminderWindow } from '../src/club/mailer.js';
 import { clubSalonTime } from '../src/mail/send.js';
 
@@ -12,6 +15,38 @@ test('Club email settings accept only an explicit complete set of choices', () =
   assert.deepEqual(parseEmailPreferences(value), { ok: true, email: value });
   assert.equal(parseEmailPreferences({ ...value, salonDay: 'yes' }).ok, false);
   assert.equal(parseEmailPreferences({ salonAnnounced: true }).ok, false);
+});
+
+test('saving preferences cannot silence essential Salon mail', async () => {
+  let saved;
+  const env = { MEMBERS: { prepare() {
+    return { bind(...args) { saved = args; return this; }, async run() { return { meta: { changes: 1 } }; } };
+  } } };
+  const response = await updateMemberSettings(env, { id: 8, email: 'mira@example.test' }, {
+    email: {
+      salonAnnounced: false, salonMonth: false, salonWeek: false,
+      salonDay: false, salonHour: false, fieldNotes: false, quiet: true,
+    },
+  }, 2_000_000_000);
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).email.salonAnnounced, true);
+  assert.equal(saved[1], 1);
+  assert.equal(saved[6], 1);
+});
+
+test('membership can be paused and unpaused without deleting its history', async () => {
+  const statements = [];
+  const env = { MEMBERS: { prepare(sql) {
+    const entry = { sql, args: [] }; statements.push(entry);
+    return { bind(...args) { entry.args = args; return this; }, async run() { return { meta: { changes: 1 } }; } };
+  } } };
+  const who = { id: 8, email: 'mira@example.test' };
+  assert.equal((await (await pauseMembership(env, who, 2_000_000_000)).json()).paused, true);
+  assert.equal((await (await unpauseMembership(env, who, 2_000_000_100)).json()).paused, false);
+  assert.match(statements[0].sql, /paused_at = COALESCE\(paused_at, \?1\)/);
+  assert.deepEqual(statements[0].args, [2_000_000_000, 8]);
+  assert.match(statements[1].sql, /paused_at = NULL/);
+  assert.deepEqual(statements[1].args, [2_000_000_100, 8]);
 });
 
 test('leaving requires a deliberate confirmation and one known Field Note policy', () => {
@@ -33,7 +68,7 @@ test('Salon reminder windows are narrow and idempotence can own the retry', () =
   assert.equal(reminderWindow(start, 'unknown', start), false);
 });
 
-test('announcements and week notices can reach every opted-in member while other reminders require an RSVP', async () => {
+test('the first announcement reaches every member while optional reminders keep their preferences', async () => {
   const seen = [];
   const env = {
     MEMBERS: {
@@ -56,10 +91,13 @@ test('announcements and week notices can reach every opted-in member while other
   await eligibleMembers(env, 'salon_day', 17);
 
   assert.doesNotMatch(seen[0].sql, /salon_rsvp/);
-  assert.match(seen[0].sql, /p\.salon_announced/);
+  assert.doesNotMatch(seen[0].sql, /p\.salon_announced/);
+  assert.doesNotMatch(seen[0].sql, /p\.quiet/);
+  assert.match(seen[0].sql, /m\.paused_at IS NULL/);
   assert.equal(seen[0].bound, null);
   assert.doesNotMatch(seen[1].sql, /salon_rsvp/);
   assert.match(seen[1].sql, /p\.salon_week/);
+  assert.match(seen[1].sql, /m\.paused_at IS NULL/);
   assert.equal(seen[1].bound, null);
   assert.match(seen[2].sql, /FROM salon_rsvp r/);
   assert.match(seen[2].sql, /p\.salon_day/);

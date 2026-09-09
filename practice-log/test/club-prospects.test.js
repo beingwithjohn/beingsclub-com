@@ -4,7 +4,7 @@ import { createHmac } from 'node:crypto';
 import { sendProspectCode, sendProspectTimeNote } from '../src/mail/send.js';
 import {
   createProspectBooking, dismissProspect, enterMemberWelcome, getProspectSlots, resendProspectWelcome,
-  listProspects, validWebhookSignature,
+  listProspects, saveProspectJoiningReason, validWebhookSignature,
 } from '../src/club/prospects.js';
 
 function prospectDb(row) {
@@ -16,6 +16,11 @@ function prospectDb(row) {
         bind(...values) { args = values; return this; },
         async first() { return { ...row }; },
         async run() {
+          if (sql.includes('UPDATE prospect SET joining_reason')) {
+            Object.assign(row, {
+              joining_reason: args[0], joining_reason_at: args[1], updated_at: args[1],
+            });
+          }
           if (sql.includes('UPDATE prospect SET booking_uid')) {
             Object.assign(row, {
               booking_uid: args[0], booking_reschedule_uid: args[0],
@@ -242,7 +247,9 @@ test('the native calendar returns Cal availability without exposing Cal’s inte
     }), { status: 200, headers: { 'content-type': 'application/json' } });
   };
   try {
-    const response = await getProspectSlots({ CAL_API_KEY: 'cal_test_123' }, { booking_uid: null }, new URL(
+    const response = await getProspectSlots({ CAL_API_KEY: 'cal_test_123' }, {
+      booking_uid: null, joining_reason: 'I want to meet the Club in practice.',
+    }, new URL(
       'https://example.test/api/club/prospect/slots?start=2026-09-01&end=2026-10-01&timeZone=Europe%2FLondon',
     ));
     assert.equal(response.status, 200);
@@ -254,6 +261,35 @@ test('the native calendar returns Cal availability without exposing Cal’s inte
   } finally {
     globalThis.fetch = original;
   }
+});
+
+test('a prospective member must share what draws them before the calendar opens', async () => {
+  const row = {
+    id: 7, email: 'mira@example.test', display_name: 'Mira', booking_uid: null,
+    booking_status: null, granted_at: null, joining_reason: null,
+  };
+  const env = { MEMBERS: prospectDb(row), CAL_API_KEY: 'cal_test_123' };
+  let response = await getProspectSlots(env, row, new URL(
+    'https://example.test/api/club/prospect/slots?start=2026-09-01&end=2026-10-01&timeZone=Europe%2FLondon',
+  ));
+  assert.equal(response.status, 409);
+  assert.deepEqual(await response.json(), { error: 'joining reason required' });
+
+  response = await createProspectBooking(env, row, {
+    start: '2026-09-03T15:10:00.000Z', timeZone: 'Europe/London', name: 'Mira',
+  });
+  assert.equal(response.status, 409);
+  assert.deepEqual(await response.json(), { error: 'joining reason required' });
+
+  response = await saveProspectJoiningReason(env, row, {
+    joiningReason: '  I’m drawn to a place where curiosity is something people practise together.  ',
+  });
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.prospect.joiningReason,
+    'I’m drawn to a place where curiosity is something people practise together.');
+  assert.equal(row.joining_reason, data.prospect.joiningReason);
+  assert.match(data.prospect.joiningReasonAt, /^\d{4}-\d{2}-\d{2}T/);
 });
 
 test('the Worker verifies a chosen slot and creates the Cal booking itself', async () => {
@@ -278,6 +314,7 @@ test('the Worker verifies a chosen slot and creates the Cal booking itself', asy
   const row = {
     id: 7, email: 'mira@example.test', booking_uid: null,
     booking_status: null, granted_at: null,
+    joining_reason: 'I’m curious about meeting through a shared practice of curiosity.',
   };
   try {
     const response = await createProspectBooking({

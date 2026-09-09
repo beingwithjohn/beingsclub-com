@@ -156,7 +156,22 @@ export async function getProspectState(env, who) {
   return json({ prospect: shapeProspect(who) });
 }
 
+export async function saveProspectJoiningReason(env, who, body) {
+  if (who.granted_at || activeBooking(who)) return bad(409, 'joining reason unavailable');
+  const joiningReason = cleanText(body?.joiningReason, NOTE_MAX);
+  if (!joiningReason) return bad(400, 'joining reason');
+  const timestamp = now();
+  await env.MEMBERS.prepare(
+    `UPDATE prospect SET joining_reason = ?1, joining_reason_at = ?2,
+       updated_at = ?2 WHERE id = ?3`,
+  ).bind(joiningReason, timestamp, who.id).run();
+  return json({ prospect: await getProspectShape(env, who.id) });
+}
+
 export async function getProspectSlots(env, who, url) {
+  if (!activeBooking(who) && !cleanText(who.joining_reason, NOTE_MAX)) {
+    return bad(409, 'joining reason required');
+  }
   const start = calendarDate(url.searchParams.get('start'));
   const end = calendarDate(url.searchParams.get('end'));
   const timeZone = cleanTimezone(url.searchParams.get('timeZone'));
@@ -178,6 +193,9 @@ export async function createProspectBooking(env, who, body, ctx) {
   const name = cleanText(body?.name, NAME_MAX) || cleanText(who.display_name, NAME_MAX);
   const note = cleanText(body?.note, NOTE_MAX);
   if (!startTime || !timeZone || (!rescheduling && !name)) return bad(400, 'booking');
+  if (!rescheduling && !cleanText(who.joining_reason, NOTE_MAX)) {
+    return bad(409, 'joining reason required');
+  }
 
   // Never trust a start supplied by the browser. Refresh Cal's availability
   // around that instant and require the exact slot before creating anything.
@@ -357,6 +375,7 @@ export async function listProspects(env) {
     `SELECT p.id, p.email, p.display_name, p.booking_uid, p.booking_title,
             p.booking_start_at, p.booking_end_at, p.booking_timezone,
             p.booking_status, p.alternate_time_note, p.alternate_time_note_at,
+            p.joining_reason, p.joining_reason_at,
             p.granted_at, p.member_id, p.created_at, p.updated_at,
             m.joined_at AS member_joined_at,
             inviter.display_name AS inviter_name
@@ -520,6 +539,8 @@ function shapeProspect(row) {
     } : null,
     alternateTimeNote: row.alternate_time_note || null,
     alternateTimeNoteAt: iso(row.alternate_time_note_at),
+    joiningReason: row.joining_reason || null,
+    joiningReasonAt: iso(row.joining_reason_at),
     granted: !!row.granted_at,
   };
 }
@@ -541,6 +562,7 @@ function shapeEnteredMember(member) {
     isHost: !!member.is_host, agreementAccepted: agreementAccepted(member),
     agreementVersion: MEMBER_AGREEMENT_VERSION,
     onboardingCompleted: Number(member.onboarding_completed_at) > 0,
+    paused: !!member.paused_at,
   };
 }
 

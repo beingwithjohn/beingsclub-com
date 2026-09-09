@@ -165,6 +165,15 @@
       const identity = document.createElement('div'); identity.className = 'member-identity';
       identity.append(text('span', 'member-email', member.email));
       if (member.name) identity.append(text('span', 'member-name', member.name));
+      if (member.status === 'joined' && member.salonEmail) {
+        const optional = member.salonEmail.quiet
+          ? 'optional Salon mail quiet'
+          : `one-week ${member.salonEmail.week ? 'on' : 'off'} · RSVP reminders ${[
+            member.salonEmail.month, member.salonEmail.day, member.salonEmail.hour,
+          ].some(Boolean) ? 'on' : 'off'}`;
+        identity.append(text('span', `member-email-state${member.salonEmail.quiet ? ' is-quiet' : ''}`,
+          `first announcement always · ${optional}`));
+      }
       const actions = document.createElement('div'); actions.className = 'member-actions';
       const state = member.isHost ? 'host' : member.status;
       actions.append(text('span', `member-status ${state}`, state === 'on_list' ? 'on list' : state));
@@ -792,6 +801,10 @@
         main.append(text('span', '', `${when} · ${prospect.booking.verified ? 'confirmed by Cal.com' : 'awaiting Cal.com'}`));
       } else main.append(text('span', '', 'No conversation booked yet.'));
       if (prospect.invitedBy) main.append(text('em', '', `invited by ${prospect.invitedBy}`));
+      if (prospect.joiningReason) {
+        main.append(text('em', '', 'what draws them here'));
+        main.append(text('blockquote', 'prospect-joining-reason', prospect.joiningReason));
+      }
       if (prospect.alternateTimeNote) main.append(text('blockquote', '', prospect.alternateTimeNote));
       const actions = document.createElement('div'); actions.className = 'prospect-host-actions';
       if (prospect.granted) {
@@ -1513,8 +1526,10 @@
       }
       updateClock();
       render([
-        { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canInvite: false, canRemove: false },
-        { id: 2, email: 'mira@example.com', name: 'Mira', isHost: false, status: 'invited', canInvite: true, canRemove: true },
+        { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canInvite: false, canRemove: false,
+          salonEmail: { announcement: true, week: true, month: false, day: true, hour: false, quiet: false } },
+        { id: 2, email: 'mira@example.com', name: 'Mira', isHost: false, status: 'joined', canInvite: false, canRemove: true,
+          salonEmail: { announcement: true, week: false, month: false, day: false, hour: false, quiet: true } },
         { id: 3, email: 'sam@example.com', name: null, isHost: false, status: 'on_list', canInvite: true, canRemove: true },
       ]);
       renderSalons({
@@ -1595,8 +1610,8 @@
         submittedAt: '2026-08-28T12:00:00.000Z', updatedAt: '2026-08-28T12:00:00.000Z',
       }] });
       renderProspects({ prospects: [
-        { id: 1, name: 'Mira', email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, alternateTimeNote: null, granted: false, invitedBy: 'Leila' },
-        { id: 2, name: 'Noor', email: 'noor@example.com', booking: null, alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: false },
+        { id: 1, name: 'Mira', email: 'mira@example.com', booking: { startTime: '2026-09-10T18:00:00.000Z', verified: true }, joiningReason: 'I’m drawn to spaces where curiosity can be shared without needing to arrive with an answer.', alternateTimeNote: null, granted: false, invitedBy: 'Leila' },
+        { id: 2, name: 'Noor', email: 'noor@example.com', booking: null, joiningReason: 'I’d like to meet people who are willing to stay with the questions for a while.', alternateTimeNote: 'I’m in Toronto and weekday evenings UK time are difficult. Could a Friday work?', granted: false },
       ] });
       renderAdmissions({
         admissions: { paused: true, pausedAt: '2026-09-07T10:00:00.000Z' },

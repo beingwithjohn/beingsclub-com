@@ -7,6 +7,7 @@
   const loginPage = document.getElementById('login-page');
   const welcomePage = document.getElementById('welcome-page');
   const memberApp = document.getElementById('member-app');
+  const pausedMembership = document.getElementById('paused-membership');
   const prospectApp = document.getElementById('prospect-app');
   const emailForm = document.getElementById('email-form');
   const codeForm = document.getElementById('code-form');
@@ -144,6 +145,7 @@
 
   function showLogin(element) {
     memberApp.hidden = true;
+    pausedMembership.hidden = true;
     prospectApp.hidden = true;
     welcomePage.hidden = true;
     loginPage.hidden = false;
@@ -197,6 +199,7 @@
   function showWelcome(step = 0) {
     loginPage.hidden = true;
     memberApp.hidden = true;
+    pausedMembership.hidden = true;
     prospectApp.hidden = true;
     welcomePage.hidden = false;
     welcomeStep = step;
@@ -207,12 +210,22 @@
     loginPage.hidden = true;
     welcomePage.hidden = true;
     memberApp.hidden = true;
+    pausedMembership.hidden = true;
     prospectApp.hidden = false;
     if (!prospectName) prospectName = 'John';
     updateProspectGreeting();
     const booked = state === 'booked';
+    const asking = state === 'intention';
+    prospect = {
+      ...(prospect || {}),
+      email: prospect?.email || 'you@example.com',
+      name: prospect?.name || prospectName,
+      joiningReason: asking ? null : (prospect?.joiningReason
+        || 'I’m curious about meeting people through a shared practice of curiosity.'),
+    };
     document.getElementById('prospect-granted').hidden = true;
-    document.getElementById('prospect-calendar').hidden = booked;
+    document.getElementById('prospect-intention').hidden = !asking;
+    document.getElementById('prospect-calendar').hidden = booked || asking;
     document.getElementById('prospect-booked').hidden = !booked;
     document.getElementById('prospect-calendar-body').hidden = false;
     document.getElementById('prospect-booking-form').hidden = true;
@@ -224,7 +237,7 @@
     });
     const params = new URLSearchParams(location.search);
     params.set('preview', 'prospective');
-    if (booked) params.set('state', 'booked');
+    if (booked || asking) params.set('state', state);
     else params.delete('state');
     history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
     if (booked) {
@@ -233,7 +246,7 @@
         uid: 'preview', title: 'A first conversation with John', startTime: chosen,
         endTime: new Date(Date.parse(chosen) + 25 * 60000).toISOString(), verified: true,
       });
-    } else {
+    } else if (!asking) {
       prepareProspectCalendar(true);
     }
   }
@@ -505,6 +518,7 @@
 
   function renderProspect() {
     loginPage.hidden = true; welcomePage.hidden = true; memberApp.hidden = true;
+    pausedMembership.hidden = true;
     prospectApp.hidden = false;
     prospectName = prospect?.name || prospectName;
     updateProspectGreeting();
@@ -514,11 +528,14 @@
     const granted = !!prospect?.granted;
     const booking = prospect?.booking;
     const booked = !!booking && booking.status !== 'cancelled';
+    const hasIntention = !!prospect?.joiningReason;
     document.getElementById('prospect-granted').hidden = !granted;
-    document.getElementById('prospect-calendar').hidden = granted || booked;
+    document.getElementById('prospect-intention').hidden = granted || booked || hasIntention;
+    document.getElementById('prospect-calendar').hidden = granted || booked || !hasIntention;
     document.getElementById('prospect-booked').hidden = granted || !booked;
     if (granted) return;
-    if (!booked) { prepareProspectCalendar(); return; }
+    if (!booked && hasIntention) { prepareProspectCalendar(); return; }
+    if (!booked) return;
     renderBookedTime(booking);
   }
 
@@ -1338,36 +1355,30 @@
 
   function renderSettings() {
     const preferences = settingsState.email;
-    document.getElementById('email-salon-announced').checked = !!preferences.salonAnnounced;
     document.getElementById('email-salon-month').checked = !!preferences.salonMonth;
     document.getElementById('email-salon-week').checked = !!preferences.salonWeek;
     document.getElementById('email-salon-day').checked = !!preferences.salonDay;
     document.getElementById('email-salon-hour').checked = !!preferences.salonHour;
-    document.getElementById('email-field-notes').checked = !!preferences.fieldNotes;
     document.getElementById('email-quiet').checked = !!preferences.quiet;
     const quiet = !!preferences.quiet;
     const salonOptions = document.getElementById('salon-email-options');
-    const fieldNoteRow = document.getElementById('field-note-email-row');
     salonOptions.classList.toggle('settings-email-muted', quiet);
-    fieldNoteRow.classList.toggle('settings-email-muted', quiet);
     salonOptions.setAttribute('aria-disabled', String(quiet));
-    fieldNoteRow.setAttribute('aria-disabled', String(quiet));
-    ['email-salon-announced', 'email-salon-month', 'email-salon-week', 'email-salon-day',
-      'email-salon-hour', 'email-field-notes'].forEach((id) => {
+    ['email-salon-month', 'email-salon-week', 'email-salon-day',
+      'email-salon-hour'].forEach((id) => {
       document.getElementById(id).disabled = quiet;
     });
     document.getElementById('settings-account-email').textContent = settingsState.account?.email || member?.email || '';
     document.getElementById('settings-email-note').textContent = preferences.quiet
-      ? 'Everything is quiet · turn off the last switch to hear from us again.'
-      : (!preferences.salonAnnounced && !preferences.salonMonth && !preferences.salonWeek
-          && !preferences.salonDay && !preferences.salonHour && !preferences.fieldNotes)
-        ? 'No optional Club email · this member area is the only door.'
+      ? 'Optional email is quiet · essential Salon messages will still arrive.'
+      : (!preferences.salonMonth && !preferences.salonWeek
+          && !preferences.salonDay && !preferences.salonHour)
+        ? 'No optional Club email · essential Salon messages will still arrive.'
         : 'Every Club email ends with a link back to this page.';
   }
 
   function prepareWelcomeEmailSettings() {
     const preferences = settingsState.email;
-    document.getElementById('welcome-email-salon-announced').checked = !!preferences.salonAnnounced;
     document.getElementById('welcome-email-salon-month').checked = !!preferences.salonMonth;
     document.getElementById('welcome-email-salon-week').checked = !!preferences.salonWeek;
     document.getElementById('welcome-email-salon-day').checked = !!preferences.salonDay;
@@ -1380,7 +1391,7 @@
     const previous = settingsState.email;
     const emailSettings = {
       ...previous,
-      salonAnnounced: document.getElementById('welcome-email-salon-announced').checked,
+      salonAnnounced: true,
       salonMonth: document.getElementById('welcome-email-salon-month').checked,
       salonWeek: document.getElementById('welcome-email-salon-week').checked,
       salonDay: document.getElementById('welcome-email-salon-day').checked,
@@ -1402,12 +1413,12 @@
 
   function emailPreferencesFromPage() {
     return {
-      salonAnnounced: document.getElementById('email-salon-announced').checked,
+      salonAnnounced: true,
       salonMonth: document.getElementById('email-salon-month').checked,
       salonWeek: document.getElementById('email-salon-week').checked,
       salonDay: document.getElementById('email-salon-day').checked,
       salonHour: document.getElementById('email-salon-hour').checked,
-      fieldNotes: document.getElementById('email-field-notes').checked,
+      fieldNotes: true,
       quiet: document.getElementById('email-quiet').checked,
     };
   }
@@ -1519,6 +1530,7 @@
   function showMemberApp() {
     loginPage.hidden = true;
     welcomePage.hidden = true;
+    pausedMembership.hidden = true;
     memberApp.hidden = false;
     document.getElementById('member-host-link').hidden = !member.isHost;
     document.getElementById('mobile-host-link').hidden = !member.isHost;
@@ -1528,6 +1540,10 @@
 
   async function enter(memberData, options = {}) {
     member = memberData;
+    if (member.paused) {
+      showPausedMembership();
+      return;
+    }
     if (!member.agreementAccepted) {
       showWelcome(0);
       return;
@@ -1544,6 +1560,15 @@
     if (!member.onboardingCompleted) showWelcome(Number.isInteger(options.welcomeStep) ? options.welcomeStep : 4);
     else if (Number.isInteger(options.welcomeStep)) showWelcome(options.welcomeStep);
     else showMemberApp();
+  }
+
+  function showPausedMembership() {
+    loginPage.hidden = true;
+    welcomePage.hidden = true;
+    prospectApp.hidden = true;
+    memberApp.hidden = true;
+    pausedMembership.hidden = false;
+    document.getElementById('membership-unpause-status').textContent = '';
   }
 
   function makeMemberFeedbackFooter(page) {
@@ -2030,7 +2055,7 @@
     }
     const button = prospectCodeForm.querySelector('button[type="submit"]'); button.disabled = true;
     try {
-      if (previewMode) { showProspectPreview('calendar'); return; }
+      if (previewMode) { showProspectPreview('intention'); return; }
       const data = await prospectCall('/api/club/prospect/auth/verify', {
         method: 'POST', body: JSON.stringify({
           challenge: prospectChallenge, code: prospectCodeInput.value,
@@ -2250,10 +2275,44 @@
     setMembersDrawerMode(membersDrawerMode === 'expanded' ? 'compact' : 'expanded');
   });
   [
-    'email-salon-announced', 'email-salon-month', 'email-salon-week', 'email-salon-day',
+    'email-salon-month', 'email-salon-week', 'email-salon-day',
     'email-salon-hour',
-    'email-field-notes', 'email-quiet',
+    'email-quiet',
   ].forEach((id) => document.getElementById(id).addEventListener('change', saveEmailSettings));
+  document.getElementById('pause-open').addEventListener('click', () => {
+    document.getElementById('pause-intro').hidden = true;
+    document.getElementById('pause-confirm').hidden = false;
+  });
+  document.getElementById('pause-cancel').addEventListener('click', () => {
+    document.getElementById('pause-intro').hidden = false;
+    document.getElementById('pause-confirm').hidden = true;
+    document.getElementById('pause-status').textContent = '';
+  });
+  document.getElementById('pause-submit').addEventListener('click', async () => {
+    const button = document.getElementById('pause-submit');
+    const status = document.getElementById('pause-status');
+    button.disabled = true; status.textContent = 'Pausing…';
+    try {
+      if (!previewMode) await call('/api/club/settings/pause', { method: 'POST', body: '{}' });
+      member.paused = true; showPausedMembership();
+    } catch (_) {
+      status.textContent = 'Membership could not be paused. Try again.';
+    } finally { button.disabled = false; }
+  });
+  document.getElementById('membership-unpause').addEventListener('click', async () => {
+    const button = document.getElementById('membership-unpause');
+    const status = document.getElementById('membership-unpause-status');
+    button.disabled = true; status.textContent = 'Returning…';
+    try {
+      if (!previewMode) await call('/api/club/settings/unpause', { method: 'POST', body: '{}' });
+      member.paused = false;
+      if (previewMode) showMemberApp();
+      else await enter(member);
+    } catch (_) {
+      status.textContent = 'Membership could not be unpaused. Try again.';
+    } finally { button.disabled = false; }
+  });
+  document.getElementById('paused-sign-out').addEventListener('click', signOut);
   document.getElementById('onboarding-replay').addEventListener('click', () => {
     replayingWelcome = true;
     document.getElementById('agreement-check').checked = false;
@@ -2319,6 +2378,26 @@
   }, 100);
   document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
     button.addEventListener('click', () => showProspectPreview(button.dataset.prospectPreview));
+  });
+  document.getElementById('prospect-intention-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const response = document.getElementById('prospect-intention-body');
+    if (!response.checkValidity()) { response.reportValidity(); return; }
+    const button = document.getElementById('prospect-intention-submit');
+    const status = document.getElementById('prospect-intention-status');
+    button.disabled = true; status.textContent = 'Saving…';
+    try {
+      if (previewMode) {
+        prospect = { ...(prospect || {}), joiningReason: response.value.trim() };
+        status.textContent = ''; showProspectPreview('calendar'); return;
+      }
+      const data = await prospectCall('/api/club/prospect/intention', {
+        method: 'POST', body: JSON.stringify({ joiningReason: response.value }),
+      });
+      prospect = data.prospect; status.textContent = ''; renderProspect();
+    } catch (_) {
+      status.textContent = 'That response could not be saved. Please try again.';
+    } finally { button.disabled = false; }
   });
   document.getElementById('prospect-month-previous').addEventListener('click', () => {
     calendarMonth = new Date(Date.UTC(calendarMonth.getUTCFullYear(), calendarMonth.getUTCMonth() - 1, 1));
@@ -2477,14 +2556,16 @@
         if (previewParams.get('state') === 'waitlist') {
           showLogin(prospectEmailForm); prospectEmailInput.focus(); return;
         }
-        showProspectPreview(previewParams.get('state') === 'booked' ? 'booked' : 'calendar');
+        const prospectState = previewParams.get('state');
+        showProspectPreview(['booked', 'intention'].includes(prospectState) ? prospectState : 'calendar');
         return;
       }
       member = {
         id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true,
         agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
-        onboardingCompleted: preview !== 'onboarding',
+        onboardingCompleted: preview !== 'onboarding', paused: previewParams.get('state') === 'paused',
       };
+      if (member.paused) { showPausedMembership(); return; }
       if (preview === 'onboarding') {
         const onboardingSteps = { profile: 4, salon: 5, email: 6, giving: 7 };
         showWelcome(onboardingSteps[previewParams.get('step')] ?? 0);

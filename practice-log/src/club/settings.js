@@ -20,6 +20,9 @@ export async function getMemberSettings(env, who) {
 export async function updateMemberSettings(env, who, body, timestamp = now()) {
   const parsed = parseEmailPreferences(body?.email);
   if (!parsed.ok) return bad(400, 'email preferences');
+  // The first Salon announcement and the post-Salon Field Note invitation are
+  // essential Club mail. Keep their legacy columns true for old clients.
+  const email = { ...parsed.email, salonAnnounced: true, fieldNotes: true };
   await env.MEMBERS.prepare(
     `INSERT INTO member_email_pref
       (member_id, salon_announced, salon_month, salon_week, salon_day, salon_hour,
@@ -35,12 +38,12 @@ export async function updateMemberSettings(env, who, body, timestamp = now()) {
        quiet = excluded.quiet,
        updated_at = excluded.updated_at`,
   ).bind(
-    memberId(who), number(parsed.email.salonAnnounced), number(parsed.email.salonMonth),
-    number(parsed.email.salonWeek), number(parsed.email.salonDay),
-    number(parsed.email.salonHour), number(parsed.email.fieldNotes),
-    number(parsed.email.quiet), timestamp,
+    memberId(who), number(email.salonAnnounced), number(email.salonMonth),
+    number(email.salonWeek), number(email.salonDay),
+    number(email.salonHour), number(email.fieldNotes),
+    number(email.quiet), timestamp,
   ).run();
-  return json(settingsPayload(who, parsed.email));
+  return json(settingsPayload(who, email));
 }
 
 export async function signOutEverywhere(env, who, timestamp = now()) {
@@ -49,6 +52,22 @@ export async function signOutEverywhere(env, who, timestamp = now()) {
       WHERE member_id = ?2 AND revoked_at IS NULL`,
   ).bind(timestamp, memberId(who)).run();
   return json({ ok: true });
+}
+
+export async function pauseMembership(env, who, timestamp = now()) {
+  await env.MEMBERS.prepare(
+    `UPDATE member SET paused_at = COALESCE(paused_at, ?1), updated_at = ?1
+      WHERE id = ?2 AND disabled_at IS NULL AND left_at IS NULL`,
+  ).bind(timestamp, memberId(who)).run();
+  return json({ ok: true, paused: true });
+}
+
+export async function unpauseMembership(env, who, timestamp = now()) {
+  await env.MEMBERS.prepare(
+    `UPDATE member SET paused_at = NULL, updated_at = ?1
+      WHERE id = ?2 AND disabled_at IS NULL AND left_at IS NULL`,
+  ).bind(timestamp, memberId(who)).run();
+  return json({ ok: true, paused: false });
 }
 
 export async function leaveClub(env, who, body, timestamp = now()) {
@@ -139,18 +158,19 @@ export function parseLeavePolicy(value) {
 function settingsPayload(member, row) {
   return {
     email: row ? {
-      salonAnnounced: boolean(row.salon_announced ?? row.salonAnnounced),
+      salonAnnounced: true,
       salonMonth: boolean(row.salon_month ?? row.salonMonth),
       salonWeek: boolean(row.salon_week ?? row.salonWeek),
       salonDay: boolean(row.salon_day ?? row.salonDay),
       salonHour: boolean(row.salon_hour ?? row.salonHour),
-      fieldNotes: boolean(row.field_notes ?? row.fieldNotes),
+      fieldNotes: true,
       quiet: boolean(row.quiet),
     } : { ...DEFAULT_EMAIL_PREFERENCES },
     account: {
       email: member.email,
       joinedAt: iso(member.joined_at),
       isHost: !!member.is_host,
+      paused: !!member.paused_at,
     },
   };
 }

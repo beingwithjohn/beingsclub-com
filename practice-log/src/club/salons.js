@@ -75,13 +75,10 @@ export async function getHostSalon(env, timestamp = now(), extra = {}) {
                 AND active_member.left_at IS NULL) AS rsvp_count,
             (SELECT COUNT(*)
                FROM member announcement_member
-               LEFT JOIN member_email_pref announcement_pref
-                 ON announcement_pref.member_id = announcement_member.id
-              WHERE announcement_member.joined_at IS NOT NULL
-                AND announcement_member.disabled_at IS NULL
-                AND announcement_member.left_at IS NULL
-                AND COALESCE(announcement_pref.quiet, 0) = 0
-                AND COALESCE(announcement_pref.salon_announced, 1) = 1
+               WHERE announcement_member.joined_at IS NOT NULL
+                 AND announcement_member.disabled_at IS NULL
+                 AND announcement_member.left_at IS NULL
+                 AND announcement_member.paused_at IS NULL
                 AND NOT EXISTS (
                   SELECT 1 FROM club_send_log announcement_log
                    WHERE announcement_log.member_id = announcement_member.id

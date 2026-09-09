@@ -194,6 +194,7 @@ export async function getHostFieldNotes(env, timestamp = now()) {
          LEFT JOIN salon_attendance a ON a.member_id = m.id AND a.salon_id = ?1
          LEFT JOIN field_note n ON n.member_id = m.id AND n.salon_id = ?1
         WHERE m.joined_at IS NOT NULL AND m.disabled_at IS NULL AND m.left_at IS NULL
+          AND m.paused_at IS NULL
         ORDER BY CASE r.status WHEN 'in' THEN 0 ELSE 1 END,
                  COALESCE(m.display_name, m.email) COLLATE NOCASE`,
     ).bind(salon.id).all();
@@ -270,12 +271,10 @@ export async function inviteFieldNoteAttendees(env, who, salonId, body, ctx, tim
 
   const placeholders = ids.map(() => '?').join(',');
   const allowed = await env.MEMBERS.prepare(
-    `SELECT m.id, m.email, m.display_name,
-            COALESCE(p.field_notes, 1) AS field_note_email,
-            COALESCE(p.quiet, 0) AS email_quiet
-       FROM member m LEFT JOIN member_email_pref p ON p.member_id = m.id
+    `SELECT m.id, m.email, m.display_name
+       FROM member m
       WHERE m.id IN (${placeholders}) AND m.joined_at IS NOT NULL
-        AND m.disabled_at IS NULL AND m.left_at IS NULL`,
+        AND m.disabled_at IS NULL AND m.left_at IS NULL AND m.paused_at IS NULL`,
   ).bind(...ids).all();
   const people = allowed.results || [];
   if (people.length !== ids.length) return bad(400, 'member');
@@ -293,10 +292,9 @@ export async function inviteFieldNoteAttendees(env, who, salonId, body, ctx, tim
        VALUES (?1, ?2, ?3, ?4, ?5, ?4, ?4)`,
     ).bind(
       salonId, person.id, memberId(who), timestamp,
-      wantsFieldNoteEmail(person) ? timestamp : null,
+      timestamp,
     )));
-    const emailed = fresh.filter(wantsFieldNoteEmail);
-    ctx.waitUntil(Promise.all(emailed.map(async (person) => {
+    ctx.waitUntil(Promise.all(fresh.map(async (person) => {
       const actionUrl = await issueMemberAccessLink(env, person.id, timestamp);
       return sendFieldNoteInvitation(env, {
         email: person.email,
@@ -453,10 +451,6 @@ function positiveId(value) {
 
 function memberId(who) {
   return Number(who.member_id ?? who.id);
-}
-
-function wantsFieldNoteEmail(person) {
-  return Number(person.field_note_email) === 1 && Number(person.email_quiet) !== 1;
 }
 
 function iso(seconds) {

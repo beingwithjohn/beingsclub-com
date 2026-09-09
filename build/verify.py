@@ -329,6 +329,9 @@ ok("host can name an invitee and preview the exact invitation without sending",
 ok("first-conversation cards show the collected name above the email",
    "prospect.name || prospect.email" in members_after.get("members/host.js", "") and
    "if (prospect.name) main.append(text('span', '', prospect.email))" in members_after.get("members/host.js", ""))
+ok("first-conversation cards show why somebody is drawn to the Club",
+   "prospect.joiningReason" in members_after.get("members/host.js", "") and
+   "what draws them here" in members_after.get("members/host.js", ""))
 prospect_archive_migration = open(
     os.path.join(ROOT, "practice-log", "members-migrations", "0017_prospect_archive.sql"),
     encoding="utf-8",
@@ -423,6 +426,11 @@ ok("prospective members see a native Beings Club calendar rather than an embed",
    'frame-src https://coliven.com' in login_html and
    "prospectCall(`/api/club/prospect/slots?${query}`)" in members_after.get("members/app.js", "") and
    "prospectCall('/api/club/prospect/booking'" in members_after.get("members/app.js", ""))
+ok("prospective members answer the joining question before calendar availability",
+   'id="prospect-intention"' in login_html and
+   'What draws you to <strong>Beings Club</strong> at this time?' in login_html and
+   login_html.index('id="prospect-intention"') < login_html.index('id="prospect-calendar"') and
+   "prospectCall('/api/club/prospect/intention'" in members_after.get("members/app.js", ""))
 ok("the mobile first-conversation page remains vertically scrollable",
    ".prospect-page{position:absolute;inset:0;overflow-y:auto" in members_after.get("members/app.css", "") and
    ".prospect-page{position:relative;inset:auto" not in members_after.get("members/app.css", ""))
@@ -450,7 +458,6 @@ ok("member and host greeting names stay lowercase",
    "good evening, john" in host_html)
 ok("quiet email mode is conveyed to keyboard and screen-reader users",
    "salonOptions.setAttribute('aria-disabled', String(quiet))" in members_after.get("members/app.js", "") and
-   "fieldNoteRow.setAttribute('aria-disabled', String(quiet))" in members_after.get("members/app.js", "") and
    "document.getElementById(id).disabled = quiet" in members_after.get("members/app.js", ""))
 ok("first entry carries a concise, versioned member agreement",
    'id="welcome-page"' in login_html and 'id="agreement-form"' in login_html and
@@ -479,7 +486,7 @@ ok("the required principles, profile and Salon email choices sit inside the eigh
    'id="welcome-salon-heading"' in login_html and
    'data-welcome-step="6"' in login_html and
    'id="welcome-email-form"' in login_html and
-   'By default, everyone receives the announcement and a note one week before.' in login_html and
+   'Everyone receives the first announcement of a Salon and, after attending, one invitation to share a Field Note.' in login_html and
    'only sent after you say I’m in' in login_html and
    'Freely <strong>offered</strong>.' in login_html and
    "await enter(data.member, { welcomeStep: 4 })" in members_after.get("members/app.js", "") and
@@ -611,13 +618,18 @@ ok("public events have a separate member-area page while the public route stays 
    "'#public': 'public'" in members_after.get("members/app.js", "") and
    "document.getElementById('public-events-page').hidden = !publicEvents" in members_after.get("members/app.js", "") and
    '.public-events-content' in members_after.get("members/app.css", ""))
-ok("member Settings carries every Salon timing, welcome replay and quiet-email language",
+ok("member Settings carries optional Salon timings, welcome replay and quiet-email language",
    'data-member-view="settings"' in login_html and 'id="settings-page"' in login_html and
-   'id="email-salon-announced"' in login_html and 'id="email-salon-month"' in login_html and
+   'first announcement · always' in login_html and 'id="email-salon-month"' in login_html and
    'id="email-salon-week"' in login_html and 'id="email-salon-day"' in login_html and
-   'id="email-salon-hour"' in login_html and 'id="email-field-notes"' in login_html and
+   'id="email-salon-hour"' in login_html and 'after attending · always' in login_html and
    'id="onboarding-replay"' in login_html and
-   'Quiet, for now' in login_html and 'Access codes still arrive when you ask for one' in login_html)
+   'Quiet, for now' in login_html and 'Access codes arrive when you ask for one' in login_html)
+ok("pausing membership closes the member pages while preserving a way back",
+   'id="paused-membership"' in login_html and 'id="pause-submit"' in login_html and
+   'id="membership-unpause"' in login_html and
+   '/api/club/settings/pause' in members_after.get("members/app.js", "") and
+   '/api/club/settings/unpause' in members_after.get("members/app.js", ""))
 ok("leaving lets members decide what happens to existing Field Notes",
    'value="keep_signed"' in login_html and 'value="anonymise"' in login_html and
    'value="remove"' in login_html and 'Any testimonial awaiting consideration is withdrawn' in login_html and
@@ -628,6 +640,11 @@ ok("anonymous Field Notes remain attributable only through host tools",
    'anonymous && !host ? null' in field_notes_api and
    'anonymousToMembers: anonymous && host' in field_notes_api and
    'member_id = ?2' in field_notes_api)
+ok("post-Salon Field Note invitations are essential for active members",
+   'm.paused_at IS NULL' in field_notes_api and
+   'member_email_pref' not in field_notes_api and
+   'email_quiet' not in field_notes_api and
+   'ctx.waitUntil(Promise.all(fresh.map' in field_notes_api)
 testimonial_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "testimonials.js"),
                           encoding="utf-8").read()
 ok("testimonials create no notification or automatic public placement",
@@ -637,7 +654,8 @@ profiles_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "profil
                        encoding="utf-8").read()
 ok("directory includes only fully onboarded active members with a chosen name",
    'joined_at IS NOT NULL' in profiles_api and 'disabled_at IS NULL' in profiles_api and
-   'left_at IS NULL' in profiles_api and "TRIM(display_name) <> ''" in profiles_api and
+   'left_at IS NULL' in profiles_api and 'paused_at IS NULL' in profiles_api and
+   "TRIM(display_name) <> ''" in profiles_api and
    'agreement_version = ?1' in profiles_api and
    'agreement_accepted_at IS NOT NULL' in profiles_api and
    'onboarding_completed_at IS NOT NULL' in profiles_api and
@@ -673,6 +691,7 @@ ok("member pages end with a private, in-place feedback line to John",
    "path === '/api/club/feedback'" in club_router and
    'sendClubMemberFeedback' in mail_api)
 ok("native calendar availability and booking stay behind the prospective-member session",
+   "path === '/api/club/prospect/intention'" in club_router and
    "path === '/api/club/prospect/slots'" in club_router and
    "path === '/api/club/prospect/booking'" in club_router and
    "https://api.cal.com${path}" in prospects_api and
@@ -773,13 +792,18 @@ ok("removing somebody revokes access and removes future gathering state",
 ok("Club email settings do not silence requested access codes",
    'sendClubCode' not in settings_api and 'salonAnnounced: true' in settings_api and
    'fieldNotes: true' in settings_api)
+ok("paused membership is excluded from Club mail and the directory but can be resumed",
+   'm.paused_at IS NULL' in mailer_api and 'paused_at IS NULL' in profiles_api and
+   "if (who.paused_at) return bad(403, 'membership paused')" in club_router and
+   'return unpauseMembership(env, who)' in club_router)
 ok("leaving revokes access and honours each Field Note archive choice",
    "'keep_signed', 'anonymise', 'remove'" in settings_api and
    "SET is_anonymous = 1" in settings_api and
    "DELETE FROM field_note WHERE member_id" in settings_api and
    "UPDATE member_session SET revoked_at" in settings_api)
-ok("Salon announcement and reminder mail is member-controlled and at-most-once",
+ok("Salon announcements are essential while reminders remain optional and at-most-once",
    'club_send_log' in mailer_api and "COALESCE(p.quiet, 0) = 0" in mailer_api and
+   "preference === 'salon_announced' ? ''" in mailer_api and
    'salon_announced' in mailer_api and 'salon_month' in mailer_api and
    'salon_week' in mailer_api and 'salon_day' in mailer_api and 'salon_hour' in mailer_api and
    'announcement already sent' not in mailer_api and 'announcement_recipient_count' in salons_api)

@@ -169,11 +169,11 @@
       <article class="welcome-step" data-welcome-step="6" hidden>
         <span class="eyebrow">email</span>
         <h1>Salon <strong>emails</strong>.</h1>
-        <p>By default, everyone receives the announcement and a note one week before. The other reminders are only sent after you say I’m in. Your confirmation and calendar invitation always arrive once. You can change these choices later in Settings.</p>
+        <p>Everyone receives the first announcement of a Salon and, after attending, one invitation to share a Field Note. By default, you’ll also receive a note one week before. The other reminders are only sent after you say I’m in. Your confirmation and calendar invitation always arrive once. You can change the optional choices later in Settings.</p>
         <form class="welcome-email-form" id="welcome-email-form">
           <div class="welcome-email-options">
             <strong>For every Salon</strong>
-            <label class="setting-choice"><input id="welcome-email-salon-announced" type="checkbox"><span>when it is announced</span></label>
+            <span class="welcome-email-essential">the first announcement · always</span>
             <label class="setting-choice"><input id="welcome-email-salon-week" type="checkbox"><span>one week before</span></label>
             <strong>After I say I’m in</strong>
             <label class="setting-choice"><input id="welcome-email-salon-month" type="checkbox"><span>one month before</span></label>
@@ -193,6 +193,17 @@
     </div>
   </section>
 
+  <main class="paused-membership" id="paused-membership" hidden>
+    <section class="paused-membership-card">
+      <span class="eyebrow">membership paused</span>
+      <h1>Take all the time <strong>you need</strong>.</h1>
+      <p>You’re not shown in Members and Beings Club won’t send you Club emails while your membership is paused. You can still ask for an access code whenever you want to return.</p>
+      <button class="primary" id="membership-unpause" type="button">unpause membership</button>
+      <button class="text-button" id="paused-sign-out" type="button">sign out</button>
+      <span class="status" id="membership-unpause-status" role="status" aria-live="polite"></span>
+    </section>
+  </main>
+
   <section class="app-shell prospect-shell" id="prospect-app" hidden>
     <span class="greeting" id="prospect-greeting">good afternoon</span>
     <span class="prospect-status">membership · a first conversation</span>
@@ -210,6 +221,7 @@
     </nav>
 
     <div class="prospect-preview-switch" aria-label="Preview state">
+      <button type="button" data-prospect-preview="intention">question</button>
       <button class="current" type="button" data-prospect-preview="calendar">calendar</button>
       <button type="button" data-prospect-preview="booked">confirmed</button>
     </div>
@@ -220,6 +232,20 @@
         <p class="prospect-inviter prospect-inviter--inside" id="prospect-inviter-inside" hidden></p>
         <h1>Membership begins with a <strong>conversation</strong>.</h1>
         <p>Meet John, the host of Beings Club, for 25 minutes. You can learn more about the Club and see whether joining feels right on both sides. Where there is a mutual yes after you have spoken, membership begins.</p>
+      </section>
+
+      <section class="prospect-intention" id="prospect-intention" hidden>
+        <div>
+          <span class="eyebrow">before you choose a time</span>
+          <h2>What draws you to <strong>Beings Club</strong> at this time?</h2>
+          <p>A few words are enough. John will read this before you meet.</p>
+        </div>
+        <form id="prospect-intention-form">
+          <label for="prospect-intention-body">your response</label>
+          <textarea id="prospect-intention-body" maxlength="2400" required></textarea>
+          <button class="primary" id="prospect-intention-submit" type="submit">continue to the calendar</button>
+          <span class="status" id="prospect-intention-status" role="status" aria-live="polite"></span>
+        </form>
       </section>
 
       <section class="prospect-calendar" id="prospect-calendar">
@@ -697,7 +723,7 @@
         <header class="settings-heading">
           <span class="eyebrow">settings</span>
           <h1>Choose what <strong>reaches you</strong>.</h1>
-          <p>Club emails are optional. Access codes still arrive when you ask for one, because they are how you enter.</p>
+          <p>The first announcement of a Salon and one invitation to share a Field Note after a Salon you attended always arrive while your membership is active. Other Club emails are optional. Access codes arrive when you ask for one, because they are how you enter.</p>
         </header>
 
         <section class="settings-section" aria-labelledby="settings-email-title">
@@ -705,25 +731,41 @@
           <div class="settings-group" id="salon-email-options">
             <div class="settings-group-copy">
               <strong>Salons</strong>
-              <span>The announcement and one-week note can reach everyone. Other reminders are only sent after you say I’m in.</span>
+              <span>The first announcement always reaches every member. Choose the optional notes that follow.</span>
             </div>
-            <label class="setting-choice"><input id="email-salon-announced" type="checkbox"><span>when it is announced</span></label>
+            <span class="settings-choice-context settings-choice-essential">first announcement · always</span>
             <label class="setting-choice"><input id="email-salon-week" type="checkbox"><span>one week before</span></label>
             <span class="settings-choice-context">after I say I’m in</span>
             <label class="setting-choice"><input id="email-salon-month" type="checkbox"><span>one month before</span></label>
             <label class="setting-choice"><input id="email-salon-day" type="checkbox"><span>one day before</span></label>
             <label class="setting-choice"><input id="email-salon-hour" type="checkbox"><span>one hour before</span></label>
           </div>
-          <label class="setting-row" id="field-note-email-row">
+          <div class="setting-row setting-row-essential" id="field-note-email-row">
             <span><strong>Field Notes</strong><small>One invitation after a Salon you attended. It also remains inside the member area until you share or dismiss it.</small></span>
-            <input id="email-field-notes" type="checkbox" aria-label="Email Field Note invitations">
-          </label>
+            <span class="settings-choice-context settings-choice-essential">after attending · always</span>
+          </div>
           <label class="setting-row quiet-setting">
             <span><strong>Quiet, for now</strong><small>Silence all optional Beings Club emails for now. Nothing else changes.</small></span>
             <input id="email-quiet" type="checkbox" aria-label="Silence optional Club email">
           </label>
           <p class="settings-note" id="settings-email-note">Every Beings Club email ends with a link back to this page.</p>
           <span class="status" id="settings-email-status" role="status" aria-live="polite"></span>
+        </section>
+
+        <section class="settings-section pause-section" aria-labelledby="settings-pause-title">
+          <h2 id="settings-pause-title">pause membership</h2>
+          <div id="pause-intro">
+            <p>If you need complete quiet, pause your membership. You’ll disappear from Members and the member pages will close until you unpause. Your profile, Field Notes and attendance history stay here for your return.</p>
+            <button class="text-button" id="pause-open" type="button">pause my membership</button>
+          </div>
+          <div class="pause-confirm" id="pause-confirm" hidden>
+            <p>While paused, Beings Club sends no Club email. Access-code emails remain available so you can sign in and unpause whenever you choose.</p>
+            <div class="leave-actions">
+              <button class="primary" id="pause-submit" type="button">confirm pause</button>
+              <button class="text-button" id="pause-cancel" type="button">not now</button>
+            </div>
+            <span class="status" id="pause-status" role="status" aria-live="polite"></span>
+          </div>
         </section>
 
         <section class="settings-section" aria-labelledby="settings-welcome-title">

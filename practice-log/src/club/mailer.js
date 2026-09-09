@@ -119,6 +119,9 @@ export function reminderWindow(startsAt, kind, timestamp) {
 
 export async function eligibleMembers(env, preference, salonId = null) {
   if (!['salon_announced', 'salon_month', 'salon_week', 'salon_day', 'salon_hour'].includes(preference)) return [];
+  const preferenceClause = preference === 'salon_announced' ? '' : `
+        AND COALESCE(p.quiet, 0) = 0
+        AND COALESCE(p.${preference}, 1) = 1`;
   const rsvpClause = salonId === null ? '' : `
         AND EXISTS (
           SELECT 1 FROM salon_rsvp r
@@ -128,8 +131,8 @@ export async function eligibleMembers(env, preference, salonId = null) {
     `SELECT m.id, m.email, m.display_name
        FROM member m LEFT JOIN member_email_pref p ON p.member_id = m.id
       WHERE m.joined_at IS NOT NULL AND m.disabled_at IS NULL AND m.left_at IS NULL
-        AND COALESCE(p.quiet, 0) = 0
-        AND COALESCE(p.${preference}, 1) = 1${rsvpClause}
+        AND m.paused_at IS NULL
+        ${preferenceClause}${rsvpClause}
       ORDER BY m.id`,
   );
   const rows = salonId === null ? await statement.all() : await statement.bind(salonId).all();
