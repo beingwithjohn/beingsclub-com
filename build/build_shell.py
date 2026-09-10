@@ -48,6 +48,8 @@ REDIRECTS = {
     "/beyondbelief/companion/": ("https://spacetobe.xyz/beyond-belief/companion/", "Beyond Belief companion · Space to Be"),
     "/beyondbelief/companion/print/": ("https://spacetobe.xyz/beyond-belief/companion/print/", "Beyond Belief print companion · Space to Be"),
     "/practice-map/": ("https://spacetobe.xyz/practice-map/", "Practice map · Space to Be"),
+    "/log/": ("https://spacetobe.xyz/log/", "Practice Log · Space to Be"),
+    "/log/host/": ("https://spacetobe.xyz/log/host/", "Practice Log host · Space to Be"),
 }
 
 hover_rules, hover_seen = [], {}

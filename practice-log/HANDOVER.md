@@ -20,17 +20,17 @@ Live now:
 
 | | |
 |---|---|
-| App | `https://beingsclub.com/log/` and `/log/host/` — static, from GitHub Pages |
+| App | `https://spacetobe.xyz/log/` and `/log/host/` — static, from the Space to Be repository |
 | API | `https://practice-log.beingsclub.workers.dev` — Cloudflare Worker |
 | Database | Cloudflare D1 `practice-log`, `8cf3af32-666c-48fb-a943-9c38c393d24c`, WEUR |
 | Cron | `0,30 * * * *` — the timezone-bucketed daily send |
 | Mail | Resend, from `practice@beingsclub.com`, reply-to `john@spacetobe.xyz` |
 | Payments | Stripe code ready; account secrets and dashboard setup remain |
-| Source | `practice-log/` in `github.com/beingwithjohn/beingsclub-com`, branch `main` |
+| Source | canonical frontend in the Space to Be repository; shared Worker in `practice-log/` here |
 
 Secrets are in Cloudflare (`wrangler secret list`): `LINK_KEY`, `RESEND_API_KEY`.
 Stripe's two are unset. **Nothing secret is in the repo and nothing may be put
-there** — it is public and GitHub Pages serves it byte for byte. `test/checks.js`
+there** — it is public and GitHub Pages serves it byte for byte. `npm run check`
 fails the build if that changes.
 
 ### Beings Club members access

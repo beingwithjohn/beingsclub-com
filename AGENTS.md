@@ -7,7 +7,7 @@ Read this before changing anything. Most of it is here because something broke.
 **The public landing, public events page and retired route files are generated. Never hand-edit them.**
 
 `index.html` is the public landing and `events/` is the public Coliven-backed events page. The retired `about/`, `salons/`, `join/`,
-`sits/`, `beyondbelief/` and `practice-map/` addresses are move pages produced
+`sits/`, `beyondbelief/`, `practice-map/` and `log/` addresses are move pages produced
 by `build/build_shell.py`; the meditation routes point to Space to Be. The old
 design sources remain vendored in `build/src/*.dc.html` so the landing can
 retain the full club context. Edit the generator, run it, commit
@@ -29,11 +29,10 @@ exists" below.
 |---|---|---|
 | `index.html` | **yes** | members-first public landing |
 | `events/` | **yes** | bespoke public events page containing the Coliven list |
-| `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/`, `practice-map/` | **yes** | retired addresses with noindex move pages |
+| `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/`, `practice-map/`, `log/` | **yes** | retired addresses with noindex move pages |
 | `404.html` | no | hand-maintained utility with the simplified public map |
 | `giving/` | no | hand-maintained public giving page; payment API lives in `practice-log/` |
 | `beyondbelief/companion/`, `.../print/` | **yes** | move pages to the Space to Be companion |
-| `log/` | no | Practice Log prototype, not linked from the site |
 | `practice-log/` | no | a separate agent's build; `node_modules` is gitignored |
 | `build/` | — | the generator, the verifier, the deploy script |
 | `assets/navmark.js` | no | shared logo-hover behaviour for standalone pages |
@@ -149,11 +148,10 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
 - **Beyond Belief's canonical dates and course data now live in Space to Be.** Keep the
   compatibility redirects here stable; update the Space to Be page, structured data,
   companion and sitemap together when a run changes.
-- **The Practice Log** is one public evergreen tool. Courses grant the private line to John
-  for a date window; they do not need separate runs. Stripe's one-off and monthly paths are
-  built; the account secrets, webhook events and customer portal still need connecting. The
-  production D1 databases have Time Travel active; verify a current bookmark before migrations.
-  Tightening DMARC waits until aligned delivery has been observed.
+- **The Practice Log now lives at Space to Be.** The Beings Club `/log/` and `/log/host/`
+  addresses are compatibility move pages only. The shared Worker directory remains here because
+  it also powers Beings Club membership; do not mistake that backend for a public Beings Club
+  Practice Log frontend or rebuild the retired pages over the redirects.
 - **The 82MB blob in git history** (see #4).
 
 ## Security constraints John has set

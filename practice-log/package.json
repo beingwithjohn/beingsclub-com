@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "The Practice Log for beingsclub.com — one question a day, and the others who answered it.",
+  "description": "Shared Worker for Beings Club; the Practice Log frontend now lives on spacetobe.xyz.",
   "scripts": {
     "build": "node app/build.js",
     "test": "node --test 'test/*.test.js'",
-    "check": "node test/checks.js",
+    "check": "node test/retired-frontend-checks.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:local": "wrangler d1 migrations apply practice-log --local",

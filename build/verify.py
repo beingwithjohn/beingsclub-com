@@ -23,6 +23,8 @@ REDIRECT_PAGES = {
     "beyondbelief/companion/index.html": "https://spacetobe.xyz/beyond-belief/companion/",
     "beyondbelief/companion/print/index.html": "https://spacetobe.xyz/beyond-belief/companion/print/",
     "practice-map/index.html": "https://spacetobe.xyz/practice-map/",
+    "log/index.html": "https://spacetobe.xyz/log/",
+    "log/host/index.html": "https://spacetobe.xyz/log/host/",
 }
 GENERATED_PAGES = PAGES + [EVENT_PAGE] + list(REDIRECT_PAGES)
 ROUTES = ["/", "/events/"]
