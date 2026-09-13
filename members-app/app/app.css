@@ -1,4 +1,4 @@
-:root{color-scheme:light;--ink:#171916;--violet:#5A4B7C;--soft:#75726A;--body:#4A473F;--line:#E7E4DB;--paper:#FDFCF9}
+:root{color-scheme:light;--ink:#171916;--violet:#5A4B7C;--soft:#75726A;--body:#4A473F;--line:#E7E4DB;--paper:#FDFCF9;--radius-small:8px;--radius-control:11px;--radius-card:16px;--radius-panel:20px}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);font-family:'Host Grotesk',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
@@ -428,7 +428,7 @@ button{cursor:pointer}
 .salon-time-clock::before{content:', '}
 .time-toggle:hover,.time-toggle:focus-visible{color:var(--violet);border-bottom-color:var(--violet)}
 .time-hint{display:flex;align-items:center;gap:6px;width:max-content;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10px;color:var(--soft)}
-.time-hint button{border:0;background:transparent;padding:3px 5px;color:var(--soft);font:inherit;letter-spacing:.04em}
+.time-hint button{border:0;border-radius:7px;background:transparent;padding:3px 7px;color:var(--soft);font:inherit;letter-spacing:.04em}
 .time-hint button:hover,.time-hint button:focus-visible{color:var(--violet);outline:1px solid rgba(90,75,124,.35);outline-offset:1px}
 .time-hint button.is-active{color:var(--paper);background:var(--violet)}
 .salon-intro{margin:0;font-size:17px;font-weight:500;line-height:1.65;letter-spacing:-.01em;color:var(--body);max-width:58ch}
@@ -481,7 +481,7 @@ button{cursor:pointer}
 .host-field-post-list{display:grid;gap:12px}
 .host-field-post-card{position:relative;min-width:0;border:1px solid var(--line);background:#FCFBF8}
 .host-field-post-card.is-announcement{border-color:#DED7EA;background:#F4F0FF}
-.host-field-post-card.is-announcement::before{content:'';position:absolute;inset:0 auto 0 0;width:7px;background:var(--violet)}
+.host-field-post-card.is-announcement::before{content:'';position:absolute;inset:0 auto 0 0;width:7px;border-radius:var(--radius-card) 0 0 var(--radius-card);background:var(--violet)}
 .host-field-post-card summary{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 25px 22px 32px;cursor:pointer;list-style:none}
 .host-field-post-card summary::-webkit-details-marker{display:none}
 .host-field-post-summary-copy{display:grid;gap:7px;min-width:0}
@@ -753,7 +753,7 @@ button{cursor:pointer}
 .pause-confirm{display:grid;gap:22px}
 .setting-choice{display:flex;align-items:center;gap:12px;width:fit-content;max-width:100%;font-size:12.5px;color:var(--body);cursor:pointer}
 .setting-choice>span{min-width:0}
-.setting-choice input,.setting-row>input{appearance:none;width:16px;height:16px;flex:none;margin:0;border:1px solid var(--violet);background:var(--paper);display:grid;place-items:center;cursor:pointer}
+.setting-choice input,.setting-row>input{appearance:none;width:16px;height:16px;flex:none;margin:0;border:1px solid var(--violet);border-radius:5px;background:var(--paper);display:grid;place-items:center;cursor:pointer}
 .setting-choice input:checked,.setting-row>input:checked{background:var(--violet)}
 .setting-choice input:checked::after,.setting-row>input:checked::after{content:'✓';font-size:11px;line-height:1;color:#FFF}
 .setting-choice input:focus-visible,.setting-row>input:focus-visible{outline:2px solid #BDAFE0;outline-offset:3px}
@@ -956,3 +956,45 @@ button{cursor:pointer}
 @media(max-width:430px){.directory-grid{grid-template-columns:1fr}}
 @media(max-width:430px){.directory-portrait{width:150px}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Soft geometry. The system keeps rules and underline-only fields crisp, while
+   giving interactive controls and contained surfaces a calm, shared radius. */
+.primary,.secondary,.outline,.rsvp-button,.member-feedback button,
+.field-note-giving-appeal a,.giving-choice,.giving-social-link,
+.prospect-time-list button,.image-picker{border-radius:var(--radius-control)}
+.member-nav .current,.mobile-menu .current{border-radius:var(--radius-small)}
+.salon-form textarea,.invite-note-field textarea,.notion-invite-draft textarea,
+.prospect-intention textarea,.prospect-booking-fields input,
+.prospect-booking-fields textarea,.prospect-message textarea,
+.field-note-form textarea,.giving-amount-field input,.testimonial-form textarea{
+  border-radius:var(--radius-control)
+}
+.salon-roundup,.host-post-composer,.host-post-admin-card,.host-field-note-card,
+.testimonial-queue-card,.admissions-control,.waitlist-host,.notion-invite-tool,
+.prospect-intention,.prospect-booked,.host-note,.host-field-post-card,
+.field-note-composer,.field-note-thanks,.field-note-card,.in-person-event,
+.in-person-soon,.giving-confirmation,.giving-option,.monthly-giving-active,
+.giving-social,.testimonial-current,.paused-membership-card,.member-invitation,
+.profile-editor{border-radius:var(--radius-card)}
+.host-field-post-card{overflow:hidden}
+.prospect-inviter,.prospect-host-main blockquote{border-radius:var(--radius-small)}
+.prospect-calendar,.profile-cropper,.invitation-preview{
+  border-radius:var(--radius-panel);overflow:hidden
+}
+.prospect-timezone-results{border-radius:var(--radius-control);overflow:hidden}
+.prospect-days button,.prospect-days span{border-radius:var(--radius-small)}
+.welcome-profile-image-frame,.profile-image-frame,.directory-portrait,
+.host-post-image-preview,.field-note-image-preview,.field-note-card-image,
+.host-field-post-image,.host-post-admin-card img,.host-field-note-card img,
+#profile-crop-canvas{border-radius:var(--radius-card)}
+.in-person-event>img{border-radius:var(--radius-card) 0 0 var(--radius-card)}
+.public-events-frame-wrap,.public-events-frame{border-radius:var(--radius-card)}
+.members-drawer{border-radius:var(--radius-panel) 0 0 0}
+.members-drawer.is-minimised{border-radius:var(--radius-control) 0 0 0}
+.field-note-thanks-close,.field-note-host-delete,.menu-button,.menu-close{
+  border-radius:50%
+}
+@media(max-width:720px){
+  .in-person-event>img{border-radius:var(--radius-card) var(--radius-card) 0 0}
+  .members-drawer:not(.is-minimised){border-radius:0}
+}

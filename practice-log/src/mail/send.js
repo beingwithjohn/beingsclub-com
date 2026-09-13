@@ -138,7 +138,7 @@ export async function sendClubCode(env, { email, name, code }) {
     preheader: 'Your one-use Beings Club code.',
     heading: 'Your Beings Club <span style="color:#5A4B7C;">code</span>.',
     body: `<p style="margin:0 0 16px;">${greeting}</p>`
-      + `<div style="margin:20px 0;padding:22px 26px;background-color:#F2ECFF;font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:bold;letter-spacing:.28em;color:#5A4B7C;">${escapeHtml(code)}</div>`
+      + `<div style="margin:20px 0;padding:22px 26px;background-color:#F2ECFF;border-radius:14px;font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:bold;letter-spacing:.28em;color:#5A4B7C;">${escapeHtml(code)}</div>`
       + '<p style="margin:0 0 16px;">It expires in ten minutes and can be used once.</p>'
       + '<p style="margin:0;color:#75726A;">If you did not ask for this, you can ignore this email.</p>',
     settingsUrl: 'https://beingsclub.com/members/',
@@ -157,7 +157,7 @@ export async function sendProspectCode(env, { email, name, code }) {
     preheader: 'Your one-use code for a first conversation.',
     heading: 'Your Beings Club <span style="color:#5A4B7C;">code</span>.',
     body: `<p style="margin:0 0 16px;">${escapeHtml(hello)}</p>`
-      + `<div style="margin:20px 0;padding:22px 26px;background-color:#F2ECFF;font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:bold;letter-spacing:.28em;color:#5A4B7C;">${escapeHtml(code)}</div>`
+      + `<div style="margin:20px 0;padding:22px 26px;background-color:#F2ECFF;border-radius:14px;font-family:'Courier New',Courier,monospace;font-size:28px;font-weight:bold;letter-spacing:.28em;color:#5A4B7C;">${escapeHtml(code)}</div>`
       + '<p style="margin:0 0 16px;">It expires in ten minutes and can be used once.</p>'
       + '<p style="margin:0 0 16px;">Use it to return to the private place where you can book a first conversation with John, the host of Beings Club.</p>'
       + '<p style="margin:0;color:#75726A;">If you did not ask for this, you can ignore this email.</p>',
@@ -331,7 +331,7 @@ export async function sendClubMemberFeedback(env, {
     preheader: `${identity} shared feedback from ${pageLabel}.`,
     heading: 'Member <span style="color:#5A4B7C">feedback</span>.',
     body: `<p style="margin:0 0 16px"><strong>${escapeHtml(identity)}</strong> shared this from ${escapeHtml(pageLabel)}:</p>`
-      + `<div style="margin:0;padding:18px 20px;background:#F2ECFF;color:#312E29;font-size:16px;line-height:1.6;white-space:pre-wrap">${escapeHtml(message)}</div>`,
+      + `<div style="margin:0;padding:18px 20px;background:#F2ECFF;border-radius:14px;color:#312E29;font-size:16px;line-height:1.6;white-space:pre-wrap">${escapeHtml(message)}</div>`,
     settingsUrl: 'https://beingsclub.com/members/',
     footerLinkLabel: 'member area',
   });
@@ -425,7 +425,7 @@ export async function sendClubSalonEmail(env, {
     preheader: version.preheader,
     heading: version.heading,
     body: `<p style="margin:0 0 16px">${greeting}</p><p style="margin:0 0 16px">${escapeHtml(version.opening)}</p>`
-      + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
+      + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;border-radius:14px;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
       + `<p style="margin:0">${escapeHtml(description)}</p>`,
     beforeAction: roundup.length ? salonRoundupBlock(roundup) : '',
     actionUrl: salonUrl,
@@ -455,7 +455,7 @@ function salonRoundupBlock(notes) {
       + '</td></tr>';
   }).join('');
   return '<tr><td style="padding:28px 48px 0 48px;">'
-    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F7F3FF" style="width:100%;background:#F7F3FF;border:1px solid #DED7EA;">'
+    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F7F3FF" style="width:100%;background:#F7F3FF;border:1px solid #DED7EA;border-radius:14px;border-collapse:separate;overflow:hidden;">'
     + '<tr><td style="padding:20px 22px 8px 22px;font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;">from the last Salon</td></tr>'
     + `<tr><td style="padding:0 22px 8px 22px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">${cards}</table></td></tr>`
     + '</table></td></tr>';
@@ -483,7 +483,7 @@ export async function sendClubSalonRsvpEmail(env, {
     heading: 'You’re <span style="color:#5A4B7C">in</span>.',
     body: `<p style="margin:0 0 16px">${greeting}</p>`
       + `<p style="margin:0 0 16px">We’ll gather on ${escapeHtml(when)}.</p>`
-      + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
+      + (note ? `<div style="margin:24px 0;padding:18px 20px;background:#F2ECFF;border-radius:14px;color:#5A4B7C;font-family:Georgia,serif;font-size:16px;line-height:1.6">${escapeHtml(note)}</div>` : '')
       + `<p style="margin:0">${escapeHtml(calendarCopy)}</p>`,
     actionUrl,
     actionLabel: 'Salon page',
@@ -573,10 +573,10 @@ function clubEmailLayout({
   logoWidth = 180,
 }) {
   const action = actionUrl && actionLabel
-    ? `<tr><td style="padding:30px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#171916" style="mso-line-height-rule:exactly;"><a href="${actionUrl}" style="display:block;padding:14px 32px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;text-decoration:none;">${escapeHtml(actionLabel)}</a></td></tr></table></td></tr>`
+    ? `<tr><td style="padding:30px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-radius:11px;border-collapse:separate;overflow:hidden;"><tr><td bgcolor="#171916" style="border-radius:11px;mso-line-height-rule:exactly;"><a href="${actionUrl}" style="display:block;padding:14px 32px;border-radius:11px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;color:#FFFFFF;text-decoration:none;">${escapeHtml(actionLabel)}</a></td></tr></table></td></tr>`
     : '';
   const secondaryAction = secondaryActionUrl && secondaryActionLabel
-    ? `<tr><td style="padding:12px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="border:1px solid #5A4B7C;mso-line-height-rule:exactly;"><a href="${secondaryActionUrl}" style="display:block;padding:13px 31px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;text-decoration:none;">${escapeHtml(secondaryActionLabel)}</a></td></tr></table></td></tr>`
+    ? `<tr><td style="padding:12px 48px 0 48px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-radius:11px;border-collapse:separate;overflow:hidden;"><tr><td style="border:1px solid #5A4B7C;border-radius:11px;mso-line-height-rule:exactly;"><a href="${secondaryActionUrl}" style="display:block;padding:13px 31px;border-radius:11px;font-family:Helvetica,Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;text-decoration:none;">${escapeHtml(secondaryActionLabel)}</a></td></tr></table></td></tr>`
     : '';
   return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -584,7 +584,7 @@ function clubEmailLayout({
     + '<body style="margin:0;padding:0;background-color:#F7F5EF;">'
     + `<span style="display:none;font-size:1px;color:#F7F5EF;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${escapeHtml(preheader)}</span>`
     + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#F7F5EF;"><tr><td align="center" style="padding:36px 16px;">'
-    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:#FDFCF9;">'
+    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background-color:#FDFCF9;border-radius:20px;border-collapse:separate;overflow:hidden;">'
     + `<tr><td align="left" style="padding:44px 48px 0 48px;"><img src="https://beingsclub.com/assets/beings-logo-outline.png" alt="Beings Club — concentric hand-drawn rings" width="${logoWidth}" style="display:block;width:${logoWidth}px;max-width:100%;height:auto;border:0;"></td></tr>`
     + `<tr><td style="padding:28px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:34px;font-weight:bold;letter-spacing:-1px;color:#171916;mso-line-height-rule:exactly;line-height:40px;">${heading}</td></tr>`
     + `<tr><td style="padding:20px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#4A473F;mso-line-height-rule:exactly;line-height:27px;">${body}</td></tr>`
@@ -601,7 +601,7 @@ function clubEmailLayout({
 
 function personalInvitationNote(note) {
   return '<tr><td style="padding:24px 48px 0 48px;">'
-    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F2ECFF" style="width:100%;background:#F2ECFF;border:1px solid #DED7EA;">'
+    + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F2ECFF" style="width:100%;background:#F2ECFF;border:1px solid #DED7EA;border-radius:14px;border-collapse:separate;overflow:hidden;">'
     + '<tr><td style="padding:18px 20px 5px 20px;font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;">a note from John</td></tr>'
     + `<tr><td style="padding:5px 20px 20px 20px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#312E29;mso-line-height-rule:exactly;line-height:25px;">${escapeHtml(note).replace(/\r?\n/g, '<br>')}</td></tr>`
     + '</table></td></tr>';

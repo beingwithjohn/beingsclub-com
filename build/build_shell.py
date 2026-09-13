@@ -634,6 +634,22 @@ CSS = """
   .bc-host-facts p{margin:0;padding:18px 20px;background:#F8F6F1;font-size:15.5px;line-height:1.7;
     color:#43403A;text-wrap:pretty;}
 
+  /* Soft geometry shared across the public experience. It leaves typographic
+     rules crisp while easing every contained surface and action. */
+  :root{--bc-radius-small:8px;--bc-radius-control:11px;--bc-radius-card:16px;--bc-radius-panel:20px;}
+  .bc-site-nav{border-radius:0 0 var(--bc-radius-card) var(--bc-radius-card);}
+  .bc-host-facts{border-radius:var(--bc-radius-card);overflow:hidden;}
+  .bc-john-portrait img,[data-sidefig],[data-sidefig] img{border-radius:var(--bc-radius-card);}
+  #s-home [data-m="btnrow"] a,#s-home [data-note-form] button[type="submit"],
+  #s-home [data-note-sent] > span:first-child,[data-door],.bc-chip,#bc-send{
+    border-radius:var(--bc-radius-control)!important;
+  }
+  #s-home [data-m="notecard"][data-note-form],#s-home [data-m="pop"],
+  #s-home [data-m="below"] > div > div[style*="background:#F2ECFF"]{
+    border-radius:var(--bc-radius-card);
+  }
+  .bc-ribbon-card span,.bc-rh-tip{border-radius:var(--bc-radius-small);}
+
   /* the six layers */
   .bc-shell{position:relative;height:100svh;overflow:hidden;background:#FDFCF9;}
   .bc-layer{position:absolute;inset:0;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;
@@ -1658,8 +1674,8 @@ def events_page():
   h1{{margin:0;font-size:clamp(54px,8vw,112px);font-weight:600;line-height:.88;letter-spacing:-.065em}}
   h1 strong{{color:#5A4B7C;font-weight:600}}
   .events-intro p{{margin:0 0 4px;max-width:29ch;font-size:clamp(18px,2vw,24px);line-height:1.5;color:#57534B}}
-  .events-frame-wrap{{overflow:hidden;border:1px solid #DDD8CB;border-radius:12px;background:#F8F6F1;box-shadow:0 24px 70px rgba(45,38,29,.07)}}
-  .events-frame{{display:block;width:100%;height:690px;border:0;border-radius:12px;background:#FDFCF9}}
+  .events-frame-wrap{{overflow:hidden;border:1px solid #DDD8CB;border-radius:20px;background:#F8F6F1;box-shadow:0 24px 70px rgba(45,38,29,.07)}}
+  .events-frame{{display:block;width:100%;height:690px;border:0;border-radius:20px;background:#FDFCF9}}
   .events-frame:focus{{outline:0}}
   .events-frame.has-focus{{border:3px solid #5A4B7C}}
   .events-fallback{{margin:18px 2px 0;font-size:12px;line-height:1.6;color:#75726A}}
