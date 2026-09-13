@@ -684,14 +684,32 @@ mail_api = io.open(os.path.join(ROOT, "practice-log", "src", "mail", "send.js"),
                    encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
                      encoding="utf-8").read()
-ok("member pages end with a private, in-place feedback line to John",
+messages_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "messages.js"),
+                       encoding="utf-8").read()
+messages_migration = io.open(os.path.join(ROOT, "practice-log", "members-migrations", "0024_member_messages.sql"),
+                             encoding="utf-8").read()
+ok("member pages feed one persistent private conversation with John",
    "send directly to John" in members_after.get("members/app.js", "") and
+   "send a message" in members_after.get("members/app.js", "") and
    "for the benefit of all beings" in members_after.get("members/app.js", "") and
-   "installMemberFeedback" in members_after.get("members/app.js", "") and
+   "installMemberMessages" in members_after.get("members/app.js", "") and
    "['#profile-page" not in members_after.get("members/app.js", "") and
    "['#settings-page" not in members_after.get("members/app.js", "") and
-   "path === '/api/club/feedback'" in club_router and
-   'sendClubMemberFeedback' in mail_api)
+   "path === '/api/club/messages'" in club_router and
+   "location.hash = 'messages'" in members_after.get("members/app.js", "") and
+   "sender_role IN ('member', 'host')" in messages_migration and
+   'sendClubMemberMessageNotification' in messages_api and
+   'sendClubMessageReplyNotification' in messages_api)
+ok("Messages is a private member thread and a host inbox with email notices",
+   'id="messages-page"' in login_html and
+   'Your private conversation with John.' in login_html and
+   'data-member-view="messages"' in login_html and
+   'id="host-messages"' in host_html and
+   "path === '/api/club/host/messages'" in club_router and
+   "host\\/messages\\/(\\d+)" in club_router and
+   "['field-notes', 'messages'].includes(next)" in members_after.get("members/app.js", "") and
+   'A message from John' in mail_api and
+   'private link that logs you into your account' in mail_api)
 ok("native calendar availability and booking stay behind the prospective-member session",
    "path === '/api/club/prospect/intention'" in club_router and
    "path === '/api/club/prospect/slots'" in club_router and

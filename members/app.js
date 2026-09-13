@@ -47,6 +47,7 @@
   let salon = null;
   let inPersonEvents = [];
   let fieldNotes = { prompt: null, hostPosts: [], groups: [] };
+  let messageState = { messages: [], unreadCount: 0 };
   let givingState = {
     testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null,
     recentGift: false, suppressFieldNoteGivingAppeal: false,
@@ -102,7 +103,7 @@
     if (!value) return null;
     const next = params.get('next');
     history.replaceState(null, '', `${location.pathname}${location.search}`);
-    return { token: value, next: next === 'field-notes' ? next : null };
+    return { token: value, next: ['field-notes', 'messages'].includes(next) ? next : null };
   }
 
   function takeConversationToken() {
@@ -1482,13 +1483,14 @@
 
   function viewFromHash() {
     return ({
-      '#field-notes': 'field-notes', '#in-person': 'in-person', '#giving': 'giving', '#public': 'public',
+      '#messages': 'messages', '#field-notes': 'field-notes', '#in-person': 'in-person', '#giving': 'giving', '#public': 'public',
       '#members': 'members', '#profile': 'profile',
       '#settings': 'settings',
     })[location.hash] || 'salon';
   }
 
   function showView(name) {
+    const messages = name === 'messages';
     const field = name === 'field-notes';
     const inPerson = name === 'in-person';
     const giving = name === 'giving';
@@ -1498,7 +1500,8 @@
     const settings = name === 'settings';
     const directoryPage = document.getElementById('directory-page');
     const directoryOpening = directory && directoryPage.hidden;
-    document.getElementById('salon-page').hidden = field || inPerson || giving || publicEvents || directory || profile || settings;
+    document.getElementById('salon-page').hidden = messages || field || inPerson || giving || publicEvents || directory || profile || settings;
+    document.getElementById('messages-page').hidden = !messages;
     document.getElementById('field-notes-page').hidden = !field;
     document.getElementById('in-person-page').hidden = !inPerson;
     document.getElementById('giving-page').hidden = !giving;
@@ -1507,12 +1510,20 @@
     document.getElementById('profile-page').hidden = !profile;
     document.getElementById('settings-page').hidden = !settings;
     document.querySelectorAll('[data-member-view]').forEach((link) => {
-      const selected = field ? 'field-notes' : inPerson ? 'in-person' : giving ? 'giving' : publicEvents ? 'public'
+      const selected = messages ? 'messages' : field ? 'field-notes' : inPerson ? 'in-person' : giving ? 'giving' : publicEvents ? 'public'
         : directory ? 'members' : profile ? 'profile' : settings ? 'settings' : 'salon';
       const current = link.dataset.memberView === selected;
       link.classList.toggle('current', current);
       if (current) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
     });
+    if (messages) {
+      renderMessages();
+      if (messageState.unreadCount) {
+        messageState.unreadCount = 0;
+        updateMessageNavState();
+        if (!previewMode) call('/api/club/messages/read', { method: 'POST', body: '{}' }).catch(() => {});
+      }
+    }
     if (field) renderFieldNotes();
     if (giving) renderGiving();
     if (directory) {
@@ -1549,13 +1560,14 @@
       return;
     }
     showLogin(waiting);
-    const [salonState, inPersonState, notesState, memberGiving, directory, settings] = await Promise.all([
+    const [salonState, inPersonState, notesState, messages, memberGiving, directory, settings] = await Promise.all([
       call('/api/club/salon'), call('/api/club/in-person'), call('/api/club/field-notes'),
-      call('/api/club/giving'), call('/api/club/directory'), call('/api/club/settings'),
+      call('/api/club/messages'), call('/api/club/giving'), call('/api/club/directory'), call('/api/club/settings'),
     ]);
     salon = salonState.salon; inPersonEvents = inPersonState.events || [];
-    fieldNotes = notesState; givingState = memberGiving;
+    fieldNotes = notesState; messageState = messages; givingState = memberGiving;
     directoryState = directory; settingsState = settings;
+    updateMessageNavState();
     await new Promise((resolve) => setTimeout(resolve, 500));
     if (!member.onboardingCompleted) showWelcome(Number.isInteger(options.welcomeStep) ? options.welcomeStep : 4);
     else if (Number.isInteger(options.welcomeStep)) showWelcome(options.welcomeStep);
@@ -1571,7 +1583,79 @@
     document.getElementById('membership-unpause-status').textContent = '';
   }
 
-  function makeMemberFeedbackFooter(page) {
+  function messageDateParts(value) {
+    const date = new Date(value);
+    return {
+      date: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date),
+      time: new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(date),
+    };
+  }
+
+  function updateMessageNavState() {
+    document.querySelectorAll('[data-member-view="messages"]').forEach((link) => {
+      link.classList.toggle('has-unread', messageState.unreadCount > 0);
+      const label = messageState.unreadCount
+        ? `Messages, ${messageState.unreadCount} unread` : 'Messages';
+      link.setAttribute('aria-label', label);
+    });
+  }
+
+  function renderMessages(scroll = true) {
+    const thread = document.getElementById('message-thread');
+    const empty = document.getElementById('message-empty');
+    thread.replaceChildren();
+    const messages = messageState.messages || [];
+    empty.hidden = messages.length !== 0;
+    messages.forEach((message) => {
+      const article = document.createElement('article');
+      article.className = `message-bubble message-${message.senderRole}`;
+      article.append(makeText('p', 'message-copy', message.body));
+      const parts = messageDateParts(message.createdAt);
+      article.append(makeText(
+        'span', 'message-meta',
+        `${message.senderRole === 'host' ? 'John' : 'you'} · ${parts.date} · ${parts.time}`,
+      ));
+      thread.append(article);
+    });
+    if (scroll) requestAnimationFrame(() => { thread.scrollTop = thread.scrollHeight; });
+  }
+
+  async function storeMemberMessage(message, sourcePage = 'messages') {
+    if (previewMode) {
+      const created = {
+        id: Date.now(), senderRole: 'member', senderName: member?.name || 'You',
+        body: message, createdAt: new Date().toISOString(),
+      };
+      messageState.messages.push(created);
+      return created;
+    }
+    const result = await call('/api/club/messages', {
+      method: 'POST', body: JSON.stringify({ message, sourcePage }),
+    });
+    messageState.messages.push(result.message);
+    return result.message;
+  }
+
+  async function submitMessage(event) {
+    event.preventDefault();
+    const input = document.getElementById('message-body');
+    const button = document.getElementById('message-send');
+    const status = document.getElementById('message-status');
+    const message = input.value.trim();
+    status.textContent = '';
+    if (!message) { input.focus(); return; }
+    button.disabled = true;
+    try {
+      await storeMemberMessage(message);
+      input.value = '';
+      renderMessages();
+      status.textContent = 'Sent directly to John.';
+    } catch (error) {
+      status.textContent = error.message || 'That could not be sent. Try again.';
+    } finally { button.disabled = false; }
+  }
+
+  function makeMemberMessageFooter(page) {
     const footer = document.createElement('footer');
     footer.className = 'member-feedback';
     const form = document.createElement('form');
@@ -1580,10 +1664,10 @@
     form.noValidate = true;
     const label = document.createElement('label');
     label.className = 'member-feedback-input-wrap';
-    const labelText = makeText('span', 'sr-only', 'Share feedback directly with John');
+    const labelText = makeText('span', 'sr-only', 'Send a message directly to John');
     const input = document.createElement('input');
-    input.type = 'text'; input.name = 'feedback'; input.maxLength = 1000;
-    input.placeholder = 'share feedback'; input.autocomplete = 'off'; input.required = true;
+    input.type = 'text'; input.name = 'message'; input.maxLength = 4000;
+    input.placeholder = 'send a message'; input.autocomplete = 'off'; input.required = true;
     label.append(labelText, input);
     const button = makeText('button', '', 'send directly to John');
     button.type = 'submit';
@@ -1596,15 +1680,10 @@
       if (!message) { input.focus(); return; }
       button.disabled = true;
       try {
-        if (previewMode) {
-          status.textContent = 'Preview only. In the live member area, this sends directly to John.';
-          return;
-        }
-        await call('/api/club/feedback', {
-          method: 'POST', body: JSON.stringify({ page, message }),
-        });
+        await storeMemberMessage(message, page);
         form.reset();
-        status.textContent = 'Sent directly to John.';
+        location.hash = 'messages';
+        showView('messages');
       } catch (error) {
         status.textContent = error.message || 'That could not be sent. Try again.';
       } finally { button.disabled = false; }
@@ -1613,7 +1692,7 @@
     return footer;
   }
 
-  function installMemberFeedback() {
+  function installMemberMessages() {
     [
       ['#salon-view .salon-hero', 'salon'],
       ['#salon-empty', 'salon'],
@@ -1624,7 +1703,7 @@
       ['#directory-page .directory-content', 'members'],
     ].forEach(([selector, page]) => {
       const target = document.querySelector(selector);
-      if (target) target.append(makeMemberFeedbackFooter(page));
+      if (target) target.append(makeMemberMessageFooter(page));
     });
   }
 
@@ -2148,7 +2227,8 @@
     }
     catch (_) { codeStatus.textContent = 'Something went wrong. Please try again.'; }
   });
-  installMemberFeedback();
+  installMemberMessages();
+  document.getElementById('message-compose').addEventListener('submit', submitMessage);
   document.querySelectorAll('[data-rsvp]').forEach((button) => button.addEventListener('click', () => setRsvp(button.dataset.rsvp)));
   document.getElementById('rsvp-clear').addEventListener('click', () => setRsvp(null));
   document.getElementById('rsvp-clear-not').addEventListener('click', () => setRsvp(null));
@@ -2629,6 +2709,26 @@
         fieldNotes.prompt = null;
         fieldNoteThanks = true;
       }
+      messageState = {
+        unreadCount: previewParams.get('unread') === '1' ? 1 : 0,
+        messages: [
+          {
+            id: 1, senderRole: 'host', senderName: 'John',
+            body: 'Hello John. This is a private place for us to stay in touch.',
+            createdAt: '2026-09-11T09:42:00.000Z',
+          },
+          {
+            id: 2, senderRole: 'member', senderName: 'John',
+            body: 'Lovely. I wanted to share something that stayed with me after the Salon.',
+            createdAt: '2026-09-11T10:07:00.000Z',
+          },
+          {
+            id: 3, senderRole: 'host', senderName: 'John',
+            body: 'I’m glad you wrote. Tell me whenever you are ready.',
+            createdAt: '2026-09-12T15:18:00.000Z',
+          },
+        ],
+      };
       givingState = {
         month: '2026-08', testimonial: null, canSubmit: true,
         suggestedName: 'John', consentVersion: 'public-any-channel-light-edit-v1',
@@ -2666,7 +2766,7 @@
         bookingUrl: 'https://lu.ma/beingsclub', hasImage: true,
         previewImage: '/assets/img/tree-gathering.jpg', status: 'published',
       }] : [];
-      showMemberApp(); return;
+      updateMessageNavState(); showMemberApp(); return;
     }
     const conversationLink = takeConversationToken();
     if (conversationLink) {

@@ -15,6 +15,8 @@ import {
   sendClubWelcome,
   sendMemberJoinedNotification,
   sendClubMemberFeedback,
+  sendClubMemberMessageNotification,
+  sendClubMessageReplyNotification,
   sendFieldNoteInvitation,
   sendClubSalonEmail,
   sendClubSalonRsvpEmail,
@@ -80,6 +82,16 @@ await capture('member-feedback', 'host', () => sendClubMemberFeedback(env, {
   ...member,
   pageLabel: 'Field Notes',
   message: 'The new field report feels much easier to find and read.',
+}));
+await capture('member-message', 'host', () => sendClubMemberMessageNotification(env, {
+  ...member,
+  message: 'Could we talk about something that came up after the Salon?',
+  idempotencyKey: 'preview-member-message',
+}));
+await capture('message-from-john', 'member', () => sendClubMessageReplyNotification(env, {
+  ...member,
+  actionUrl,
+  idempotencyKey: 'preview-message-from-john',
 }));
 await capture('field-note-invitation', 'attendee', () => sendFieldNoteInvitation(env, {
   ...member, salonStartsAt, actionUrl,

@@ -44,6 +44,10 @@ import {
 import { issueMemberWelcomeLink } from './member-links.js';
 import { sendMemberFeedback } from './feedback.js';
 import {
+  getHostMemberMessages, getHostMessageThreads, getMemberMessages,
+  markHostMessagesRead, markMemberMessagesRead, postHostMessage, postMemberMessage,
+} from './messages.js';
+import {
   enterWaitlistBooking, getHostAdmissions, getMemberInvitationLink,
   getPublicAdmissions, offerWaitlistConversation, setAdmissionsPaused,
 } from './waitlist.js';
@@ -130,6 +134,14 @@ export async function clubRoute(request, env, ctx, url) {
     return completeOnboarding(env, who);
   }
 
+  if (path === '/api/club/messages' && method === 'GET') return getMemberMessages(env, who);
+  if (path === '/api/club/messages' && method === 'POST') {
+    return postMemberMessage(env, who, await readJson(request), ctx);
+  }
+  if (path === '/api/club/messages/read' && method === 'POST') {
+    return markMemberMessagesRead(env, who);
+  }
+
   if (path === '/api/club/salon' && method === 'GET') return getMemberSalon(env, who);
   if (path === '/api/club/in-person' && method === 'GET') return getMemberInPersonEvents(env);
   const inPersonImage = /^\/api\/club\/in-person\/(\d+)\/image$/.exec(path);
@@ -207,6 +219,18 @@ export async function clubRoute(request, env, ctx, url) {
   if (!who.is_host || !path.startsWith('/api/club/host/')) return bad(404, 'not found');
 
   if (path === '/api/club/host/salon' && method === 'GET') return getHostSalon(env);
+  if (path === '/api/club/host/messages' && method === 'GET') return getHostMessageThreads(env);
+  const hostMessageRead = /^\/api\/club\/host\/messages\/(\d+)\/read$/.exec(path);
+  if (hostMessageRead && method === 'POST') {
+    return markHostMessagesRead(env, Number(hostMessageRead[1]));
+  }
+  const hostMessages = /^\/api\/club\/host\/messages\/(\d+)$/.exec(path);
+  if (hostMessages && method === 'GET') {
+    return getHostMemberMessages(env, Number(hostMessages[1]));
+  }
+  if (hostMessages && method === 'POST') {
+    return postHostMessage(env, Number(hostMessages[1]), await readJson(request), ctx);
+  }
   if (path === '/api/club/host/salon' && method === 'POST') {
     return saveHostSalon(env, who, await readJson(request));
   }

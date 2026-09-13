@@ -340,6 +340,55 @@ export async function sendClubMemberFeedback(env, {
   });
 }
 
+/** A quiet host notice when a member writes in their private conversation. */
+export async function sendClubMemberMessageNotification(env, {
+  email, name, message, idempotencyKey,
+}) {
+  const to = String(env.HOST_NOTIFY_EMAIL || env.MAIL_REPLY_TO || '').trim();
+  if (!to) return false;
+  const identity = name ? `${name} (${email})` : email;
+  const url = 'https://beingsclub.com/members/host/?messages=open#messages';
+  const subject = `A message from ${name || email}`;
+  const text = `${identity} sent you a private message in Beings Club:\n\n${message}\n\nOpen Messages to reply:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    title: subject,
+    preheader: `${identity} sent you a private message.`,
+    heading: 'A private <span style="color:#5A4B7C">message</span>.',
+    body: `<p style="margin:0 0 16px"><strong>${escapeHtml(identity)}</strong> wrote:</p>`
+      + `<div style="margin:0;padding:18px 20px;background:#F2ECFF;border:1px solid #DED7EA;border-radius:14px;color:#312E29;font-size:16px;line-height:1.6;white-space:pre-wrap">${escapeHtml(message)}</div>`,
+    actionUrl: url,
+    actionLabel: 'open messages',
+    settingsUrl: url,
+    footerLinkLabel: 'host messages',
+  });
+  return post(env, {
+    to, from: club(env), subject, text, html, idempotencyKey,
+  });
+}
+
+/** Let a member know John has replied without exposing the message in email. */
+export async function sendClubMessageReplyNotification(env, {
+  email, name, actionUrl, idempotencyKey,
+}) {
+  const greeting = name ? `Hello, ${name}.` : 'Hello.';
+  const privateNote = 'This is a private link that logs you into your account, so please don’t share it.';
+  const subject = 'A message from John';
+  const text = `${greeting}\n\nJohn has left you a private message in Beings Club.\n\nOpen Messages:\n${actionUrl}\n\n${privateNote}\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    title: subject,
+    preheader: 'John has left you a private message in Beings Club.',
+    heading: 'A message from <span style="color:#5A4B7C">John</span>.',
+    body: `<p style="margin:0 0 16px">${escapeHtml(greeting)}</p>`
+      + '<p style="margin:0">John has left you a private message in Beings Club.</p>',
+    actionUrl,
+    actionLabel: 'open messages',
+    settingsUrl: actionUrl,
+    footerLinkLabel: 'private conversation',
+    afterBody: `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateNote)}</td></tr>`,
+  });
+  return post(env, { to: email, from: club(env), subject, text, html, idempotencyKey });
+}
+
 /** One invitation after John marks somebody as having attended a Salon. */
 export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt, actionUrl }) {
   const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
