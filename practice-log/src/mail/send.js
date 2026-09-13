@@ -342,12 +342,12 @@ export async function sendClubMemberFeedback(env, {
 
 /** A quiet host notice when a member writes in their private conversation. */
 export async function sendClubMemberMessageNotification(env, {
-  email, name, message, idempotencyKey,
+  email, name, memberId, message, idempotencyKey,
 }) {
   const to = String(env.HOST_NOTIFY_EMAIL || env.MAIL_REPLY_TO || '').trim();
   if (!to) return false;
   const identity = name ? `${name} (${email})` : email;
-  const url = 'https://beingsclub.com/members/host/?messages=open#messages';
+  const url = `https://beingsclub.com/members/?message=${Number(memberId)}#messages`;
   const subject = `A message from ${name || email}`;
   const text = `${identity} sent you a private message in Beings Club:\n\n${message}\n\nOpen Messages to reply:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
   const html = clubEmailLayout({

@@ -477,18 +477,44 @@
         <header class="messages-heading">
           <span class="eyebrow">messages</span>
           <h1>Messages</h1>
-          <p>Your private conversation with John.</p>
+          <p id="messages-intro">Your private conversation with John.</p>
         </header>
-        <section class="message-thread" id="message-thread" aria-live="polite"></section>
-        <p class="message-empty" id="message-empty">There are no messages here yet.</p>
-        <form class="message-compose" id="message-compose" novalidate>
-          <label class="sr-only" for="message-body">Send a message to John</label>
-          <textarea id="message-body" maxlength="4000" placeholder="send a message" required></textarea>
-          <div class="message-compose-actions">
-            <button class="primary" id="message-send" type="submit">send directly to John</button>
-            <span class="status" id="message-status" role="status" aria-live="polite"></span>
+        <div class="messages-member-view" id="messages-member-view">
+          <section class="message-thread" id="message-thread" aria-live="polite"></section>
+          <p class="message-empty" id="message-empty">There are no messages here yet.</p>
+          <form class="message-compose" id="message-compose" novalidate>
+            <label class="sr-only" for="message-body">Send a message to John</label>
+            <textarea id="message-body" maxlength="4000" placeholder="send a message" required></textarea>
+            <div class="message-compose-actions">
+              <button class="primary" id="message-send" type="submit">send directly to John</button>
+              <span class="status" id="message-status" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+        <div class="messages-host-view" id="messages-host-view" hidden>
+          <div class="host-message-inbox">
+            <div class="host-message-list" id="host-message-list" aria-label="Member conversations"></div>
+            <section class="host-message-conversation" id="host-message-conversation" hidden>
+              <header class="host-message-heading">
+                <div>
+                  <h2 id="host-message-name"></h2>
+                  <span id="host-message-email"></span>
+                </div>
+                <button class="text-button" id="host-message-close" type="button">close</button>
+              </header>
+              <div class="host-message-thread" id="host-message-thread" aria-live="polite"></div>
+              <form class="host-message-compose" id="host-message-compose" novalidate>
+                <label class="sr-only" for="host-message-body">Reply to this member</label>
+                <textarea id="host-message-body" maxlength="4000" placeholder="write a reply" required></textarea>
+                <div class="message-compose-actions">
+                  <button class="primary" id="host-message-send" type="submit">send message</button>
+                  <span class="status" id="host-message-status" role="status" aria-live="polite"></span>
+                </div>
+              </form>
+            </section>
+            <p class="host-message-empty" id="host-message-empty">Choose a conversation.</p>
           </div>
-        </form>
+        </div>
       </div>
     </main>
 

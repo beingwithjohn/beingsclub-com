@@ -24,8 +24,6 @@
   let hostPostImageData = null;
   let prospectHostState = [];
   let admissionsHostState = { admissions: { paused: false }, waitlist: [] };
-  let hostMessageState = { threads: [], selected: null };
-  const hostMessageConversations = new Map();
   const imageObjectUrls = new Set();
   const NOTION_NOTE_PREFIX = 'bc_notion_invitation_note_';
 
@@ -56,114 +54,6 @@
 
   function text(tag, className, value) {
     const node = document.createElement(tag); node.className = className; node.textContent = value; return node;
-  }
-
-  function hostMessageDateParts(value) {
-    const date = new Date(value);
-    return {
-      date: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date),
-      time: new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' }).format(date),
-    };
-  }
-
-  function renderHostMessageList() {
-    const container = document.getElementById('host-message-list');
-    const empty = document.getElementById('host-message-empty');
-    container.replaceChildren();
-    const threads = hostMessageState.threads || [];
-    empty.hidden = threads.length !== 0;
-    threads.forEach((thread) => {
-      const button = document.createElement('button');
-      button.className = `host-message-person${hostMessageState.selected === thread.memberId ? ' is-current' : ''}`;
-      button.type = 'button';
-      const identity = document.createElement('span'); identity.className = 'host-message-person-identity';
-      identity.append(text('strong', '', thread.memberName), text('span', '', thread.email));
-      const detail = document.createElement('span'); detail.className = 'host-message-person-detail';
-      const parts = hostMessageDateParts(thread.updatedAt);
-      const preview = String(thread.lastMessage || '').replace(/\s+/g, ' ').trim();
-      detail.append(text('span', '', preview), text('small', '', `${parts.date} · ${parts.time}`));
-      button.append(identity, detail);
-      if (thread.unreadCount) button.append(text('span', 'host-message-unread', String(thread.unreadCount)));
-      button.addEventListener('click', () => openHostConversation(thread.memberId));
-      container.append(button);
-    });
-  }
-
-  function renderHostConversation(data) {
-    const conversation = document.getElementById('host-message-conversation');
-    const threadNode = document.getElementById('host-message-thread');
-    document.getElementById('host-message-name').textContent = data.member.name;
-    document.getElementById('host-message-email').textContent = data.member.email;
-    threadNode.replaceChildren();
-    (data.messages || []).forEach((message) => {
-      const article = document.createElement('article');
-      article.className = `message-bubble message-${message.senderRole}`;
-      article.append(text('p', 'message-copy', message.body));
-      const parts = hostMessageDateParts(message.createdAt);
-      article.append(text(
-        'span', 'message-meta',
-        `${message.senderRole === 'host' ? 'John' : data.member.name} · ${parts.date} · ${parts.time}`,
-      ));
-      threadNode.append(article);
-    });
-    conversation.hidden = false;
-    requestAnimationFrame(() => { threadNode.scrollTop = threadNode.scrollHeight; });
-  }
-
-  async function openHostConversation(memberId) {
-    const statusNode = document.getElementById('host-message-status'); statusNode.textContent = '';
-    try {
-      let data = hostMessageConversations.get(memberId);
-      if (!data) {
-        data = await call(`/api/club/host/messages/${memberId}`);
-        hostMessageConversations.set(memberId, data);
-      }
-      hostMessageState.selected = memberId;
-      const summary = hostMessageState.threads.find((thread) => thread.memberId === memberId);
-      if (summary) summary.unreadCount = 0;
-      renderHostMessageList(); renderHostConversation(data);
-      if (!previewMode) call(`/api/club/host/messages/${memberId}/read`, { method: 'POST', body: '{}' }).catch(() => {});
-    } catch (error) {
-      statusNode.textContent = error.message || 'That conversation could not be opened.';
-    }
-  }
-
-  async function loadHostMessages() {
-    hostMessageState = { ...(await call('/api/club/host/messages')), selected: hostMessageState.selected };
-    renderHostMessageList();
-  }
-
-  async function submitHostMessage(event) {
-    event.preventDefault();
-    const memberId = hostMessageState.selected;
-    if (!memberId) return;
-    const input = document.getElementById('host-message-body');
-    const button = document.getElementById('host-message-send');
-    const statusNode = document.getElementById('host-message-status');
-    const message = input.value.trim(); statusNode.textContent = '';
-    if (!message) { input.focus(); return; }
-    button.disabled = true;
-    try {
-      let created;
-      if (previewMode) {
-        created = { id: Date.now(), senderRole: 'host', senderName: 'John', body: message, createdAt: new Date().toISOString() };
-      } else {
-        created = (await call(`/api/club/host/messages/${memberId}`, {
-          method: 'POST', body: JSON.stringify({ message }),
-        })).message;
-      }
-      const data = hostMessageConversations.get(memberId);
-      data.messages.push(created); input.value = '';
-      const summary = hostMessageState.threads.find((thread) => thread.memberId === memberId);
-      if (summary) {
-        summary.lastMessage = created.body; summary.lastSenderRole = 'host';
-        summary.lastSenderName = 'John'; summary.updatedAt = created.createdAt;
-      }
-      renderHostMessageList(); renderHostConversation(data);
-      statusNode.textContent = 'Message sent.';
-    } catch (error) {
-      statusNode.textContent = error.message || 'That message could not be sent.';
-    } finally { button.disabled = false; }
   }
 
   function escapeHtml(value) {
@@ -1522,13 +1412,6 @@
   }
   document.getElementById('host-sign-out').addEventListener('click', signOut);
   document.getElementById('mobile-sign-out').addEventListener('click', signOut);
-  document.getElementById('host-message-compose').addEventListener('submit', submitHostMessage);
-  document.getElementById('host-message-close').addEventListener('click', () => {
-    hostMessageState.selected = null;
-    document.getElementById('host-message-conversation').hidden = true;
-    document.getElementById('host-message-status').textContent = '';
-    renderHostMessageList();
-  });
   document.getElementById('admissions-toggle').addEventListener('click', async () => {
     const button = document.getElementById('admissions-toggle');
     const statusNode = document.getElementById('waitlist-host-status');
@@ -1619,7 +1502,6 @@
       const inPersonEventPreview = document.getElementById('in-person-event-host');
       const fieldNotePreview = document.getElementById('field-note-host');
       const conversationPreview = document.getElementById('prospects');
-      const messagesPreview = document.getElementById('host-messages');
       if (previewParams.get('salon') === 'open') {
         const salonToggle = salonPreview.querySelector('.host-section-toggle');
         const salonBody = salonPreview.querySelector('.host-section-body');
@@ -1642,11 +1524,6 @@
         const conversationBody = conversationPreview.querySelector('.host-section-body');
         conversationToggle.setAttribute('aria-expanded', 'true'); conversationBody.hidden = false;
       }
-      if (previewParams.get('messages') === 'open') {
-        const messagesToggle = messagesPreview.querySelector('.host-section-toggle');
-        const messagesBody = messagesPreview.querySelector('.host-section-body');
-        messagesToggle.setAttribute('aria-expanded', 'true'); messagesBody.hidden = false;
-      }
       updateClock();
       render([
         { id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true, status: 'joined', canInvite: false, canRemove: false,
@@ -1655,38 +1532,6 @@
           salonEmail: { announcement: true, week: false, month: false, day: false, hour: false, quiet: true } },
         { id: 3, email: 'sam@example.com', name: null, isHost: false, status: 'on_list', canInvite: true, canRemove: true },
       ]);
-      hostMessageState = {
-        selected: null,
-        threads: [
-          {
-            memberId: 2, memberName: 'Mira', email: 'mira@example.com',
-            lastMessage: 'I wanted to share something that stayed with me after the Salon.',
-            lastSenderRole: 'member', lastSenderName: 'Mira',
-            updatedAt: '2026-09-12T15:18:00.000Z', unreadCount: 1,
-          },
-          {
-            memberId: 3, memberName: 'Noor', email: 'noor@example.com',
-            lastMessage: 'Thank you. That makes sense to me.', lastSenderRole: 'member',
-            lastSenderName: 'Noor', updatedAt: '2026-09-10T10:07:00.000Z', unreadCount: 0,
-          },
-        ],
-      };
-      hostMessageConversations.set(2, {
-        member: { id: 2, name: 'Mira', email: 'mira@example.com' },
-        messages: [
-          { id: 1, senderRole: 'host', senderName: 'John', body: 'Hello Mira. This is a private place for us to stay in touch.', createdAt: '2026-09-11T09:42:00.000Z' },
-          { id: 2, senderRole: 'member', senderName: 'Mira', body: 'I wanted to share something that stayed with me after the Salon.', createdAt: '2026-09-12T15:18:00.000Z' },
-        ],
-      });
-      hostMessageConversations.set(3, {
-        member: { id: 3, name: 'Noor', email: 'noor@example.com' },
-        messages: [
-          { id: 3, senderRole: 'host', senderName: 'John', body: 'There is no rush. We can return to it whenever you like.', createdAt: '2026-09-10T09:50:00.000Z' },
-          { id: 4, senderRole: 'member', senderName: 'Noor', body: 'Thank you. That makes sense to me.', createdAt: '2026-09-10T10:07:00.000Z' },
-        ],
-      });
-      renderHostMessageList();
-      if (previewParams.get('messages') === 'open') openHostConversation(2);
       renderSalons({
         capabilities: { autoZoom: true },
         salons: [{
@@ -1783,7 +1628,7 @@
       if (!data.member.isHost) { location.replace('/members/'); return; }
       if (!data.member.agreementAccepted) { location.replace('/members/?onboarding=1'); return; }
       updateClock(); setInterval(updateClock, 30000);
-      await Promise.all([loadMembers(), loadHostMessages(), loadSalon(), loadInPersonEvents(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects(), loadAdmissions()]);
+      await Promise.all([loadMembers(), loadSalon(), loadInPersonEvents(), loadFieldNoteHost(), loadTestimonialQueue(), loadProspects(), loadAdmissions()]);
       waiting.hidden = true; shell.hidden = false;
     } catch (_) { forgetToken(); location.replace('/members/'); }
   })();

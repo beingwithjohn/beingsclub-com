@@ -37,6 +37,7 @@ export async function getMemberMessages(env, member) {
 }
 
 export async function postMemberMessage(env, member, body, ctx, timestamp = now()) {
+  if (member.is_host) return bad(403, 'host inbox');
   const parsed = parsePrivateMessage(body);
   if (!parsed.ok) return bad(400, parsed.error);
   const senderName = cleanSenderName(member.display_name, member.email);
@@ -47,7 +48,7 @@ export async function postMemberMessage(env, member, body, ctx, timestamp = now(
   ).bind(member.id, senderName, parsed.message, parsed.sourcePage, timestamp).run();
   const id = Number(result.meta?.last_row_id);
   const delivery = sendClubMemberMessageNotification(env, {
-    email: member.email,
+    email: member.email, memberId: member.id,
     name: member.display_name,
     message: parsed.message,
     idempotencyKey: Number.isSafeInteger(id) ? `club-member-message-${id}` : undefined,
@@ -84,6 +85,7 @@ export async function getHostMessageThreads(env) {
            FROM member_message GROUP BY member_id
        ) summary ON summary.member_id = m.id
        JOIN member_message latest ON latest.id = summary.latest_id
+      WHERE m.is_host = 0
       ORDER BY latest.created_at DESC, latest.id DESC`,
   ).all();
   return json({ threads: (rows.results || []).map((row) => ({

@@ -85,6 +85,7 @@ await capture('member-feedback', 'host', () => sendClubMemberFeedback(env, {
 }));
 await capture('member-message', 'host', () => sendClubMemberMessageNotification(env, {
   ...member,
+  memberId: 2,
   message: 'Could we talk about something that came up after the Salon?',
   idempotencyKey: 'preview-member-message',
 }));

@@ -34,6 +34,7 @@ test('a new member message notifies John and points into the host inbox', async 
       HOST_NOTIFY_EMAIL: 'john@spacetobe.xyz',
     }, {
       email: 'mira@example.test', name: 'Mira',
+      memberId: 2,
       message: 'Could we return to this after the Salon?',
       idempotencyKey: 'member-message-1',
     });
@@ -43,7 +44,7 @@ test('a new member message notifies John and points into the host inbox', async 
     assert.equal(body.reply_to, 'john@spacetobe.xyz');
     assert.equal(body.subject, 'A message from Mira');
     assert.match(body.text, /Could we return to this after the Salon\?/);
-    assert.match(body.html, /members\/host\/?\?messages=open#messages/);
+    assert.match(body.html, /members\/?\?message=2#messages/);
   } finally {
     globalThis.fetch = original;
   }

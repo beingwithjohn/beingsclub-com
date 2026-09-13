@@ -48,33 +48,6 @@
         <h1>Host <strong>tools</strong>.</h1>
         <p class="intro">Only hosts see this page. Plan Salons ahead, keep them private as drafts, and publish each one when its doorway is ready.</p>
 
-        <section class="host-section" id="host-messages">
-          <h2>messages</h2>
-          <p>Private conversations between you and each member. Choose a person to read the thread and reply.</p>
-          <div class="host-message-inbox">
-            <div class="host-message-list" id="host-message-list" aria-label="Member conversations"></div>
-            <section class="host-message-conversation" id="host-message-conversation" hidden>
-              <header class="host-message-heading">
-                <div>
-                  <h3 id="host-message-name"></h3>
-                  <span id="host-message-email"></span>
-                </div>
-                <button class="text-button" id="host-message-close" type="button">close</button>
-              </header>
-              <div class="host-message-thread" id="host-message-thread" aria-live="polite"></div>
-              <form class="host-message-compose" id="host-message-compose" novalidate>
-                <label class="sr-only" for="host-message-body">Reply to this member</label>
-                <textarea id="host-message-body" maxlength="4000" placeholder="write a reply" required></textarea>
-                <div class="message-compose-actions">
-                  <button class="primary" id="host-message-send" type="submit">send message</button>
-                  <span class="status" id="host-message-status" role="status" aria-live="polite"></span>
-                </div>
-              </form>
-            </section>
-            <p class="host-message-empty" id="host-message-empty">No private messages yet.</p>
-          </div>
-        </section>
-
         <section class="host-section">
           <h2>next salon</h2>
           <p>Prepare several Salons in advance. Drafts stay private; members see the earliest published upcoming Salon.</p>

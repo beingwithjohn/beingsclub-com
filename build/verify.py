@@ -704,11 +704,17 @@ ok("Messages is a private member thread and a host inbox with email notices",
    'id="messages-page"' in login_html and
    'Your private conversation with John.' in login_html and
    'data-member-view="messages"' in login_html and
-   'id="host-messages"' in host_html and
+   'id="messages-host-view"' in login_html and
+   'id="host-message-list"' in login_html and
+   'id="host-messages"' not in host_html and
+   'Your private conversations with members.' in members_after.get("members/app.js", "") and
    "path === '/api/club/host/messages'" in club_router and
    "host\\/messages\\/(\\d+)" in club_router and
    "['field-notes', 'messages'].includes(next)" in members_after.get("members/app.js", "") and
    'A message from John' in mail_api and
+   'members/?message=${Number(memberId)}#messages' in mail_api and
+   'WHERE m.is_host = 0' in messages_api and
+   "footer.hidden = member.isHost" in members_after.get("members/app.js", "") and
    'private link that logs you into your account' in mail_api)
 ok("native calendar availability and booking stay behind the prospective-member session",
    "path === '/api/club/prospect/intention'" in club_router and

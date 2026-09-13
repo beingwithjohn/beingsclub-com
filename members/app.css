@@ -505,6 +505,11 @@ button{cursor:pointer}
 .messages-heading{display:grid;gap:12px;max-width:760px}
 .messages-heading h1{margin:0;font-size:clamp(34px,4.4vw,64px);line-height:1.02;letter-spacing:-.05em;font-weight:650}
 .messages-heading>p{margin:0;font-size:15px;line-height:1.7;color:var(--body)}
+.messages-member-view{display:grid;gap:30px}
+.messages-member-view[hidden],.messages-host-view[hidden]{display:none}
+.messages-host-view{display:grid}
+.messages-host-view .host-message-inbox{min-height:min(620px,64vh)}
+.messages-host-view .host-message-heading h2{margin:0;font-size:15px}
 .message-thread{display:flex;flex-direction:column;gap:15px;min-height:280px;padding:28px;background:#F8F6F0;border:1px solid var(--line);border-radius:var(--radius-panel)}
 .message-bubble{display:grid;gap:10px;width:fit-content;max-width:min(72%,660px);padding:15px 17px;border-radius:18px}
 .message-host{align-self:flex-start;background:#EEE9E0;border-bottom-left-radius:6px}

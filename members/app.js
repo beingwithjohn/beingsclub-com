@@ -48,6 +48,9 @@
   let inPersonEvents = [];
   let fieldNotes = { prompt: null, hostPosts: [], groups: [] };
   let messageState = { messages: [], unreadCount: 0 };
+  let hostMessageState = { threads: [], selected: null };
+  const hostMessageConversations = new Map();
+  let requestedHostMessageId = Number(new URLSearchParams(location.search).get('message')) || null;
   let givingState = {
     testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null,
     recentGift: false, suppressFieldNoteGivingAppeal: false,
@@ -1517,11 +1520,21 @@
       if (current) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
     });
     if (messages) {
-      renderMessages();
-      if (messageState.unreadCount) {
-        messageState.unreadCount = 0;
-        updateMessageNavState();
-        if (!previewMode) call('/api/club/messages/read', { method: 'POST', body: '{}' }).catch(() => {});
+      renderMessagesMode();
+      if (member?.isHost) {
+        renderHostMessageList();
+        const requested = requestedHostMessageId;
+        requestedHostMessageId = null;
+        if (requested && hostMessageState.threads.some((thread) => thread.memberId === requested)) {
+          openHostConversation(requested);
+        }
+      } else {
+        renderMessages();
+        if (messageState.unreadCount) {
+          messageState.unreadCount = 0;
+          updateMessageNavState();
+          if (!previewMode) call('/api/club/messages/read', { method: 'POST', body: '{}' }).catch(() => {});
+        }
       }
     }
     if (field) renderFieldNotes();
@@ -1545,6 +1558,7 @@
     memberApp.hidden = false;
     document.getElementById('member-host-link').hidden = !member.isHost;
     document.getElementById('mobile-host-link').hidden = !member.isHost;
+    document.querySelectorAll('.member-feedback').forEach((footer) => { footer.hidden = member.isHost; });
     updateClock(); renderSalon(); renderInPersonEvents();
     showView(member.name ? viewFromHash() : 'profile');
   }
@@ -1560,12 +1574,17 @@
       return;
     }
     showLogin(waiting);
+    const messageRequest = member.isHost
+      ? call('/api/club/host/messages') : call('/api/club/messages');
     const [salonState, inPersonState, notesState, messages, memberGiving, directory, settings] = await Promise.all([
       call('/api/club/salon'), call('/api/club/in-person'), call('/api/club/field-notes'),
-      call('/api/club/messages'), call('/api/club/giving'), call('/api/club/directory'), call('/api/club/settings'),
+      messageRequest, call('/api/club/giving'), call('/api/club/directory'), call('/api/club/settings'),
     ]);
     salon = salonState.salon; inPersonEvents = inPersonState.events || [];
-    fieldNotes = notesState; messageState = messages; givingState = memberGiving;
+    fieldNotes = notesState;
+    if (member.isHost) hostMessageState = { ...messages, selected: null };
+    else messageState = messages;
+    givingState = memberGiving;
     directoryState = directory; settingsState = settings;
     updateMessageNavState();
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -1592,12 +1611,22 @@
   }
 
   function updateMessageNavState() {
+    const unreadCount = member?.isHost
+      ? (hostMessageState.threads || []).reduce((total, thread) => total + Number(thread.unreadCount || 0), 0)
+      : Number(messageState.unreadCount || 0);
     document.querySelectorAll('[data-member-view="messages"]').forEach((link) => {
-      link.classList.toggle('has-unread', messageState.unreadCount > 0);
-      const label = messageState.unreadCount
-        ? `Messages, ${messageState.unreadCount} unread` : 'Messages';
+      link.classList.toggle('has-unread', unreadCount > 0);
+      const label = unreadCount ? `Messages, ${unreadCount} unread` : 'Messages';
       link.setAttribute('aria-label', label);
     });
+  }
+
+  function renderMessagesMode() {
+    const host = !!member?.isHost;
+    document.getElementById('messages-member-view').hidden = host;
+    document.getElementById('messages-host-view').hidden = !host;
+    document.getElementById('messages-intro').textContent = host
+      ? 'Your private conversations with members.' : 'Your private conversation with John.';
   }
 
   function renderMessages(scroll = true) {
@@ -1652,6 +1681,100 @@
       status.textContent = 'Sent directly to John.';
     } catch (error) {
       status.textContent = error.message || 'That could not be sent. Try again.';
+    } finally { button.disabled = false; }
+  }
+
+  function renderHostMessageList() {
+    const container = document.getElementById('host-message-list');
+    const empty = document.getElementById('host-message-empty');
+    container.replaceChildren();
+    const threads = hostMessageState.threads || [];
+    empty.textContent = threads.length ? 'Choose a conversation.' : 'No private messages yet.';
+    empty.hidden = !!hostMessageState.selected;
+    threads.forEach((thread) => {
+      const button = document.createElement('button');
+      button.className = `host-message-person${hostMessageState.selected === thread.memberId ? ' is-current' : ''}`;
+      button.type = 'button';
+      const identity = document.createElement('span'); identity.className = 'host-message-person-identity';
+      identity.append(makeText('strong', '', thread.memberName), makeText('span', '', thread.email));
+      const detail = document.createElement('span'); detail.className = 'host-message-person-detail';
+      const parts = messageDateParts(thread.updatedAt);
+      const preview = String(thread.lastMessage || '').replace(/\s+/g, ' ').trim();
+      detail.append(makeText('span', '', preview), makeText('small', '', `${parts.date} · ${parts.time}`));
+      button.append(identity, detail);
+      if (thread.unreadCount) button.append(makeText('span', 'host-message-unread', String(thread.unreadCount)));
+      button.addEventListener('click', () => openHostConversation(thread.memberId));
+      container.append(button);
+    });
+  }
+
+  function renderHostConversation(data) {
+    const conversation = document.getElementById('host-message-conversation');
+    const threadNode = document.getElementById('host-message-thread');
+    document.getElementById('host-message-name').textContent = data.member.name;
+    document.getElementById('host-message-email').textContent = data.member.email;
+    threadNode.replaceChildren();
+    (data.messages || []).forEach((message) => {
+      const article = document.createElement('article');
+      article.className = `message-bubble message-${message.senderRole}`;
+      article.append(makeText('p', 'message-copy', message.body));
+      const parts = messageDateParts(message.createdAt);
+      article.append(makeText(
+        'span', 'message-meta',
+        `${message.senderRole === 'host' ? 'John' : data.member.name} · ${parts.date} · ${parts.time}`,
+      ));
+      threadNode.append(article);
+    });
+    conversation.hidden = false;
+    document.getElementById('host-message-empty').hidden = true;
+    requestAnimationFrame(() => { threadNode.scrollTop = threadNode.scrollHeight; });
+  }
+
+  async function openHostConversation(memberId) {
+    const statusNode = document.getElementById('host-message-status'); statusNode.textContent = '';
+    try {
+      let data = hostMessageConversations.get(memberId);
+      if (!data) {
+        data = await call(`/api/club/host/messages/${memberId}`);
+        hostMessageConversations.set(memberId, data);
+      }
+      hostMessageState.selected = memberId;
+      const summary = hostMessageState.threads.find((thread) => thread.memberId === memberId);
+      if (summary) summary.unreadCount = 0;
+      renderHostMessageList(); renderHostConversation(data); updateMessageNavState();
+      if (!previewMode) call(`/api/club/host/messages/${memberId}/read`, { method: 'POST', body: '{}' }).catch(() => {});
+    } catch (error) {
+      statusNode.textContent = error.message || 'That conversation could not be opened.';
+    }
+  }
+
+  async function submitHostMessage(event) {
+    event.preventDefault();
+    const memberId = hostMessageState.selected;
+    if (!memberId) return;
+    const input = document.getElementById('host-message-body');
+    const button = document.getElementById('host-message-send');
+    const statusNode = document.getElementById('host-message-status');
+    const message = input.value.trim(); statusNode.textContent = '';
+    if (!message) { input.focus(); return; }
+    button.disabled = true;
+    try {
+      const created = previewMode
+        ? { id: Date.now(), senderRole: 'host', senderName: 'John', body: message, createdAt: new Date().toISOString() }
+        : (await call(`/api/club/host/messages/${memberId}`, {
+          method: 'POST', body: JSON.stringify({ message }),
+        })).message;
+      const data = hostMessageConversations.get(memberId);
+      data.messages.push(created); input.value = '';
+      const summary = hostMessageState.threads.find((thread) => thread.memberId === memberId);
+      if (summary) {
+        summary.lastMessage = created.body; summary.lastSenderRole = 'host';
+        summary.lastSenderName = 'John'; summary.updatedAt = created.createdAt;
+      }
+      renderHostMessageList(); renderHostConversation(data);
+      statusNode.textContent = 'Message sent.';
+    } catch (error) {
+      statusNode.textContent = error.message || 'That message could not be sent.';
     } finally { button.disabled = false; }
   }
 
@@ -2229,6 +2352,13 @@
   });
   installMemberMessages();
   document.getElementById('message-compose').addEventListener('submit', submitMessage);
+  document.getElementById('host-message-compose').addEventListener('submit', submitHostMessage);
+  document.getElementById('host-message-close').addEventListener('click', () => {
+    hostMessageState.selected = null;
+    document.getElementById('host-message-conversation').hidden = true;
+    document.getElementById('host-message-status').textContent = '';
+    renderHostMessageList();
+  });
   document.querySelectorAll('[data-rsvp]').forEach((button) => button.addEventListener('click', () => setRsvp(button.dataset.rsvp)));
   document.getElementById('rsvp-clear').addEventListener('click', () => setRsvp(null));
   document.getElementById('rsvp-clear-not').addEventListener('click', () => setRsvp(null));
@@ -2729,6 +2859,37 @@
           },
         ],
       };
+      hostMessageState = {
+        selected: null,
+        threads: [
+          {
+            memberId: 2, memberName: 'Mira', email: 'mira@example.com',
+            lastMessage: 'I wanted to share something that stayed with me after the Salon.',
+            lastSenderRole: 'member', lastSenderName: 'Mira',
+            updatedAt: '2026-09-12T15:18:00.000Z', unreadCount: 1,
+          },
+          {
+            memberId: 3, memberName: 'Noor', email: 'noor@example.com',
+            lastMessage: 'Thank you. That makes sense to me.', lastSenderRole: 'member',
+            lastSenderName: 'Noor', updatedAt: '2026-09-10T10:07:00.000Z', unreadCount: 0,
+          },
+        ],
+      };
+      hostMessageConversations.set(2, {
+        member: { id: 2, name: 'Mira', email: 'mira@example.com' },
+        messages: [
+          { id: 1, senderRole: 'host', senderName: 'John', body: 'Hello Mira. This is a private place for us to stay in touch.', createdAt: '2026-09-11T09:42:00.000Z' },
+          { id: 2, senderRole: 'member', senderName: 'Mira', body: 'I wanted to share something that stayed with me after the Salon.', createdAt: '2026-09-12T15:18:00.000Z' },
+        ],
+      });
+      hostMessageConversations.set(3, {
+        member: { id: 3, name: 'Noor', email: 'noor@example.com' },
+        messages: [
+          { id: 3, senderRole: 'host', senderName: 'John', body: 'There is no rush. We can return to it whenever you like.', createdAt: '2026-09-10T09:50:00.000Z' },
+          { id: 4, senderRole: 'member', senderName: 'Noor', body: 'Thank you. That makes sense to me.', createdAt: '2026-09-10T10:07:00.000Z' },
+        ],
+      });
+      if (location.hash === '#messages') requestedHostMessageId = 2;
       givingState = {
         month: '2026-08', testimonial: null, canSubmit: true,
         suggestedName: 'John', consentVersion: 'public-any-channel-light-edit-v1',
