@@ -959,7 +959,7 @@ button{cursor:pointer}
 
 /* Soft geometry. The system keeps rules and underline-only fields crisp, while
    giving interactive controls and contained surfaces a calm, shared radius. */
-.primary,.secondary,.outline,.rsvp-button,.member-feedback button,
+.primary,.secondary,.outline,.rsvp-button,.rsvp-confirmed,.join-room,.member-feedback button,
 .field-note-giving-appeal a,.giving-choice,.giving-social-link,
 .prospect-time-list button,.image-picker{border-radius:var(--radius-control)}
 .member-nav .current,.mobile-menu .current{border-radius:var(--radius-small)}
