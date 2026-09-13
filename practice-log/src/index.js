@@ -10,6 +10,7 @@ import {
 } from './api.js';
 import { hostRoute } from './host.js';
 import { runNudges } from './nudge.js';
+import { practiceLogRetired, retiredLogRequest, retirementResponse } from './retirement.js';
 import { postGivingPortal, stripeWebhook } from './giving.js';
 import { postLogin } from './login.js';
 import { postJoin } from './join.js';
@@ -37,6 +38,8 @@ export default {
     // have to present a bearer token, and no GET writes anything.
     if (origin && !allowedOrigin(env, origin)) return withCors(bad(403, 'origin'), cors);
 
+    if (retiredLogRequest(env, url.pathname)) return withCors(retirementResponse(), cors);
+
     try {
       return withCors(await route(request, env, ctx, url), cors);
     } catch (err) {
@@ -48,7 +51,7 @@ export default {
   async scheduled(event, env, ctx) {
     const scheduledTime = event.scheduledTime || Date.now();
     ctx.waitUntil(Promise.all([
-      runNudges(env, scheduledTime),
+      ...(practiceLogRetired(env) ? [] : [runNudges(env, scheduledTime)]),
       runClubMail(env, scheduledTime),
       runMemberNotionSync(env, scheduledTime),
       runWaitlistNotionSync(env, scheduledTime),
