@@ -688,6 +688,8 @@ messages_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "messag
                        encoding="utf-8").read()
 messages_migration = io.open(os.path.join(ROOT, "practice-log", "members-migrations", "0024_member_messages.sql"),
                              encoding="utf-8").read()
+messages_broadcast_migration = io.open(os.path.join(ROOT, "practice-log", "members-migrations", "0025_message_broadcasts.sql"),
+                                       encoding="utf-8").read()
 ok("member pages feed one persistent private conversation with John",
    "send directly to John" in members_after.get("members/app.js", "") and
    "send a message" in members_after.get("members/app.js", "") and
@@ -716,6 +718,25 @@ ok("Messages is a private member thread and a host inbox with email notices",
    'WHERE m.is_host = 0' in messages_api and
    "footer.hidden = member.isHost" in members_after.get("members/app.js", "") and
    'private link that logs you into your account' in mail_api)
+ok("host broadcasts remain separate, private, eligible one-to-one messages",
+   'id="host-message-broadcast-form"' in login_html and
+   "window.confirm(`Send this as a private message" in members_after.get("members/app.js", "") and
+   "path === '/api/club/host/messages/broadcast'" in club_router and
+   'postHostBroadcast' in club_router and
+   'onboarding_completed_at IS NOT NULL' in messages_api and
+   'agreement_accepted_at IS NOT NULL' in messages_api and
+   'paused_at IS NULL' in messages_api and
+   'sendClubMessageReplyNotification' in messages_api and
+   'member_message_broadcast_recipient' in messages_broadcast_migration and
+   'WHERE broadcast_id IS NOT NULL' in messages_broadcast_migration)
+ok("John can begin a private thread with any active member",
+   'id="host-new-message-form"' in login_html and
+   'id="host-new-message-member"' in login_html and
+   'openNewHostMessage' in members_after.get("members/app.js", "") and
+   'members: activeMembers' in messages_api and
+   "memberId: Number(member.id)" in messages_api and
+   "return postHostMessage(env, Number(hostMessages[1])" in club_router and
+   'sendClubMessageReplyNotification' in messages_api)
 ok("native calendar availability and booking stay behind the prospective-member session",
    "path === '/api/club/prospect/intention'" in club_router and
    "path === '/api/club/prospect/slots'" in club_router and

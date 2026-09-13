@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePrivateMessage } from '../src/club/messages.js';
+import { parseBroadcastRequest, parsePrivateMessage } from '../src/club/messages.js';
 import {
   sendClubMemberMessageNotification, sendClubMessageReplyNotification,
 } from '../src/mail/send.js';
@@ -15,6 +15,19 @@ test('private messages accept only member pages and bounded non-empty words', ()
   assert.equal(parsePrivateMessage({ sourcePage: 'messages', message: '   ' }).error, 'Write something first.');
   assert.equal(
     parsePrivateMessage({ sourcePage: 'messages', message: 'x'.repeat(4001) }).error,
+    'Keep messages to 4,000 characters or fewer.',
+  );
+});
+
+test('message broadcasts require a bounded message and a retry-safe request key', () => {
+  assert.deepEqual(parseBroadcastRequest({
+    message: '  We gather next week.  ', requestKey: 'broadcast_2026_09_13_a1',
+  }), {
+    ok: true, message: 'We gather next week.', requestKey: 'broadcast_2026_09_13_a1',
+  });
+  assert.equal(parseBroadcastRequest({ message: 'Hello', requestKey: 'short' }).error, 'request key');
+  assert.equal(
+    parseBroadcastRequest({ message: 'x'.repeat(4001), requestKey: 'broadcast_2026_09_13_a1' }).error,
     'Keep messages to 4,000 characters or fewer.',
   );
 });

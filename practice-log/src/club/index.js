@@ -45,7 +45,8 @@ import { issueMemberWelcomeLink } from './member-links.js';
 import { sendMemberFeedback } from './feedback.js';
 import {
   getHostMemberMessages, getHostMessageThreads, getMemberMessages,
-  markHostMessagesRead, markMemberMessagesRead, postHostMessage, postMemberMessage,
+  markHostMessagesRead, markMemberMessagesRead, postHostBroadcast, postHostMessage,
+  postMemberMessage,
 } from './messages.js';
 import {
   enterWaitlistBooking, getHostAdmissions, getMemberInvitationLink,
@@ -220,6 +221,9 @@ export async function clubRoute(request, env, ctx, url) {
 
   if (path === '/api/club/host/salon' && method === 'GET') return getHostSalon(env);
   if (path === '/api/club/host/messages' && method === 'GET') return getHostMessageThreads(env);
+  if (path === '/api/club/host/messages/broadcast' && method === 'POST') {
+    return postHostBroadcast(env, who, await readJson(request), ctx);
+  }
   const hostMessageRead = /^\/api\/club\/host\/messages\/(\d+)\/read$/.exec(path);
   if (hostMessageRead && method === 'POST') {
     return markHostMessagesRead(env, Number(hostMessageRead[1]));

@@ -492,6 +492,34 @@
           </form>
         </div>
         <div class="messages-host-view" id="messages-host-view" hidden>
+          <div class="message-host-tools">
+            <details class="message-host-tool message-new">
+              <summary>new message</summary>
+              <form class="message-new-body" id="host-new-message-form" novalidate>
+                <label for="host-new-message-member">Choose an active member</label>
+                <select id="host-new-message-member" required>
+                  <option value="">choose someone</option>
+                </select>
+                <button class="primary" id="host-new-message-open" type="submit">open conversation</button>
+                <span class="status" id="host-new-message-status" role="status" aria-live="polite"></span>
+              </form>
+            </details>
+            <details class="message-host-tool message-broadcast">
+              <summary>message everyone</summary>
+              <div class="message-broadcast-body">
+                <p>Send the same private message to every active member. It will appear separately in each conversation; nobody will see who else received it.</p>
+                <form id="host-message-broadcast-form" novalidate>
+                  <label class="sr-only" for="host-message-broadcast-body">Message every active member</label>
+                  <textarea id="host-message-broadcast-body" maxlength="4000" placeholder="write a message to everyone" required></textarea>
+                  <div class="message-compose-actions">
+                    <button class="primary" id="host-message-broadcast-send" type="submit">send to everyone</button>
+                    <span class="message-broadcast-count" id="host-message-broadcast-count"></span>
+                    <span class="status" id="host-message-broadcast-status" role="status" aria-live="polite"></span>
+                  </div>
+                </form>
+              </div>
+            </details>
+          </div>
           <div class="host-message-inbox">
             <div class="host-message-list" id="host-message-list" aria-label="Member conversations"></div>
             <section class="host-message-conversation" id="host-message-conversation" hidden>

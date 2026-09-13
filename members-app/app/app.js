@@ -48,8 +48,9 @@
   let inPersonEvents = [];
   let fieldNotes = { prompt: null, hostPosts: [], groups: [] };
   let messageState = { messages: [], unreadCount: 0 };
-  let hostMessageState = { threads: [], selected: null };
+  let hostMessageState = { threads: [], members: [], recipientCount: 0, selected: null };
   const hostMessageConversations = new Map();
+  let pendingBroadcastKey = null;
   let requestedHostMessageId = Number(new URLSearchParams(location.search).get('message')) || null;
   let givingState = {
     testimonial: null, canSubmit: true, suggestedName: '', monthlyGiving: null,
@@ -1687,8 +1688,24 @@
   function renderHostMessageList() {
     const container = document.getElementById('host-message-list');
     const empty = document.getElementById('host-message-empty');
+    const broadcastCount = document.getElementById('host-message-broadcast-count');
+    const broadcastButton = document.getElementById('host-message-broadcast-send');
+    const memberSelect = document.getElementById('host-new-message-member');
     container.replaceChildren();
     const threads = hostMessageState.threads || [];
+    const selectedMember = memberSelect.value;
+    memberSelect.replaceChildren(new Option('choose someone', ''));
+    (hostMessageState.members || []).forEach((member) => {
+      memberSelect.append(new Option(`${member.memberName} · ${member.email}`, String(member.memberId)));
+    });
+    if ([...memberSelect.options].some((option) => option.value === selectedMember)) {
+      memberSelect.value = selectedMember;
+    }
+    const recipientCount = Number(hostMessageState.recipientCount || 0);
+    broadcastCount.textContent = `${recipientCount} active ${recipientCount === 1 ? 'member' : 'members'}`;
+    broadcastButton.textContent = recipientCount === 1
+      ? 'send to 1 member' : `send to ${recipientCount} members`;
+    broadcastButton.disabled = recipientCount === 0;
     empty.textContent = threads.length ? 'Choose a conversation.' : 'No private messages yet.';
     empty.hidden = !!hostMessageState.selected;
     threads.forEach((thread) => {
@@ -1735,7 +1752,20 @@
     try {
       let data = hostMessageConversations.get(memberId);
       if (!data) {
-        data = await call(`/api/club/host/messages/${memberId}`);
+        if (previewMode) {
+          const previewMember = (hostMessageState.members || []).find(
+            (member) => member.memberId === memberId,
+          );
+          if (!previewMember) throw new Error('That member could not be found.');
+          data = {
+            member: {
+              id: previewMember.memberId,
+              name: previewMember.memberName,
+              email: previewMember.email,
+            },
+            messages: [], unreadCount: 0,
+          };
+        } else data = await call(`/api/club/host/messages/${memberId}`);
         hostMessageConversations.set(memberId, data);
       }
       hostMessageState.selected = memberId;
@@ -1766,16 +1796,93 @@
         })).message;
       const data = hostMessageConversations.get(memberId);
       data.messages.push(created); input.value = '';
-      const summary = hostMessageState.threads.find((thread) => thread.memberId === memberId);
+      let summary = hostMessageState.threads.find((thread) => thread.memberId === memberId);
+      if (!summary) {
+        summary = {
+          memberId,
+          memberName: data.member.name,
+          email: data.member.email,
+          unreadCount: 0,
+        };
+      }
       if (summary) {
         summary.lastMessage = created.body; summary.lastSenderRole = 'host';
         summary.lastSenderName = 'John'; summary.updatedAt = created.createdAt;
       }
+      hostMessageState.threads = [
+        summary,
+        ...hostMessageState.threads.filter((thread) => thread.memberId !== memberId),
+      ];
       renderHostMessageList(); renderHostConversation(data);
       statusNode.textContent = 'Message sent.';
     } catch (error) {
       statusNode.textContent = error.message || 'That message could not be sent.';
     } finally { button.disabled = false; }
+  }
+
+  async function openNewHostMessage(event) {
+    event.preventDefault();
+    const select = document.getElementById('host-new-message-member');
+    const statusNode = document.getElementById('host-new-message-status');
+    const memberId = Number(select.value);
+    statusNode.textContent = '';
+    if (!Number.isSafeInteger(memberId) || memberId <= 0) {
+      statusNode.textContent = 'Choose someone first.';
+      select.focus();
+      return;
+    }
+    await openHostConversation(memberId);
+    if (hostMessageState.selected === memberId) {
+      document.querySelector('.message-new').open = false;
+      document.getElementById('host-message-body').focus();
+    }
+  }
+
+  async function submitHostBroadcast(event) {
+    event.preventDefault();
+    const input = document.getElementById('host-message-broadcast-body');
+    const button = document.getElementById('host-message-broadcast-send');
+    const statusNode = document.getElementById('host-message-broadcast-status');
+    const message = input.value.trim();
+    const recipientCount = Number(hostMessageState.recipientCount || 0);
+    statusNode.textContent = '';
+    if (!message) { input.focus(); return; }
+    if (!recipientCount) { statusNode.textContent = 'There are no active members to message.'; return; }
+    const noun = recipientCount === 1 ? 'member' : 'members';
+    if (!window.confirm(`Send this as a private message to ${recipientCount} ${noun}?`)) return;
+    if (!pendingBroadcastKey) {
+      pendingBroadcastKey = globalThis.crypto?.randomUUID?.()
+        || `broadcast_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    }
+    button.disabled = true;
+    try {
+      if (previewMode) {
+        const createdAt = new Date().toISOString();
+        (hostMessageState.threads || []).forEach((thread, index) => {
+          const created = {
+            id: Date.now() + index, senderRole: 'host', senderName: 'John', body: message, createdAt,
+          };
+          const data = hostMessageConversations.get(thread.memberId);
+          if (data) data.messages.push(created);
+          thread.lastMessage = message; thread.lastSenderRole = 'host';
+          thread.lastSenderName = 'John'; thread.updatedAt = createdAt;
+        });
+      } else {
+        await call('/api/club/host/messages/broadcast', {
+          method: 'POST', body: JSON.stringify({ message, requestKey: pendingBroadcastKey }),
+        });
+        hostMessageConversations.clear();
+        hostMessageState = { ...(await call('/api/club/host/messages')), selected: null };
+      }
+      input.value = '';
+      pendingBroadcastKey = null;
+      renderHostMessageList();
+      statusNode.textContent = `Sent privately to ${recipientCount} ${noun}.`;
+    } catch (error) {
+      statusNode.textContent = error.message || 'That message could not be sent. Try again.';
+    } finally {
+      button.disabled = Number(hostMessageState.recipientCount || 0) === 0;
+    }
   }
 
   function makeMemberMessageFooter(page) {
@@ -2353,6 +2460,11 @@
   installMemberMessages();
   document.getElementById('message-compose').addEventListener('submit', submitMessage);
   document.getElementById('host-message-compose').addEventListener('submit', submitHostMessage);
+  document.getElementById('host-new-message-form').addEventListener('submit', openNewHostMessage);
+  document.getElementById('host-message-broadcast-form').addEventListener('submit', submitHostBroadcast);
+  document.getElementById('host-message-broadcast-body').addEventListener('input', () => {
+    pendingBroadcastKey = null;
+  });
   document.getElementById('host-message-close').addEventListener('click', () => {
     hostMessageState.selected = null;
     document.getElementById('host-message-conversation').hidden = true;
@@ -2861,6 +2973,12 @@
       };
       hostMessageState = {
         selected: null,
+        recipientCount: 3,
+        members: [
+          { memberId: 4, memberName: 'Asha', email: 'asha@example.com' },
+          { memberId: 2, memberName: 'Mira', email: 'mira@example.com' },
+          { memberId: 3, memberName: 'Noor', email: 'noor@example.com' },
+        ],
         threads: [
           {
             memberId: 2, memberName: 'Mira', email: 'mira@example.com',

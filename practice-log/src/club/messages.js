@@ -2,6 +2,7 @@ import { bad, json } from '../api.js';
 import {
   sendClubMemberMessageNotification, sendClubMessageReplyNotification,
 } from '../mail/send.js';
+import { MEMBER_AGREEMENT_VERSION } from './agreement.js';
 import { issueMemberAccessLink } from './member-links.js';
 
 const MESSAGE_MAX = 4000;
@@ -18,6 +19,14 @@ export function parsePrivateMessage(body) {
   }
   if (!SOURCE_PAGES.has(sourcePage)) return { error: 'page' };
   return { ok: true, message, sourcePage };
+}
+
+export function parseBroadcastRequest(body) {
+  const parsed = parsePrivateMessage({ ...body, sourcePage: 'messages' });
+  if (!parsed.ok) return parsed;
+  const requestKey = String(body?.requestKey || '').trim();
+  if (!/^[A-Za-z0-9_-]{16,100}$/.test(requestKey)) return { error: 'request key' };
+  return { ok: true, message: parsed.message, requestKey };
 }
 
 export async function getMemberMessages(env, member) {
@@ -74,7 +83,8 @@ export async function markMemberMessagesRead(env, member, timestamp = now()) {
 }
 
 export async function getHostMessageThreads(env) {
-  const rows = await env.MEMBERS.prepare(
+  const [rows, members] = await env.MEMBERS.batch([
+    env.MEMBERS.prepare(
     `SELECT m.id AS member_id, m.display_name, m.email,
             latest.body, latest.sender_role, latest.sender_name, latest.created_at,
             summary.unread_count
@@ -87,8 +97,29 @@ export async function getHostMessageThreads(env) {
        JOIN member_message latest ON latest.id = summary.latest_id
       WHERE m.is_host = 0
       ORDER BY latest.created_at DESC, latest.id DESC`,
-  ).all();
-  return json({ threads: (rows.results || []).map((row) => ({
+    ),
+    env.MEMBERS.prepare(
+      `SELECT id, display_name, email FROM member
+        WHERE is_host = 0
+          AND joined_at IS NOT NULL
+          AND disabled_at IS NULL
+          AND left_at IS NULL
+          AND paused_at IS NULL
+          AND agreement_version = ?1
+          AND agreement_accepted_at IS NOT NULL
+          AND onboarding_completed_at IS NOT NULL
+        ORDER BY LOWER(COALESCE(NULLIF(TRIM(display_name), ''), email)), id`,
+    ).bind(MEMBER_AGREEMENT_VERSION),
+  ]);
+  const activeMembers = (members.results || []).map((member) => ({
+    memberId: Number(member.id),
+    memberName: member.display_name || member.email,
+    email: member.email,
+  }));
+  return json({
+    recipientCount: activeMembers.length,
+    members: activeMembers,
+    threads: (rows.results || []).map((row) => ({
     memberId: Number(row.member_id),
     memberName: row.display_name || row.email,
     email: row.email,
@@ -97,7 +128,8 @@ export async function getHostMessageThreads(env) {
     lastSenderName: row.sender_name,
     updatedAt: toIso(row.created_at),
     unreadCount: Number(row.unread_count || 0),
-  })) });
+    })),
+  });
 }
 
 export async function getHostMemberMessages(env, memberId) {
@@ -149,6 +181,75 @@ export async function postHostMessage(env, memberId, body, ctx, timestamp = now(
       body: parsed.message, created_at: timestamp,
     }),
   }, 201);
+}
+
+export async function postHostBroadcast(env, host, body, ctx, timestamp = now()) {
+  const parsed = parseBroadcastRequest(body);
+  if (!parsed.ok) return bad(400, parsed.error);
+
+  await env.MEMBERS.prepare(
+    `INSERT OR IGNORE INTO member_message_broadcast
+      (request_key, sender_member_id, body, created_at)
+     VALUES (?1, ?2, ?3, ?4)`,
+  ).bind(parsed.requestKey, host.id, parsed.message, timestamp).run();
+  const broadcast = await env.MEMBERS.prepare(
+    `SELECT id, body FROM member_message_broadcast WHERE request_key = ?1`,
+  ).bind(parsed.requestKey).first();
+  if (!broadcast || broadcast.body !== parsed.message) return bad(409, 'request conflict');
+
+  const recipients = await env.MEMBERS.prepare(
+    `SELECT id, email, display_name FROM member
+      WHERE is_host = 0
+        AND joined_at IS NOT NULL
+        AND disabled_at IS NULL
+        AND left_at IS NULL
+        AND paused_at IS NULL
+        AND agreement_version = ?1
+        AND agreement_accepted_at IS NOT NULL
+        AND onboarding_completed_at IS NOT NULL
+      ORDER BY id`,
+  ).bind(MEMBER_AGREEMENT_VERSION).all();
+  const members = recipients.results || [];
+  const inserts = members.map((member) => env.MEMBERS.prepare(
+    `INSERT OR IGNORE INTO member_message
+      (member_id, sender_role, sender_name, body, source_page, created_at,
+       host_read_at, broadcast_id)
+     VALUES (?1, 'host', 'John', ?2, 'messages', ?3, ?3, ?4)`,
+  ).bind(member.id, parsed.message, timestamp, broadcast.id));
+  const results = inserts.length ? await env.MEMBERS.batch(inserts) : [];
+  const newlySent = members.flatMap((member, index) => {
+    const result = results[index];
+    if (Number(result?.meta?.changes || 0) !== 1) return [];
+    return [{ ...member, messageId: Number(result.meta?.last_row_id) }];
+  });
+
+  const total = await env.MEMBERS.prepare(
+    `SELECT COUNT(*) AS count FROM member_message WHERE broadcast_id = ?1`,
+  ).bind(broadcast.id).first();
+  await env.MEMBERS.prepare(
+    `UPDATE member_message_broadcast SET recipient_count = ?1 WHERE id = ?2`,
+  ).bind(Number(total?.count || 0), broadcast.id).run();
+
+  const delivery = Promise.allSettled(newlySent.map(async (member) => {
+    const actionUrl = await issueMemberAccessLink(env, member.id, timestamp, 'messages');
+    return sendClubMessageReplyNotification(env, {
+      email: member.email,
+      name: member.display_name,
+      actionUrl,
+      idempotencyKey: `club-broadcast-${broadcast.id}-${member.id}`,
+    });
+  })).catch((error) => {
+    console.error('host broadcast notifications failed', error?.message);
+    return [];
+  });
+  if (ctx?.waitUntil) ctx.waitUntil(delivery); else await delivery;
+
+  return json({
+    ok: true,
+    sent: newlySent.length,
+    recipientCount: members.length,
+    duplicate: newlySent.length === 0,
+  });
 }
 
 export async function markHostMessagesRead(env, memberId, timestamp = now()) {
