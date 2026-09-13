@@ -56,6 +56,30 @@
     const node = document.createElement(tag); node.className = className; node.textContent = value; return node;
   }
 
+  function setCollapsibleOpen(toggle, body, open, animate = false) {
+    toggle.setAttribute('aria-expanded', String(open));
+    body.getAnimations().forEach((animation) => animation.cancel());
+    Object.assign(body.style, { height: '', opacity: '', overflow: '', transform: '' });
+    if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !body.animate) {
+      body.hidden = !open;
+      return;
+    }
+    if (open) body.hidden = false;
+    const fullHeight = body.scrollHeight;
+    const animation = body.animate(open ? [
+      { height: '0px', opacity: 0, transform: 'translateY(-5px)' },
+      { height: `${fullHeight}px`, opacity: 1, transform: 'translateY(0)' },
+    ] : [
+      { height: `${body.getBoundingClientRect().height}px`, opacity: 1, transform: 'translateY(0)' },
+      { height: '0px', opacity: 0, transform: 'translateY(-5px)' },
+    ], { duration: open ? 420 : 300, easing: 'cubic-bezier(.22,1,.36,1)' });
+    body.style.overflow = 'hidden';
+    animation.onfinish = () => {
+      body.hidden = !open;
+      Object.assign(body.style, { height: '', opacity: '', overflow: '', transform: '' });
+    };
+  }
+
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, (character) => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -406,12 +430,12 @@
     headingWords.append(text('em', `salon-plan-state ${statusLabel}`, statusLabel));
     toggle.append(headingWords);
     const body = document.createElement('div'); body.className = 'salon-plan-body'; body.id = `salon-plan-${key.replace(/[^a-z0-9_-]/gi, '-')}`;
-    const setOpen = (open) => {
-      toggle.setAttribute('aria-expanded', String(open)); body.hidden = !open;
+    const setOpen = (open, animate = false) => {
+      setCollapsibleOpen(toggle, body, open, animate);
       if (open) openSalonIds.add(key); else openSalonIds.delete(key);
     };
     toggle.setAttribute('aria-controls', body.id); setOpen(openSalonIds.has(key));
-    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true', true));
     heading.append(toggle); article.append(heading);
 
     const formNode = document.createElement('form'); formNode.className = 'salon-form'; formNode.noValidate = true;
@@ -1479,12 +1503,9 @@
       toggle.type = 'button';
       toggle.textContent = label;
       toggle.setAttribute('aria-controls', body.id);
-      const setOpen = (open) => {
-        toggle.setAttribute('aria-expanded', String(open));
-        body.hidden = !open;
-      };
+      const setOpen = (open, animate = false) => setCollapsibleOpen(toggle, body, open, animate);
       setOpen(section.dataset.hostOpen === 'true');
-      toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+      toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true', true));
       heading.replaceChildren(toggle);
     });
   }

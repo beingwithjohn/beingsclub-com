@@ -1636,9 +1636,10 @@
     thread.replaceChildren();
     const messages = messageState.messages || [];
     empty.hidden = messages.length !== 0;
-    messages.forEach((message) => {
+    messages.forEach((message, index) => {
       const article = document.createElement('article');
       article.className = `message-bubble message-${message.senderRole}`;
+      article.style.setProperty('--message-delay', `${Math.min(index, 5) * 28}ms`);
       article.append(makeText('p', 'message-copy', message.body));
       const parts = messageDateParts(message.createdAt);
       article.append(makeText(
@@ -1647,6 +1648,9 @@
       ));
       thread.append(article);
     });
+    thread.classList.remove('is-changing');
+    void thread.offsetWidth;
+    thread.classList.add('is-changing');
     if (scroll) requestAnimationFrame(() => { thread.scrollTop = thread.scrollHeight; });
   }
 
@@ -1731,9 +1735,10 @@
     document.getElementById('host-message-name').textContent = data.member.name;
     document.getElementById('host-message-email').textContent = data.member.email;
     threadNode.replaceChildren();
-    (data.messages || []).forEach((message) => {
+    (data.messages || []).forEach((message, index) => {
       const article = document.createElement('article');
       article.className = `message-bubble message-${message.senderRole}`;
+      article.style.setProperty('--message-delay', `${Math.min(index, 5) * 28}ms`);
       article.append(makeText('p', 'message-copy', message.body));
       const parts = messageDateParts(message.createdAt);
       article.append(makeText(
@@ -1743,6 +1748,11 @@
       threadNode.append(article);
     });
     conversation.hidden = false;
+    conversation.classList.remove('is-entering');
+    threadNode.classList.remove('is-changing');
+    void conversation.offsetWidth;
+    conversation.classList.add('is-entering');
+    threadNode.classList.add('is-changing');
     document.getElementById('host-message-empty').hidden = true;
     requestAnimationFrame(() => { threadNode.scrollTop = threadNode.scrollHeight; });
   }

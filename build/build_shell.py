@@ -636,7 +636,7 @@ CSS = """
 
   /* Soft geometry shared across the public experience. It leaves typographic
      rules crisp while easing every contained surface and action. */
-  :root{--bc-radius-small:8px;--bc-radius-control:11px;--bc-radius-card:16px;--bc-radius-panel:20px;}
+  :root{--bc-radius-small:8px;--bc-radius-control:11px;--bc-radius-card:16px;--bc-radius-panel:20px;--bc-motion-quick:180ms;--bc-motion-medium:340ms;--bc-motion-slow:560ms;--bc-ease-out:cubic-bezier(.22,1,.36,1);}
   .bc-site-nav{border-radius:0 0 var(--bc-radius-card) var(--bc-radius-card);}
   .bc-host-facts{border-radius:var(--bc-radius-card);overflow:hidden;}
   .bc-john-portrait img,[data-sidefig],[data-sidefig] img{border-radius:var(--bc-radius-card);}
@@ -651,14 +651,36 @@ CSS = """
   }
   .bc-ribbon-card span,.bc-rh-tip{border-radius:var(--bc-radius-small);}
 
+  /* A single, quiet motion language for the public experience. */
+  .bc-site-nav,.bc-nav-link,.bc-secondary-link,.bc-john-practical-link,.bc-john-socials a{
+    transition:color var(--bc-motion-quick) ease,border-color var(--bc-motion-medium) ease,background-color var(--bc-motion-medium) ease,transform var(--bc-motion-medium) var(--bc-ease-out),box-shadow var(--bc-motion-slow) var(--bc-ease-out);
+  }
+  .bc-nav-link:hover,.bc-nav-link:focus-visible,.bc-john-practical-link:hover,.bc-john-practical-link:focus-visible{
+    transform:translateY(-2px);
+  }
+  #s-home [data-m="btnrow"] a,#s-home [data-note-actions="foot"] a,
+  #s-home [data-note-form] button[type="submit"],[data-door],.bc-chip,#bc-send{
+    transition:color var(--bc-motion-quick) ease,background-color var(--bc-motion-medium) ease,border-color var(--bc-motion-medium) ease,transform var(--bc-motion-medium) var(--bc-ease-out),box-shadow var(--bc-motion-slow) var(--bc-ease-out)!important;
+  }
+  #s-home [data-m="btnrow"] a:hover,#s-home [data-m="btnrow"] a:focus-visible,
+  #s-home [data-note-actions="foot"] a:hover,#s-home [data-note-actions="foot"] a:focus-visible,
+  #s-home [data-note-form] button[type="submit"]:hover,#s-home [data-note-form] button[type="submit"]:focus-visible,
+  [data-door]:hover,[data-door]:focus-visible,.bc-chip:hover,.bc-chip:focus-visible,#bc-send:hover,#bc-send:focus-visible{
+    transform:translateY(-2px);box-shadow:0 10px 26px rgba(43,36,55,.12);
+  }
+  #s-home [data-m="btnrow"] a:active,#s-home [data-note-actions="foot"] a:active,
+  #s-home [data-note-form] button[type="submit"]:active,[data-door]:active,.bc-chip:active,#bc-send:active{
+    transform:translateY(0);box-shadow:none;transition-duration:80ms!important;
+  }
+
   /* the six layers */
   .bc-shell{position:relative;height:100svh;overflow:hidden;background:#FDFCF9;}
   .bc-layer{position:absolute;inset:0;overflow-y:hidden;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-    scrollbar-width:none;opacity:0;visibility:hidden;pointer-events:none;
-    transition:opacity 700ms cubic-bezier(.33,0,.67,1),visibility 0s linear 700ms;}
+    scrollbar-width:none;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px) scale(.997);
+    transition:opacity 460ms ease,transform 560ms var(--bc-ease-out),visibility 0s linear 560ms;}
   .bc-layer::-webkit-scrollbar{width:0;height:0;}
-  .bc-layer[data-active="1"]{opacity:1;visibility:visible;pointer-events:auto;overflow-y:auto;
-    transition:opacity 1100ms cubic-bezier(.22,1,.36,1) 120ms;}
+  .bc-layer[data-active="1"]{opacity:1;visibility:visible;pointer-events:auto;overflow-y:auto;transform:none;
+    transition:opacity 620ms var(--bc-ease-out) 70ms,transform 720ms var(--bc-ease-out) 70ms;}
 
   /* The landing page suppresses the violet link hover — but NOT on the doors,
      which carry their own hover (paper on violet). Without :not([data-vh]) this
@@ -989,8 +1011,8 @@ CSS = """
     100%{opacity:0;visibility:hidden;pointer-events:none;}}
 
   /* scroll reveal on inner screens */
-  [data-reveal]{opacity:0;transform:translateY(12px);
-    transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1);}
+  [data-reveal]{opacity:0;transform:translateY(14px);
+    transition:opacity .68s var(--bc-ease-out),transform .78s var(--bc-ease-out);}
   [data-reveal="in"]{opacity:1;transform:none;}
   @media (prefers-reduced-motion:reduce){
     [data-reveal]{opacity:1!important;transform:none!important;}
@@ -1664,18 +1686,20 @@ def events_page():
   a{{color:inherit;text-decoration:none}}
   a:focus-visible{{outline:2px solid #5A4B7C;outline-offset:4px}}
   ::selection{{background:#E9E2FA;color:#171916}}
-  .events-shell{{width:min(100%,1280px);min-height:100svh;margin:0 auto;padding:0 clamp(22px,4vw,58px) 54px}}
+  @keyframes events-arrive{{from{{opacity:0;transform:translateY(10px)}}to{{opacity:1;transform:none}}}}
+  .events-shell{{width:min(100%,1280px);min-height:100svh;margin:0 auto;padding:0 clamp(22px,4vw,58px) 54px;animation:events-arrive .62s cubic-bezier(.22,1,.36,1) both}}
   .events-nav{{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 0 18px;border-bottom:1px solid #E7E4DB}}
   .events-mark{{display:block;width:clamp(82px,9vw,112px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat}}
   .events-links{{display:flex;align-items:center;gap:clamp(18px,3vw,34px)}}
-  .events-links a{{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:lowercase;color:#75726A;transition:color .18s ease}}
-  .events-links a:hover{{color:#5A4B7C}}
+  .events-links a{{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:lowercase;color:#75726A;transition:color .18s ease,transform .34s cubic-bezier(.22,1,.36,1)}}
+  .events-links a:hover,.events-links a:focus-visible{{color:#5A4B7C;transform:translateY(-2px)}}
   .events-intro{{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.5fr);gap:28px 72px;align-items:end;padding:clamp(58px,8vw,104px) 0 clamp(38px,5vw,62px)}}
   .events-eyebrow{{display:block;margin-bottom:20px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C}}
   h1{{margin:0;font-size:clamp(54px,8vw,112px);font-weight:600;line-height:.88;letter-spacing:-.065em}}
   h1 strong{{color:#5A4B7C;font-weight:600}}
   .events-intro p{{margin:0 0 4px;max-width:29ch;font-size:clamp(18px,2vw,24px);line-height:1.5;color:#57534B}}
-  .events-frame-wrap{{overflow:hidden;border:1px solid #DDD8CB;border-radius:20px;background:#F8F6F1;box-shadow:0 24px 70px rgba(45,38,29,.07)}}
+  .events-frame-wrap{{overflow:hidden;border:1px solid #DDD8CB;border-radius:20px;background:#F8F6F1;box-shadow:0 24px 70px rgba(45,38,29,.07);transition:transform .56s cubic-bezier(.22,1,.36,1),box-shadow .56s cubic-bezier(.22,1,.36,1)}}
+  .events-frame-wrap:hover{{transform:translateY(-2px);box-shadow:0 30px 78px rgba(45,38,29,.1)}}
   .events-frame{{display:block;width:100%;height:690px;border:0;border-radius:20px;background:#FDFCF9}}
   .events-frame:focus{{outline:0}}
   .events-frame.has-focus{{border:3px solid #5A4B7C}}
@@ -1690,6 +1714,7 @@ def events_page():
     .events-intro p{{font-size:18px}}
     .events-frame{{height:720px}}
   }}
+  @media (prefers-reduced-motion:reduce){{.events-shell{{animation:none}}.events-links a,.events-frame-wrap{{transition:none}}}}
 </style>
 <script src="/assets/navmark.js?v=20260903-a11y" defer></script>
 </head>

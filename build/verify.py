@@ -244,6 +244,10 @@ ok("public controls keep visible focus and mobile-sized primary actions",
    ':where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C' in after.get("index.html", "") and
    '#s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px' in after.get("index.html", "") and
    '#A5A198' not in after.get("index.html", ""))
+ok("public pages share a restrained reduced-motion-safe transition language",
+   '--bc-ease-out:cubic-bezier(.22,1,.36,1)' in after.get("index.html", "") and
+   'transform:translateY(8px) scale(.997)' in after.get("index.html", "") and
+   '.bc-layer,#bc-intro{transition:none!important;}' in after.get("index.html", ""))
 events_html = after.get(EVENT_PAGE, "")
 ok("public events page wraps the live Coliven list in Beings Club chrome",
    '<link rel="canonical" href="https://beingsclub.com/events/">' in events_html and
@@ -454,6 +458,11 @@ ok("member mobile controls keep the viewport and keyboard focus usable",
    "menuClose.focus()" in members_after.get("members/app.js", "") and
    "event.key === 'Escape'" in members_after.get("members/app.js", "") and
    "event.key === 'Escape'" in members_after.get("members/host.js", ""))
+ok("member and host controls share smooth reduced-motion-safe transitions",
+   '--motion-medium:340ms' in members_after.get("members/app.css", "") and
+   'function setCollapsibleOpen(toggle, body, open, animate = false)' in members_after.get("members/host.js", "") and
+   "window.matchMedia('(prefers-reduced-motion: reduce)').matches" in members_after.get("members/host.js", "") and
+   '@media(prefers-reduced-motion:reduce)' in members_after.get("members/app.css", ""))
 ok("member and host greeting names stay lowercase",
    "toLocaleLowerCase('en-GB')" in members_after.get("members/app.js", "") and
    "`good ${greeting}, john`" in members_after.get("members/host.js", "") and
