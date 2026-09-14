@@ -3,9 +3,11 @@ import {
   createZoomMeeting, deleteZoomMeeting, isZoomJoinUrl, zoomConfigured,
 } from './zoom.js';
 import { queueSalonRsvpConfirmation } from './mailer.js';
+import { parseImageData } from './field-notes.js';
 import { parseRoundupItems, storedRoundupItems, validateRoundupItems } from './roundups.js';
 
 const NOTE_MAX = 2400;
+const IMAGE_ALT_MAX = 240;
 const URL_MAX = 2000;
 const DEFAULT_TIMEZONE = 'Europe/London';
 const DEFAULT_DURATION = 90;
@@ -126,35 +128,64 @@ export async function saveHostSalon(env, who, body, timestamp = now()) {
   if (!await validateRoundupItems(env, draft.roundupItems, draft.startsAt)) {
     return bad(400, 'roundup notes');
   }
-  const id = Number(body?.id || 0);
+  let id = Number(body?.id || 0);
+  if (id && (!Number.isSafeInteger(id) || id <= 0)) return bad(404, 'not found');
   const roundupJson = draft.roundupItems === undefined ? null : JSON.stringify(draft.roundupItems);
-
-  if (id) {
-    if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
-    const result = await env.MEMBERS.prepare(
-      `UPDATE salon SET
-         host_note = ?1, starts_at = ?2, timezone = ?3,
-         duration_minutes = ?4, zoom_join_url = ?5,
-         roundup_items = COALESCE(?6, roundup_items), updated_at = ?7
-       WHERE id = ?8 AND status IN ('draft', 'published')`,
-    ).bind(
-      draft.note, draft.startsAt, DEFAULT_TIMEZONE,
-      draft.duration, draft.zoomUrl, roundupJson, timestamp, id,
-    ).run();
-    if ((result.meta?.changes ?? 0) !== 1) return bad(404, 'not found');
-    return getHostSalon(env, timestamp, { savedSalonId: id });
+  const existing = id
+    ? await env.MEMBERS.prepare(
+      `SELECT * FROM salon WHERE id = ?1 AND status IN ('draft', 'published')`,
+    ).bind(id).first()
+    : null;
+  if (id && !existing) return bad(404, 'not found');
+  const changingImage = !!draft.image || draft.removeImage;
+  const imageLockAt = Number(existing?.starts_at || draft.startsAt || 0);
+  if (changingImage && imageLockAt && imageLockAt <= timestamp) {
+    return bad(409, 'Salon image is locked once the Salon begins');
   }
+  const storedImage = draft.image ? await storeSalonImage(env, draft.image) : null;
+  if (draft.image && !storedImage) return bad(503, 'image unavailable');
+  const imageKey = storedImage?.key || (draft.removeImage ? null : existing?.image_key || null);
+  const imageAlt = imageKey
+    ? (Object.hasOwn(body || {}, 'imageAlt') ? draft.imageAlt : existing?.image_alt || null)
+    : null;
 
-  const result = await env.MEMBERS.prepare(
-    `INSERT INTO salon
-      (host_note, starts_at, timezone, duration_minutes, zoom_join_url,
-       roundup_items, status, created_by, created_at, updated_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'draft', ?7, ?8, ?8)`,
-  ).bind(
-    draft.note, draft.startsAt, DEFAULT_TIMEZONE, draft.duration,
-    draft.zoomUrl, roundupJson, memberId(who), timestamp,
-  ).run();
-  return getHostSalon(env, timestamp, { savedSalonId: Number(result.meta?.last_row_id) });
+  try {
+    if (id) {
+      const result = await env.MEMBERS.prepare(
+        `UPDATE salon SET
+           host_note = ?1, starts_at = ?2, timezone = ?3,
+           duration_minutes = ?4, zoom_join_url = ?5,
+           roundup_items = COALESCE(?6, roundup_items), image_key = ?7,
+           image_alt = ?8, updated_at = ?9
+         WHERE id = ?10 AND status IN ('draft', 'published')`,
+      ).bind(
+        draft.note, draft.startsAt, DEFAULT_TIMEZONE,
+        draft.duration, draft.zoomUrl, roundupJson, imageKey, imageAlt, timestamp, id,
+      ).run();
+      if ((result.meta?.changes ?? 0) !== 1) {
+        if (storedImage && env.MEMBER_MEDIA) await env.MEMBER_MEDIA.delete(storedImage.key);
+        return bad(404, 'not found');
+      }
+    } else {
+      const result = await env.MEMBERS.prepare(
+        `INSERT INTO salon
+          (host_note, starts_at, timezone, duration_minutes, zoom_join_url,
+           roundup_items, image_key, image_alt, status, created_by, created_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'draft', ?9, ?10, ?10)`,
+      ).bind(
+        draft.note, draft.startsAt, DEFAULT_TIMEZONE, draft.duration,
+        draft.zoomUrl, roundupJson, imageKey, imageAlt, memberId(who), timestamp,
+      ).run();
+      id = Number(result.meta?.last_row_id);
+    }
+  } catch (error) {
+    if (storedImage && env.MEMBER_MEDIA) await env.MEMBER_MEDIA.delete(storedImage.key);
+    throw error;
+  }
+  if (changingImage && isSalonImageKey(existing?.image_key) && env.MEMBER_MEDIA) {
+    await env.MEMBER_MEDIA.delete(existing.image_key);
+  }
+  return getHostSalon(env, timestamp, { savedSalonId: id });
 }
 
 export async function publishHostSalon(env, body, timestamp = now(), fetchImpl = fetch) {
@@ -241,7 +272,31 @@ export async function deleteHostSalon(env, body, timestamp = now(), fetchImpl = 
     `DELETE FROM club_send_log
       WHERE scope = ?1 AND kind IN ('salon_announced', 'salon_month', 'salon_week', 'salon_day', 'salon_hour')`,
   ).bind(String(id)).run();
+  if (isSalonImageKey(salon.image_key) && env.MEMBER_MEDIA) {
+    await env.MEMBER_MEDIA.delete(salon.image_key);
+  }
   return getHostSalon(env, timestamp, { deletedSalonId: id });
+}
+
+export async function getSalonImage(env, who, salonId) {
+  if (!env.MEMBER_MEDIA) return bad(503, 'image unavailable');
+  const id = Number(salonId);
+  if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  const row = await env.MEMBERS.prepare(
+    `SELECT image_key, status FROM salon WHERE id = ?1 AND image_key IS NOT NULL`,
+  ).bind(id).first();
+  if (!row || (!who.is_host && row.status !== 'published') || !isSalonImageKey(row.image_key)) {
+    return bad(404, 'not found');
+  }
+  const object = await env.MEMBER_MEDIA.get(row.image_key);
+  if (!object) return bad(404, 'not found');
+  return new Response(object.body, {
+    headers: {
+      'content-type': object.httpMetadata?.contentType || 'image/jpeg',
+      'cache-control': 'private, max-age=300',
+      'x-content-type-options': 'nosniff',
+    },
+  });
 }
 
 export function validRsvpStatus(value) {
@@ -263,10 +318,15 @@ export function parseSalonDraft(body) {
 
   const zoomUrl = cleanZoomUrl(body?.zoomUrl);
   if (body?.zoomUrl && !zoomUrl) return { ok: false, error: 'zoom url' };
+  const image = parseImageData(body?.imageData);
+  if (body?.imageData && (!image || image.type === 'image/gif')) return { ok: false, error: 'image' };
+  const imageAlt = String(body?.imageAlt ?? '').trim();
+  if (imageAlt.length > IMAGE_ALT_MAX) return { ok: false, error: 'image description' };
   const roundup = parseRoundupItems(body?.roundupItems, !Object.hasOwn(body || {}, 'roundupItems'));
   if (!roundup.ok) return roundup;
   return {
     ok: true, note: note || null, startsAt, duration, zoomUrl,
+    image, imageAlt: imageAlt || null, removeImage: body?.removeImage === true,
     ...(roundup.items === undefined ? {} : { roundupItems: roundup.items }),
   };
 }
@@ -302,6 +362,8 @@ function shapeMemberSalon(salon, timestamp) {
     myRsvp: salon.my_rsvp || null,
     joinAvailableAt: iso(Number(salon.starts_at) - JOIN_EARLY_SECONDS),
     zoomUrl: joinWindow(salon, timestamp) ? salon.zoom_join_url : null,
+    hasImage: !!salon.image_key,
+    imageAlt: salon.image_alt || null,
   };
 }
 
@@ -323,7 +385,23 @@ function shapeHostSalon(salon, timestamp) {
     joinAvailableAt: salon.starts_at ? iso(Number(salon.starts_at) - JOIN_EARLY_SECONDS) : null,
     isJoinWindow: salon.starts_at ? joinWindow(salon, timestamp) : false,
     hasEnded: salonHasEnded(salon, timestamp),
+    imageLocked: !!salon.starts_at && Number(salon.starts_at) <= timestamp,
+    hasImage: !!salon.image_key,
+    imageAlt: salon.image_alt || null,
   };
+}
+
+async function storeSalonImage(env, image) {
+  if (!image || !env.MEMBER_MEDIA) return null;
+  const extension = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[image.type];
+  if (!extension) return null;
+  const key = `salon/${crypto.randomUUID()}.${extension}`;
+  await env.MEMBER_MEDIA.put(key, image.bytes, { httpMetadata: { contentType: image.type } });
+  return { key };
+}
+
+function isSalonImageKey(value) {
+  return typeof value === 'string' && /^salon\/[A-Za-z0-9-]+\.(?:jpg|png|webp)$/.test(value);
 }
 
 function memberId(who) {

@@ -45,6 +45,7 @@
   let timezoneChoices = [];
   let prospectMessageSource = 'calendar';
   let salon = null;
+  let salonImageObjectUrl = null;
   let inPersonEvents = [];
   let fieldNotes = { prompt: null, hostPosts: [], groups: [] };
   let messageState = { messages: [], unreadCount: 0 };
@@ -740,13 +741,34 @@
     }
   }
 
+  async function renderSalonImage() {
+    const image = document.getElementById('salon-art');
+    const renderedSalonId = salon?.id;
+    if (salonImageObjectUrl) {
+      URL.revokeObjectURL(salonImageObjectUrl); imageObjectUrls.delete(salonImageObjectUrl);
+      salonImageObjectUrl = null;
+    }
+    image.src = '/assets/img/bb-leap.jpg';
+    image.alt = 'A figure leaping across a hillside, trailing a plume of colour';
+    if (!salon?.hasImage) return;
+    if (previewMode && salon.previewImage) {
+      image.src = salon.previewImage; image.alt = salon.imageAlt || 'Artwork for this Salon'; return;
+    }
+    try {
+      const blob = await callBlob(`/api/club/salons/${renderedSalonId}/image`);
+      if (salon?.id !== renderedSalonId) return;
+      salonImageObjectUrl = URL.createObjectURL(blob); imageObjectUrls.add(salonImageObjectUrl);
+      image.src = salonImageObjectUrl; image.alt = salon.imageAlt || 'Artwork for this Salon';
+    } catch (_) {}
+  }
+
   function renderSalon() {
     document.getElementById('salon-empty').hidden = !!salon;
     document.getElementById('salon-view').hidden = !salon;
     if (!salon) return;
     document.getElementById('salon-note').textContent = salon.note;
     document.getElementById('salon-duration').textContent = `About ${salon.durationMinutes} minutes`;
-    renderTime(); renderRsvp(); renderDoor();
+    renderSalonImage(); renderTime(); renderRsvp(); renderDoor();
   }
 
   function formatInPersonEventTime(event) {
@@ -810,6 +832,35 @@
     if (className) node.className = className;
     node.textContent = value;
     return node;
+  }
+
+  function messageCopy(value) {
+    const paragraph = makeText('p', 'message-copy', '');
+    const source = String(value || '');
+    const urls = /(?:https?:\/\/|www\.)[^\s<>]+/gi;
+    let cursor = 0;
+    for (const match of source.matchAll(urls)) {
+      paragraph.append(document.createTextNode(source.slice(cursor, match.index)));
+      let visible = match[0];
+      let punctuation = '';
+      while (/[.,!?;:)]$/.test(visible)) {
+        punctuation = visible.slice(-1) + punctuation;
+        visible = visible.slice(0, -1);
+      }
+      try {
+        const destination = new URL(visible.startsWith('www.') ? `https://${visible}` : visible);
+        if (!['http:', 'https:'].includes(destination.protocol)) throw new Error('unsafe link');
+        const link = document.createElement('a'); link.href = destination.toString();
+        link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = visible;
+        paragraph.append(link);
+      } catch (_) {
+        paragraph.append(document.createTextNode(visible));
+      }
+      paragraph.append(document.createTextNode(punctuation));
+      cursor = match.index + match[0].length;
+    }
+    paragraph.append(document.createTextNode(source.slice(cursor)));
+    return paragraph;
   }
 
   async function loadNoteImage(note, image) {
@@ -1640,7 +1691,7 @@
       const article = document.createElement('article');
       article.className = `message-bubble message-${message.senderRole}`;
       article.style.setProperty('--message-delay', `${Math.min(index, 5) * 28}ms`);
-      article.append(makeText('p', 'message-copy', message.body));
+      article.append(messageCopy(message.body));
       const parts = messageDateParts(message.createdAt);
       article.append(makeText(
         'span', 'message-meta',
@@ -1739,7 +1790,7 @@
       const article = document.createElement('article');
       article.className = `message-bubble message-${message.senderRole}`;
       article.style.setProperty('--message-delay', `${Math.min(index, 5) * 28}ms`);
-      article.append(makeText('p', 'message-copy', message.body));
+      article.append(messageCopy(message.body));
       const parts = messageDateParts(message.createdAt);
       article.append(makeText(
         'span', 'message-meta',
@@ -2909,6 +2960,7 @@
         startsAt: '2026-09-30T18:00:00.000Z',
         timezone: 'Europe/London', durationMinutes: 90, rsvpCount: 11, myRsvp: null,
         joinAvailableAt: '2026-09-30T17:50:00.000Z', zoomUrl: null,
+        hasImage: false, imageAlt: null,
       };
       fieldNotes = {
         prompt: {
@@ -2976,7 +3028,7 @@
           },
           {
             id: 3, senderRole: 'host', senderName: 'John',
-            body: 'I’m glad you wrote. Tell me whenever you are ready.',
+            body: 'I’m glad you wrote. Tell me whenever you are ready. Here’s the Field Notes page: https://beingsclub.com/members/#field-notes',
             createdAt: '2026-09-12T15:18:00.000Z',
           },
         ],
@@ -3006,7 +3058,7 @@
       hostMessageConversations.set(2, {
         member: { id: 2, name: 'Mira', email: 'mira@example.com' },
         messages: [
-          { id: 1, senderRole: 'host', senderName: 'John', body: 'Hello Mira. This is a private place for us to stay in touch.', createdAt: '2026-09-11T09:42:00.000Z' },
+          { id: 1, senderRole: 'host', senderName: 'John', body: 'Hello Mira. This is a private place for us to stay in touch. https://beingsclub.com/members/', createdAt: '2026-09-11T09:42:00.000Z' },
           { id: 2, senderRole: 'member', senderName: 'Mira', body: 'I wanted to share something that stayed with me after the Salon.', createdAt: '2026-09-12T15:18:00.000Z' },
         ],
       });

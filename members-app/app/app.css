@@ -149,6 +149,10 @@ button{cursor:pointer}
 .salon-form input,.salon-form textarea,.salon-form select{width:100%;font-size:13px;color:var(--ink);background:transparent;border:0;border-bottom:1px solid #DAD6CB;padding:8px 0;outline:0;border-radius:0}
 .salon-form textarea{border:1px solid #DAD6CB;padding:12px 14px;min-height:94px;resize:vertical;line-height:1.6}
 .salon-form input:focus,.salon-form textarea:focus,.salon-form select:focus{border-color:var(--violet)}
+.salon-image-control{display:grid;gap:11px;padding:15px;border:1px solid #DED7EA;background:#FAF8FD;border-radius:var(--radius-card)}
+.salon-image-control input[type="file"]{cursor:pointer}
+.salon-image-preview{width:min(100%,460px);height:210px;object-fit:cover;object-position:center;background:#F1EFE9}
+.salon-image-remove{justify-self:start}
 .salon-form-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .salon-form-actions .danger{margin-left:auto;color:#7B3E45}
 .salon-roundup{display:grid;gap:11px;padding:16px;border:1px solid #DED7EA;background:#F8F4FF}
@@ -539,6 +543,9 @@ button{cursor:pointer}
 .message-host{align-self:flex-start;background:#EEE9E0;border-bottom-left-radius:6px}
 .message-member{align-self:flex-end;background:#E9DDF9;border-bottom-right-radius:6px}
 .message-copy{margin:0;white-space:pre-wrap;font-size:15px;line-height:1.62;color:var(--ink)}
+.message-copy a{color:inherit;text-decoration:underline;text-decoration-color:rgba(90,75,124,.55);text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere}
+.message-copy a:hover{text-decoration-color:currentColor}
+.message-copy a:focus-visible{outline:2px solid var(--violet);outline-offset:3px;border-radius:3px}
 .message-meta{font:400 9.5px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:#777168}
 .message-member .message-meta{text-align:right;color:#66577D}
 .message-empty{margin:-210px 0 160px;text-align:center;font-size:13px;color:var(--soft);pointer-events:none}
@@ -1117,7 +1124,7 @@ button{cursor:pointer}
 .prospect-timezone-results{border-radius:var(--radius-control);overflow:hidden}
 .prospect-days button,.prospect-days span{border-radius:var(--radius-small)}
 .welcome-profile-image-frame,.profile-image-frame,.directory-portrait,
-.host-post-image-preview,.field-note-image-preview,.field-note-card-image,
+.salon-art,.salon-image-preview,.host-post-image-preview,.field-note-image-preview,.field-note-card-image,
 .host-field-post-image,.host-post-admin-card img,.host-field-note-card img,
 #profile-crop-canvas{border-radius:var(--radius-card)}
 .in-person-event>img{border-radius:var(--radius-card) 0 0 var(--radius-card)}

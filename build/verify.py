@@ -693,12 +693,23 @@ mail_api = io.open(os.path.join(ROOT, "practice-log", "src", "mail", "send.js"),
                    encoding="utf-8").read()
 salons_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "salons.js"),
                      encoding="utf-8").read()
+salon_images_migration = io.open(os.path.join(
+    ROOT, "practice-log", "members-migrations", "0026_salon_images.sql"
+), encoding="utf-8").read()
 messages_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "messages.js"),
                        encoding="utf-8").read()
 messages_migration = io.open(os.path.join(ROOT, "practice-log", "members-migrations", "0024_member_messages.sql"),
                              encoding="utf-8").read()
 messages_broadcast_migration = io.open(os.path.join(ROOT, "practice-log", "members-migrations", "0025_message_broadcasts.sql"),
                                        encoding="utf-8").read()
+ok("each planned Salon owns an optional private image until it begins",
+   "ADD COLUMN image_key" in salon_images_migration and
+   "ADD COLUMN image_alt" in salon_images_migration and
+   "Salon image is locked once the Salon begins" in salons_api and
+   "salon/${crypto.randomUUID()}" in salons_api and
+   "/api/club/salons/${renderedSalonId}/image" in members_after.get("members/app.js", "") and
+   "formNode._salonImageData" in members_after.get("members/host.js", "") and
+   ".salon-art,.salon-image-preview" in members_after.get("members/app.css", ""))
 ok("member pages feed one persistent private conversation with John",
    "send directly to John" in members_after.get("members/app.js", "") and
    "send a message" in members_after.get("members/app.js", "") and
@@ -727,6 +738,12 @@ ok("Messages is a private member thread and a host inbox with email notices",
    'WHERE m.is_host = 0' in messages_api and
    "footer.hidden = member.isHost" in members_after.get("members/app.js", "") and
    'private link that logs you into your account' in mail_api)
+ok("plain-text private messages safely turn web addresses into links",
+   "function messageCopy(value)" in members_after.get("members/app.js", "") and
+   "['http:', 'https:'].includes(destination.protocol)" in members_after.get("members/app.js", "") and
+   "link.rel = 'noopener noreferrer'" in members_after.get("members/app.js", "") and
+   "article.append(messageCopy(message.body))" in members_after.get("members/app.js", "") and
+   ".message-copy a:focus-visible" in members_after.get("members/app.css", ""))
 ok("host broadcasts remain separate, private, eligible one-to-one messages",
    'id="host-message-broadcast-form"' in login_html and
    "window.confirm(`Send this as a private message" in members_after.get("members/app.js", "") and

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  deleteHostSalon, getHostSalon, joinWindow, parseSalonDraft, publicationProblem,
+  deleteHostSalon, getHostSalon, getSalonImage, joinWindow, parseSalonDraft, publicationProblem,
   salonHasEnded, saveHostSalon, validRsvpStatus,
 } from '../src/club/salons.js';
 
@@ -18,6 +18,9 @@ test('Salon drafts store one UTC instant and only secure Zoom links', () => {
     startsAt: 1790791200,
     duration: 90,
     zoomUrl: 'https://zoom.us/j/123?pwd=abc',
+    image: null,
+    imageAlt: null,
+    removeImage: false,
   });
   assert.deepEqual(parseSalonDraft({ zoomUrl: 'http://zoom.us/j/123' }), {
     ok: false, error: 'zoom url',
@@ -27,6 +30,9 @@ test('Salon drafts store one UTC instant and only secure Zoom links', () => {
   });
   assert.deepEqual(parseSalonDraft({ startsAt: 'next Wednesday-ish' }), {
     ok: false, error: 'date',
+  });
+  assert.deepEqual(parseSalonDraft({ imageData: 'data:image/gif;base64,R0lGODlh' }), {
+    ok: false, error: 'image',
   });
 });
 
@@ -179,4 +185,44 @@ test('saving without an id creates another draft even while other Salons are ope
   assert.equal(data.savedSalonId, 12);
   assert.equal(calls.some((sql) => sql.includes('active salon exists')), false);
   assert.equal(calls.filter((sql) => sql.includes('INSERT INTO salon')).length, 1);
+});
+
+test('a Salon image cannot be replaced by moving an already-started Salon into the future', async () => {
+  let stored = false;
+  const env = {
+    MEMBER_MEDIA: { async put() { stored = true; } },
+    MEMBERS: {
+      prepare() {
+        return { bind() { return { async first() { return { id: 4, starts_at: 100, status: 'published' }; } }; } };
+      },
+    },
+  };
+  const response = await saveHostSalon(env, { id: 1 }, {
+    id: 4, note: 'Later', startsAt: '2033-05-18T18:00:00.000Z', durationMinutes: 90,
+    imageData: 'data:image/png;base64,AQ==',
+  }, 200);
+  assert.equal(response.status, 409);
+  assert.equal(stored, false);
+});
+
+test('a published Salon image is served from private media without exposing its key', async () => {
+  const env = {
+    MEMBERS: {
+      prepare() {
+        return { bind() { return { async first() {
+          return { image_key: 'salon/example-id.webp', status: 'published' };
+        } }; } };
+      },
+    },
+    MEMBER_MEDIA: {
+      async get(key) {
+        assert.equal(key, 'salon/example-id.webp');
+        return { body: new Uint8Array([1, 2, 3]), httpMetadata: { contentType: 'image/webp' } };
+      },
+    },
+  };
+  const response = await getSalonImage(env, { is_host: 0 }, 4);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'image/webp');
+  assert.equal(response.headers.get('cache-control'), 'private, max-age=300');
 });

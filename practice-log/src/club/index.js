@@ -6,7 +6,7 @@ import {
 } from './security.js';
 import {
   closeCompletedSalon, deleteHostSalon, getHostSalon, getMemberSalon, publishHostSalon,
-  saveHostSalon, setMemberRsvp,
+  getSalonImage, saveHostSalon, setMemberRsvp,
 } from './salons.js';
 import {
   createFieldNote, createHostFieldPost, dismissFieldNoteInvitation, getFieldNoteImage,
@@ -144,6 +144,10 @@ export async function clubRoute(request, env, ctx, url) {
   }
 
   if (path === '/api/club/salon' && method === 'GET') return getMemberSalon(env, who);
+  const salonImage = /^\/api\/club\/salons\/(\d+)\/image$/.exec(path);
+  if (salonImage && method === 'GET') {
+    return getSalonImage(env, who, Number(salonImage[1]));
+  }
   if (path === '/api/club/in-person' && method === 'GET') return getMemberInPersonEvents(env);
   const inPersonImage = /^\/api\/club\/in-person\/(\d+)\/image$/.exec(path);
   if (inPersonImage && method === 'GET') {

@@ -349,6 +349,21 @@
     return label;
   }
 
+  async function loadSalonEditorImage(salon, image, help) {
+    if (!salon.hasImage) return;
+    if (previewMode && salon.previewImage) {
+      image.src = salon.previewImage; image.hidden = false; return;
+    }
+    if (!salon.id) return;
+    try {
+      const blob = await callBlob(`/api/club/salons/${salon.id}/image`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url);
+      image.src = url; image.hidden = false;
+    } catch (_) {
+      help.textContent = 'The current image could not be loaded, but it will be kept unless you remove or replace it.';
+    }
+  }
+
   function previousSalonNotes(salon) {
     const target = Date.parse(salon.startsAt || '');
     if (!Number.isFinite(target)) return { salonStartsAt: null, notes: [] };
@@ -439,6 +454,7 @@
     heading.append(toggle); article.append(heading);
 
     const formNode = document.createElement('form'); formNode.className = 'salon-form'; formNode.noValidate = true;
+    formNode._salonImageData = null; formNode._salonRemoveImage = false;
     const local = londonParts(salon.startsAt);
     const dateInput = document.createElement('input'); dateInput.type = 'date'; dateInput.name = 'date'; dateInput.required = true; dateInput.value = local.date;
     const timeInput = document.createElement('input'); timeInput.type = 'time'; timeInput.name = 'time'; timeInput.required = true; timeInput.value = local.time;
@@ -451,13 +467,60 @@
     const zoomHelp = autoZoom
       ? 'Leave this blank for a fresh Zoom meeting. Paste a secure Zoom link only when you need the fallback.'
       : 'Automatic creation is not connected yet, so add a secure Zoom link before publishing.';
+    const imagePanel = document.createElement('div'); imagePanel.className = 'salon-image-control';
+    const imageInput = document.createElement('input'); imageInput.type = 'file'; imageInput.name = 'image';
+    imageInput.accept = 'image/jpeg,image/png,image/webp'; imageInput.disabled = !!salon.imageLocked;
+    const imageField = field('Salon image · optional', imageInput, salon.imageLocked
+      ? 'This image is fixed because the Salon has begun.'
+      : salon.hasImage
+        ? 'The current image will stay unless you replace or remove it. You can change it until the Salon begins.'
+        : 'A portrait or landscape image works here · JPEG, PNG or WebP · up to 5MB. You can change it until the Salon begins.');
+    const imageHelp = imageField.querySelector('small');
+    const imagePreview = document.createElement('img'); imagePreview.className = 'salon-image-preview';
+    imagePreview.alt = salon.imageAlt || 'Current Salon image'; imagePreview.hidden = true;
+    const imageAlt = document.createElement('input'); imageAlt.type = 'text'; imageAlt.name = 'imageAlt';
+    imageAlt.maxLength = 240; imageAlt.value = salon.imageAlt || '';
+    imageAlt.placeholder = 'A short description for people who cannot see it'; imageAlt.disabled = !!salon.imageLocked;
+    const imageAltField = field('image description · optional', imageAlt);
+    const imageRemove = text('button', 'text-button danger salon-image-remove', 'remove image');
+    imageRemove.type = 'button'; imageRemove.hidden = !salon.hasImage; imageRemove.disabled = !!salon.imageLocked;
+    imageInput.addEventListener('change', async () => {
+      const file = imageInput.files?.[0];
+      if (!file) { formNode._salonImageData = null; return; }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+        imageInput.value = ''; formNode._salonImageData = null;
+        imageHelp.textContent = 'Choose a JPEG, PNG or WebP no larger than 5MB.'; return;
+      }
+      try {
+        formNode._salonImageData = await new Promise((resolve, reject) => {
+          const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        formNode._salonRemoveImage = false; imagePreview.src = formNode._salonImageData;
+        imagePreview.hidden = false; imageRemove.hidden = false;
+        imageHelp.textContent = `${file.name} will become this Salon’s image when you save.`;
+      } catch (_) {
+        formNode._salonImageData = null; imageHelp.textContent = 'That image could not be read.';
+      }
+    });
+    imageRemove.addEventListener('click', () => {
+      formNode._salonImageData = null; formNode._salonRemoveImage = true;
+      imageInput.value = ''; imagePreview.hidden = true; imagePreview.removeAttribute('src');
+      imageRemove.hidden = true; imageHelp.textContent = 'The image will be removed when you save.';
+    });
+    imagePanel.append(imageField, imagePreview, imageAltField, imageRemove);
+    loadSalonEditorImage(salon, imagePreview, imageHelp);
     formNode.append(
       grid,
       field('your note · appears above RSVP', note),
+      imagePanel,
       field(autoZoom ? 'Zoom join link · optional fallback' : 'Zoom join link', zoom, zoomHelp),
       roundupChooser(salon),
     );
     formNode.querySelectorAll('input,textarea').forEach((input) => { input.disabled = !!salon.hasEnded; });
+    imageInput.disabled = !!salon.imageLocked || !!salon.hasEnded;
+    imageAlt.disabled = !!salon.imageLocked || !!salon.hasEnded;
+    imageRemove.disabled = !!salon.imageLocked || !!salon.hasEnded;
 
     const actions = document.createElement('div'); actions.className = 'salon-form-actions';
     const save = text('button', 'outline', 'save draft'); save.type = 'submit'; save.disabled = !!salon.hasEnded;
@@ -1041,6 +1104,9 @@
       startsAt,
       durationMinutes: 90,
       zoomUrl: formNode.elements.zoomUrl.value,
+      imageData: formNode._salonImageData,
+      removeImage: !!formNode._salonRemoveImage,
+      imageAlt: formNode.elements.imageAlt.value,
     };
     if (!salon.announcementSentAt) payload.roundupItems = selectedRoundupItems(formNode);
     return payload;
@@ -1066,6 +1132,9 @@
         const saved = {
           ...salon, id: savedId, clientId: undefined, note: payload.note, startsAt: payload.startsAt,
           zoomUrl: payload.zoomUrl || null, roundupItems: payload.roundupItems || salon.roundupItems || [],
+          hasImage: payload.removeImage ? false : !!(payload.imageData || salon.hasImage),
+          imageAlt: payload.removeImage ? null : (payload.imageAlt || salon.imageAlt || null),
+          previewImage: payload.removeImage ? null : (payload.imageData || salon.previewImage || null),
           status: salon.status || 'draft', rsvps: salon.rsvps || [],
         };
         salonHostState = salonHostState.filter((item) => item !== salon).concat(saved)
@@ -1089,6 +1158,9 @@
         const saved = {
           ...salon, id: savedId, clientId: undefined, note: payload.note, startsAt: payload.startsAt,
           zoomUrl: payload.zoomUrl || null, roundupItems: payload.roundupItems || salon.roundupItems || [],
+          hasImage: payload.removeImage ? false : !!(payload.imageData || salon.hasImage),
+          imageAlt: payload.removeImage ? null : (payload.imageAlt || salon.imageAlt || null),
+          previewImage: payload.removeImage ? null : (payload.imageData || salon.previewImage || null),
           status: 'published', zoomManaged: !payload.zoomUrl,
           rsvps: salon.rsvps || [],
         };
@@ -1398,6 +1470,7 @@
         clientId: 'new', id: null, note: '', startsAt: null, durationMinutes: 90,
         zoomUrl: null, zoomManaged: false, status: 'draft', announcementSentAt: null,
         announcementRecipientCount: 0, rsvpCount: 0, rsvps: [], hasEnded: false,
+        imageLocked: false, hasImage: false, imageAlt: null,
       };
       salonHostState = [...salonHostState, draft]; openSalonIds.add('new');
       renderSalons({ salons: salonHostState, capabilities: { autoZoom } }, 'new');
