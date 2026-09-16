@@ -123,9 +123,12 @@ function cleanUrl(value) {
   const text = String(value ?? '').trim();
   if (!text) return null;
   if (text.length > URL_MAX) return null;
+  const candidate = /^https:\/\//i.test(text) ? text : `https://${text}`;
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(text) && !/^https:\/\//i.test(text)) return null;
   try {
-    const url = new URL(text);
-    return url.protocol === 'https:' ? url.toString() : null;
+    const url = new URL(candidate);
+    return url.protocol === 'https:' && !url.username && !url.password && url.hostname
+      ? url.toString() : null;
   } catch {
     return null;
   }

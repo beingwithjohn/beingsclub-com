@@ -2311,6 +2311,13 @@
     } catch (_) { statusNode.textContent = 'These words could not be withdrawn. Try again.'; }
   }
 
+  function normaliseProfileWebsite(value) {
+    const text = String(value || '').trim();
+    if (!text) return '';
+    if (/^https:\/\//i.test(text)) return text;
+    return /^[a-z][a-z0-9+.-]*:\/\//i.test(text) ? text : `https://${text}`;
+  }
+
   async function submitProfile(event) {
     event.preventDefault();
     const form = document.getElementById('profile-form');
@@ -2319,7 +2326,7 @@
     const payload = {
       name: document.getElementById('profile-name').value,
       line: document.getElementById('profile-line').value,
-      website: document.getElementById('profile-website').value,
+      website: normaliseProfileWebsite(document.getElementById('profile-website').value),
       imageData: profileImageData,
       removeImage: removeProfileImage,
     };
@@ -2357,7 +2364,7 @@
     const payload = {
       name: document.getElementById('welcome-profile-name').value,
       line: document.getElementById('welcome-profile-line').value,
-      website: document.getElementById('welcome-profile-website').value,
+      website: normaliseProfileWebsite(document.getElementById('welcome-profile-website').value),
       imageData: profileImageData,
       removeImage: false,
     };

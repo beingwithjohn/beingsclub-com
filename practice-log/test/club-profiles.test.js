@@ -8,6 +8,8 @@ test('a chosen name is required while context and website stay optional', () => 
   });
   assert.equal(parseProfile({ name: '' }).error, 'name');
   assert.equal(parseProfile({ name: 'Mira', website: 'http://example.com' }).error, 'website');
+  assert.equal(parseProfile({ name: 'Mira', website: 'example.com' }).website, 'https://example.com/');
+  assert.equal(parseProfile({ name: 'Mira', website: 'www.example.com/path' }).website, 'https://www.example.com/path');
   assert.equal(parseProfile({ name: 'Mira', website: 'https://example.com' }).website, 'https://example.com/');
 });
 

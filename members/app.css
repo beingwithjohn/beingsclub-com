@@ -1109,7 +1109,7 @@ button{cursor:pointer}
 .directory-card,.in-person-event,.giving-option,.field-note-card,.testimonial-current,.member-invitation,.profile-editor{
   transition:transform var(--motion-slow) var(--ease-out),box-shadow var(--motion-slow) var(--ease-out),border-color var(--motion-medium) ease
 }
-.directory-card:hover,.in-person-event:hover,.giving-option:hover,.field-note-card:hover{
+.in-person-event:hover,.giving-option:hover,.field-note-card:hover{
   transform:translateY(-2px);box-shadow:0 14px 36px rgba(43,36,55,.07)
 }
 .mobile-menu{animation-duration:var(--motion-medium);animation-timing-function:var(--ease-out)}

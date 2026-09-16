@@ -669,6 +669,11 @@ ok("testimonials create no notification or automatic public placement",
    "status = 'pending'" in testimonial_api and 'public-any-channel-light-edit-v1' in testimonial_api)
 profiles_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "profiles.js"),
                        encoding="utf-8").read()
+ok("profile websites accept partial domains and store secure complete links",
+   'id="welcome-profile-website" type="text" inputmode="url" autocomplete="url"' in login_html and
+   'id="profile-website" type="text" inputmode="url" autocomplete="url"' in login_html and
+   'function normaliseProfileWebsite(value)' in members_after.get("members/app.js", "") and
+   "const candidate = /^https:\\/\\//i.test(text) ? text : `https://${text}`;" in profiles_api)
 ok("directory includes only fully onboarded active members with a chosen name",
    'joined_at IS NOT NULL' in profiles_api and 'disabled_at IS NULL' in profiles_api and
    'left_at IS NULL' in profiles_api and 'paused_at IS NULL' in profiles_api and
