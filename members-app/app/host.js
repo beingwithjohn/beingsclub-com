@@ -876,7 +876,28 @@
       listNode.append(text('p', 'prospect-host-empty', 'Nobody is waiting.'));
       return;
     }
-    prospectHostState.forEach((prospect) => {
+
+    const booked = prospectHostState.filter((prospect) => prospect.booking?.startTime);
+    const notBooked = prospectHostState.filter((prospect) => !prospect.booking?.startTime);
+    if (booked.length) listNode.append(prospectGroup('booked conversations', booked, true));
+    if (notBooked.length) listNode.append(prospectGroup('not booked yet', notBooked, false));
+  }
+
+  function prospectGroup(label, prospects, open) {
+    const group = document.createElement('details'); group.className = 'prospect-host-group';
+    group.open = open;
+    const summary = document.createElement('summary');
+    summary.append(
+      text('strong', '', label),
+      text('span', 'prospect-host-group-count', `${prospects.length} ${prospects.length === 1 ? 'person' : 'people'}`),
+    );
+    const cards = document.createElement('div'); cards.className = 'prospect-host-group-list';
+    prospects.forEach((prospect) => cards.append(prospectCard(prospect)));
+    group.append(summary, cards);
+    return group;
+  }
+
+  function prospectCard(prospect) {
       const card = document.createElement('article'); card.className = 'prospect-host-card';
       const main = document.createElement('div'); main.className = 'prospect-host-main';
       main.append(text('strong', '', prospect.name || prospect.email));
@@ -915,8 +936,8 @@
         const buttons = document.createElement('div'); buttons.className = 'prospect-host-buttons';
         buttons.append(grant, dismiss); actions.append(noteLabel, buttons);
       }
-      card.append(main, actions); listNode.append(card);
-    });
+      card.append(main, actions);
+      return card;
   }
 
   function renderAdmissions(data) {

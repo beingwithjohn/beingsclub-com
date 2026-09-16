@@ -252,7 +252,17 @@ button{cursor:pointer}
 .testimonial-queue-head em{font:400 10px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--violet)}
 .testimonial-queue-card blockquote{margin:0;font-size:15px;line-height:1.65;white-space:pre-wrap;color:#312E29}
 .testimonial-queue-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.prospect-host-list{display:grid;border-top:1px solid var(--line)}
+.prospect-host-list{display:grid;gap:10px}
+.prospect-host-group{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.prospect-host-group summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:14px 2px;list-style:none;cursor:pointer;color:var(--violet)}
+.prospect-host-group summary::-webkit-details-marker{display:none}
+.prospect-host-group summary::after{content:'+';font:400 16px/1 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-host-group[open] summary::after{content:'−'}
+.prospect-host-group summary:hover strong,.prospect-host-group summary:focus-visible strong{color:var(--ink)}
+.prospect-host-group summary:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
+.prospect-host-group summary strong{font-size:11px;line-height:1.4;letter-spacing:.14em;text-transform:uppercase;transition:color .25s ease}
+.prospect-host-group-count{font:400 10px/1.4 ui-monospace,'SF Mono',Menlo,monospace;color:var(--soft)}
+.prospect-host-group-list{display:grid;border-top:1px solid var(--line)}
 .admissions-control{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 20px;border:1px solid #DED7EA;background:#F8F4FF}
 .admissions-control>div{display:grid;gap:5px}
 .admissions-control strong{font-size:14px;line-height:1.3;color:var(--violet)}
@@ -273,6 +283,7 @@ button{cursor:pointer}
 .prospect-inviter{margin:0 0 16px;padding:12px 14px;background:#F8F4FF;border-left:3px solid #D9CAE9;font-size:12px;line-height:1.55;color:#5A4B7C}
 .waitlist-confirmation a{color:var(--violet);border-bottom:1px solid rgba(90,75,124,.4)}
 .prospect-host-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px;padding:18px 0;border-bottom:1px solid var(--line)}
+.prospect-host-card:last-child{border-bottom:0}
 .prospect-host-main{display:grid;gap:5px;min-width:0}
 .prospect-host-main strong{font-size:13px;overflow-wrap:anywhere}
 .prospect-host-main span{font-size:11px;line-height:1.55;color:var(--soft)}

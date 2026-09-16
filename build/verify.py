@@ -338,6 +338,12 @@ ok("first-conversation cards show the collected name above the email",
 ok("first-conversation cards show why somebody is drawn to the Club",
    "prospect.joiningReason" in members_after.get("members/host.js", "") and
    "what draws them here" in members_after.get("members/host.js", ""))
+ok("first-conversation cards separate booked people from unfinished joining flows",
+   "prospect.booking?.startTime" in members_after.get("members/host.js", "") and
+   "prospectGroup('booked conversations', booked, true)" in members_after.get("members/host.js", "") and
+   "prospectGroup('not booked yet', notBooked, false)" in members_after.get("members/host.js", "") and
+   ".prospect-host-group[open] summary::after" in members_after.get("members/app.css", "") and
+   "People here have started the joining flow" in host_html)
 prospect_archive_migration = open(
     os.path.join(ROOT, "practice-log", "members-migrations", "0017_prospect_archive.sql"),
     encoding="utf-8",
@@ -783,6 +789,9 @@ ok("native calendar availability and booking stay behind the prospective-member 
    "CAL_SLOTS_API_VERSION = '2024-09-04'" in prospects_api and
    "CAL_BOOKINGS_API_VERSION = '2026-02-25'" in prospects_api and
    "authorization: `Bearer ${env.CAL_API_KEY}`" in prospects_api)
+ok("joining explains the intention and conversation steps before email verification",
+   "Once confirmed, we’ll ask what draws you to Beings Club, then you can choose a time for a 25-minute conversation with John." in login_html and
+   "Once confirmed, we’ll ask what draws you to Beings Club, then you can choose a time for a 25-minute conversation with John." in members_after.get("members/app.js", ""))
 ok("members can share an attributed invitation into the existing joining flow",
    "path === '/api/club/invitation-link'" in club_router and
    "getMemberInvitationLink" in club_router and

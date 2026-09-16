@@ -175,7 +175,7 @@
       submit.textContent = 'join the waiting list';
     } else {
       heading.innerHTML = 'Membership begins with a <strong>conversation</strong>.';
-      copy.textContent = 'Enter your name and email and we’ll send you a six-digit code. Once confirmed, you’ll have a private place to book a first conversation with John, the host of Beings Club. Where there is a mutual yes after you have spoken, membership begins.';
+      copy.textContent = 'Enter your name and email and we’ll send you a six-digit code. Once confirmed, we’ll ask what draws you to Beings Club, then you can choose a time for a 25-minute conversation with John. Where there is a mutual yes after you have spoken, membership begins.';
       submit.textContent = 'continue';
     }
   }
