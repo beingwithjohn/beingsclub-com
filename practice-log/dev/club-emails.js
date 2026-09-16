@@ -73,7 +73,9 @@ await capture('personal-invitation', 'invited member', () => sendClubInvitation(
   idempotencyKey: 'preview-invitation',
 }));
 await capture('welcome', 'new member', () => sendClubWelcome(env, {
-  ...member, actionUrl, idempotencyKey: 'preview-welcome',
+  ...member,
+  personalNote: 'It was lovely to speak. Here are the two things I mentioned: https://beingsclub.com/events/ and https://spacetobe.xyz/.',
+  actionUrl, idempotencyKey: 'preview-welcome',
 }));
 await capture('member-joined', 'host', () => sendMemberJoinedNotification(env, {
   ...member, completedAt: salonStartsAt - 86400, idempotencyKey: 'preview-member-joined',

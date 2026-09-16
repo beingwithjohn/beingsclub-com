@@ -902,11 +902,18 @@
           actions.append(welcome);
         }
       } else {
+        const noteLabel = document.createElement('label'); noteLabel.className = 'prospect-welcome-note';
+        noteLabel.append(text('span', '', 'a note for their welcome · optional'));
+        const welcomeNote = document.createElement('textarea');
+        welcomeNote.maxLength = 1200;
+        welcomeNote.placeholder = 'A few words after your conversation, with any links you want to share…';
+        noteLabel.append(welcomeNote);
         const grant = text('button', 'outline', 'grant membership'); grant.type = 'button';
-        grant.addEventListener('click', () => grantProspect(prospect.id, grant));
+        grant.addEventListener('click', () => grantProspect(prospect.id, grant, welcomeNote));
         const dismiss = text('button', 'text-button', 'remove from queue'); dismiss.type = 'button';
         dismiss.addEventListener('click', () => dismissProspect(prospect, dismiss));
-        actions.append(grant, dismiss);
+        const buttons = document.createElement('div'); buttons.className = 'prospect-host-buttons';
+        buttons.append(grant, dismiss); actions.append(noteLabel, buttons);
       }
       card.append(main, actions); listNode.append(card);
     });
@@ -976,22 +983,29 @@
     renderProspects(await call('/api/club/host/prospects'));
   }
 
-  async function grantProspect(id, button) {
+  async function grantProspect(id, button, note) {
     const statusNode = document.getElementById('prospect-host-status'); statusNode.textContent = '';
+    if (!note.checkValidity()) { note.reportValidity(); return; }
     button.disabled = true;
     try {
       if (previewMode) {
         prospectHostState = prospectHostState.filter((item) => item.id !== id);
         renderProspects({ prospects: prospectHostState });
-        statusNode.textContent = 'Preview: membership opens and one welcome email is sent.';
+        statusNode.textContent = `Preview: membership opens and one welcome email is sent${note.value.trim() ? ' with your note' : ''}.`;
         return;
       }
-      const data = await call(`/api/club/host/prospects/${id}/grant`, { method: 'POST', body: '{}' });
+      const data = await call(`/api/club/host/prospects/${id}/grant`, {
+        method: 'POST', body: JSON.stringify({ personalNote: note.value }),
+      });
       await Promise.all([loadProspects(), loadMembers()]);
       statusNode.textContent = data.invitationSent
         ? 'Membership granted and welcome email sent.'
         : 'Membership granted. The welcome email needs another attempt from the list below.';
-    } catch (_) { statusNode.textContent = 'Membership could not be granted. Try again.'; }
+    } catch (error) {
+      statusNode.textContent = error.message === 'welcome note'
+        ? 'Keep the personal note to 1,200 characters.'
+        : 'Membership could not be granted. Try again.';
+    }
     finally { button.disabled = false; }
   }
 

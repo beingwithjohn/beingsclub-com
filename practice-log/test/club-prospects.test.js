@@ -189,6 +189,7 @@ test('the host can resend a welcome after access is granted but before onboardin
   const members = grantedProspectDb({
     id: 4, granted_at: 2_000_000_000, member_id: 9,
     display_name: 'Mira', member_name: 'Mira', email: 'mira@example.test',
+    welcome_note: 'The links we discussed are https://example.com/one and https://example.com/two.',
     joined_at: null, disabled_at: null, left_at: null,
   });
   try {
@@ -207,6 +208,9 @@ test('the host can resend a welcome after access is granted but before onboardin
     assert.equal(body.subject, 'Welcome to Beings Club');
     assert.match(body.text, /Hello, Mira\. You’re in\./);
     assert.match(body.text, /members\/#welcome=[A-Za-z0-9_-]+/);
+    assert.match(body.text, /The links we discussed/);
+    assert.match(body.html, /href="https:\/\/example\.com\/one"/);
+    assert.match(body.html, /href="https:\/\/example\.com\/two"/);
     assert.doesNotMatch(body.text, /six-digit code/);
     assert.equal(members.batches.length, 1);
     assert.equal(members.updates.length, 1);

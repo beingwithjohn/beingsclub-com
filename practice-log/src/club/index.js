@@ -323,7 +323,7 @@ export async function clubRoute(request, env, ctx, url) {
   }
   const grant = /^\/api\/club\/host\/prospects\/(\d+)\/grant$/.exec(path);
   if (grant && method === 'POST') {
-    return grantProspect(env, who, Number(grant[1]), ctx);
+    return grantProspect(env, who, Number(grant[1]), ctx, await readJson(request));
   }
   const resendWelcome = /^\/api\/club\/host\/prospects\/(\d+)\/welcome$/.exec(path);
   if (resendWelcome && method === 'POST') {

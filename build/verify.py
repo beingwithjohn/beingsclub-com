@@ -744,6 +744,16 @@ ok("plain-text private messages safely turn web addresses into links",
    "link.rel = 'noopener noreferrer'" in members_after.get("members/app.js", "") and
    "article.append(messageCopy(message.body))" in members_after.get("members/app.js", "") and
    ".message-copy a:focus-visible" in members_after.get("members/app.css", ""))
+ok("member and host conversations stay bounded and return to the latest message",
+   'id="message-latest"' in login_html and
+   'id="host-message-latest"' in login_html and
+   "function messageThreadNearLatest" in members_after.get("members/app.js", "") and
+   "function scrollMessageThreadToLatest" in members_after.get("members/app.js", "") and
+   "installMessageScroller('message-thread', 'message-latest')" in members_after.get("members/app.js", "") and
+   "installMessageScroller('host-message-thread', 'host-message-latest')" in members_after.get("members/app.js", "") and
+   ".message-thread-frame{position:relative;height:clamp" in members_after.get("members/app.css", "") and
+   ".host-message-inbox{display:grid" in members_after.get("members/app.css", "") and
+   "height:clamp(520px,68vh,720px)" in members_after.get("members/app.css", ""))
 ok("host broadcasts remain separate, private, eligible one-to-one messages",
    'id="host-message-broadcast-form"' in login_html and
    "window.confirm(`Send this as a private message" in members_after.get("members/app.js", "") and
@@ -825,8 +835,17 @@ ok("member-facing email buttons use private one-use entrances",
    ).read())
 ok("granting a prospective member sends one retry-safe welcome",
    "sendClubWelcome" in prospects_api and
+   "personalNote: member.welcome_note" in prospects_api and
+   "personalNote: prospect.welcome_note" in prospects_api and
+   "welcome_note = excluded.welcome_note" in prospects_api and
+   os.path.exists(os.path.join(ROOT, "practice-log/members-migrations/0027_member_welcome_note.sql")) and
+   "cleanWelcomeNote(body?.personalNote)" in prospects_api and
+   "JSON.stringify({ personalNote: note.value })" in members_after.get("members/host.js", "") and
+   "a note for their welcome · optional" in members_after.get("members/host.js", "") and
    "idempotencyKey: `club-prospect-${id}-${timestamp}`" in prospects_api and
    "subject = 'Welcome to Beings Club'" in mail_api and
+   "function linkedNoteHtml(note)" in mail_api and
+   "beforeAction: personalNote ? personalInvitationNote(personalNote) : ''" in mail_api and
    "The link below is your private entrance." in mail_api and
    "Your welcome is waiting." not in mail_api and
    "Beings Club is made by those who participate" not in mail_api)

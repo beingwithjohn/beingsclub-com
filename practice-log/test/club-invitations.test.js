@@ -113,6 +113,7 @@ test('granting access sends a welcome rather than another invitation', async () 
     }, {
       email: 'mira@example.test',
       name: 'Mira',
+      personalNote: 'It was lovely to speak. Here is the essay I mentioned: https://example.com/essay?from=beings&part=1.',
       actionUrl: 'https://beingsclub.com/members/#welcome=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
       idempotencyKey: 'club-prospect-4-2000000000',
     });
@@ -124,10 +125,16 @@ test('granting access sends a welcome rather than another invitation', async () 
     assert.match(body.text, /Hello, Mira\. You’re in\./);
     assert.match(body.text, /private entrance/);
     assert.match(body.text, /#welcome=AAAA/);
+    assert.match(body.text, /A note from John:\nIt was lovely to speak/);
+    assert.match(body.text, /https:\/\/example\.com\/essay\?from=beings&part=1/);
     assert.doesNotMatch(body.text, /six-digit code/);
     assert.doesNotMatch(body.text, /Your welcome is waiting|Beings Club is made by those who participate/);
     assert.match(body.html, /Welcome to <span[^>]*>Beings Club<\/span>\./);
     assert.match(body.html, /Hello, Mira\. You’re in\./);
+    assert.match(body.html, /a note from John/);
+    assert.match(body.html, /href="https:\/\/example\.com\/essay\?from=beings&amp;part=1"/);
+    assert.match(body.html, />https:\/\/example\.com\/essay\?from=beings&amp;part=1<\/a>/);
+    assert.match(body.html, /background:#F2ECFF/);
     assert.doesNotMatch(body.html, /inside Beings Club|Your welcome is waiting|Beings Club is made by those who participate/);
     assert.doesNotMatch(body.subject, /invited/i);
   } finally {

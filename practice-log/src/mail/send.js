@@ -273,12 +273,16 @@ export function clubInvitationEmail({ name, personalNote, actionUrl } = {}) {
 }
 
 /** A welcome after John and a prospective member have reached a mutual yes. */
-export async function sendClubWelcome(env, { email, name, actionUrl, idempotencyKey }) {
+export async function sendClubWelcome(env, {
+  email, name, personalNote, actionUrl, idempotencyKey,
+}) {
   const url = actionUrl || 'https://beingsclub.com/members/';
   const subject = 'Welcome to Beings Club';
   const hello = name ? `Hello, ${name}.` : 'Hello.';
-  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered. The link below is your private entrance. It can be used once and expires in seven days.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
-  const html = clubWelcomeLayout({ name, actionUrl: url });
+  const note = String(personalNote || '').trim();
+  const noteText = note ? `\n\nA note from John:\n${note}` : '';
+  const text = `Welcome to Beings Club.\n\n${hello} You’re in.\n\nMembership is ongoing and freely offered.${noteText}\n\nThe link below is your private entrance. It can be used once and expires in seven days.\n\nEnter Beings Club:\n${url}\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubWelcomeLayout({ name, personalNote: note, actionUrl: url });
   return post(env, {
     to: email,
     from: club(env),
@@ -652,22 +656,45 @@ function personalInvitationNote(note) {
   return '<tr><td style="padding:24px 48px 0 48px;">'
     + '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#F2ECFF" style="width:100%;background:#F2ECFF;border:1px solid #DED7EA;border-radius:14px;border-collapse:separate;overflow:hidden;">'
     + '<tr><td style="padding:18px 20px 5px 20px;font-family:Helvetica,Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#5A4B7C;">a note from John</td></tr>'
-    + `<tr><td style="padding:5px 20px 20px 20px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#312E29;mso-line-height-rule:exactly;line-height:25px;">${escapeHtml(note).replace(/\r?\n/g, '<br>')}</td></tr>`
+    + `<tr><td style="padding:5px 20px 20px 20px;font-family:Helvetica,Arial,sans-serif;font-size:16px;color:#312E29;mso-line-height-rule:exactly;line-height:25px;">${linkedNoteHtml(note)}</td></tr>`
     + '</table></td></tr>';
 }
 
-function clubWelcomeLayout({ name, actionUrl }) {
+function linkedNoteHtml(note) {
+  const source = String(note || '');
+  const pattern = /\b(?:https?:\/\/|www\.)[^\s<>"']+/gi;
+  let html = ''; let cursor = 0;
+  for (const match of source.matchAll(pattern)) {
+    html += escapeHtml(source.slice(cursor, match.index));
+    let label = match[0]; let trailing = '';
+    while (/[),.!?;:]$/.test(label)) {
+      trailing = label.slice(-1) + trailing; label = label.slice(0, -1);
+    }
+    const destination = label.toLowerCase().startsWith('www.') ? `https://${label}` : label;
+    let safe = false;
+    try { safe = ['http:', 'https:'].includes(new URL(destination).protocol); } catch (_) {}
+    html += safe
+      ? `<a href="${escapeHtml(destination)}" style="color:#5A4B7C;text-decoration:underline;">${escapeHtml(label)}</a>${escapeHtml(trailing)}`
+      : escapeHtml(match[0]);
+    cursor = match.index + match[0].length;
+  }
+  return (html + escapeHtml(source.slice(cursor))).replace(/\r?\n/g, '<br>');
+}
+
+function clubWelcomeLayout({ name, personalNote, actionUrl }) {
   const hello = name ? `Hello, ${escapeHtml(name)}. You’re in.` : 'Hello. You’re in.';
   return clubEmailLayout({
     title: 'Welcome to Beings Club',
     preheader: 'The member area is open.',
     heading: 'Welcome to <span style="color:#5A4B7C;">Beings Club</span>.',
     body: `<p style="margin:0 0 16px;">${hello}</p>`
-      + '<p style="margin:0;">Membership is ongoing and freely offered. The link below is your private entrance. It can be used once and expires in seven days.</p>',
+      + '<p style="margin:0;">Membership is ongoing and freely offered.</p>',
+    beforeAction: personalNote ? personalInvitationNote(personalNote) : '',
     actionUrl,
     actionLabel: 'enter Beings Club',
     settingsUrl: actionUrl,
     footerLinkLabel: 'member entrance',
+    afterBody: '<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">This is your private entrance. It can be used once and expires in seven days.</td></tr>',
     footerNote: 'This welcome was meant for you — if it found the wrong hands, you can simply let it rest.',
     logoWidth: 220,
   });

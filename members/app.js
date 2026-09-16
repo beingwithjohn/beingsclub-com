@@ -1681,8 +1681,32 @@
       ? 'Your private conversations with members.' : 'Your private conversation with John.';
   }
 
+  function messageThreadNearLatest(thread, threshold = 72) {
+    return thread.scrollHeight - thread.scrollTop - thread.clientHeight <= threshold;
+  }
+
+  function updateLatestMessageButton(thread, button) {
+    button.hidden = messageThreadNearLatest(thread);
+  }
+
+  function scrollMessageThreadToLatest(thread, button, behavior = 'smooth') {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    thread.scrollTo({ top: thread.scrollHeight, behavior: reduced ? 'auto' : behavior });
+    button.hidden = true;
+  }
+
+  function installMessageScroller(threadId, buttonId) {
+    const thread = document.getElementById(threadId);
+    const button = document.getElementById(buttonId);
+    thread.addEventListener('scroll', () => updateLatestMessageButton(thread, button), { passive: true });
+    button.addEventListener('click', () => scrollMessageThreadToLatest(thread, button));
+  }
+
   function renderMessages(scroll = true) {
     const thread = document.getElementById('message-thread');
+    const latest = document.getElementById('message-latest');
+    const previousTop = thread.scrollTop;
+    const wasNearLatest = messageThreadNearLatest(thread);
     const empty = document.getElementById('message-empty');
     thread.replaceChildren();
     const messages = messageState.messages || [];
@@ -1702,7 +1726,10 @@
     thread.classList.remove('is-changing');
     void thread.offsetWidth;
     thread.classList.add('is-changing');
-    if (scroll) requestAnimationFrame(() => { thread.scrollTop = thread.scrollHeight; });
+    requestAnimationFrame(() => {
+      if (scroll || wasNearLatest) scrollMessageThreadToLatest(thread, latest, 'auto');
+      else { thread.scrollTop = previousTop; updateLatestMessageButton(thread, latest); }
+    });
   }
 
   async function storeMemberMessage(message, sourcePage = 'messages') {
@@ -1783,6 +1810,7 @@
   function renderHostConversation(data) {
     const conversation = document.getElementById('host-message-conversation');
     const threadNode = document.getElementById('host-message-thread');
+    const latest = document.getElementById('host-message-latest');
     document.getElementById('host-message-name').textContent = data.member.name;
     document.getElementById('host-message-email').textContent = data.member.email;
     threadNode.replaceChildren();
@@ -1805,7 +1833,7 @@
     conversation.classList.add('is-entering');
     threadNode.classList.add('is-changing');
     document.getElementById('host-message-empty').hidden = true;
-    requestAnimationFrame(() => { threadNode.scrollTop = threadNode.scrollHeight; });
+    requestAnimationFrame(() => scrollMessageThreadToLatest(threadNode, latest, 'auto'));
   }
 
   async function openHostConversation(memberId) {
@@ -2519,6 +2547,8 @@
     catch (_) { codeStatus.textContent = 'Something went wrong. Please try again.'; }
   });
   installMemberMessages();
+  installMessageScroller('message-thread', 'message-latest');
+  installMessageScroller('host-message-thread', 'host-message-latest');
   document.getElementById('message-compose').addEventListener('submit', submitMessage);
   document.getElementById('host-message-compose').addEventListener('submit', submitHostMessage);
   document.getElementById('host-new-message-form').addEventListener('submit', openNewHostMessage);
@@ -2943,8 +2973,11 @@
         showProspectPreview(['booked', 'intention'].includes(prospectState) ? prospectState : 'calendar');
         return;
       }
+      const previewAsMember = previewParams.get('role') === 'member';
       member = {
-        id: 1, email: 'john@spacetobe.xyz', name: 'John', isHost: true,
+        id: previewAsMember ? 2 : 1,
+        email: previewAsMember ? 'mira@example.com' : 'john@spacetobe.xyz',
+        name: previewAsMember ? 'Mira' : 'John', isHost: !previewAsMember,
         agreementAccepted: preview !== 'onboarding', agreementVersion: '2026-09-01',
         onboardingCompleted: preview !== 'onboarding', paused: previewParams.get('state') === 'paused',
       };
@@ -3069,6 +3102,22 @@
           { id: 4, senderRole: 'member', senderName: 'Noor', body: 'Thank you. That makes sense to me.', createdAt: '2026-09-10T10:07:00.000Z' },
         ],
       });
+      if (previewParams.get('messages') === 'long') {
+        const longMessages = Array.from({ length: 18 }, (_, index) => ({
+          id: 100 + index,
+          senderRole: index % 3 === 0 ? 'host' : 'member',
+          senderName: index % 3 === 0 ? 'John' : 'Mira',
+          body: index === 17
+            ? 'This is the latest message in the conversation.'
+            : `A message from earlier in the conversation, kept here so the thread can be read without making the whole page longer. ${index + 1}`,
+          createdAt: new Date(Date.UTC(2026, 8, 10, 9, index * 7)).toISOString(),
+        }));
+        messageState.messages = longMessages;
+        hostMessageConversations.set(2, {
+          member: { id: 2, name: 'Mira', email: 'mira@example.com' },
+          messages: longMessages,
+        });
+      }
       if (location.hash === '#messages') requestedHostMessageId = 2;
       givingState = {
         month: '2026-08', testimonial: null, canSubmit: true,

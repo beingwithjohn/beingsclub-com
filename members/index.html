@@ -480,7 +480,10 @@
           <p id="messages-intro">Your private conversation with John.</p>
         </header>
         <div class="messages-member-view" id="messages-member-view">
-          <section class="message-thread" id="message-thread" aria-live="polite"></section>
+          <div class="message-thread-frame">
+            <section class="message-thread" id="message-thread" aria-label="Private messages" aria-live="polite" tabindex="0"></section>
+            <button class="message-latest" id="message-latest" type="button" hidden>latest message ↓</button>
+          </div>
           <p class="message-empty" id="message-empty">There are no messages here yet.</p>
           <form class="message-compose" id="message-compose" novalidate>
             <label class="sr-only" for="message-body">Send a message to John</label>
@@ -530,7 +533,10 @@
                 </div>
                 <button class="text-button" id="host-message-close" type="button">close</button>
               </header>
-              <div class="host-message-thread" id="host-message-thread" aria-live="polite"></div>
+              <div class="host-message-thread-frame">
+                <div class="host-message-thread" id="host-message-thread" aria-label="Private messages" aria-live="polite" tabindex="0"></div>
+                <button class="message-latest" id="host-message-latest" type="button" hidden>latest message ↓</button>
+              </div>
               <form class="host-message-compose" id="host-message-compose" novalidate>
                 <label class="sr-only" for="host-message-body">Reply to this member</label>
                 <textarea id="host-message-body" maxlength="4000" placeholder="write a reply" required></textarea>

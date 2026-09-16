@@ -400,8 +400,10 @@ export async function dismissProspect(env, id) {
   return json({ ok: true });
 }
 
-export async function grantProspect(env, host, id, ctx) {
+export async function grantProspect(env, host, id, ctx, body = {}) {
   if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
+  const personalNote = cleanWelcomeNote(body?.personalNote);
+  if (personalNote === undefined) return bad(400, 'welcome note');
   const prospect = await env.MEMBERS.prepare(
     'SELECT * FROM prospect WHERE id = ?1',
   ).bind(id).first();
@@ -411,15 +413,17 @@ export async function grantProspect(env, host, id, ctx) {
   }
   const timestamp = now();
   await env.MEMBERS.prepare(
-    `INSERT INTO member (email, display_name, is_host, invited_at, created_at, updated_at)
-     VALUES (?1, ?2, 0, ?3, ?3, ?3)
+    `INSERT INTO member
+       (email, display_name, is_host, invited_at, welcome_note, created_at, updated_at)
+     VALUES (?1, ?2, 0, ?3, ?4, ?3, ?3)
      ON CONFLICT(email) DO UPDATE SET disabled_at = NULL, left_at = NULL,
        display_name = COALESCE(member.display_name, excluded.display_name),
+       welcome_note = excluded.welcome_note,
        invited_at = COALESCE(invited_at, excluded.invited_at),
        updated_at = excluded.updated_at`,
-  ).bind(prospect.email, prospect.display_name, timestamp).run();
+  ).bind(prospect.email, prospect.display_name, timestamp, personalNote).run();
   const member = await env.MEMBERS.prepare(
-    'SELECT id, email, invitation_sent_at FROM member WHERE email = ?1',
+    'SELECT id, email, display_name, invitation_sent_at, welcome_note FROM member WHERE email = ?1',
   ).bind(prospect.email).first();
   await env.MEMBERS.prepare(
     `UPDATE prospect SET granted_at = ?1, granted_by = ?2, member_id = ?3,
@@ -430,6 +434,7 @@ export async function grantProspect(env, host, id, ctx) {
   const actionUrl = await issueMemberWelcomeLink(env, member.id, timestamp);
   const sent = await sendClubWelcome(env, {
     email: member.email, name: member.display_name,
+    personalNote: member.welcome_note,
     actionUrl,
     idempotencyKey: `club-prospect-${id}-${timestamp}`,
   });
@@ -446,7 +451,7 @@ export async function resendProspectWelcome(env, id) {
   if (!Number.isSafeInteger(id) || id <= 0) return bad(404, 'not found');
   const prospect = await env.MEMBERS.prepare(
     `SELECT p.id, p.granted_at, p.member_id, p.display_name,
-            m.email, m.display_name AS member_name, m.joined_at,
+            m.email, m.display_name AS member_name, m.welcome_note, m.joined_at,
             m.disabled_at, m.left_at
        FROM prospect p JOIN member m ON m.id = p.member_id
       WHERE p.id = ?1`,
@@ -460,6 +465,7 @@ export async function resendProspectWelcome(env, id) {
   const sent = await sendClubWelcome(env, {
     email: prospect.email,
     name: prospect.member_name || prospect.display_name,
+    personalNote: prospect.welcome_note,
     actionUrl,
     idempotencyKey: `club-prospect-welcome-${id}-${timestamp}`,
   });
@@ -569,6 +575,17 @@ function shapeEnteredMember(member) {
 function cleanText(value, max) {
   const text = String(value ?? '').trim();
   return text && text.length <= max ? text : null;
+}
+
+function cleanWelcomeNote(value) {
+  if (value == null || value === '') return null;
+  if (typeof value !== 'string') return undefined;
+  const note = value.trim();
+  if (!note) return null;
+  if (note.length > 1200 || /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(note)) {
+    return undefined;
+  }
+  return note;
 }
 
 function cleanTimezone(value) {
