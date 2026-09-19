@@ -302,6 +302,21 @@ host_html = members_after.get("members/host/index.html", "")
 ok("private host page keeps the supplied Host tools design",
    "Host <strong>tools</strong>." in host_html and ">members</h2>" in host_html and
    "Only hosts see this page" in host_html and "add + invite" in host_html)
+ok("host navigation matches the simplified member area",
+   all(link in host_html for link in (
+       'href="/members/">next salon</a>',
+       'href="/members/#messages">messages</a>',
+       'href="/members/#field-notes">field notes</a>',
+       'href="/members/#giving">giving</a>',
+       'href="/members/#settings">settings</a>',
+       'href="/members/host/" aria-current="page">host</a>',
+   )) and
+   all(old_link not in host_html for old_link in (
+       'href="/members/#members"',
+       'href="/members/#in-person"',
+       'href="/members/#public"',
+       'href="/members/#profile"',
+   )))
 ok("adding a member sends one visible, retryable invitation",
    "sends one personal invitation from Beings Club" in host_html and
    "state === 'on_list' ? 'on list' : state" in members_after.get("members/host.js", "") and
