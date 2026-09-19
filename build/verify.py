@@ -434,8 +434,7 @@ ok("member login distinguishes access and hands non-members to joining",
 ok("prospective members see a native Beings Club calendar rather than an embed",
    'id="prospect-timezone-search"' in login_html and 'id="prospect-days"' in login_html and
    'id="prospect-time-list"' in login_html and 'id="prospect-booking-form"' in login_html and
-   login_html.count('<iframe') == 1 and 'app.cal.com' not in login_html and
-   'frame-src https://coliven.com' in login_html and
+   login_html.count('<iframe') == 0 and 'app.cal.com' not in login_html and
    "prospectCall(`/api/club/prospect/slots?${query}`)" in members_after.get("members/app.js", "") and
    "prospectCall('/api/club/prospect/booking'" in members_after.get("members/app.js", ""))
 ok("prospective members answer the joining question before calendar availability",
@@ -587,54 +586,48 @@ ok("recent and active givers are not solicited after sharing a Field Note",
    "object.customer_details?.email" in open(
        os.path.join(ROOT, "practice-log/src/giving.js"), encoding="utf-8"
    ).read())
-ok("member directory is contextual rather than social infrastructure",
-   'data-member-view="members"' in login_html and 'id="directory-grid"' in login_html and
-   'Members mostly meet each other through Salons. This page offers a little more context.' in login_html and
-   'member count' not in login_html.lower())
-ok("member directory opens randomly and reshuffles with bounded motion",
+ok("members remain a compact tab rather than a standalone page",
+   'data-member-view="members"' not in login_html and 'id="directory-page"' not in login_html and
+   'id="members-drawer"' in login_html and '>members ⤤</button>' in login_html and
+   'open the members page' not in login_html.lower() and 'member count' not in login_html.lower())
+ok("the members tab opens randomly and reshuffles with bounded motion",
    "function shuffledDirectoryOrder(people, moveFirst = false)" in members_after.get("members/app.js", "") and
-   "const directoryOpening = directory && directoryPage.hidden" in members_after.get("members/app.js", "") and
-   "directoryOrder = shuffledDirectoryOrder(orderedDirectoryMembers())" in members_after.get("members/app.js", "") and
-   "card.dataset.memberId = String(person.id)" in members_after.get("members/app.js", "") and
+   "function animateMembersDrawerOrder()" in members_after.get("members/app.js", "") and
+   "directoryOrder = shuffledDirectoryOrder(directoryState.members || [])" in members_after.get("members/app.js", "") and
+   'id="members-drawer-shuffle"' in login_html and
    "card.animate([" in members_after.get("members/app.js", "") and
    "((index * 37) % 11) * 16" in members_after.get("members/app.js", "") and
    "prefers-reduced-motion: reduce" in members_after.get("members/app.js", "") and
-   ".directory-name-row" in members_after.get("members/app.css", "") and
-   "nameRow.append(makeText('span', 'directory-you', 'you'))" in members_after.get("members/app.js", ""))
-ok("the original ambient member drawer complements the full directory",
-   'id="directory-randomise"' in login_html and 'randomise order ↻' in login_html and
+   "document.getElementById('members-drawer-shuffle').disabled = people.length < 2" in members_after.get("members/app.js", ""))
+ok("the member drawer starts quiet and remains available throughout the member area",
    'id="members-drawer"' in login_html and 'id="members-drawer-minimise"' in login_html and
-   'id="members-drawer-resize"' in login_html and 'open the members page →' in login_html and
+   'id="members-drawer-resize"' in login_html and 'id="members-drawer-shuffle"' in login_html and
    "function randomiseDirectory()" in members_after.get("members/app.js", "") and
-   "const drawerVisible = name === 'salon';" in members_after.get("members/app.js", "") and
+   "drawer.hidden = false;" in members_after.get("members/app.js", "") and
    "let membersDrawerMode = 'minimised'" in members_after.get("members/app.js", "") and
    'class="members-drawer is-minimised"' in login_html and
    "button.addEventListener('mouseenter', show); button.addEventListener('focus', show);" in members_after.get("members/app.js", ""))
-ok("member profile requires only a chosen name",
-   'data-member-view="profile"' in login_html and 'id="profile-form"' in login_html and
+ok("profile and membership controls share one Settings page",
+   'data-member-view="profile"' not in login_html and 'data-member-view="settings"' in login_html and
+   'id="profile-page"' not in login_html and 'id="settings-page"' in login_html and
+   'id="settings-profile-title">profile</h2>' in login_html and 'id="profile-form"' in login_html and
    'id="profile-name"' in login_html and 'required' in login_html and
-   'Nothing links back to you unless you put it there' in login_html and
    'This is never shown to other members' in login_html and
    'id="profile-cropper"' in login_html and 'id="profile-crop-canvas"' in login_html and
+   "'#profile': 'settings'" in members_after.get("members/app.js", "") and
+   'if (settings) { renderProfile(); renderSettings(); }' in members_after.get("members/app.js", "") and
    "toDataURL('image/jpeg', 0.9)" in members_after.get("members/app.js", ""))
-ok("in-person navigation opens an honest page backed by host publishing",
-   'data-member-view="in-person"' in login_html and 'id="in-person-page"' in login_html and
-   'In-person <strong>happenings</strong>.' in login_html and
-   'id="in-person-events"' in login_html and 'id="in-person-event-host"' in host_html and
-   "call('/api/club/in-person')" in members_after.get("members/app.js", "") and
+ok("in-person publishing stays in host tools without a member navigation page",
+   'data-member-view="in-person"' not in login_html and 'id="in-person-page"' not in login_html and
+   'id="in-person-event-host"' in host_html and
+   "call('/api/club/in-person')" not in members_after.get("members/app.js", "") and
    "call('/api/club/host/in-person')" in members_after.get("members/host.js", "") and
-   'The next in-person happening will appear here when it is ready.' in login_html and
-   login_html.count('href="#public" data-member-view="public"') >= 2 and
-   host_html.count('href="/members/#public"') >= 2)
-ok("public events have a separate member-area page while the public route stays open",
-   'id="public-events-page"' in login_html and
-   '<h1>Public <strong>events</strong>.</h1>' in login_html and
-   'src="https://coliven.com/embed/community/beingsclub?layout=list&amp;theme=light"' in login_html and
-   'sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"' in login_html and
-   'frame-src https://coliven.com' in login_html and
-   "'#public': 'public'" in members_after.get("members/app.js", "") and
-   "document.getElementById('public-events-page').hidden = !publicEvents" in members_after.get("members/app.js", "") and
-   '.public-events-content' in members_after.get("members/app.css", ""))
+   'in-person-event-host' in members_after.get("members/host.js", ""))
+ok("public events remain public without a duplicate member page",
+   'data-member-view="public"' not in login_html and 'id="public-events-page"' not in login_html and
+   "'#public': 'public'" not in members_after.get("members/app.js", "") and
+   '<link rel="canonical" href="https://beingsclub.com/events/">' in events_html and
+   'src="https://coliven.com/embed/community/beingsclub?layout=list&amp;theme=light"' in events_html)
 ok("member Settings carries optional Salon timings, welcome replay and quiet-email language",
    'data-member-view="settings"' in login_html and 'id="settings-page"' in login_html and
    'first announcement · always' in login_html and 'id="email-salon-month"' in login_html and

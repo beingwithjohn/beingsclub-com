@@ -1206,12 +1206,12 @@
     return next;
   }
 
-  function animateDirectoryOrder() {
-    const grid = document.getElementById('directory-grid');
+  function animateMembersDrawerOrder() {
+    const grid = document.getElementById('members-drawer-grid');
     const cards = new Map([...grid.children].map((card) => [card.dataset.memberId, card]));
     const people = orderedDirectoryMembers();
     if (cards.size !== people.length || people.some((person) => !cards.has(String(person.id)))) {
-      renderDirectory(); return;
+      renderMembersDrawer(); return;
     }
     const before = new Map([...cards].map(([id, card]) => [id, card.getBoundingClientRect()]));
     people.forEach((person) => grid.append(cards.get(String(person.id))));
@@ -1235,7 +1235,7 @@
         easing: 'cubic-bezier(.22,1,.36,1)',
       });
     });
-    const button = document.getElementById('directory-randomise');
+    const button = document.getElementById('members-drawer-shuffle');
     button.classList.remove('is-shuffling');
     requestAnimationFrame(() => button.classList.add('is-shuffling'));
     window.setTimeout(() => button.classList.remove('is-shuffling'), 820);
@@ -1245,40 +1245,7 @@
     const people = orderedDirectoryMembers();
     if (people.length < 2) return;
     directoryOrder = shuffledDirectoryOrder(people, true);
-    animateDirectoryOrder();
-    if (!document.getElementById('members-drawer').hidden) renderMembersDrawer();
-  }
-
-  function renderDirectory() {
-    for (const url of imageObjectUrls) URL.revokeObjectURL(url);
-    imageObjectUrls.clear();
-    const grid = document.getElementById('directory-grid'); grid.replaceChildren();
-    const people = orderedDirectoryMembers();
-    document.getElementById('directory-randomise').disabled = people.length < 2;
-    people.forEach((person) => {
-      const card = document.createElement('article'); card.className = 'directory-card';
-      card.dataset.memberId = String(person.id);
-      if (person.isMe) card.classList.add('is-me');
-      const portrait = document.createElement('div'); portrait.className = 'directory-portrait';
-      const fallback = makeText('span', 'directory-fallback', memberInitial(person.name));
-      const image = document.createElement('img'); image.alt = `${person.name}’s profile image`; image.hidden = true;
-      portrait.append(fallback, image);
-      if (person.hasImage || person.previewImage) loadMemberImage(person, image, fallback);
-      const words = document.createElement('div'); words.className = 'directory-words';
-      const nameRow = document.createElement('div'); nameRow.className = 'directory-name-row';
-      nameRow.append(makeText('h2', '', person.name));
-      if (person.isMe) nameRow.append(makeText('span', 'directory-you', 'you'));
-      words.append(nameRow);
-      if (person.line) words.append(makeText('p', '', person.line));
-      if (person.website) {
-        const link = document.createElement('a'); link.href = person.website;
-        link.target = '_blank'; link.rel = 'noopener noreferrer';
-        try { link.textContent = `${new URL(person.website).hostname.replace(/^www\./, '')} ↗`; }
-        catch (_) { link.textContent = 'website ↗'; }
-        words.append(link);
-      }
-      card.append(portrait, words); grid.append(card);
-    });
+    animateMembersDrawerOrder();
   }
 
   function drawerPerson(id) {
@@ -1316,9 +1283,13 @@
   function renderMembersDrawer() {
     for (const url of drawerImageObjectUrls) URL.revokeObjectURL(url);
     drawerImageObjectUrls.clear();
+    if (!directoryOrder.length && (directoryState.members || []).length) {
+      directoryOrder = shuffledDirectoryOrder(directoryState.members || []);
+    }
     const people = orderedDirectoryMembers();
     const grid = document.getElementById('members-drawer-grid'); grid.replaceChildren();
     document.getElementById('members-drawer-count').textContent = `members · ${people.length} ${people.length === 1 ? 'being' : 'beings'}`;
+    document.getElementById('members-drawer-shuffle').disabled = people.length < 2;
     people.forEach((person) => {
       const button = document.createElement('button');
       button.className = 'members-drawer-avatar'; button.type = 'button';
@@ -1538,35 +1509,23 @@
 
   function viewFromHash() {
     return ({
-      '#messages': 'messages', '#field-notes': 'field-notes', '#in-person': 'in-person', '#giving': 'giving', '#public': 'public',
-      '#members': 'members', '#profile': 'profile',
-      '#settings': 'settings',
+      '#messages': 'messages', '#field-notes': 'field-notes', '#giving': 'giving',
+      '#settings': 'settings', '#profile': 'settings',
     })[location.hash] || 'salon';
   }
 
   function showView(name) {
     const messages = name === 'messages';
     const field = name === 'field-notes';
-    const inPerson = name === 'in-person';
     const giving = name === 'giving';
-    const publicEvents = name === 'public';
-    const directory = name === 'members';
-    const profile = name === 'profile';
     const settings = name === 'settings';
-    const directoryPage = document.getElementById('directory-page');
-    const directoryOpening = directory && directoryPage.hidden;
-    document.getElementById('salon-page').hidden = messages || field || inPerson || giving || publicEvents || directory || profile || settings;
+    document.getElementById('salon-page').hidden = messages || field || giving || settings;
     document.getElementById('messages-page').hidden = !messages;
     document.getElementById('field-notes-page').hidden = !field;
-    document.getElementById('in-person-page').hidden = !inPerson;
     document.getElementById('giving-page').hidden = !giving;
-    document.getElementById('public-events-page').hidden = !publicEvents;
-    directoryPage.hidden = !directory;
-    document.getElementById('profile-page').hidden = !profile;
     document.getElementById('settings-page').hidden = !settings;
     document.querySelectorAll('[data-member-view]').forEach((link) => {
-      const selected = messages ? 'messages' : field ? 'field-notes' : inPerson ? 'in-person' : giving ? 'giving' : publicEvents ? 'public'
-        : directory ? 'members' : profile ? 'profile' : settings ? 'settings' : 'salon';
+      const selected = messages ? 'messages' : field ? 'field-notes' : giving ? 'giving' : settings ? 'settings' : 'salon';
       const current = link.dataset.memberView === selected;
       link.classList.toggle('current', current);
       if (current) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
@@ -1591,16 +1550,10 @@
     }
     if (field) renderFieldNotes();
     if (giving) renderGiving();
-    if (directory) {
-      if (directoryOpening) directoryOrder = shuffledDirectoryOrder(orderedDirectoryMembers());
-      renderDirectory();
-    }
-    if (profile) renderProfile();
-    if (settings) renderSettings();
+    if (settings) { renderProfile(); renderSettings(); }
     const drawer = document.getElementById('members-drawer');
-    const drawerVisible = name === 'salon';
-    drawer.hidden = !drawerVisible;
-    if (drawerVisible) { setMembersDrawerMode(membersDrawerMode); renderMembersDrawer(); }
+    drawer.hidden = false;
+    setMembersDrawerMode(membersDrawerMode); renderMembersDrawer();
   }
 
   function showMemberApp() {
@@ -1611,8 +1564,8 @@
     document.getElementById('member-host-link').hidden = !member.isHost;
     document.getElementById('mobile-host-link').hidden = !member.isHost;
     document.querySelectorAll('.member-feedback').forEach((footer) => { footer.hidden = member.isHost; });
-    updateClock(); renderSalon(); renderInPersonEvents();
-    showView(member.name ? viewFromHash() : 'profile');
+    updateClock(); renderSalon();
+    showView(member.name ? viewFromHash() : 'settings');
   }
 
   async function enter(memberData, options = {}) {
@@ -1628,11 +1581,11 @@
     showLogin(waiting);
     const messageRequest = member.isHost
       ? call('/api/club/host/messages') : call('/api/club/messages');
-    const [salonState, inPersonState, notesState, messages, memberGiving, directory, settings] = await Promise.all([
-      call('/api/club/salon'), call('/api/club/in-person'), call('/api/club/field-notes'),
+    const [salonState, notesState, messages, memberGiving, directory, settings] = await Promise.all([
+      call('/api/club/salon'), call('/api/club/field-notes'),
       messageRequest, call('/api/club/giving'), call('/api/club/directory'), call('/api/club/settings'),
     ]);
-    salon = salonState.salon; inPersonEvents = inPersonState.events || [];
+    salon = salonState.salon;
     fieldNotes = notesState;
     if (member.isHost) hostMessageState = { ...messages, selected: null };
     else messageState = messages;
@@ -2016,10 +1969,7 @@
       ['#salon-view .salon-hero', 'salon'],
       ['#salon-empty', 'salon'],
       ['#field-notes-page .field-notes-content', 'field-notes'],
-      ['#in-person-page .in-person-content', 'in-person'],
-      ['#public-events-page .public-events-content', 'public'],
       ['#giving-page .giving-content', 'giving'],
-      ['#directory-page .directory-content', 'members'],
     ].forEach(([selector, page]) => {
       const target = document.querySelector(selector);
       if (target) target.append(makeMemberMessageFooter(page));
@@ -2683,7 +2633,7 @@
     document.getElementById('profile-image-fallback').hidden = false;
     document.getElementById('profile-image-remove').hidden = true;
   });
-  document.getElementById('directory-randomise').addEventListener('click', randomiseDirectory);
+  document.getElementById('members-drawer-shuffle').addEventListener('click', randomiseDirectory);
   document.getElementById('members-drawer-tab').addEventListener('click', () => {
     membersDrawerTouched = true; setMembersDrawerMode('compact');
   });
@@ -2747,7 +2697,7 @@
   document.getElementById('leave-cancel').addEventListener('click', closeLeaveFlow);
   document.getElementById('leave-form').addEventListener('submit', submitLeave);
   window.addEventListener('hashchange', () => {
-    const nextView = member?.name ? viewFromHash() : 'profile';
+    const nextView = member?.name ? viewFromHash() : 'settings';
     if (givingThanks && nextView !== 'giving') {
       givingThanks = false;
       const params = new URLSearchParams(location.search);
@@ -2792,10 +2742,6 @@
     }
   });
   menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => closeMobileMenu(false)));
-  const publicEventsFrame = document.querySelector('.public-events-frame');
-  window.setInterval(() => {
-    publicEventsFrame.classList.toggle('has-focus', document.activeElement === publicEventsFrame);
-  }, 100);
   document.querySelectorAll('[data-prospect-preview]').forEach((button) => {
     button.addEventListener('click', () => showProspectPreview(button.dataset.prospectPreview));
   });

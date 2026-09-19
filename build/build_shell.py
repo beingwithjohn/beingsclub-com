@@ -122,7 +122,9 @@ def convert(body, key):
             (">I've never meditated. Is that a problem?</span>",
              '>Do I need any experience?</span>', 'Salon question'),
             ('Meditation instruction at Beings Club is accessible to all experience levels and you are not '
-             'required to adopt any beliefs to practice.',
+             'required to adopt any beliefs to practice. For those who want to go deeper, John offers more '
+             'through&nbsp;<a href="https://spacetobe.xyz" target="_blank" rel="noopener" '
+             'style="color:#5A4B7C;">Space to Be</a>.',
              'No prior experience is needed, and you won’t be asked to adopt any beliefs.', 'Salon answer'),
             ('The things worth caring about make themselves known.',
              'What is important reveals itself.', 'what matters line'),
