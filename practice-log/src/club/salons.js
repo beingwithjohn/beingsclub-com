@@ -362,6 +362,8 @@ function shapeMemberSalon(salon, timestamp) {
     myRsvp: salon.my_rsvp || null,
     joinAvailableAt: iso(Number(salon.starts_at) - JOIN_EARLY_SECONDS),
     zoomUrl: joinWindow(salon, timestamp) ? salon.zoom_join_url : null,
+    calendarZoomUrl: salon.my_rsvp === 'in' && isZoomJoinUrl(salon.zoom_join_url)
+      ? salon.zoom_join_url : null,
     hasImage: !!salon.image_key,
     imageAlt: salon.image_alt || null,
   };

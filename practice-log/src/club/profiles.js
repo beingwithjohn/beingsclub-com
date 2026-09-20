@@ -96,6 +96,7 @@ function shapeProfile(member) {
     line: member.profile_line || '',
     website: member.website || '',
     hasImage: !!member.profile_image,
+    imageVersion: profileImageVersion(member.profile_image),
   };
 }
 
@@ -106,8 +107,19 @@ function shapeDirectoryMember(row, viewerId) {
     line: row.profile_line,
     website: row.website,
     hasImage: !!row.profile_image,
+    imageVersion: profileImageVersion(row.profile_image),
     isMe: Number(row.id) === Number(viewerId),
   };
+}
+
+function profileImageVersion(value) {
+  if (!value) return '';
+  let hash = 2166136261;
+  for (const character of String(value)) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
 }
 
 async function storeProfileImage(env, memberIdValue, image) {

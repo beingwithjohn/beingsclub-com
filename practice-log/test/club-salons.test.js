@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  deleteHostSalon, getHostSalon, getSalonImage, joinWindow, parseSalonDraft, publicationProblem,
+  deleteHostSalon, getHostSalon, getMemberSalon, getSalonImage, joinWindow, parseSalonDraft, publicationProblem,
   salonHasEnded, saveHostSalon, validRsvpStatus,
 } from '../src/club/salons.js';
 
@@ -71,6 +71,30 @@ test('RSVP supports in, not this time, and a cleared response only', () => {
   assert.equal(validRsvpStatus('not_this_time'), 'not_this_time');
   assert.equal(validRsvpStatus(null), null);
   assert.equal(validRsvpStatus('maybe'), false);
+});
+
+test('confirmed attendees receive the Zoom doorway for their calendar before the room opens', async () => {
+  const row = {
+    id: 7, host_note: 'September', starts_at: 2_000_000_000,
+    timezone: 'Europe/London', duration_minutes: 90,
+    zoom_join_url: 'https://zoom.us/j/123456789?pwd=secret',
+    rsvp_count: 4, my_rsvp: 'in', image_key: null, image_alt: null,
+  };
+  const env = {
+    MEMBERS: {
+      prepare() {
+        return { bind() { return { async first() { return row; } }; } };
+      },
+    },
+  };
+  const response = await getMemberSalon(env, { id: 8 }, 1_990_000_000);
+  const data = await response.json();
+  assert.equal(data.salon.zoomUrl, null);
+  assert.equal(data.salon.calendarZoomUrl, row.zoom_join_url);
+
+  row.my_rsvp = 'not_this_time';
+  const declined = await getMemberSalon(env, { id: 8 }, 1_990_000_000);
+  assert.equal((await declined.json()).salon.calendarZoomUrl, null);
 });
 
 test('deleting an upcoming Salon removes its managed Zoom meeting first', async () => {

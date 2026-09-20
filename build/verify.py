@@ -566,6 +566,13 @@ ok("test-mode monthly gifts cannot masquerade as live subscriptions",
    'created in Stripe test mode' in members_after.get("members/app.js", ""))
 ok("the next Salon uses a direct RSVP action",
    'class="rsvp-button" data-rsvp="in" type="button">RSVP</button>' in login_html)
+ok("confirmed attendees receive the Zoom doorway in downloaded calendar events",
+   "const zoomUrl = salon.myRsvp === 'in' ? salon.calendarZoomUrl : null;" in members_after.get("members/app.js", "") and
+   "`LOCATION:${escape(destination)}`" in members_after.get("members/app.js", "") and
+   "`URL:${escape(destination)}`" in members_after.get("members/app.js", "") and
+   "calendarZoomUrl: salon.my_rsvp === 'in'" in open(
+       os.path.join(ROOT, "practice-log/src/club/salons.js"), encoding="utf-8"
+   ).read())
 ok("Salon presence stays intriguing without exposing attendees",
    "Who’s joining? The only way to know is to be there." in login_html and
    'aria-describedby="rsvp-presence-hint"' in login_html and
@@ -622,6 +629,12 @@ ok("the member drawer starts quiet and remains available throughout the member a
    "let membersDrawerMode = 'minimised'" in members_after.get("members/app.js", "") and
    'class="members-drawer is-minimised"' in login_html and
    "button.addEventListener('mouseenter', show); button.addEventListener('focus', show);" in members_after.get("members/app.js", ""))
+ok("members without photos use varied neutral avatars rather than initials",
+   login_html.count('class="avatar-fallback"') >= 3 and
+   "function applyAvatarFallback(node, person)" in members_after.get("members/app.js", "") and
+   "memberInitial(" not in members_after.get("members/app.js", "") and
+   ".avatar-fallback::before" in members_after.get("members/app.css", "") and
+   ".avatar-fallback::after" in members_after.get("members/app.css", ""))
 ok("profile and membership controls share one Settings page",
    'data-member-view="profile"' not in login_html and 'data-member-view="settings"' in login_html and
    'id="profile-page"' not in login_html and 'id="settings-page"' in login_html and
@@ -677,6 +690,12 @@ ok("testimonials create no notification or automatic public placement",
    "status = 'pending'" in testimonial_api and 'public-any-channel-light-edit-v1' in testimonial_api)
 profiles_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "profiles.js"),
                        encoding="utf-8").read()
+ok("new profile photos stay visible immediately and bypass stale image caches",
+   "if (person.previewImage)" in members_after.get("members/app.js", "") and
+   "?v=${encodeURIComponent(person.imageVersion)}" in members_after.get("members/app.js", "") and
+   "pendingImagePreview" in members_after.get("members/app.js", "") and
+   profiles_api.count("imageVersion: profileImageVersion(") == 2 and
+   "function profileImageVersion(value)" in profiles_api)
 ok("profile websites accept partial domains and store secure complete links",
    'id="welcome-profile-website" type="text" inputmode="url" autocomplete="url"' in login_html and
    'id="profile-website" type="text" inputmode="url" autocomplete="url"' in login_html and

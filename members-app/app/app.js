@@ -1164,16 +1164,37 @@
     } finally { button.disabled = false; }
   }
 
-  function memberInitial(name) {
-    return String(name || '?').trim().charAt(0).toUpperCase() || '?';
+  const avatarPalettes = [
+    ['#E9DFF5', '#6A508C'],
+    ['#F5DCD4', '#A55246'],
+    ['#DDEBDD', '#4D7659'],
+    ['#DCE8F3', '#426B88'],
+    ['#F3E7C9', '#8B6A32'],
+    ['#EADDE6', '#7B536C'],
+    ['#DCEBE8', '#3F756F'],
+  ];
+
+  function applyAvatarFallback(node, person) {
+    const value = typeof person === 'string'
+      ? person : `${person?.id ?? ''}:${person?.name || ''}`;
+    let hash = 0;
+    for (const character of String(value || 'being')) {
+      hash = ((hash * 31) + character.charCodeAt(0)) >>> 0;
+    }
+    const [background, ink] = avatarPalettes[hash % avatarPalettes.length];
+    node.classList.add('avatar-fallback');
+    node.textContent = '';
+    node.style.setProperty('--avatar-bg', background);
+    node.style.setProperty('--avatar-ink', ink);
   }
 
   async function loadMemberImage(person, image, fallback, urlSet = imageObjectUrls) {
-    if (previewMode && person.previewImage) {
+    if (person.previewImage) {
       image.src = person.previewImage; image.hidden = false; fallback.hidden = true; return;
     }
     try {
-      const blob = await callBlob(`/api/club/members/${person.id}/image`);
+      const version = person.imageVersion ? `?v=${encodeURIComponent(person.imageVersion)}` : '';
+      const blob = await callBlob(`/api/club/members/${person.id}/image${version}`);
       const url = URL.createObjectURL(blob); urlSet.add(url);
       image.src = url; image.hidden = false; fallback.hidden = true;
     } catch (_) { image.hidden = true; fallback.hidden = false; }
@@ -1268,7 +1289,7 @@
       return;
     }
     portrait.hidden = false;
-    fallback.textContent = memberInitial(person.name);
+    applyAvatarFallback(fallback, person);
     if (imageSrc) { image.src = imageSrc; image.alt = `${person.name}’s profile image`; image.hidden = false; fallback.hidden = true; }
     else { image.hidden = true; image.removeAttribute('src'); fallback.hidden = false; }
     name.textContent = person.name;
@@ -1295,7 +1316,8 @@
       button.className = 'members-drawer-avatar'; button.type = 'button';
       button.setAttribute('aria-label', `Meet ${person.name}`); button.title = person.name;
       button.classList.toggle('is-pinned', String(person.id) === String(membersDrawerPinnedId));
-      const fallback = makeText('span', '', memberInitial(person.name));
+      const fallback = document.createElement('span');
+      applyAvatarFallback(fallback, person);
       const image = document.createElement('img'); image.alt = ''; image.hidden = true;
       button.append(fallback, image); grid.append(button);
       const show = () => renderMembersDrawerDetail(person, image.hidden ? '' : image.src);
@@ -1354,7 +1376,7 @@
     document.getElementById('welcome-profile-website').value = profile.website || '';
     document.getElementById('welcome-profile-status').textContent = '';
     const fallback = document.getElementById('welcome-profile-image-fallback');
-    fallback.textContent = memberInitial(profile.name || member?.name);
+    applyAvatarFallback(fallback, { id: profile.id || member?.id, name: profile.name || member?.name });
     fallback.hidden = false;
     const image = document.getElementById('welcome-profile-image-preview');
     image.hidden = true; image.removeAttribute('src');
@@ -1371,7 +1393,7 @@
     document.getElementById('profile-line').value = profile.line || '';
     document.getElementById('profile-website').value = profile.website || '';
     document.getElementById('profile-email').textContent = profile.email || member?.email || '';
-    document.getElementById('profile-image-fallback').textContent = memberInitial(profile.name);
+    applyAvatarFallback(document.getElementById('profile-image-fallback'), profile);
     document.getElementById('profile-image-fallback').hidden = false;
     const image = document.getElementById('profile-image-preview'); image.hidden = true; image.removeAttribute('src');
     document.getElementById('profile-image-remove').hidden = !profile.hasImage;
@@ -2001,13 +2023,21 @@
     const start = new Date(salon.startsAt);
     const end = new Date(start.getTime() + salon.durationMinutes * 60000);
     const stamp = (date) => date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const escape = (value) => String(value || '').replace(/\\/g, '\\\\')
+      .replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+    const zoomUrl = salon.myRsvp === 'in' ? salon.calendarZoomUrl : null;
+    const destination = zoomUrl || 'https://beingsclub.com/members/';
+    const description = zoomUrl
+      ? `Join the Salon on Zoom: ${zoomUrl}`
+      : 'The Salon doorway opens at beingsclub.com/members/ ten minutes before.';
     return [
       'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Beings Club//Salon//EN',
       'BEGIN:VEVENT', `UID:salon-${salon.id}@beingsclub.com`,
       `DTSTAMP:${stamp(new Date())}`, `DTSTART:${stamp(start)}`, `DTEND:${stamp(end)}`,
       'SUMMARY:Beings Club Salon',
-      'DESCRIPTION:The Salon doorway opens at beingsclub.com/members/ ten minutes before.',
-      'URL:https://beingsclub.com/members/', 'END:VEVENT', 'END:VCALENDAR', '',
+      `DESCRIPTION:${escape(description)}`,
+      `LOCATION:${escape(destination)}`,
+      `URL:${escape(destination)}`, 'END:VEVENT', 'END:VCALENDAR', '',
     ].join('\r\n');
   }
 
@@ -2280,6 +2310,8 @@
       imageData: profileImageData,
       removeImage: removeProfileImage,
     };
+    const pendingImagePreview = profileImageData;
+    const removingImage = removeProfileImage;
     const button = document.getElementById('profile-save'); button.disabled = true;
     try {
       if (previewMode) {
@@ -2293,6 +2325,10 @@
         if (existing) Object.assign(existing, profile, { isMe: true });
       } else {
         directoryState = await call('/api/club/profile', { method: 'PATCH', body: JSON.stringify(payload) });
+        if (pendingImagePreview) directoryState.profile.previewImage = pendingImagePreview;
+        if (removingImage) directoryState.profile.previewImage = null;
+        const existing = directoryState.members.find((person) => person.id === directoryState.profile.id);
+        if (existing) existing.previewImage = directoryState.profile.previewImage || null;
       }
       member.name = directoryState.profile.name;
       member.line = directoryState.profile.line;
@@ -2318,6 +2354,7 @@
       imageData: profileImageData,
       removeImage: false,
     };
+    const pendingImagePreview = profileImageData;
     const button = document.getElementById('welcome-profile-save'); button.disabled = true;
     try {
       if (previewMode) {
@@ -2336,6 +2373,11 @@
         else directoryState.members.push({ ...existing, isMe: true });
       } else {
         directoryState = await call('/api/club/profile', { method: 'PATCH', body: JSON.stringify(payload) });
+        if (pendingImagePreview) {
+          directoryState.profile.previewImage = pendingImagePreview;
+          const listed = directoryState.members.find((person) => person.id === directoryState.profile.id);
+          if (listed) listed.previewImage = pendingImagePreview;
+        }
       }
       member.name = directoryState.profile.name;
       member.line = directoryState.profile.line;
@@ -2480,7 +2522,9 @@
     showWelcome(5);
   });
   document.getElementById('welcome-profile-name').addEventListener('input', (event) => {
-    document.getElementById('welcome-profile-image-fallback').textContent = memberInitial(event.target.value);
+    applyAvatarFallback(document.getElementById('welcome-profile-image-fallback'), {
+      id: directoryState.profile?.id || member?.id, name: event.target.value,
+    });
   });
   document.getElementById('welcome-profile-image-input').addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
@@ -2581,7 +2625,9 @@
   document.getElementById('member-giving-manage').addEventListener('click', manageFinancialGiving);
   document.getElementById('profile-form').addEventListener('submit', submitProfile);
   document.getElementById('profile-name').addEventListener('input', (event) => {
-    document.getElementById('profile-image-fallback').textContent = memberInitial(event.target.value);
+    applyAvatarFallback(document.getElementById('profile-image-fallback'), {
+      id: directoryState.profile?.id || member?.id, name: event.target.value,
+    });
   });
   document.getElementById('profile-image-input').addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
