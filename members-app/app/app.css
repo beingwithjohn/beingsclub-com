@@ -902,6 +902,60 @@ button{cursor:pointer}
 .leave-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .settings-foot{display:grid;gap:3px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px;color:var(--soft);margin-top:10px}
 
+/* Accessible type floor. The interface keeps its quiet typographic hierarchy,
+   but no meaningful label, action or piece of supporting copy depends on
+   sub-12px text. Body-level guidance sits at 13px or above. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.welcome-count,.welcome-skip,.welcome-step>small,.welcome-profile-portrait small,
+.welcome-profile-form label>span,.welcome-email-options>strong,.welcome-email-essential,
+.welcome-facts small,.back-link,.eyebrow,.primary,.secondary,.outline,
+.greeting,.clock,.member-nav span,.member-nav a,.nav-signout,
+.host-section h2,.salon-form label>span,.salon-form label>small,
+.salon-roundup-head span,.salon-roundup-intro,.salon-roundup-empty,
+.salon-roundup-note strong,.salon-roundup-note small,.salon-plan-state,
+.in-person-host-empty,.salon-host-state,.announcement-hold span,
+.attendance-row small,.attendance-row em,.host-post-composer p,
+.host-post-kind legend,.host-post-kind label,.host-post-admin-card a,
+.host-field-note-card a,.testimonial-queue-head small,
+.prospect-host-group summary strong,.prospect-host-group-count,
+.admissions-control span,.waitlist-host>header span,.waitlist-host-main span,
+.waitlist-host-main em,.prospect-host-main span,.prospect-host-actions em,
+.prospect-welcome-note>span,.invite-email-field>span,.invite-name-field>span,
+.invite-note-field>span,.invite-name-field em,.invite-note-field em,
+.invitation-preview-subject span,.notion-invite-row,.notion-invite-row summary small,
+.notion-invite-draft label>span,.member-name,.member-email-state,.member-status,
+.confirm-button,.resend-button,.host-foot,.prospect-status,.prospect-signout,
+.prospect-preview-switch,.prospect-intention label,.prospect-calendar-head>span,
+.prospect-timezone-row,.prospect-weekdays span,.prospect-times small,
+.prospect-calendar-status,.prospect-booking-fields label>span,
+.prospect-message label>span,.prospect-booked-note,.time-hint,
+.rsvp-button,.rsvp-confirmed,.join-room,.rsvp-quiet,.rsvp-clear,.calendar-link,
+.rsvp-not-going>span,.rsvp-presence,.salon-facts span,.salon-facts a,
+.member-feedback-status,.member-feedback-signoff,.host-field-post-link,
+.host-field-post-foot,.field-note-giving-appeal a,.field-note-link-label>span,
+.field-note-alt>span,.field-note-attribution legend,.field-note-image-row,
+.field-note-notice,.field-note-card-link,.field-note-card-foot,
+.in-person-event-words .in-person-event-place,.public-events-fallback,
+.giving-choice,.giving-amount>span:first-child,.giving-social-link,
+.testimonial-form>label>span:first-child,.directory-words a,.directory-you,
+.members-drawer-head>span,.members-drawer-all,.profile-image-actions,
+.profile-crop-zoom span,.profile-form label>span,.profile-email,
+.settings-section h2,.settings-choice-context,.settings-note,
+.leave-form fieldset small,.settings-foot{font-size:12px}
+
+.body-copy,.aside,.status,.host-section-body>p,.notion-invite-tool p,
+.financial-giving-form>p,.testimonial-current>p,.settings-note,
+.leave-section p,.field-note-notice,.public-events-fallback{font-size:13px}
+
+.login-card input,.invite-form input,.welcome-profile-form input,
+.prospect-time-list button,.prospect-days button,.prospect-days span{font-size:14px}
+
+.primary,.secondary,.outline,.rsvp-button,.rsvp-confirmed,.join-room{
+  min-height:44px;display:inline-flex;align-items:center;justify-content:center
+}
+
+.member-feedback-signoff{color:var(--soft)}
+
 @media(min-width:721px){
   .prospect-page{padding-top:9vh;gap:26px}
   .prospect-calendar{width:min(100%,1020px)}
@@ -910,18 +964,18 @@ button{cursor:pointer}
   .prospect-calendar-head h2{font-size:24px}
   .prospect-calendar-head>span{font-size:12px}
   .prospect-timezone-row{padding:8px 26px}
-  .prospect-timezone-row{font-size:11px}
+  .prospect-timezone-row{font-size:12px}
   .prospect-calendar-body{min-height:310px}
   .prospect-month{gap:12px;padding:18px 24px 17px}
   .prospect-month-head strong{font-size:15px}
-  .prospect-weekdays span{font-size:10px}
+  .prospect-weekdays span{font-size:12px}
   .prospect-days button,.prospect-days span{width:42px;height:42px;min-width:0;justify-self:center;font-size:12.5px}
   .prospect-times{gap:14px;padding:19px 20px}
   .prospect-times h3{font-size:20px}
-  .prospect-times small{font-size:11px}
+  .prospect-times small{font-size:12px}
   .prospect-time-list{gap:6px}
   .prospect-time-list button{padding:8px 12px;font-size:12.5px}
-  .prospect-calendar-status{font-size:10.5px}
+  .prospect-calendar-status{font-size:12px}
 }
 
 @media(min-width:981px){
@@ -1052,7 +1106,7 @@ button{cursor:pointer}
   .profile-editor{grid-template-columns:1fr;padding:24px 20px;gap:30px}
   .profile-cropper{max-height:calc(100dvh - 32px);overflow:auto}.profile-cropper-card{padding:22px 18px}
   .setting-row,.settings-copy-row{gap:18px}
-  .prospect-status{right:22px;top:28px;font-size:8.5px}
+  .prospect-status{right:22px;top:28px;font-size:12px}
   .prospect-nav{display:none}
   .prospect-page{padding:13vh 22px 90px;grid-template-columns:1fr;gap:32px}
   .prospect-intro{gap:18px}

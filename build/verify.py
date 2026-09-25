@@ -9,6 +9,7 @@ took every page down, and the deploy looked successful because nobody checked
 that the commit Pages built was the commit we pushed.
 """
 import io, os, re, sys, json, struct, subprocess, tempfile, urllib.request
+from datetime import date
 
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGIN = "https://beingsclub.com"
@@ -244,6 +245,13 @@ ok("public controls keep visible focus and mobile-sized primary actions",
    ':where(a,button,input,textarea,select):focus-visible{outline:2px solid #5A4B7C' in after.get("index.html", "") and
    '#s-home [data-m="btnrow"] a,#bc-door button[type="submit"]{min-height:44px' in after.get("index.html", "") and
    '#A5A198' not in after.get("index.html", ""))
+ok("public small print remains readable without losing its quiet hierarchy",
+   'font-size:13px;line-height:1.7;color:#75726A;white-space:nowrap;">Beings Club is where curiosity connects. Stay curious.' in home_html and
+   'font-size:12px;letter-spacing:.12em;color:#75726A;">est. 2025' in home_html and
+   'font-size:12px;letter-spacing:.12em;color:#75726A;">for the benefit of all beings' in home_html and
+   '.bc-nav-link{position:relative;font-size:12px' in home_html and
+   '.events-footer{display:flex' in after.get(EVENT_PAGE, "") and
+   'font-size:12px;font-weight:600' in after.get(EVENT_PAGE, ""))
 ok("public pages share a restrained reduced-motion-safe transition language",
    '--bc-ease-out:cubic-bezier(.22,1,.36,1)' in after.get("index.html", "") and
    'transform:translateY(8px) scale(.997)' in after.get("index.html", "") and
@@ -529,6 +537,12 @@ ok("member landing is Salon-first in the supplied dashboard language",
    'guided curiosity practice' in login_html and 'data-rsvp="in"' in login_html and
    'data-rsvp="not_this_time"' in login_html and 'id="calendar-link"' in login_html and
    'id="member-host-link"' in login_html)
+ok("member interfaces keep a readable type floor and enlarged primary actions",
+   '/* Accessible type floor.' in members_after.get("members/app.css", "") and
+   '.body-copy,.aside,.status,.host-section-body>p' in members_after.get("members/app.css", "") and
+   '.prospect-days button,.prospect-days span{font-size:14px}' in members_after.get("members/app.css", "") and
+   'min-height:44px;display:inline-flex;align-items:center;justify-content:center' in members_after.get("members/app.css", "") and
+   '.member-feedback-signoff{color:var(--soft)}' in members_after.get("members/app.css", ""))
 ok("next Salon time explicitly switches between local and UK time",
    'id="time-local"' in login_html and '>your local time</button>' in login_html and
    'id="time-uk"' in login_html and '>UK time</button>' in login_html and
@@ -1002,7 +1016,7 @@ ok("sitemap lists every public canonical page", listed_urls == public_urls,
    "missing or extra: " + ", ".join(sorted(public_urls ^ listed_urls)))
 dated_urls = dict(re.findall(r"<url><loc>(https://[^<]+)</loc><lastmod>(\d{4}-\d{2}-\d{2})</lastmod></url>", sitemap))
 ok("sitemap gives every public page an accurate freshness signal",
-   set(dated_urls) == public_urls and all(date <= '2026-09-03' for date in dated_urls.values()))
+   set(dated_urls) == public_urls and all(value <= date.today().isoformat() for value in dated_urls.values()))
 for archive in ["archive-refined.html", "archive-v4-dark-plates.html"]:
     archive_html = io.open(os.path.join(ROOT, archive), encoding="utf-8").read()
     ok(archive + ": excluded from search", '<meta name="robots" content="noindex,follow">' in archive_html)

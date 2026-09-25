@@ -177,12 +177,12 @@ def convert(body, key):
 
         # Stable anchors let old public URLs arrive at the relevant part of the
         # single landing page without recreating a public programme map.
-        body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>',
-                            '<h2 id="about" style="margin:0;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</h2>', 1)
-        body = body.replace('<span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>',
-                            '<span id="salon" style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>', 1)
-        body = body.replace('<div style="display:grid;gap:24px;">\n        <span style="font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>',
-                            '<div id="membership" style="display:grid;gap:24px;">\n        <h2 style="margin:0;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</h2>', 1)
+        body = body.replace('<span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>',
+                            '<h2 id="about" style="margin:0;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</h2>', 1)
+        body = body.replace('<span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>',
+                            '<span id="salon" style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>', 1)
+        body = body.replace('<div style="display:grid;gap:24px;">\n        <span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>',
+                            '<div id="membership" style="display:grid;gap:24px;">\n        <h2 style="margin:0;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</h2>', 1)
 
         # A personal letter lets the public threshold feel held by a real
         # person without turning John into a conventional credentials block.
@@ -616,7 +616,7 @@ CSS = """
   .bc-nav-mark span{display:block;width:clamp(70px,10vw,94px);aspect-ratio:1544/665;
     background:url('/assets/beings-logo-outline.svg') center/contain no-repeat;line-height:0;}
   .bc-site-map{display:flex;align-items:center;gap:clamp(12px,2vw,22px);margin-left:auto;}
-  .bc-nav-link{position:relative;font-size:11px;font-weight:600;letter-spacing:.16em;
+  .bc-nav-link{position:relative;font-size:12px;font-weight:600;letter-spacing:.14em;
     text-transform:uppercase;color:#75726A;white-space:nowrap;}
   .bc-nav-link[aria-current]{color:#171916;}
   .bc-nav-link[aria-current]::after{content:"";position:absolute;left:0;right:.16em;bottom:-7px;
@@ -629,7 +629,7 @@ CSS = """
   .bc-host-note{padding:clamp(36px,6vh,60px) clamp(24px,5vw,56px);border-bottom:1px solid rgba(38,34,26,.10);
     background:#F8F6F1;display:grid;grid-template-columns:minmax(12rem,.72fr) minmax(0,1.7fr);gap:28px 48px;}
   .bc-host-note > div:first-child{display:grid;gap:10px;align-content:start;}
-  .bc-eyebrow{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#75726A;}
+  .bc-eyebrow{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#75726A;}
   .bc-host-note h2{margin:0;max-width:12ch;font-size:clamp(24px,3.4vw,32px);font-weight:600;
     line-height:1.2;letter-spacing:-.025em;text-wrap:pretty;}
   .bc-host-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(38,34,26,.10);}
@@ -700,9 +700,9 @@ CSS = """
   .bc-john-aside{float:right;display:grid;gap:20px;width:240px;margin:0 0 18px clamp(48px,8vw,128px);}
   .bc-john-portrait{margin:0;display:grid;gap:10px;}
   .bc-john-portrait img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#171916;}
-  .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;
+  .bc-john-portrait figcaption{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;
     line-height:1.5;letter-spacing:.12em;color:#75726A;}
-  .bc-john-letter-label{display:block;margin:0 0 18px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C;}
+  .bc-john-letter-label{display:block;margin:0 0 18px;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;}
   .bc-john-letter-words{display:block;}
   .bc-john-letter-words p{margin:0 0 15px;font-size:15px;line-height:1.76;color:#4A473F;}
   .bc-john-letter-words p:last-child{margin-bottom:0;}
@@ -712,14 +712,14 @@ CSS = """
   .bc-john-links{display:grid;border-top:1px solid #E7E4DB;}
   .bc-john-practical-link{display:grid;gap:4px;padding:12px 0;border-bottom:1px solid #E7E4DB;color:#171916;text-decoration:none;}
   .bc-john-practical-link span{font-size:12px;font-weight:650;line-height:1.4;}
-  .bc-john-practical-link small{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;line-height:1.5;
+  .bc-john-practical-link small{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;line-height:1.5;
     letter-spacing:.1em;color:#75726A;}
   .bc-john-practical-link:hover span,.bc-john-practical-link:focus-visible span{color:#5A4B7C;}
   .bc-john-socials{display:grid;gap:8px;padding-top:13px;}
-  .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9px;letter-spacing:.16em;
+  .bc-john-socials>span{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.14em;
     text-transform:uppercase;color:#75726A;}
   .bc-john-socials>div{display:flex;flex-wrap:wrap;gap:6px 12px;}
-  .bc-john-socials a{font-size:10px;color:#6F6961;text-decoration:none;border-bottom:1px solid #D8D4CA;}
+  .bc-john-socials a{font-size:13px;color:#6F6961;text-decoration:none;border-bottom:1px solid #D8D4CA;}
   .bc-john-socials a:hover,.bc-john-socials a:focus-visible{color:#5A4B7C;border-color:#5A4B7C;}
   #s-home #bc-logo [data-ring]{transition:stroke-width .3s cubic-bezier(.22,1,.36,1);animation:bc-app-ring-current 8s ease-in-out infinite!important;}
   #s-home #bc-logo [data-ring="16"]{animation-delay:.55s!important;}
@@ -778,7 +778,7 @@ CSS = """
   .bc-ribbon-card:nth-child(3) img{object-position:center 56%;}
   .bc-ribbon-card:nth-child(4) img{object-position:center 43%;}
   .bc-ribbon-card span{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;padding:4px 6px;
-    background:rgba(23,25,22,.82);color:#FDFCF9;font-size:9px;font-weight:700;line-height:1.15;
+    background:rgba(23,25,22,.82);color:#FDFCF9;font-size:11px;font-weight:700;line-height:1.25;
     letter-spacing:.12em;text-transform:uppercase;text-align:center;opacity:0;transform:translateY(5px);
     transition:opacity 220ms ease,transform 320ms cubic-bezier(.22,1,.36,1);}
   .bc-ribbon-card:hover img,.bc-ribbon-card:focus-visible img{transform:scale(1.075);filter:saturate(1.06) contrast(1);}
@@ -930,7 +930,7 @@ CSS = """
     [data-splitcopy]{padding:32px 24px!important;}
     .bc-site-nav{gap:14px;padding:15px 24px;}
     .bc-site-map{gap:12px;}
-    .bc-nav-link{font-size:10px;letter-spacing:.11em;}
+    .bc-nav-link{font-size:12px;letter-spacing:.09em;}
     .bc-nav-link[aria-current]::after{right:.11em;bottom:-6px;}
     .bc-host-note{grid-template-columns:1fr;}
     .bc-host-note h2{max-width:18ch;}
@@ -969,9 +969,9 @@ CSS = """
   /* landing page on a phone: doors on one line, footer on one row */
   @media (max-width:36rem){
     .bc-the{display:none;}
-    [data-door]{padding:20px 8px!important;font-size:11px!important;letter-spacing:0.12em!important;}
+    [data-door]{padding:20px 8px!important;font-size:12px!important;letter-spacing:0.1em!important;}
     [data-homefoot="1"]{padding:12px 20px!important;gap:10px!important;}
-    [data-homefoot="1"] span,[data-homefoot="1"] a{font-size:10px!important;letter-spacing:0.1em!important;white-space:nowrap;}
+    [data-homefoot="1"] span,[data-homefoot="1"] a{font-size:12px!important;letter-spacing:0.08em!important;white-space:nowrap;}
     [data-homefoot="1"] > div{gap:12px!important;}
   }
 
@@ -1693,10 +1693,10 @@ def events_page():
   .events-nav{{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 0 18px;border-bottom:1px solid #E7E4DB}}
   .events-mark{{display:block;width:clamp(82px,9vw,112px);aspect-ratio:1544/665;background:url('/assets/beings-logo-outline.svg') center/contain no-repeat}}
   .events-links{{display:flex;align-items:center;gap:clamp(18px,3vw,34px)}}
-  .events-links a{{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:lowercase;color:#75726A;transition:color .18s ease,transform .34s cubic-bezier(.22,1,.36,1)}}
+  .events-links a{{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:lowercase;color:#75726A;transition:color .18s ease,transform .34s cubic-bezier(.22,1,.36,1)}}
   .events-links a:hover,.events-links a:focus-visible{{color:#5A4B7C;transform:translateY(-2px)}}
   .events-intro{{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.5fr);gap:28px 72px;align-items:end;padding:clamp(58px,8vw,104px) 0 clamp(38px,5vw,62px)}}
-  .events-eyebrow{{display:block;margin-bottom:20px;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:#5A4B7C}}
+  .events-eyebrow{{display:block;margin-bottom:20px;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C}}
   h1{{margin:0;font-size:clamp(54px,8vw,112px);font-weight:600;line-height:.88;letter-spacing:-.065em}}
   h1 strong{{color:#5A4B7C;font-weight:600}}
   .events-intro p{{margin:0 0 4px;max-width:29ch;font-size:clamp(18px,2vw,24px);line-height:1.5;color:#57534B}}
@@ -1707,7 +1707,7 @@ def events_page():
   .events-frame.has-focus{{border:3px solid #5A4B7C}}
   .events-fallback{{margin:18px 2px 0;font-size:12px;line-height:1.6;color:#75726A}}
   .events-fallback a{{color:#5A4B7C;text-decoration:underline;text-underline-offset:4px}}
-  .events-footer{{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:54px;padding-top:18px;border-top:1px solid #E7E4DB;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#75726A}}
+  .events-footer{{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:54px;padding-top:18px;border-top:1px solid #E7E4DB;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#75726A}}
   @media (max-width:720px){{
     .events-shell{{padding-inline:18px}}
     .events-nav{{padding-top:18px}}
