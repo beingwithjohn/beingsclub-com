@@ -736,13 +736,16 @@ CSS = """
   @media (max-width:720px){
     #s-home [data-m="clock"]{right:22px!important;}
     #s-home [data-m="vh"]{height:auto!important;min-height:100svh;display:flow-root;}
-    #s-home [data-m="hero"]{position:relative!important;left:0!important;top:0!important;transform:none!important;max-width:none!important;margin:13vh 22px 60px!important;}
-    #s-home [data-m="hero"] h1{font-size:36px!important;}
+    #s-home [data-m="hero"]{position:relative!important;left:0!important;top:0!important;transform:none!important;width:auto!important;max-width:none!important;min-width:0;grid-template-columns:minmax(0,1fr);margin:13vh 22px 96px!important;}
+    #s-home [data-m="hero"]>*{min-width:0;max-width:100%;}
+    #s-home [data-m="hero"] h1{font-size:36px!important;overflow-wrap:anywhere;}
     #s-home [data-m="sub"]{white-space:normal!important;font-size:16px!important;}
-    #s-home [data-m="btnrow"]{flex-wrap:wrap!important;}
+    #s-home [data-m="btnrow"]{width:100%;max-width:100%;flex-wrap:wrap!important;}
     #s-home [data-m="noteslot"]{min-height:0!important;}
-    #s-home [data-m="notecard"]{position:static!important;}
+    #s-home [data-m="notecard"]{position:static!important;width:100%;max-width:100%;grid-template-columns:minmax(0,1fr);}
+    #s-home [data-m="notecard"]>span{max-width:100%;white-space:normal!important;line-height:1.6!important;}
     #s-home #bc-logo{display:none!important;}
+    #s-home [data-m="meta"]{left:22px!important;right:22px!important;bottom:24px!important;}
     #s-home [data-m="below"]{padding:40px 22px 100px!important;}
     #s-home [data-m="pop"]{left:20px!important;max-width:calc(100vw - 40px);}
     #s-home .bc-app-note-fields{grid-template-columns:1fr!important;}
@@ -753,7 +756,7 @@ CSS = """
     #s-home [data-m="hero"]{margin-left:18px!important;margin-right:18px!important;}
     #s-home [data-m="hero"] h1{font-size:clamp(30px,10vw,34px)!important;overflow-wrap:anywhere;}
     #s-home [data-m="sub"]{width:100%;max-width:100%!important;font-size:15px!important;overflow-wrap:anywhere;}
-    #s-home [data-m="notecard"]>span{max-width:100%;white-space:normal!important;line-height:1.6!important;}
+    #s-home [data-m="meta"]{left:18px!important;right:18px!important;}
     #s-home [data-m="below"]{padding-left:18px!important;padding-right:18px!important;}
   }
 

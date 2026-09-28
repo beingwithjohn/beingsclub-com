@@ -173,13 +173,16 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
   @media (max-width:720px){
     #s-home [data-m="clock"]{right:22px!important;}
     #s-home [data-m="vh"]{height:auto!important;min-height:100svh;display:flow-root;}
-    #s-home [data-m="hero"]{position:relative!important;left:0!important;top:0!important;transform:none!important;max-width:none!important;margin:13vh 22px 60px!important;}
-    #s-home [data-m="hero"] h1{font-size:36px!important;}
+    #s-home [data-m="hero"]{position:relative!important;left:0!important;top:0!important;transform:none!important;width:auto!important;max-width:none!important;min-width:0;grid-template-columns:minmax(0,1fr);margin:13vh 22px 96px!important;}
+    #s-home [data-m="hero"]>*{min-width:0;max-width:100%;}
+    #s-home [data-m="hero"] h1{font-size:36px!important;overflow-wrap:anywhere;}
     #s-home [data-m="sub"]{white-space:normal!important;font-size:16px!important;}
-    #s-home [data-m="btnrow"]{flex-wrap:wrap!important;}
+    #s-home [data-m="btnrow"]{width:100%;max-width:100%;flex-wrap:wrap!important;}
     #s-home [data-m="noteslot"]{min-height:0!important;}
-    #s-home [data-m="notecard"]{position:static!important;}
+    #s-home [data-m="notecard"]{position:static!important;width:100%;max-width:100%;grid-template-columns:minmax(0,1fr);}
+    #s-home [data-m="notecard"]>span{max-width:100%;white-space:normal!important;line-height:1.6!important;}
     #s-home #bc-logo{display:none!important;}
+    #s-home [data-m="meta"]{left:22px!important;right:22px!important;bottom:24px!important;}
     #s-home [data-m="below"]{padding:40px 22px 100px!important;}
     #s-home [data-m="pop"]{left:20px!important;max-width:calc(100vw - 40px);}
     #s-home .bc-app-note-fields{grid-template-columns:1fr!important;}
@@ -190,7 +193,7 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     #s-home [data-m="hero"]{margin-left:18px!important;margin-right:18px!important;}
     #s-home [data-m="hero"] h1{font-size:clamp(30px,10vw,34px)!important;overflow-wrap:anywhere;}
     #s-home [data-m="sub"]{width:100%;max-width:100%!important;font-size:15px!important;overflow-wrap:anywhere;}
-    #s-home [data-m="notecard"]>span{max-width:100%;white-space:normal!important;line-height:1.6!important;}
+    #s-home [data-m="meta"]{left:18px!important;right:18px!important;}
     #s-home [data-m="below"]{padding-left:18px!important;padding-right:18px!important;}
   }
 
@@ -513,8 +516,10 @@ try{var d=document.documentElement,m=/(?:^|[?&])motion=(breath|pulse|ripple|drif
     </div>
 
     <div id="bc-logo" aria-label="Beings Club" style="position:absolute;right:9%;top:50%;transform:translateY(-50%);width:min(300px,22vw);opacity:.9;"><img src="/assets/beings-logo-outline.svg" alt="Beings Club" style="width:100%;height:auto;"></div>
-    <span style="position:absolute;left:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.12em;color:#75726A;">est. 2025</span>
-    <span style="position:absolute;right:10%;bottom:30px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.12em;color:#75726A;">for the benefit of all beings</span>
+    <div data-m="meta" style="position:absolute;left:10%;right:10%;bottom:30px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 24px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.12em;color:#75726A;">
+      <span>est. 2025</span>
+      <span>for the benefit of all beings</span>
+    </div>
 
     <div data-m="pop" data-word-pop="1" hidden style="position:fixed;transform:translate(14px,18px);z-index:20;pointer-events:none;width:300px;background:#FDFCF9;border:1px solid #DAD6CB;box-shadow:0 8px 28px rgba(23,25,22,.12);padding:18px 20px;display:grid;gap:8px;animation:bc-app-appear .2s cubic-bezier(.22,1,.36,1) both;">
       <span style="font-size:14px;font-weight:600;color:#171916;">realisationhouse <span style="font-weight:400;color:#75726A;font-size:12px;">[rɪəlaɪˈzeɪʃᵊnhaʊs]</span> <em style="font-weight:600;color:#5A4B7C;font-size:12px;">n.</em></span>

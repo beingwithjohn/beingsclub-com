@@ -247,8 +247,10 @@ ok("public controls keep visible focus and mobile-sized primary actions",
    '#A5A198' not in after.get("index.html", ""))
 ok("public small print remains readable without losing its quiet hierarchy",
    'font-size:13px;line-height:1.7;color:#75726A;white-space:nowrap;">Beings Club is where curiosity connects. Stay curious.' in home_html and
-   'font-size:12px;letter-spacing:.12em;color:#75726A;">est. 2025' in home_html and
-   'font-size:12px;letter-spacing:.12em;color:#75726A;">for the benefit of all beings' in home_html and
+   'data-m="meta"' in home_html and
+   'font-size:12px;letter-spacing:.12em;color:#75726A;">\n      <span>est. 2025</span>' in home_html and
+   '<span>for the benefit of all beings</span>' in home_html and
+   'grid-template-columns:minmax(0,1fr)' in home_html and
    '.bc-nav-link{position:relative;font-size:12px' in home_html and
    '.events-footer{display:flex' in after.get(EVENT_PAGE, "") and
    'font-size:12px;font-weight:600' in after.get(EVENT_PAGE, ""))
