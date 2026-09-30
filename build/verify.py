@@ -555,6 +555,13 @@ ok("Field Notes are grouped by Salon and cannot become a response feed",
    'data-member-view="field-notes"' in login_html and
    'There are no responses, reactions or comments' in login_html and
    'Nobody can respond.' in login_html)
+ok("Field Notes show signed profile portraits and collect private postable marks",
+   'field-note-author-portrait' in members_after.get("members/app.css", "") and
+   "fieldNoteAuthor(note)" in members_after.get("members/app.js", "") and
+   "'postable?'" in members_after.get("members/app.js", "") and
+   'If enough beings deem a Field Note postable, we may post it to Instagram or X.' in members_after.get("members/app.js", "") and
+   '/api/club/field-notes/${note.id}/postable' in members_after.get("members/app.js", "") and
+   'host-note-postable-count' in members_after.get("members/host.js", ""))
 ok("member Giving integrates financial support and one quiet testimonial each month",
    'data-member-view="giving"' in login_html and 'id="testimonial-form"' in login_html and
    'id="financial-giving-form"' in login_html and 'id="member-give"' in login_html and
@@ -691,9 +698,20 @@ ok("leaving lets members decide what happens to existing Field Notes",
 field_notes_api = io.open(os.path.join(ROOT, "practice-log", "src", "club", "field-notes.js"),
                           encoding="utf-8").read()
 ok("anonymous Field Notes remain attributable only through host tools",
-   'anonymous && !host ? null' in field_notes_api and
+   'const hideIdentity = anonymous && !host' in field_notes_api and
+   'authorId: hideIdentity ? null : row.member_id' in field_notes_api and
+   'authorHasImage: !hideIdentity && !!row.profile_image' in field_notes_api and
    'anonymousToMembers: anonymous && host' in field_notes_api and
    'member_id = ?2' in field_notes_api)
+ok("postable marks are private, unique and aggregated only for host tools",
+   os.path.exists(os.path.join(ROOT, "practice-log/members-migrations/0028_field_note_postable_votes.sql")) and
+   'PRIMARY KEY (field_note_id, member_id)' in open(
+       os.path.join(ROOT, "practice-log/members-migrations/0028_field_note_postable_votes.sql"),
+       encoding="utf-8").read() and
+   'ON CONFLICT(field_note_id, member_id) DO UPDATE' in field_notes_api and
+   'postableByMe: !!row.postable_by_viewer' in field_notes_api and
+   'postableCount: Number(row.postable_count || 0)' in field_notes_api and
+   'host-note-postable-count' in members_after.get("members/host.js", ""))
 ok("post-Salon Field Note invitations are essential for active members",
    'm.paused_at IS NULL' in field_notes_api and
    'member_email_pref' not in field_notes_api and

@@ -720,6 +720,15 @@
     } catch (_) { image.remove(); }
   }
 
+  async function loadHostProfileImage(note, image) {
+    if (previewMode) { image.src = '/assets/img/john-letter.jpeg'; return; }
+    try {
+      const version = note.authorImageVersion ? `?v=${encodeURIComponent(note.authorImageVersion)}` : '';
+      const blob = await callBlob(`/api/club/members/${note.authorId}/image${version}`);
+      const url = URL.createObjectURL(blob); imageObjectUrls.add(url); image.src = url;
+    } catch (_) { image.remove(); }
+  }
+
   async function loadHostPostAdminImage(post, image) {
     if (previewMode) {
       if (post.previewImage) image.src = post.previewImage;
@@ -811,7 +820,19 @@
         const card = document.createElement('article'); card.className = 'host-field-note-card';
         const identity = note.anonymousToMembers
           ? `${note.author} · anonymous to members` : note.author;
-        card.append(text('span', 'host-note-identity', identity));
+        const head = document.createElement('div'); head.className = 'host-note-head';
+        if (note.authorHasImage && note.authorId) {
+          const portrait = document.createElement('img'); portrait.className = 'host-note-avatar';
+          portrait.alt = `${note.author || 'A being'}’s profile image`;
+          head.append(portrait); loadHostProfileImage(note, portrait);
+        }
+        head.append(text('span', 'host-note-identity', identity));
+        const postableCount = Number(note.postableCount || 0);
+        head.append(text(
+          'span', 'host-note-postable-count',
+          `postable · ${postableCount} ${postableCount === 1 ? 'check' : 'checks'}`,
+        ));
+        card.append(head);
         if (note.hasImage) {
           const image = document.createElement('img'); image.alt = note.imageAlt || '';
           card.append(image); loadHostImage(note, image);
@@ -1728,7 +1749,7 @@
         ],
         groups: [{
           salonId: 9, salonStartsAt: '2026-07-30T18:00:00.000Z', notes: [
-            { id: 7, body: 'The line I kept: attention is already a form of relationship.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: true, author: 'John', anonymousToMembers: true },
+            { id: 7, body: 'The line I kept: attention is already a form of relationship.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: true, author: 'John', authorId: 1, authorHasImage: true, authorImageVersion: 'preview', anonymousToMembers: true, postableCount: 4 },
           ],
         }],
       });

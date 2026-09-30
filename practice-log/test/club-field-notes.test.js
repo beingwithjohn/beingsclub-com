@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   inviteFieldNoteAttendees, parseFieldNote, parseHostFieldPost, parseImageData,
+  setFieldNotePostable,
 } from '../src/club/field-notes.js';
 
 test('a Field Note may contain words, a secure link, an image, or a combination', () => {
@@ -46,6 +47,35 @@ test('host posts distinguish announcements from signed host Field Notes', () => 
   assert.equal(parseHostFieldPost({ kind: 'notice', body: 'Hello' }).error, 'kind');
   assert.equal(parseHostFieldPost({ kind: 'announcement', title: 'Only a title' }).ok, true);
   assert.equal(parseHostFieldPost({ kind: 'announcement', title: 'x'.repeat(121), body: 'Hello' }).error, 'title too long');
+});
+
+test('a member may add or remove one private postable mark', async () => {
+  const writes = [];
+  const env = {
+    MEMBERS: {
+      prepare(sql) {
+        return {
+          args: [],
+          bind(...args) { this.args = args; return this; },
+          async first() {
+            if (/COUNT\(\*\)/.test(sql)) return { n: 3 };
+            if (/SELECT id FROM field_note/.test(sql)) return { id: 8 };
+            return null;
+          },
+          async run() { writes.push({ sql, args: this.args }); return { meta: { changes: 1 } }; },
+        };
+      },
+    },
+  };
+  const added = await setFieldNotePostable(env, { id: 4 }, 8, { postable: true }, 1000);
+  assert.deepEqual(await added.json(), { ok: true, postable: true, count: 3 });
+  assert.match(writes[0].sql, /ON CONFLICT\(field_note_id, member_id\)/);
+  assert.deepEqual(writes[0].args, [8, 4, 1000]);
+
+  const removed = await setFieldNotePostable(env, { id: 4 }, 8, { postable: false }, 1001);
+  assert.deepEqual(await removed.json(), { ok: true, postable: false, count: 3 });
+  assert.match(writes[1].sql, /DELETE FROM field_note_postable_vote/);
+  assert.deepEqual(writes[1].args, [8, 4]);
 });
 
 test('an attended Salon always sends its one Field Note invitation to an active member', async () => {

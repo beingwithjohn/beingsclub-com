@@ -980,6 +980,65 @@
     composer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  function fieldNoteAuthor(note) {
+    if (note.isAnonymous) return makeText('span', 'field-note-anonymous', 'shared anonymously');
+    const author = document.createElement('span'); author.className = 'field-note-author';
+    const portrait = document.createElement('span'); portrait.className = 'field-note-author-portrait';
+    const fallback = document.createElement('span');
+    applyAvatarFallback(fallback, { id: note.authorId, name: note.author });
+    const image = document.createElement('img'); image.hidden = true;
+    image.alt = `${note.author || 'A being'}’s profile image`;
+    portrait.append(fallback, image);
+    if (note.authorHasImage && note.authorId) {
+      loadMemberImage({
+        id: note.authorId, name: note.author, hasImage: true,
+        imageVersion: note.authorImageVersion, previewImage: note.authorPreviewImage,
+      }, image, fallback);
+    }
+    author.append(portrait, makeText('span', '', note.author || 'A being'));
+    return author;
+  }
+
+  async function setPostable(note, checkbox) {
+    const before = !!note.postableByMe;
+    const next = checkbox.checked;
+    checkbox.disabled = true;
+    note.postableByMe = next;
+    try {
+      if (previewMode) {
+        note.postableCount = Math.max(0, Number(note.postableCount || 0) + (next ? 1 : -1));
+      } else {
+        const result = await call(`/api/club/field-notes/${note.id}/postable`, {
+          method: 'POST', body: JSON.stringify({ postable: next }),
+        });
+        note.postableByMe = !!result.postable;
+        note.postableCount = Number(result.count || 0);
+      }
+      checkbox.checked = note.postableByMe;
+    } catch (_) {
+      note.postableByMe = before;
+      checkbox.checked = before;
+      document.getElementById('field-note-status').textContent = 'That mark could not be saved. Try again.';
+    } finally { checkbox.disabled = false; }
+  }
+
+  function fieldNotePostableControl(note) {
+    const label = document.createElement('label'); label.className = 'field-note-postable';
+    const checkbox = document.createElement('input'); checkbox.type = 'checkbox';
+    checkbox.checked = !!note.postableByMe;
+    checkbox.setAttribute('aria-label', 'Mark this Field Note as postable');
+    const word = makeText('span', 'field-note-postable-word', 'postable?'); word.tabIndex = 0;
+    const tip = makeText(
+      'span', 'field-note-postable-tip',
+      'If enough beings deem a Field Note postable, we may post it to Instagram or X.',
+    );
+    tip.id = `field-note-postable-tip-${note.id}`; tip.setAttribute('role', 'tooltip');
+    word.setAttribute('aria-describedby', tip.id);
+    checkbox.addEventListener('change', () => setPostable(note, checkbox));
+    label.append(checkbox, word, tip);
+    return label;
+  }
+
   function renderFieldNotes() {
     for (const url of imageObjectUrls) URL.revokeObjectURL(url);
     imageObjectUrls.clear();
@@ -1039,8 +1098,9 @@
           article.append(link);
         }
         const foot = document.createElement('footer'); foot.className = 'field-note-card-foot';
-        foot.append(makeText('span', '', note.isAnonymous ? 'shared anonymously' : (note.author || 'A being')));
+        foot.append(fieldNoteAuthor(note));
         if (note.editedAt) foot.append(makeText('span', '', 'edited'));
+        if (!note.isHostPost) foot.append(fieldNotePostableControl(note));
         if (note.isMine) {
           const actions = document.createElement('span'); actions.className = 'field-note-own-actions';
           const edit = makeText('button', '', 'edit'); edit.type = 'button'; edit.addEventListener('click', () => beginEdit(note));
@@ -3029,9 +3089,9 @@
         groups: [
           {
             salonId: 1, salonStartsAt: '2026-07-30T18:00:00.000Z', notes: [
-              { id: 1, body: 'I noticed how quickly an ordinary question became a different kind of attention.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: false, author: 'Mira', isMine: false, publishedAt: '2026-07-31T10:00:00.000Z', editedAt: null },
-              { id: 2, body: 'What if uncertainty is less a problem to solve than somewhere to meet?', linkUrl: 'https://en.wikipedia.org/wiki/Negative_capability', hasImage: false, imageAlt: null, isAnonymous: true, author: null, isMine: false, publishedAt: '2026-07-31T12:00:00.000Z', editedAt: null },
-              { id: 3, body: 'The line I kept: attention is already a form of relationship.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: false, author: 'John', isMine: true, publishedAt: '2026-08-01T09:00:00.000Z', editedAt: null },
+              { id: 1, body: 'I noticed how quickly an ordinary question became a different kind of attention.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: false, author: 'Mira', authorId: 2, authorHasImage: false, isMine: false, postableByMe: true, postableCount: 3, publishedAt: '2026-07-31T10:00:00.000Z', editedAt: null },
+              { id: 2, body: 'What if uncertainty is less a problem to solve than somewhere to meet?', linkUrl: 'https://en.wikipedia.org/wiki/Negative_capability', hasImage: false, imageAlt: null, isAnonymous: true, author: null, authorId: null, authorHasImage: false, isMine: false, postableByMe: false, postableCount: 1, publishedAt: '2026-07-31T12:00:00.000Z', editedAt: null },
+              { id: 3, body: 'The line I kept: attention is already a form of relationship.', linkUrl: null, hasImage: false, imageAlt: null, isAnonymous: false, author: 'John', authorId: 1, authorHasImage: true, authorPreviewImage: '/assets/img/john-letter.jpeg', isMine: true, postableByMe: false, postableCount: 2, publishedAt: '2026-08-01T09:00:00.000Z', editedAt: null },
             ],
           },
           {

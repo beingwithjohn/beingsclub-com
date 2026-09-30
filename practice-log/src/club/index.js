@@ -11,7 +11,8 @@ import {
 import {
   createFieldNote, createHostFieldPost, dismissFieldNoteInvitation, getFieldNoteImage,
   getHostFieldPostImage, getHostFieldNotes, getMemberFieldNotes, hostRemoveFieldNote,
-  inviteFieldNoteAttendees, removeHostFieldPost, removeOwnFieldNote, updateFieldNote,
+  inviteFieldNoteAttendees, removeHostFieldPost, removeOwnFieldNote, setFieldNotePostable,
+  updateFieldNote,
 } from './field-notes.js';
 import {
   createTestimonial, getHostTestimonials, getMemberGiving, resolveTestimonial,
@@ -172,6 +173,12 @@ export async function clubRoute(request, env, ctx, url) {
     return updateFieldNote(env, who, Number(fieldNote[1]), await readJson(request));
   }
   if (fieldNote && method === 'DELETE') return removeOwnFieldNote(env, who, Number(fieldNote[1]));
+  const fieldNotePostable = /^\/api\/club\/field-notes\/(\d+)\/postable$/.exec(path);
+  if (fieldNotePostable && method === 'POST') {
+    return setFieldNotePostable(
+      env, who, Number(fieldNotePostable[1]), await readJson(request),
+    );
+  }
   const dismissFieldNote = /^\/api\/club\/field-note-invitations\/(\d+)\/dismiss$/.exec(path);
   if (dismissFieldNote && method === 'POST') {
     return dismissFieldNoteInvitation(env, who, Number(dismissFieldNote[1]));

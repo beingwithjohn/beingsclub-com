@@ -23,7 +23,7 @@ export async function getMemberFieldNotes(env, who) {
         ORDER BY s.starts_at DESC LIMIT 1`,
     ).bind(id).first(),
     readHostPosts(env),
-    readNotes(env, false),
+    readNotes(env, false, id),
   ]);
   return json({
     prompt: prompt ? {
@@ -34,6 +34,33 @@ export async function getMemberFieldNotes(env, who) {
     hostPosts,
     groups: groupNotes(notes, id, false),
   });
+}
+
+export async function setFieldNotePostable(env, who, noteId, body, timestamp = now()) {
+  const id = memberId(who);
+  if (!positiveId(noteId)) return bad(404, 'not found');
+  if (typeof body?.postable !== 'boolean') return bad(400, 'postable');
+  const note = await env.MEMBERS.prepare(
+    'SELECT id FROM field_note WHERE id = ?1',
+  ).bind(noteId).first();
+  if (!note) return bad(404, 'not found');
+
+  if (body.postable) {
+    await env.MEMBERS.prepare(
+      `INSERT INTO field_note_postable_vote
+        (field_note_id, member_id, created_at, updated_at)
+       VALUES (?1, ?2, ?3, ?3)
+       ON CONFLICT(field_note_id, member_id) DO UPDATE SET updated_at = excluded.updated_at`,
+    ).bind(noteId, id, timestamp).run();
+  } else {
+    await env.MEMBERS.prepare(
+      'DELETE FROM field_note_postable_vote WHERE field_note_id = ?1 AND member_id = ?2',
+    ).bind(noteId, id).run();
+  }
+  const count = await env.MEMBERS.prepare(
+    'SELECT COUNT(*) AS n FROM field_note_postable_vote WHERE field_note_id = ?1',
+  ).bind(noteId).first();
+  return json({ ok: true, postable: body.postable, count: Number(count?.n || 0) });
 }
 
 export async function createFieldNote(env, who, body, timestamp = now()) {
@@ -363,20 +390,26 @@ export function parseImageData(value) {
   }
 }
 
-async function readNotes(env, host) {
+async function readNotes(env, host, viewerId = null) {
   const rows = await env.MEMBERS.prepare(
-    `SELECT n.*, s.starts_at, m.display_name
+    `SELECT n.*, s.starts_at, m.display_name, m.profile_image,
+            (SELECT COUNT(*) FROM field_note_postable_vote v
+              WHERE v.field_note_id = n.id) AS postable_count,
+            CASE WHEN ?1 IS NULL THEN 0 ELSE EXISTS(
+              SELECT 1 FROM field_note_postable_vote own
+               WHERE own.field_note_id = n.id AND own.member_id = ?1
+            ) END AS postable_by_viewer
       FROM field_note n
        JOIN salon s ON s.id = n.salon_id
        JOIN member m ON m.id = n.member_id
       ORDER BY s.starts_at DESC, n.published_at ASC, n.id ASC`,
-  ).all();
+  ).bind(viewerId).all();
   return (rows.results || []).map((row) => ({ ...row, host }));
 }
 
 async function readHostPosts(env) {
   const rows = await env.MEMBERS.prepare(
-    `SELECT p.*, m.display_name, s.starts_at AS salon_starts_at
+    `SELECT p.*, m.display_name, m.profile_image, s.starts_at AS salon_starts_at
        FROM host_field_post p
        JOIN member m ON m.id = p.author_member_id
        LEFT JOIN salon s ON s.id = p.salon_id
@@ -393,6 +426,9 @@ async function readHostPosts(env) {
     hasImage: !!row.image_key,
     imageAlt: row.image_alt,
     author: row.display_name || 'John',
+    authorId: row.author_member_id,
+    authorHasImage: !!row.profile_image,
+    authorImageVersion: profileImageVersion(row.profile_image),
     publishedAt: iso(row.published_at),
   }));
 }
@@ -406,6 +442,7 @@ function groupNotes(notes, viewerId, host) {
       groups.push(group);
     }
     const anonymous = !!row.is_anonymous;
+    const hideIdentity = anonymous && !host;
     group.notes.push({
       id: row.id,
       body: row.body,
@@ -413,14 +450,29 @@ function groupNotes(notes, viewerId, host) {
       hasImage: !!row.image_key,
       imageAlt: row.image_alt,
       isAnonymous: anonymous,
-      author: anonymous && !host ? null : (row.display_name || 'A being'),
+      author: hideIdentity ? null : (row.display_name || 'A being'),
+      authorId: hideIdentity ? null : row.member_id,
+      authorHasImage: !hideIdentity && !!row.profile_image,
+      authorImageVersion: hideIdentity ? '' : profileImageVersion(row.profile_image),
       anonymousToMembers: anonymous && host,
       isMine: Number(row.member_id) === Number(viewerId),
+      postableByMe: !!row.postable_by_viewer,
+      postableCount: Number(row.postable_count || 0),
       publishedAt: iso(row.published_at),
       editedAt: iso(row.edited_at),
     });
   }
   return groups;
+}
+
+function profileImageVersion(value) {
+  if (!value) return '';
+  let hash = 2166136261;
+  for (const character of String(value)) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
 }
 
 async function storeImage(env, memberIdValue, image) {
