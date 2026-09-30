@@ -1008,7 +1008,10 @@
       if (previewMode) {
         note.postableCount = Math.max(0, Number(note.postableCount || 0) + (next ? 1 : -1));
       } else {
-        const result = await call(`/api/club/field-notes/${note.id}/postable`, {
+        const route = note.isHostPost
+          ? `/api/club/host-field-posts/${note.id}/postable`
+          : `/api/club/field-notes/${note.id}/postable`;
+        const result = await call(route, {
           method: 'POST', body: JSON.stringify({ postable: next }),
         });
         note.postableByMe = !!result.postable;
@@ -1032,7 +1035,8 @@
       'span', 'field-note-postable-tip',
       'If enough beings deem a Field Note postable, we may post it to Instagram or X.',
     );
-    tip.id = `field-note-postable-tip-${note.id}`; tip.setAttribute('role', 'tooltip');
+    const source = note.isHostPost ? 'host' : 'member';
+    tip.id = `field-note-postable-tip-${source}-${note.id}`; tip.setAttribute('role', 'tooltip');
     word.setAttribute('aria-describedby', tip.id);
     checkbox.addEventListener('change', () => setPostable(note, checkbox));
     label.append(checkbox, word, tip);
@@ -1100,7 +1104,7 @@
         const foot = document.createElement('footer'); foot.className = 'field-note-card-foot';
         foot.append(fieldNoteAuthor(note));
         if (note.editedAt) foot.append(makeText('span', '', 'edited'));
-        if (!note.isHostPost) foot.append(fieldNotePostableControl(note));
+        foot.append(fieldNotePostableControl(note));
         if (note.isMine) {
           const actions = document.createElement('span'); actions.className = 'field-note-own-actions';
           const edit = makeText('button', '', 'edit'); edit.type = 'button'; edit.addEventListener('click', () => beginEdit(note));
@@ -3082,6 +3086,8 @@
             id: 40, kind: 'field_note', title: null,
             body: 'I keep thinking about what becomes possible when nobody has to arrive with an answer.',
             linkUrl: 'https://beingsclub.com/', hasImage: false, imageAlt: null, author: 'John',
+            authorId: 1, authorHasImage: true, authorImageVersion: 'preview',
+            authorPreviewImage: '/assets/img/john-letter.jpeg', postableByMe: false, postableCount: 2,
             salonId: 1, salonStartsAt: '2026-07-30T18:00:00.000Z',
             publishedAt: '2026-09-03T16:00:00.000Z',
           },

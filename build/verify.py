@@ -561,6 +561,7 @@ ok("Field Notes show signed profile portraits and collect private postable marks
    "'postable?'" in members_after.get("members/app.js", "") and
    'If enough beings deem a Field Note postable, we may post it to Instagram or X.' in members_after.get("members/app.js", "") and
    '/api/club/field-notes/${note.id}/postable' in members_after.get("members/app.js", "") and
+   '/api/club/host-field-posts/${note.id}/postable' in members_after.get("members/app.js", "") and
    'host-note-postable-count' in members_after.get("members/host.js", ""))
 ok("member Giving integrates financial support and one quiet testimonial each month",
    'data-member-view="giving"' in login_html and 'id="testimonial-form"' in login_html and
@@ -712,6 +713,14 @@ ok("postable marks are private, unique and aggregated only for host tools",
    'postableByMe: !!row.postable_by_viewer' in field_notes_api and
    'postableCount: Number(row.postable_count || 0)' in field_notes_api and
    'host-note-postable-count' in members_after.get("members/host.js", ""))
+ok("host Field Notes carry the host portrait and the same postable signal",
+   os.path.exists(os.path.join(ROOT, "practice-log/members-migrations/0029_host_field_post_postable_votes.sql")) and
+   'PRIMARY KEY (host_field_post_id, member_id)' in open(
+       os.path.join(ROOT, "practice-log/members-migrations/0029_host_field_post_postable_votes.sql"),
+       encoding="utf-8").read() and
+   'setHostFieldPostPostable' in field_notes_api and
+   'authorHasImage: !!row.profile_image' in field_notes_api and
+   'host-post-admin-meta' in members_after.get("members/host.js", ""))
 ok("post-Salon Field Note invitations are essential for active members",
    'm.paused_at IS NULL' in field_notes_api and
    'member_email_pref' not in field_notes_api and

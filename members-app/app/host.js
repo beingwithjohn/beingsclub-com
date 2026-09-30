@@ -766,6 +766,20 @@
         const link = text('a', '', 'open reference ↗'); link.href = post.linkUrl;
         link.target = '_blank'; link.rel = 'noopener noreferrer'; card.append(link);
       }
+      if (post.kind === 'field_note') {
+        const count = Number(post.postableCount || 0);
+        const meta = document.createElement('div'); meta.className = 'host-post-admin-meta';
+        if (post.authorHasImage && post.authorId) {
+          const portrait = document.createElement('img'); portrait.className = 'host-note-avatar';
+          portrait.alt = `${post.author || 'A being'}’s profile image`;
+          meta.append(portrait); loadHostProfileImage(post, portrait);
+        }
+        meta.append(
+          text('span', '', post.author || 'John'),
+          text('span', 'host-note-postable-count', `postable · ${count} ${count === 1 ? 'check' : 'checks'}`),
+        );
+        card.append(meta);
+      }
       listNode.append(card);
     });
   }
@@ -1738,6 +1752,7 @@
             id: 40, kind: 'field_note', title: null,
             body: 'I keep thinking about what becomes possible when nobody has to arrive with an answer.',
             linkUrl: 'https://beingsclub.com/', hasImage: false, imageAlt: null, author: 'John',
+            authorId: 1, authorHasImage: true, authorImageVersion: 'preview', postableCount: 2,
             salonId: 9, salonStartsAt: '2026-07-30T18:00:00.000Z',
             publishedAt: '2026-09-03T16:00:00.000Z',
           },

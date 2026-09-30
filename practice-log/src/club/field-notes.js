@@ -22,7 +22,7 @@ export async function getMemberFieldNotes(env, who) {
           )
         ORDER BY s.starts_at DESC LIMIT 1`,
     ).bind(id).first(),
-    readHostPosts(env),
+    readHostPosts(env, id),
     readNotes(env, false, id),
   ]);
   return json({
@@ -60,6 +60,33 @@ export async function setFieldNotePostable(env, who, noteId, body, timestamp = n
   const count = await env.MEMBERS.prepare(
     'SELECT COUNT(*) AS n FROM field_note_postable_vote WHERE field_note_id = ?1',
   ).bind(noteId).first();
+  return json({ ok: true, postable: body.postable, count: Number(count?.n || 0) });
+}
+
+export async function setHostFieldPostPostable(env, who, postId, body, timestamp = now()) {
+  const id = memberId(who);
+  if (!positiveId(postId)) return bad(404, 'not found');
+  if (typeof body?.postable !== 'boolean') return bad(400, 'postable');
+  const post = await env.MEMBERS.prepare(
+    "SELECT id FROM host_field_post WHERE id = ?1 AND kind = 'field_note'",
+  ).bind(postId).first();
+  if (!post) return bad(404, 'not found');
+
+  if (body.postable) {
+    await env.MEMBERS.prepare(
+      `INSERT INTO host_field_post_postable_vote
+        (host_field_post_id, member_id, created_at, updated_at)
+       VALUES (?1, ?2, ?3, ?3)
+       ON CONFLICT(host_field_post_id, member_id) DO UPDATE SET updated_at = excluded.updated_at`,
+    ).bind(postId, id, timestamp).run();
+  } else {
+    await env.MEMBERS.prepare(
+      'DELETE FROM host_field_post_postable_vote WHERE host_field_post_id = ?1 AND member_id = ?2',
+    ).bind(postId, id).run();
+  }
+  const count = await env.MEMBERS.prepare(
+    'SELECT COUNT(*) AS n FROM host_field_post_postable_vote WHERE host_field_post_id = ?1',
+  ).bind(postId).first();
   return json({ ok: true, postable: body.postable, count: Number(count?.n || 0) });
 }
 
@@ -407,14 +434,20 @@ async function readNotes(env, host, viewerId = null) {
   return (rows.results || []).map((row) => ({ ...row, host }));
 }
 
-async function readHostPosts(env) {
+async function readHostPosts(env, viewerId = null) {
   const rows = await env.MEMBERS.prepare(
-    `SELECT p.*, m.display_name, m.profile_image, s.starts_at AS salon_starts_at
+    `SELECT p.*, m.display_name, m.profile_image, s.starts_at AS salon_starts_at,
+            (SELECT COUNT(*) FROM host_field_post_postable_vote v
+              WHERE v.host_field_post_id = p.id) AS postable_count,
+            CASE WHEN ?1 IS NULL THEN 0 ELSE EXISTS(
+              SELECT 1 FROM host_field_post_postable_vote own
+               WHERE own.host_field_post_id = p.id AND own.member_id = ?1
+            ) END AS postable_by_viewer
        FROM host_field_post p
        JOIN member m ON m.id = p.author_member_id
        LEFT JOIN salon s ON s.id = p.salon_id
       ORDER BY p.published_at DESC, p.id DESC`,
-  ).all();
+  ).bind(viewerId).all();
   return (rows.results || []).map((row) => ({
     id: row.id,
     kind: row.kind,
@@ -429,6 +462,8 @@ async function readHostPosts(env) {
     authorId: row.author_member_id,
     authorHasImage: !!row.profile_image,
     authorImageVersion: profileImageVersion(row.profile_image),
+    postableByMe: !!row.postable_by_viewer,
+    postableCount: Number(row.postable_count || 0),
     publishedAt: iso(row.published_at),
   }));
 }

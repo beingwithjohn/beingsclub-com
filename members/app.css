@@ -623,6 +623,8 @@ button{cursor:pointer}
 .host-field-post-browser button:hover:not(:disabled),.host-field-post-browser button:focus-visible:not(:disabled){color:var(--ink);text-decoration:underline;text-underline-offset:4px}
 .host-field-post-browser button:disabled{color:#B8B2AA;cursor:default}
 .host-field-post-position{font:400 9px/1.35 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.08em;color:#8B857C}
+.host-post-admin-meta{display:flex;align-items:center;gap:9px 14px;flex-wrap:wrap;font:400 10px/1.45 ui-monospace,'SF Mono',Menlo,monospace;color:#6F6961}
+.host-post-admin-meta .host-note-postable-count{margin-left:auto}
 .field-note-composer{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(300px,1.28fr);gap:44px;padding:34px;border:1px solid #DAD6CB;background:#FCFBF8}
 .field-note-thanks{position:relative;display:grid;grid-template-columns:minmax(220px,.72fr) minmax(300px,1.28fr);gap:44px;padding:34px 76px 34px 34px;border:1px solid #DED7EA;background:#F8F4FF}
 .field-note-thanks[hidden]{display:none}
