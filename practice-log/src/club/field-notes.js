@@ -1,5 +1,5 @@
 import { bad, json } from '../api.js';
-import { sendFieldNoteInvitation } from '../mail/send.js';
+import { sendFieldNoteInvitation, sendFieldNoteReminder } from '../mail/send.js';
 import { issueMemberAccessLink } from './member-links.js';
 
 const BODY_MAX = 5000;
@@ -8,6 +8,7 @@ const ALT_MAX = 240;
 const URL_MAX = 2000;
 const IMAGE_MAX = 5 * 1024 * 1024;
 const IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+const TWO_DAYS = 2 * 24 * 60 * 60;
 
 export async function getMemberFieldNotes(env, who) {
   const id = memberId(who);
@@ -349,7 +350,7 @@ export async function inviteFieldNoteAttendees(env, who, salonId, body, ctx, tim
       timestamp,
     )));
     ctx.waitUntil(Promise.all(fresh.map(async (person) => {
-      const actionUrl = await issueMemberAccessLink(env, person.id, timestamp);
+      const actionUrl = await issueMemberAccessLink(env, person.id, timestamp, 'field-notes');
       return sendFieldNoteInvitation(env, {
         email: person.email,
         name: person.display_name,
@@ -359,6 +360,51 @@ export async function inviteFieldNoteAttendees(env, who, salonId, body, ctx, tim
     })));
   }
   return getHostFieldNotes(env, timestamp);
+}
+
+/**
+ * Once, two days after John opens a post-Salon invitation, remind an active
+ * attendee only while the invitation is still awaiting an answer. The send
+ * log owns idempotence and lets a delayed cron catch up without duplicates.
+ */
+export async function runFieldNoteReminders(env, timestamp = now()) {
+  if (!env.MEMBERS) return { sent: 0 };
+  const rows = await env.MEMBERS.prepare(
+    `SELECT a.salon_id, a.member_id, a.prompted_at, s.starts_at,
+            m.email, m.display_name
+       FROM salon_attendance a
+       JOIN salon s ON s.id = a.salon_id
+       JOIN member m ON m.id = a.member_id
+      WHERE a.prompted_at <= ?1 AND a.dismissed_at IS NULL
+        AND m.joined_at IS NOT NULL AND m.disabled_at IS NULL
+        AND m.left_at IS NULL AND m.paused_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM field_note n
+           WHERE n.salon_id = a.salon_id AND n.member_id = a.member_id
+        )
+      ORDER BY a.prompted_at, a.member_id`,
+  ).bind(timestamp - TWO_DAYS).all();
+
+  let sent = 0;
+  for (const person of rows.results || []) {
+    const claimed = await env.MEMBERS.prepare(
+      `INSERT INTO club_send_log (member_id, kind, scope, claimed_at)
+       VALUES (?1, 'field_note_reminder', ?2, ?3)
+       ON CONFLICT(member_id, kind, scope) DO NOTHING`,
+    ).bind(person.member_id, String(person.salon_id), timestamp).run();
+    if ((claimed.meta?.changes ?? 0) !== 1) continue;
+    const actionUrl = await issueMemberAccessLink(
+      env, person.member_id, timestamp, 'field-notes',
+    );
+    const delivered = await sendFieldNoteReminder(env, {
+      email: person.email,
+      name: person.display_name,
+      actionUrl,
+      idempotencyKey: `club-field-note-reminder-${person.salon_id}-${person.member_id}`,
+    });
+    if (delivered) sent += 1;
+  }
+  return { sent };
 }
 
 export async function hostRemoveFieldNote(env, noteId) {

@@ -3,6 +3,7 @@ import { sendClubSalonEmail, sendClubSalonRsvpEmail } from '../mail/send.js';
 import { retryHostJoinNotices } from './onboarding.js';
 import { issueMemberAccessLink } from './member-links.js';
 import { readRoundupNotes } from './roundups.js';
+import { runFieldNoteReminders } from './field-notes.js';
 
 const HALF_HOUR = 30 * 60;
 const DAY = 24 * 60 * 60;
@@ -78,7 +79,8 @@ export async function runClubMail(env, scheduledTime = Date.now()) {
   if (!env.MEMBERS) return { sent: 0 };
   const timestamp = Math.floor(Number(scheduledTime) / 1000);
   const joins = await retryHostJoinNotices(env, timestamp);
-  let sent = joins.sent;
+  const fieldNotes = await runFieldNoteReminders(env, timestamp);
+  let sent = joins.sent + fieldNotes.sent;
   for (const reminder of REMINDERS) {
     const salons = await env.MEMBERS.prepare(
       `SELECT * FROM salon
@@ -107,7 +109,7 @@ export async function runClubMail(env, scheduledTime = Date.now()) {
       sent += outcomes.filter(Boolean).length;
     }
   }
-  return { sent, hostJoinNotices: joins };
+  return { sent, hostJoinNotices: joins, fieldNoteReminders: fieldNotes };
 }
 
 export function reminderWindow(startsAt, kind, timestamp) {

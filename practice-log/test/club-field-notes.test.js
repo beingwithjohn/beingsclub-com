@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   inviteFieldNoteAttendees, parseFieldNote, parseHostFieldPost, parseImageData,
-  setFieldNotePostable, setHostFieldPostPostable,
+  runFieldNoteReminders, setFieldNotePostable, setHostFieldPostPostable,
 } from '../src/club/field-notes.js';
 
 test('a Field Note may contain words, a secure link, an image, or a combination', () => {
@@ -154,6 +154,62 @@ test('an attended Salon always sends its one Field Note invitation to an active 
     assert.doesNotMatch(allowedSql, /member_email_pref|field_note_email|email_quiet/);
     assert.equal(attendanceArgs[4], 2_000_010_000);
     assert.match(emailRequest.url, /api\.resend\.com/);
+    assert.match(JSON.parse(emailRequest.options.body).text, /next=field-notes/);
+  } finally {
+    globalThis.fetch = original;
+  }
+});
+
+test('an unanswered Field Note invitation gets one reminder after two days', async () => {
+  const original = globalThis.fetch;
+  const claims = new Set(); const requests = []; let eligibilitySql = ''; let cutoff;
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url, headers: options.headers, body: JSON.parse(options.body) });
+    return new Response(JSON.stringify({ id: 'field-note-reminder' }), { status: 200 });
+  };
+  const timestamp = 2_000_000_000;
+  const env = {
+    RESEND_API_KEY: 'test-key',
+    MAIL_FROM: 'Beings Club <practice@beingsclub.com>',
+    MEMBERS: {
+      prepare(sql) {
+        return {
+          args: [],
+          bind(...args) { this.args = args; return this; },
+          async all() {
+            if (/FROM salon_attendance a/.test(sql)) {
+              eligibilitySql = sql; [cutoff] = this.args;
+              return { results: [{
+                salon_id: 4, member_id: 2, prompted_at: timestamp - (3 * 86400),
+                starts_at: timestamp - (4 * 86400), email: 'mira@example.test',
+                display_name: 'Mira',
+              }] };
+            }
+            return { results: [] };
+          },
+          async run() {
+            if (/INSERT INTO club_send_log/.test(sql)) {
+              const key = `${this.args[0]}:${this.args[1]}`;
+              if (claims.has(key)) return { meta: { changes: 0 } };
+              claims.add(key); return { meta: { changes: 1 } };
+            }
+            return { meta: { changes: 1 } };
+          },
+        };
+      },
+    },
+  };
+  try {
+    assert.deepEqual(await runFieldNoteReminders(env, timestamp), { sent: 1 });
+    assert.deepEqual(await runFieldNoteReminders(env, timestamp + 1800), { sent: 0 });
+    assert.equal(cutoff, timestamp + 1800 - (2 * 86400));
+    assert.match(eligibilitySql, /a\.dismissed_at IS NULL/);
+    assert.match(eligibilitySql, /NOT EXISTS \(\s*SELECT 1 FROM field_note/);
+    assert.match(eligibilitySql, /m\.paused_at IS NULL/);
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].body.subject, 'A Field Note, if you’d like');
+    assert.match(requests[0].body.text, /next=field-notes/);
+    assert.equal(requests[0].headers['idempotency-key'], 'club-field-note-reminder-4-2');
   } finally {
     globalThis.fetch = original;
   }

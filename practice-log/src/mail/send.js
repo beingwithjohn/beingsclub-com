@@ -419,6 +419,35 @@ export async function sendFieldNoteInvitation(env, { email, name, salonStartsAt,
   return post(env, { to: email, from: club(env), subject, text, html });
 }
 
+/** One gentle follow-up when an attended Salon's Field Note invitation is still open. */
+export async function sendFieldNoteReminder(env, { email, name, actionUrl, idempotencyKey }) {
+  const greeting = name ? `Hello, ${escapeHtml(name)}.` : 'Hello, being.';
+  const subject = 'A Field Note, if you’d like';
+  const url = actionUrl || 'https://beingsclub.com/members/#field-notes';
+  const settingsUrl = 'https://beingsclub.com/members/#settings';
+  const privateLinkNote = actionUrl
+    ? 'This is a private link that logs you into your account, so please don’t share it.'
+    : '';
+  const invitation = 'If something from the Salon has stayed with you, the invitation to leave a Field Note is still open.';
+  const text = `${name ? `Hello, ${name}.` : 'Hello, being.'}\n\n${invitation}\n\nA thought, question, image or reference is enough. You can also dismiss the invitation inside Beings Club.\n\nLeave a Field Note:\n${url}${privateLinkNote ? `\n\n${privateLinkNote}` : ''}\n\n${CLUB_TEXT_FOOTER}`;
+  const html = clubEmailLayout({
+    title: subject,
+    preheader: 'The invitation to leave a Field Note is still open.',
+    heading: 'Something still <span style="color:#5A4B7C">with you</span>?',
+    body: `<p style="margin:0 0 16px">${greeting}</p><p style="margin:0 0 16px">${escapeHtml(invitation)}</p>`
+      + '<p style="margin:0">A thought, question, image or reference is enough. You can also dismiss the invitation inside Beings Club.</p>',
+    actionUrl: url,
+    actionLabel: 'leave a Field Note',
+    settingsUrl,
+    afterBody: privateLinkNote
+      ? `<tr><td style="padding:12px 48px 0 48px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#8A867D;mso-line-height-rule:exactly;line-height:18px;">${escapeHtml(privateLinkNote)}</td></tr>`
+      : '',
+  });
+  return post(env, {
+    to: email, from: club(env), subject, text, html, idempotencyKey,
+  });
+}
+
 /** The five member-controlled Salon emails: announcement, month, week, day and hour. */
 export async function sendClubSalonEmail(env, {
   email, name, salonStartsAt, hostNote, kind, actionUrl, fieldNotesUrl, roundupNotes = [],
