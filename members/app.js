@@ -956,13 +956,14 @@
     document.getElementById('field-note-cancel-edit').hidden = true;
     document.getElementById('field-note-dismiss').hidden = !fieldNotes.prompt;
     document.getElementById('composer-eyebrow').textContent = 'an invitation from the Salon';
-    document.getElementById('composer-title').textContent = 'What stayed with you?';
+    document.getElementById('composer-title').textContent = 'Share a field note.';
   }
 
   function beginEdit(note) {
     fieldNoteThanks = false;
     editingNote = note; chosenImageData = null; removeExistingImage = false;
     const composer = document.getElementById('field-note-composer'); composer.hidden = false;
+    document.getElementById('field-note-title').value = note.title || '';
     document.getElementById('field-note-body').value = note.body || '';
     document.getElementById('field-note-link').value = note.linkUrl || '';
     document.getElementById('field-note-alt').value = note.imageAlt || '';
@@ -981,10 +982,16 @@
   }
 
   function fieldNoteAuthor(note) {
-    if (note.isAnonymous) return makeText('span', 'field-note-anonymous', 'shared anonymously');
     const author = document.createElement('span'); author.className = 'field-note-author';
     const portrait = document.createElement('span'); portrait.className = 'field-note-author-portrait';
     const fallback = document.createElement('span');
+    if (note.isAnonymous) {
+      author.classList.add('field-note-author--anonymous');
+      applyAvatarFallback(fallback, 'anonymous');
+      portrait.append(fallback);
+      author.append(portrait, makeText('span', '', 'anonymous'));
+      return author;
+    }
     applyAvatarFallback(fallback, { id: note.authorId, name: note.author });
     const image = document.createElement('img'); image.hidden = true;
     image.alt = `${note.author || 'A being'}’s profile image`;
@@ -1044,6 +1051,7 @@
   }
 
   function renderFieldNotes() {
+    updateFieldNoteNavState();
     for (const url of imageObjectUrls) URL.revokeObjectURL(url);
     imageObjectUrls.clear();
     const archive = document.getElementById('field-note-archive'); archive.replaceChildren();
@@ -1678,6 +1686,7 @@
     givingState = memberGiving;
     directoryState = directory; settingsState = settings;
     updateMessageNavState();
+    updateFieldNoteNavState();
     await new Promise((resolve) => setTimeout(resolve, 500));
     if (!member.onboardingCompleted) showWelcome(Number.isInteger(options.welcomeStep) ? options.welcomeStep : 4);
     else if (Number.isInteger(options.welcomeStep)) showWelcome(options.welcomeStep);
@@ -1709,6 +1718,14 @@
       link.classList.toggle('has-unread', unreadCount > 0);
       const label = unreadCount ? `Messages, ${unreadCount} unread` : 'Messages';
       link.setAttribute('aria-label', label);
+    });
+  }
+
+  function updateFieldNoteNavState() {
+    const open = !!fieldNotes?.prompt;
+    document.querySelectorAll('[data-member-view="field-notes"]').forEach((link) => {
+      link.classList.toggle('has-invitation', open);
+      link.setAttribute('aria-label', open ? 'Field Notes, invitation waiting' : 'Field Notes');
     });
   }
 
@@ -2243,11 +2260,13 @@
     const statusNode = document.getElementById('field-note-status'); statusNode.textContent = '';
     const link = document.getElementById('field-note-link');
     if (link.value && !link.checkValidity()) { link.reportValidity(); return; }
+    const title = document.getElementById('field-note-title').value.trim();
     const body = document.getElementById('field-note-body').value.trim();
-    if (!body && !link.value.trim() && !chosenImageData && !(editingNote?.hasImage && !removeExistingImage)) {
-      statusNode.textContent = 'Add a thought, link or image first.'; return;
+    if (!title && !body && !link.value.trim() && !chosenImageData && !(editingNote?.hasImage && !removeExistingImage)) {
+      statusNode.textContent = 'Add a title, thought, link or image first.'; return;
     }
     const payload = {
+      title,
       body,
       linkUrl: link.value,
       imageData: chosenImageData,
@@ -2641,7 +2660,24 @@
     fieldNoteThanks = false;
     document.getElementById('field-note-thanks').hidden = true;
   });
-  document.getElementById('field-note-dismiss').addEventListener('click', dismissInvitation);
+  document.getElementById('field-note-dismiss').addEventListener('click', () => {
+    const dialog = document.getElementById('field-note-dismiss-dialog');
+    dialog.hidden = false;
+    document.getElementById('field-note-dismiss-cancel').focus();
+  });
+  document.getElementById('field-note-dismiss-cancel').addEventListener('click', () => {
+    document.getElementById('field-note-dismiss-dialog').hidden = true;
+  });
+  document.getElementById('field-note-dismiss-confirm').addEventListener('click', async () => {
+    document.getElementById('field-note-dismiss-dialog').hidden = true;
+    await dismissInvitation();
+  });
+  document.getElementById('field-note-dismiss-dialog').addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) event.currentTarget.hidden = true;
+  });
+  document.getElementById('field-note-dismiss-dialog').addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') event.currentTarget.hidden = true;
+  });
   document.getElementById('field-note-cancel-edit').addEventListener('click', () => {
     editingNote = null; renderFieldNotes();
   });

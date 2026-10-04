@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/members/app.css?v=20260903-a11y">
+  <link rel="stylesheet" href="/members/app.css?v=20261003-field-notes-2">
 </head>
 <body class="app-body">
   <main class="login-page" id="login-page">
@@ -556,17 +556,17 @@
           <p>Thoughts, questions, images and references from people who join the Salons. Field Notes are not a conversation. There are no responses, reactions or comments.</p>
         </header>
 
-        <section class="host-field-posts" id="host-field-posts" hidden>
-          <div class="host-field-post-list" id="host-field-post-list"></div>
-        </section>
-
         <section class="field-note-composer" id="field-note-composer" hidden>
           <div class="composer-intro">
             <span class="eyebrow" id="composer-eyebrow">an invitation from the Salon</span>
-            <h2 id="composer-title">What stayed with you?</h2>
-            <p id="composer-invitation">You’re invited to share something of what you discovered at this month’s Salon: a thought, question, image, reference or anything else that stayed with you. Please respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share.</p>
+            <h2 id="composer-title">Share a field note.</h2>
+            <p id="composer-invitation">You’re invited to share something of what you discovered at this month’s Salon. Please respect the privacy and confidentiality of your conversations. Members who were not at the Salon will also be able to see what you share.</p>
           </div>
           <form class="field-note-form" id="field-note-form" novalidate>
+            <label class="field-note-title-label">
+              <span>title · optional</span>
+              <input id="field-note-title" type="text" maxlength="120" placeholder="A title for your Field Note">
+            </label>
             <textarea id="field-note-body" maxlength="5000" placeholder="A thought, question, reference, or anything else..."></textarea>
             <label class="field-note-link-label">
               <span>link · optional</span>
@@ -588,7 +588,7 @@
               <label><input type="radio" name="field-note-attribution" value="signed" checked> with my name</label>
               <label><input type="radio" name="field-note-attribution" value="anonymous"> anonymously</label>
             </fieldset>
-            <p class="field-note-notice">Your Field Note will appear immediately. If you share anonymously, other members won’t see your name. We can still identify the author and remove a note when needed to protect privacy, confidentiality or the space. Nobody can respond.</p>
+            <p class="field-note-notice">Your Field Note will appear immediately. We can still identify the author and remove a note when needed.</p>
             <div class="field-note-form-actions">
               <button class="primary" id="field-note-share" type="submit">share field note</button>
               <button class="text-button" id="field-note-cancel-edit" type="button" hidden>cancel editing</button>
@@ -596,6 +596,22 @@
             </div>
             <span class="status" id="field-note-status" role="status" aria-live="polite"></span>
           </form>
+        </section>
+
+        <div class="field-note-dismiss-dialog" id="field-note-dismiss-dialog" role="dialog" aria-modal="true" aria-labelledby="field-note-dismiss-title" hidden>
+          <div class="field-note-dismiss-card">
+            <span class="eyebrow">field notes</span>
+            <h2 id="field-note-dismiss-title">Dismiss this invitation?</h2>
+            <p>You won’t be able to come back and share a Field Note for this month’s Salon.</p>
+            <div class="field-note-dismiss-actions">
+              <button class="secondary" id="field-note-dismiss-cancel" type="button">keep invitation</button>
+              <button class="primary" id="field-note-dismiss-confirm" type="button">dismiss invitation</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="host-field-posts" id="host-field-posts" hidden>
+          <div class="host-field-post-list" id="host-field-post-list"></div>
         </section>
 
         <section class="field-note-thanks" id="field-note-thanks" role="status" aria-live="polite" hidden>
@@ -887,6 +903,6 @@
       </div>
     </form>
   </dialog>
-  <script src="/members/app.js?v=20260903-a11y" defer></script>
+  <script src="/members/app.js?v=20261003-field-notes-2" defer></script>
 </body>
 </html>

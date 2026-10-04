@@ -553,10 +553,19 @@ ok("next Salon time explicitly switches between local and UK time",
 ok("Field Notes are grouped by Salon and cannot become a response feed",
    'id="field-note-archive"' in login_html and 'id="field-note-composer"' in login_html and
    'data-member-view="field-notes"' in login_html and
+   login_html.index('id="field-note-composer"') < login_html.index('id="host-field-posts"') and
+   'background:#FBE7D7' in members_after.get("members/app.css", "") and
    'There are no responses, reactions or comments' in login_html and
-   'Nobody can respond.' in login_html)
+   'Your Field Note will appear immediately. We can still identify the author and remove a note when needed.' in login_html and
+   'id="field-note-dismiss-dialog"' in login_html and
+   'You won’t be able to come back and share a Field Note for this month’s Salon.' in login_html and
+   "dialog.hidden = false" in members_after.get("members/app.js", ""))
 ok("Field Notes show signed profile portraits and collect private postable marks",
    'field-note-author-portrait' in members_after.get("members/app.css", "") and
+   '.field-note-card-foot{align-self:end;width:100%;margin-top:auto' in members_after.get("members/app.css", "") and
+   'background:#FCFBF8' in members_after.get("members/app.css", "") and
+   'field-note-author--anonymous' in members_after.get("members/app.js", "") and
+   'id="field-note-title"' in login_html and
    "fieldNoteAuthor(note)" in members_after.get("members/app.js", "") and
    "'postable?'" in members_after.get("members/app.js", "") and
    'If enough beings deem a Field Note postable, we may post it to Instagram or X.' in members_after.get("members/app.js", "") and

@@ -113,11 +113,11 @@ export async function createFieldNote(env, who, body, timestamp = now()) {
   try {
     const result = await env.MEMBERS.prepare(
       `INSERT INTO field_note
-        (salon_id, member_id, body, link_url, image_key, image_type, image_alt,
+        (salon_id, member_id, title, body, link_url, image_key, image_type, image_alt,
          is_anonymous, published_at, created_at, updated_at)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?9, ?9)`,
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?10, ?10)`,
     ).bind(
-      salonId, id, parsed.body, parsed.linkUrl, image?.key || null,
+      salonId, id, parsed.title, parsed.body, parsed.linkUrl, image?.key || null,
       image?.type || null, parsed.imageAlt, parsed.isAnonymous ? 1 : 0, timestamp,
     ).run();
     return json({ ok: true, id: result.meta?.last_row_id }, 201);
@@ -145,12 +145,12 @@ export async function updateFieldNote(env, who, noteId, body, timestamp = now())
   const imageType = replacement?.type || (body?.removeImage === true ? null : existing.image_type);
   try {
     await env.MEMBERS.prepare(
-      `UPDATE field_note SET body = ?1, link_url = ?2, image_key = ?3,
-         image_type = ?4, image_alt = ?5, is_anonymous = ?6,
-         edited_at = ?7, updated_at = ?7
-       WHERE id = ?8 AND member_id = ?9`,
+      `UPDATE field_note SET title = ?1, body = ?2, link_url = ?3, image_key = ?4,
+         image_type = ?5, image_alt = ?6, is_anonymous = ?7,
+         edited_at = ?8, updated_at = ?8
+       WHERE id = ?9 AND member_id = ?10`,
     ).bind(
-      parsed.body, parsed.linkUrl, imageKey, imageType, parsed.imageAlt,
+      parsed.title, parsed.body, parsed.linkUrl, imageKey, imageType, parsed.imageAlt,
       parsed.isAnonymous ? 1 : 0, timestamp, noteId, id,
     ).run();
   } catch (error) {
@@ -416,6 +416,8 @@ export async function hostRemoveFieldNote(env, noteId) {
 }
 
 export function parseFieldNote(body, options = {}) {
+  const title = String(body?.title ?? '').trim();
+  if (title.length > TITLE_MAX) return { ok: false, error: 'title too long' };
   const text = String(body?.body ?? '').trim();
   if (text.length > BODY_MAX) return { ok: false, error: 'note too long' };
   const linkUrl = cleanUrl(body?.linkUrl);
@@ -424,9 +426,10 @@ export function parseFieldNote(body, options = {}) {
   if (body?.imageData && !image) return { ok: false, error: 'image' };
   const imageAlt = String(body?.imageAlt ?? '').trim();
   if (imageAlt.length > ALT_MAX) return { ok: false, error: 'image description too long' };
-  if (!text && !linkUrl && !image && !options.hasImage) return { ok: false, error: 'add something' };
+  if (!title && !text && !linkUrl && !image && !options.hasImage) return { ok: false, error: 'add something' };
   return {
     ok: true,
+    title: title || null,
     body: text || null,
     linkUrl,
     image,
@@ -526,6 +529,7 @@ function groupNotes(notes, viewerId, host) {
     const hideIdentity = anonymous && !host;
     group.notes.push({
       id: row.id,
+      title: row.title,
       body: row.body,
       linkUrl: row.link_url,
       hasImage: !!row.image_key,

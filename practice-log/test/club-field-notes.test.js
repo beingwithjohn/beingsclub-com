@@ -8,6 +8,7 @@ import {
 test('a Field Note may contain words, a secure link, an image, or a combination', () => {
   assert.deepEqual(parseFieldNote({ body: '  A question stayed with me.  ', isAnonymous: true }), {
     ok: true,
+    title: null,
     body: 'A question stayed with me.',
     linkUrl: null,
     image: null,
@@ -17,6 +18,8 @@ test('a Field Note may contain words, a secure link, an image, or a combination'
   assert.equal(parseFieldNote({}).error, 'add something');
   assert.equal(parseFieldNote({ linkUrl: 'http://example.com' }).error, 'link');
   assert.equal(parseFieldNote({ linkUrl: 'https://example.com/a' }).linkUrl, 'https://example.com/a');
+  assert.equal(parseFieldNote({ title: '  A small opening  ' }).title, 'A small opening');
+  assert.equal(parseFieldNote({ title: 'x'.repeat(121) }).error, 'title too long');
   assert.equal(parseFieldNote({}, { hasImage: true }).ok, true);
 });
 
@@ -33,6 +36,7 @@ test('host posts distinguish announcements from signed host Field Notes', () => 
     kind: 'announcement', title: '  A small change  ', body: '  We gather here.  ',
   }), {
     ok: true,
+    title: 'A small change',
     body: 'We gather here.',
     linkUrl: null,
     image: null,
