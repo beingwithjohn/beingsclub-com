@@ -47,3 +47,14 @@ test('several origins can be configured at once', () => {
   assert.ok(originAllowed(both, 'http://localhost:4173'));
   assert.ok(!originAllowed(both, 'https://evil.com'));
 });
+
+test('the protected redesign preview can use member authentication without widening subdomains', () => {
+  const configured = [
+    'https://beingsclub.com',
+    'https://spacetobe.xyz',
+    'https://beings-club-redesign.pages.dev',
+  ];
+  assert.ok(originAllowed(configured, 'https://beings-club-redesign.pages.dev'));
+  assert.ok(!originAllowed(configured, 'https://6c3526fa.beings-club-redesign.pages.dev'));
+  assert.ok(!originAllowed(configured, 'https://beings-club-redesign.pages.dev.evil.com'));
+});
