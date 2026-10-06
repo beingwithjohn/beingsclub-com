@@ -183,7 +183,7 @@ def audit(html, label):
            'data-home-curiosity-definition="1"' in html and
            "At Beings Club, curiosity means an orientation to experience that is open to discovery." in html and
            'data-home-salon-shape="1"' in html and
-           "We begin with a practice, intended to create shared ground. Afterwards, we meet in paired and three-person conversations to discover what matters and realise what is possible." in html)
+           "We begin with a curiosity-first approach to meditation practice, intended to create shared ground. Afterwards, we meet in paired and three-person conversations to discover what matters and realise what is possible." in html)
     ok(label + ": content navigation keeps the whole map visible",
        html.count('class="bc-nav-link"') == 20 and
        all(('href="%s"' % route) in html for route in ['/about/', '/salons/', '/sits/', '/join/']))
@@ -1044,7 +1044,7 @@ home_public = io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
 about_public = io.open(os.path.join(ROOT, ABOUT_PAGE), encoding="utf-8").read()
 ok("public pages keep the complete practice-and-conversation framing",
    'Beings Club brings curious people into spontaneously unfolding conversations and a shared practice space.' in home_public and
-   'We begin with a practice, intended to create shared ground.' in home_public and
+   'We begin with a curiosity-first approach to meditation practice, intended to create shared ground.' in home_public and
    'A Salon begins with around twenty minutes of guided curiosity practice before we meet in pairs and threes.' in about_public and
    'There is no set topic to prepare for or position to defend.' in about_public)
 

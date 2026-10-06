@@ -186,9 +186,9 @@ def convert(body, key):
         definition = re.search(r'<p data-home-curiosity-definition="1"[^>]*>.*?</p>', body)
         assert definition, 'Home curiosity definition not found'
         salon_shape = ('<p data-home-salon-shape="1" style="margin:0;font-size:16px;line-height:1.7;'
-                       'color:#75726A;max-width:76ch;">We begin with a practice, intended to create shared '
-                       'ground. Afterwards, we meet in paired and three-person conversations to discover '
-                       'what matters and realise what is possible.</p>')
+                       'color:#75726A;max-width:76ch;">We begin with a curiosity-first approach to meditation '
+                       'practice, intended to create shared ground. Afterwards, we meet in paired and '
+                       'three-person conversations to discover what matters and realise what is possible.</p>')
         body = body.replace(definition.group(0), definition.group(0) + salon_shape +
                             '<a href="/about/" style="width:max-content;font-size:13px;line-height:1.6;color:#5A4B7C;text-decoration:underline;text-underline-offset:4px;">More about Beings Club ↗</a>', 1)
         body = body.replace('<span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>',
