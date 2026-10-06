@@ -15,9 +15,9 @@ ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ORIGIN = "https://beingsclub.com"
 PAGES = ["index.html"]
 EVENT_PAGE = "events/index.html"
+ABOUT_PAGE = "about/index.html"
 REDIRECT_PAGES = {
-    "about/index.html": "https://beingsclub.com/#about",
-    "salons/index.html": "https://beingsclub.com/#salon",
+    "salons/index.html": "https://beingsclub.com/about/#what",
     "join/index.html": "https://beingsclub.com/#membership",
     "sits/index.html": "https://spacetobe.xyz/beyond-belief/",
     "beyondbelief/index.html": "https://spacetobe.xyz/beyond-belief/",
@@ -27,8 +27,8 @@ REDIRECT_PAGES = {
     "log/index.html": "https://spacetobe.xyz/log/",
     "log/host/index.html": "https://spacetobe.xyz/log/host/",
 }
-GENERATED_PAGES = PAGES + [EVENT_PAGE] + list(REDIRECT_PAGES)
-ROUTES = ["/", "/events/"]
+GENERATED_PAGES = PAGES + [EVENT_PAGE, ABOUT_PAGE] + list(REDIRECT_PAGES)
+ROUTES = ["/", "/events/", "/about/"]
 
 fails, checks = [], 0
 
@@ -147,7 +147,9 @@ def audit(html, label):
            'data-login-panel="1"' not in home and
            'type="password"' not in home)
         ok(label + ": public threshold does not expose the old programme map",
-           all(('href="%s"' % route) not in home for route in ('/about/', '/salons/', '/sits/')))
+           all(('href="%s"' % route) not in home for route in ('/salons/', '/sits/')))
+        ok(label + ": public About is discoverable and bypasses the historical shell layer",
+           'href="/about/"' in home and '"/about/": "about"' not in js)
         ok(label + ": John is present in his own words before the closing invitation",
            'id="john" class="bc-john-letter"' in home and
            'src="/assets/img/john-letter.jpeg"' in home and
@@ -179,7 +181,9 @@ def audit(html, label):
     if label == "index.html":
         ok(label + ": public introduction defines curiosity",
            'data-home-curiosity-definition="1"' in html and
-           "Beings Club defines curiosity as an orientation to experience that is open to discovery." in html)
+           "At Beings Club, curiosity means an orientation to experience that is open to discovery." in html and
+           'data-home-salon-shape="1"' in html and
+           "We begin with a practice, intended to create shared ground. Afterwards, we meet in paired and three-person conversations to discover what matters and realise what is possible." in html)
     ok(label + ": content navigation keeps the whole map visible",
        html.count('class="bc-nav-link"') == 20 and
        all(('href="%s"' % route) in html for route in ['/about/', '/salons/', '/sits/', '/join/']))
@@ -259,6 +263,25 @@ ok("public pages share a restrained reduced-motion-safe transition language",
    'transform:translateY(8px) scale(.997)' in after.get("index.html", "") and
    '.bc-layer,#bc-intro{transition:none!important;}' in after.get("index.html", ""))
 events_html = after.get(EVENT_PAGE, "")
+about_html = after.get(ABOUT_PAGE, "")
+ok("About is a canonical reading page rather than a compatibility redirect",
+   '<link rel="canonical" href="https://beingsclub.com/about/">' in about_html and
+   'content="index,follow' in about_html and
+   'http-equiv="refresh"' not in about_html and 'location.replace(' not in about_html and
+   'class="bc-layer"' not in about_html)
+ok("About exposes its facts and questions without JavaScript",
+   about_html.count('<h1>') == 1 and '<table class="about-facts">' in about_html and
+   '<th scope="row">' in about_html and
+   '<h2 id="faq-title">Frequently asked questions</h2>' in about_html and
+   'What Beings Club does' in about_html and 'What makes Beings Club different' in about_html)
+try:
+    about_data = json.loads(re.search(r'(?s)<script type="application/ld\+json">(.*?)</script>', about_html).group(1))
+except (ValueError, AttributeError):
+    about_data = {}
+ok("About structured data references the existing club and approved John identity",
+   about_data.get('@type') == 'AboutPage' and
+   about_data.get('mainEntity', {}).get('@id') == ORIGIN + '/#organization' and
+   {'@id': ORIGIN + '/#john'} in about_data.get('about', []) and 'John Ooi' not in about_html)
 ok("public events page wraps the live Coliven list in Beings Club chrome",
    '<link rel="canonical" href="https://beingsclub.com/events/">' in events_html and
    '<h1>Public <strong>events</strong>.</h1>' in events_html and
@@ -1017,11 +1040,13 @@ ok("the member agreement gates every private surface server-side",
    club_router.index("path === '/api/club/agreement'") <
    club_router.index("if (!agreementAccepted(who))") <
    club_router.index("path === '/api/club/salon'"))
-ok("public Salons use the complete practice-and-conversation framing",
-   'We begin with a guided curiosity practice' in
-   io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read() and
-   'a space for practice and conversation' in
-   io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read())
+home_public = io.open(os.path.join(ROOT, "index.html"), encoding="utf-8").read()
+about_public = io.open(os.path.join(ROOT, ABOUT_PAGE), encoding="utf-8").read()
+ok("public pages keep the complete practice-and-conversation framing",
+   'Beings Club brings curious people into spontaneously unfolding conversations and a shared practice space.' in home_public and
+   'We begin with a practice, intended to create shared ground.' in home_public and
+   'A Salon begins with around twenty minutes of guided curiosity practice before we meet in pairs and threes.' in about_public and
+   'There is no set topic to prepare for or position to defend.' in about_public)
 
 robots_path = os.path.join(ROOT, "robots.txt")
 sitemap_path = os.path.join(ROOT, "sitemap.xml")
@@ -1129,7 +1154,7 @@ if "--live" in sys.argv:
         with urllib.request.urlopen(ORIGIN + route) as resp:
             return resp.status, resp.read().decode("utf-8", "replace")
 
-    for route, local in [("/", "index.html"), ("/events/", EVENT_PAGE),
+    for route, local in [("/", "index.html"), ("/events/", EVENT_PAGE), ("/about/", ABOUT_PAGE),
                                                     ("/members/", "members/index.html"),
                                                     ("/members/host/", "members/host/index.html"),
                                                     ("/practice-map/", "practice-map/index.html"),

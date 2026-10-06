@@ -40,8 +40,7 @@ JOHN_ID = ORIGIN + "/#john"
 # addresses useful for bookmarks and search results, but consolidate Beings
 # Club context into the landing and move meditation teaching to Space to Be.
 REDIRECTS = {
-    "/about/": (ORIGIN + "/#about", "Beings Club"),
-    "/salons/": (ORIGIN + "/#salon", "Beings Club Salons"),
+    "/salons/": (ORIGIN + "/about/#what", "Beings Club Salons"),
     "/join/": (ORIGIN + "/#membership", "Become a Beings Club member"),
     "/sits/": ("https://spacetobe.xyz/beyond-belief/", "Beyond Belief · Space to Be"),
     "/beyondbelief/": ("https://spacetobe.xyz/beyond-belief/", "Beyond Belief · Space to Be"),
@@ -103,8 +102,12 @@ def convert(body, key):
         # meditation plainly because teaching it is the substance of those offers.
         for old, new, what in [
             ('Beings Club is where curiosity connects — a space for meditation and conversation.',
-             'Beings Club is where curiosity connects — a space for practice and conversation.',
+             'Beings Club brings curious people into spontaneously unfolding conversations and a shared '
+             'practice space.',
              'club description'),
+            ('Beings Club defines curiosity as an orientation to experience that is open to discovery.',
+             'At Beings Club, curiosity means an orientation to experience that is open to discovery.',
+             'curiosity definition'),
             ('Our monthly online meeting is called a Salon and it starts with meditation.',
              'Our monthly online gathering is called a Salon. We begin with a guided curiosity practice, '
              'then meet one-to-one and in groups of three. There are no prescribed conversation topics. '
@@ -179,9 +182,31 @@ def convert(body, key):
         # single landing page without recreating a public programme map.
         body = body.replace('<span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</span>',
                             '<h2 id="about" style="margin:0;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">What is Beings Club?</h2>', 1)
+        # The public About is a standalone reading page, not the retired shell layer.
+        definition = re.search(r'<p data-home-curiosity-definition="1"[^>]*>.*?</p>', body)
+        assert definition, 'Home curiosity definition not found'
+        salon_shape = ('<p data-home-salon-shape="1" style="margin:0;font-size:16px;line-height:1.7;'
+                       'color:#75726A;max-width:76ch;">We begin with a practice, intended to create shared '
+                       'ground. Afterwards, we meet in paired and three-person conversations to discover '
+                       'what matters and realise what is possible.</p>')
+        body = body.replace(definition.group(0), definition.group(0) + salon_shape +
+                            '<a href="/about/" style="width:max-content;font-size:13px;line-height:1.6;color:#5A4B7C;text-decoration:underline;text-underline-offset:4px;">More about Beings Club ↗</a>', 1)
         body = body.replace('<span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>',
                             '<span id="salon" style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>', 1)
-        body = body.replace('<div style="display:grid;gap:24px;">\n        <span style="font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>',
+        # The standalone About page now holds the full Salon explanation. Keep
+        # the public landing to its concise definition, FAQs and John's note.
+        about_start = ('<div style="display:grid;gap:18px;">\n'
+                       '        <span id="salon" style="font-size:12px;font-weight:700;letter-spacing:.22em;'
+                       'text-transform:uppercase;color:#5A4B7C;">About Beings Club</span>')
+        faq_start = ('<div style="display:grid;gap:24px;">\n'
+                     '        <span style="font-size:12px;font-weight:700;letter-spacing:.22em;'
+                     'text-transform:uppercase;color:#5A4B7C;">frequently asked questions</span>')
+        assert body.count(about_start) == 1, 'Home About section start not found once'
+        assert body.count(faq_start) == 1, 'Home FAQ section start not found once'
+        body, removed = re.subn(re.escape(about_start) + r'.*?(?=' + re.escape(faq_start) + r')',
+                                '', body, count=1, flags=re.S)
+        assert removed == 1, 'Home About section was not removed'
+        body = body.replace(faq_start,
                             '<div id="membership" style="display:grid;gap:24px;">\n        <h2 style="margin:0;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#5A4B7C;">frequently asked questions</h2>', 1)
 
         # A personal letter lets the public threshold feel held by a real
@@ -1445,7 +1470,8 @@ JS = r"""
 
 
 
-ROUTES = {slug: key for key, _, slug, _, _ in SCREENS}
+# Let /about/ navigate normally so the historical inlined About cannot open.
+ROUTES = {slug: key for key, _, slug, _, _ in SCREENS if key != 'about'}
 TITLES = {key: {"t": t, "d": d} for key, _, _, t, d in SCREENS}
 JS = JS.replace('%ROUTES%', json.dumps(ROUTES)).replace('%TITLES%', json.dumps(TITLES))
 
@@ -1752,7 +1778,8 @@ written = []
 for key, _, slug, title, desc in SCREENS:
     out = os.path.join(SITE, 'index.html' if slug == '/' else slug.strip('/') + '/index.html')
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    html = page(key, slug, title, desc)
+    html = (io.open(os.path.join(SRC, 'About.public.html'), encoding='utf-8').read()
+            if key == 'about' else page(key, slug, title, desc))
     io.open(out, 'w', encoding='utf-8').write(html)
     written.append((slug, out, len(html)))
 

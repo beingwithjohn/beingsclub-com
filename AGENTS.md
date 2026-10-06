@@ -4,9 +4,9 @@ Read this before changing anything. Most of it is here because something broke.
 
 ## The one rule
 
-**The public landing, public events page and retired route files are generated. Never hand-edit them.**
+**The public landing, About page, public events page and retired route files are generated. Never hand-edit them.**
 
-`index.html` is the public landing and `events/` is the public Coliven-backed events page. The retired `about/`, `salons/`, `join/`,
+`index.html` is the public landing and `events/` is the public Coliven-backed events page. `about/` is generated from `build/src/About.public.html`, a standalone reading page. The retired `salons/`, `join/`,
 `sits/`, `beyondbelief/`, `practice-map/` and `log/` addresses are move pages produced
 by `build/build_shell.py`; the meditation routes point to Space to Be. The old
 design sources remain vendored in `build/src/*.dc.html` so the landing can
@@ -29,7 +29,8 @@ exists" below.
 |---|---|---|
 | `index.html` | **yes** | members-first public landing |
 | `events/` | **yes** | bespoke public events page containing the Coliven list |
-| `about/`, `salons/`, `sits/`, `beyondbelief/`, `join/`, `practice-map/`, `log/` | **yes** | retired addresses with noindex move pages |
+| `about/` | **yes** | standalone public About page from `build/src/About.public.html` |
+| `salons/`, `sits/`, `beyondbelief/`, `join/`, `practice-map/`, `log/` | **yes** | retired addresses with noindex move pages |
 | `404.html` | no | hand-maintained utility with the simplified public map |
 | `giving/` | no | hand-maintained public giving page; payment API lives in `practice-log/` |
 | `beyondbelief/companion/`, `.../print/` | **yes** | move pages to the Space to Be companion |
@@ -44,7 +45,9 @@ Hosting is GitHub Pages from `main` on `beingwithjohn/beingsclub-com`, CNAME
 
 The historical six screens remain inlined into `index.html` as `.bc-layer` divs so the landing
 retains its complete source material and design history. Only the home layer is active and the
-others are `data-nosnippet`. Old paths are generated move pages, not alternative public maps.
+others are `data-nosnippet`. Old programme paths are generated move pages, not alternative public maps.
+The public `/about/` is excluded from the shell's client router so a link to it loads the
+standalone page, never the historical About layer. Keep that distinction when editing navigation.
 
 Consequences worth knowing:
 - A change to any screen lands in **all six files**. That is why you regenerate rather than edit.
@@ -130,6 +133,7 @@ shipping stale text. **Add new copy decisions the same way — never by editing 
 - John is identified publicly as `John`, matching the visible membership copy. Do not add a surname
   or external identity links to `Person` structured data without John's explicit approval.
 - The landing owns the public `WebSite`, `Organization`, `Person` and `WebPage` graph.
+  The standalone About page references those existing entity IDs with `AboutPage` data.
   Beyond Belief's `Course` data now lives at Space to Be.
 - `sitemap.xml` lists public canonical pages, not noindex member utilities or compatibility
   redirects. Give each listed URL an honest `lastmod` only after a significant change.
